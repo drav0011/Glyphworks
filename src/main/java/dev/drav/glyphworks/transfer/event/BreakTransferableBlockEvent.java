@@ -17,11 +17,8 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.graph.GraphCache;
 
 import javax.annotation.Nonnull;
-import java.util.logging.Logger;
 
 public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, BreakBlockEvent> {
-
-    private static final Logger LOGGER = Logger.getLogger(BreakTransferableBlockEvent.class.getName());
 
     public BreakTransferableBlockEvent() {
         super(BreakBlockEvent.class);

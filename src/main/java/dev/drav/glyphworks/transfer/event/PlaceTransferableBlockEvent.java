@@ -17,11 +17,8 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.graph.GraphCache;
 
 import javax.annotation.Nonnull;
-import java.util.logging.Logger;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
-
-    private static final Logger LOGGER = Logger.getLogger(PlaceTransferableBlockEvent.class.getName());
 
     public PlaceTransferableBlockEvent() {
         super(PlaceBlockEvent.class);
@@ -60,7 +57,7 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
                 return;
             }
 
-            GraphCache.get().addNode(transfer.getNodeId(), blockRef);
+            GraphCache.get().addNode(transfer.getNodeId(), blockRef, pos);
         });
     }
 

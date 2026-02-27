@@ -10,6 +10,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -112,21 +114,23 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     private boolean autoPull;
 
+    /**
+     * Map of configured face regions for this block, keyed by face coordinates.
+     * Key = FaceKey(planeMin, planeMax) for fast O(1) collision lookups.
+     * Empty map means no faces configured (uses defaultFaceMode for all connections).
+     */
+    private Map<FaceKey, FacePlane> faces;
+
+    /**
+     * Default connection mode for faces not explicitly configured.
+     * Used when faces map is empty or a touching area isn't covered by any face.
+     */
+    private FaceMode defaultFaceMode;
+
     // ------------------------------------------------------------------
     // Runtime-only fields (not persisted)
     // ------------------------------------------------------------------
 
-    /**
-     * Hytale {@link ItemContainer} where incoming items are deposited.
-     * Wired at runtime by the owning block — not serialised.
-     */
-    private transient ItemContainer inputInventory;
-
-    /**
-     * Hytale {@link ItemContainer} from which outgoing items are sourced.
-     * Wired at runtime by the owning block — not serialised.
-     */
-    private transient ItemContainer outputInventory;
 
     /**
      * Dirty flag raised whenever the graph should re-evaluate this node
@@ -141,10 +145,12 @@ public class TransferComponent implements Component<ChunkStore> {
 
     /**
      * No-arg constructor required by {@link #CODEC}.
-     * Defaults to bidirectional storage.
+     * Defaults to bidirectional container with no specific face config.
      */
     public TransferComponent() {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE, true, true);
+        this.faces = new HashMap<>();
+        this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
     }
 
     /**
@@ -165,6 +171,8 @@ public class TransferComponent implements Component<ChunkStore> {
         this.maxInputRate = maxInputRate;
         this.autoPush = autoPush;
         this.autoPull = autoPull;
+        this.faces = new HashMap<>();
+        this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
     }
 
     /**
@@ -176,6 +184,8 @@ public class TransferComponent implements Component<ChunkStore> {
         this.maxInputRate = other.maxInputRate;
         this.autoPush = other.autoPush;
         this.autoPull = other.autoPull;
+        this.faces = new HashMap<>(other.faces);
+        this.defaultFaceMode = other.defaultFaceMode;
         // inventory references are not copied — must be re-injected at runtime
     }
 
@@ -186,89 +196,60 @@ public class TransferComponent implements Component<ChunkStore> {
     }
 
     // ------------------------------------------------------------------
-    // Transfer operations (called by TransferSystem)
+    // Inventory Wiring (per-face)
     // ------------------------------------------------------------------
 
     /**
-     * Returns {@code true} if this node can currently send items.
-     * Requires {@code maxOutputRate > 0} and an output inventory to be wired.
-     */
-    public boolean canSend() {
-        return maxOutputRate > 0 && outputInventory != null;
-    }
-
-    /**
-     * Returns {@code true} if this node can currently receive items.
-     * Requires {@code maxInputRate > 0} and an input inventory to be wired.
-     */
-    public boolean canReceive() {
-        return maxInputRate > 0 && inputInventory != null;
-    }
-
-    /**
-     * Pushes items from this node's {@code outputInventory} into
-     * {@code destination}.
-     * The number of stacks moved is capped by {@link #maxOutputRate}.
+     * Sets the inventory for a specific face.
+     * Wires the inventory based on the face's mode.
      *
-     * <p>
-     * Called by {@link dev.drav.glyphworks.transfer.system.TransferSystem} when
-     * this node is acting as a source.
-     *
-     * @param destination the sink's input {@link ItemContainer}
+     * @param faceKey The face coordinates key (planeMin, planeMax)
+     * @param inventory The ItemContainer to wire to this face
      */
-    public void push(ItemContainer destination) {
-        if (!canSend() || destination == null)
+    public void setFaceInventory(FaceKey faceKey, ItemContainer inventory) {
+        FacePlane face = faces.get(faceKey);
+        if (face == null) {
             return;
-        short cap = (short) Math.min(outputInventory.getCapacity(), maxOutputRate);
-        for (short slot = 0; slot < cap; slot++) {
-            outputInventory.moveItemStackFromSlot(slot, destination);
+        }
+
+        // Wire based on face mode
+        switch (face.getMode()) {
+            case INPUT:
+                face.setInputInventory(inventory);
+                break;
+            case OUTPUT:
+                face.setOutputInventory(inventory);
+                break;
+            case BIDIRECTIONAL:
+                face.setInventory(inventory); // Both input and output
+                break;
+            case CLOSED:
+                // Don't wire anything
+                break;
         }
     }
 
     /**
-     * Pulls items from {@code source} into this node's {@code inputInventory}.
-     * The number of stacks moved is capped by {@link #maxInputRate}.
-     *
-     * <p>
-     * Called by {@link dev.drav.glyphworks.transfer.system.TransferSystem} when
-     * this node is acting as a sink.
-     *
-     * @param source the source's output {@link ItemContainer}
+     * Convenience method to set the same inventory for all faces.
+     * Useful for simple blocks with a single inventory.
      */
-    public void pull(ItemContainer source) {
-        if (!canReceive() || source == null)
-            return;
-        short cap = (short) Math.min(source.getCapacity(), maxInputRate);
-        for (short slot = 0; slot < cap; slot++) {
-            source.moveItemStackFromSlot(slot, inputInventory);
+    public void setInventoryForAllFaces(ItemContainer inventory) {
+        for (FacePlane face : faces.values()) {
+            switch (face.getMode()) {
+                case INPUT:
+                    face.setInputInventory(inventory);
+                    break;
+                case OUTPUT:
+                    face.setOutputInventory(inventory);
+                    break;
+                case BIDIRECTIONAL:
+                    face.setInventory(inventory);
+                    break;
+                case CLOSED:
+                    // Don't wire anything
+                    break;
+            }
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Inventory wiring (called by the owning block at setup time)
-    // ------------------------------------------------------------------
-
-    /**
-     * Sets both input and output to the same container — useful for simple
-     * storage or pass-through blocks (e.g. a chest).
-     */
-    public void setInventory(ItemContainer inventory) {
-        this.inputInventory = inventory;
-        this.outputInventory = inventory;
-    }
-
-    /**
-     * Sets the {@link ItemContainer} where incoming items are deposited.
-     */
-    public void setInputInventory(ItemContainer inputInventory) {
-        this.inputInventory = inputInventory;
-    }
-
-    /**
-     * Sets the {@link ItemContainer} from which outgoing items are sourced.
-     */
-    public void setOutputInventory(ItemContainer outputInventory) {
-        this.outputInventory = outputInventory;
     }
 
     // ------------------------------------------------------------------
@@ -295,13 +276,6 @@ public class TransferComponent implements Component<ChunkStore> {
         return autoPull;
     }
 
-    public ItemContainer getInputInventory() {
-        return inputInventory;
-    }
-
-    public ItemContainer getOutputInventory() {
-        return outputInventory;
-    }
 
     public boolean isDirty() {
         return dirty;
@@ -313,6 +287,14 @@ public class TransferComponent implements Component<ChunkStore> {
 
     public void clearDirty() {
         dirty = false;
+    }
+
+    public Map<FaceKey, FacePlane> getFaces() {
+        return faces;
+    }
+
+    public FaceMode getDefaultFaceMode() {
+        return defaultFaceMode;
     }
 
     // ------------------------------------------------------------------
