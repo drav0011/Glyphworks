@@ -1,0 +1,16 @@
+{
+    "Group": "drav.dev",
+    "Name": "Glyphworks",
+    "Version": "0.1.0",
+    "Authors": [
+        {
+            "Name": "DrAv0011",
+            "Email": "",
+            "Url": "https://drav.dev"
+        }
+    ],
+    "DisabledByDefault": false,
+    "IncludesAssetPack": true,
+    "ServerVersion": "*",
+    "Main": "dev.drav.glyphworks.GlyphworksPlugin"
+}
