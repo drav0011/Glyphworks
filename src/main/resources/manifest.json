@@ -11,6 +11,10 @@
     ],
     "DisabledByDefault": false,
     "IncludesAssetPack": true,
+    "Dependencies": {
+        "Hytale:EntityModule": "*",
+        "Hytale:BlockModule": "*"
+    },
     "ServerVersion": "*",
     "Main": "dev.drav.glyphworks.GlyphworksPlugin"
 }
