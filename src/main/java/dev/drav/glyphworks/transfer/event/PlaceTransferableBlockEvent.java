@@ -14,7 +14,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.graph.GraphCache;
+import dev.drav.glyphworks.transfer.graph.GraphManager;
 
 import javax.annotation.Nonnull;
 
@@ -57,7 +57,9 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
                 return;
             }
 
-            GraphCache.get().addNode(transfer.getNodeId(), blockRef, pos);
+            GraphManager.get()
+                    .getOrCreateGraph(world.getName())
+                    .addNode(transfer.getNodeId(), blockRef, pos);
         });
     }
 

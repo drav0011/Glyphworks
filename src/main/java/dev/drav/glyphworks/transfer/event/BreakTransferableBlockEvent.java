@@ -14,7 +14,8 @@ import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.graph.GraphCache;
+import dev.drav.glyphworks.transfer.graph.GraphManager;
+import dev.drav.glyphworks.transfer.graph.WorldGraph;
 
 import javax.annotation.Nonnull;
 
@@ -55,8 +56,11 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
         if (transfer == null) {
             return;
         }
-
-        GraphCache.get().removeNode(transfer.getNodeId());
+        
+        WorldGraph graph = GraphManager.get().getGraph(world.getName());
+        if (graph != null) {
+            graph.removeNode(transfer.getNodeId());
+        }
     }
 
     @Nonnull

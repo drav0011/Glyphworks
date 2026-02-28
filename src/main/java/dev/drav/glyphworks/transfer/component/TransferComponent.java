@@ -3,6 +3,7 @@ package dev.drav.glyphworks.transfer.component;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
@@ -10,9 +11,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -78,12 +77,27 @@ public class TransferComponent implements Component<ChunkStore> {
                     (c, v) -> c.autoPull = v,
                     c -> c.autoPull)
             .add()
+            .append(
+                    new KeyedCodec<>("Connections", new SetCodec<>(Codec.STRING, HashSet::new, false)),
+                    (c, v) -> {
+                        c.connections = new HashSet<>();
+                        for (String s : v) {
+                            c.connections.add(UUID.fromString(s));
+                        }
+                    },
+                    c -> {
+                        Set<String> stringSet = new HashSet<>();
+                        for (UUID id : c.connections) {
+                            stringSet.add(id.toString());
+                        }
+                        return stringSet;
+                    })
+            .add()
             .build();
 
     public static ComponentType<ChunkStore, TransferComponent> getComponentType() {
         return GlyphworksPlugin.get().getTransferComponentType();
     }
-
 
     // ------------------------------------------------------------------
     // Persisted fields
@@ -127,6 +141,13 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     private FaceMode defaultFaceMode;
 
+    /**
+     * Set of node IDs this node is connected to (outgoing edges).
+     * Persisted to maintain graph topology across world reloads.
+     * Graph is rebuilt from these connections on world load.
+     */
+    private Set<UUID> connections;
+
     // ------------------------------------------------------------------
     // Runtime-only fields (not persisted)
     // ------------------------------------------------------------------
@@ -151,6 +172,7 @@ public class TransferComponent implements Component<ChunkStore> {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE, true, true);
         this.faces = new HashMap<>();
         this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
+        this.connections = new HashSet<>();
     }
 
     /**
@@ -173,19 +195,22 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPull = autoPull;
         this.faces = new HashMap<>();
         this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
+        this.connections = new HashSet<>();
     }
 
     /**
-     * Copy constructor used by {@link #clone()}. Retains the same {@code nodeId}.
+     * Copy constructor used by {@link #clone()}.
+     * Generates a NEW nodeId for each cloned instance (each placed block gets unique ID).
      */
     public TransferComponent(TransferComponent other) {
-        this.nodeId = other.nodeId;
+        this.nodeId = UUID.randomUUID();  // Generate NEW UUID for each block!
         this.maxOutputRate = other.maxOutputRate;
         this.maxInputRate = other.maxInputRate;
         this.autoPush = other.autoPush;
         this.autoPull = other.autoPull;
         this.faces = new HashMap<>(other.faces);
         this.defaultFaceMode = other.defaultFaceMode;
+        this.connections = new HashSet<>();  // New block = no connections yet
         // inventory references are not copied — must be re-injected at runtime
     }
 
@@ -203,7 +228,7 @@ public class TransferComponent implements Component<ChunkStore> {
      * Sets the inventory for a specific face.
      * Wires the inventory based on the face's mode.
      *
-     * @param faceKey The face coordinates key (planeMin, planeMax)
+     * @param faceKey   The face coordinates key (planeMin, planeMax)
      * @param inventory The ItemContainer to wire to this face
      */
     public void setFaceInventory(FaceKey faceKey, ItemContainer inventory) {
@@ -315,5 +340,41 @@ public class TransferComponent implements Component<ChunkStore> {
 
     public void setAutoPull(boolean autoPull) {
         this.autoPull = autoPull;
+    }
+
+    // ------------------------------------------------------------------
+    // Connection Management (for graph persistence)
+    // ------------------------------------------------------------------
+
+    /**
+     * Gets all outgoing connections (neighbor node IDs).
+     * Used by WorldGraph to rebuild edges.
+     */
+    public Set<UUID> getConnections() {
+        return connections;
+    }
+
+    /**
+     * Adds a connection to a neighbor node.
+     * Called by WorldGraph when saving graph state.
+     */
+    public void addConnection(UUID neighborId) {
+        connections.add(neighborId);
+    }
+
+    /**
+     * Removes a connection to a neighbor node.
+     * Called when edge is removed from graph.
+     */
+    public void removeConnection(UUID neighborId) {
+        connections.remove(neighborId);
+    }
+
+    /**
+     * Clears all connections.
+     * Called by WorldGraph before saving to avoid stale data.
+     */
+    public void clearConnections() {
+        connections.clear();
     }
 }
