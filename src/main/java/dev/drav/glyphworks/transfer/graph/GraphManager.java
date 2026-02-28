@@ -12,11 +12,11 @@ import java.util.logging.Logger;
  * Manages WorldGraph instances (one per world).
  * Singleton that coordinates all graph operations.
  *
- * <p><b>Persistence Strategy:</b> Graph edges are stored in each block's
- * {@code TransferComponent.connections} field and persisted via Hytale's
- * native CODEC system. On world load, the graph is rebuilt from these
- * stored connections. On world unload, the current graph state is saved
- * back to components.
+ * <p><b>Persistence Strategy:</b> Each block's face planes are persisted via the
+ * {@code TransferComponent} CODEC. On world load, the graph is rebuilt from
+ * those face planes by matching overlapping face positions and checking mode
+ * compatibility. No separate connection list is stored \u2014 faces are the
+ * single source of truth.
  */
 public class GraphManager {
 
@@ -133,10 +133,6 @@ public class GraphManager {
                     world.execute(() -> {
                         String worldName = world.getName();
                         WorldGraph graph = getGraph(worldName);
-
-                        if (graph != null) {
-                            graph.saveToComponents();
-                        }
                     });
                 } catch (Exception e) {
                     LOGGER.warning("[GraphManager] Failed to save graph for world " + world.getName() + ": " + e.getMessage());

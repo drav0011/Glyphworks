@@ -1,9 +1,14 @@
 package dev.drav.glyphworks.transfer.component;
 
-import com.hypixel.hytale.math.vector.Vector3i;
-import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
+
+import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.codecs.EnumCodec;
+import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 
 /**
  * Defines a rectangular face region in absolute world coordinates.
@@ -34,6 +39,25 @@ import javax.annotation.Nullable;
  * </pre>
  */
 public class FacePlane {
+
+    public static final BuilderCodec<FacePlane> CODEC = BuilderCodec
+            .builder(FacePlane.class, FacePlane::new)
+            .append(
+                    new KeyedCodec<>("FacePlane_Min", Vector3i.CODEC),
+                    (c, v) -> c.planeMin = v,
+                    c -> c.planeMin)
+            .add()
+            .append(
+                    new KeyedCodec<>("FacePlane_Max", Vector3i.CODEC),
+                    (c, v) -> c.planeMax = v,
+                    c -> c.planeMax)
+            .add()
+            .append(
+                    new KeyedCodec<>("FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
+                    (c, v) -> c.mode = v,
+                    c -> c.mode)
+            .add()
+            .build();
 
     /**
      * Minimum corner of the face region in absolute world coordinates.
@@ -76,7 +100,7 @@ public class FacePlane {
      *
      * @param planeMin Minimum corner in absolute world coordinates
      * @param planeMax Maximum corner in absolute world coordinates
-     * @param mode Connection mode (INPUT, OUTPUT, BIDIRECTIONAL, CLOSED)
+     * @param mode     Connection mode (INPUT, OUTPUT, BIDIRECTIONAL, CLOSED)
      */
     public FacePlane(Vector3i planeMin, Vector3i planeMax, FaceMode mode) {
         this.planeMin = planeMin;
@@ -145,7 +169,7 @@ public class FacePlane {
      */
     public boolean canSend() {
         return (mode == FaceMode.OUTPUT || mode == FaceMode.BIDIRECTIONAL) &&
-               outputInventory != null;
+                outputInventory != null;
     }
 
     /**
@@ -154,7 +178,7 @@ public class FacePlane {
      */
     public boolean canReceive() {
         return (mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL) &&
-               inputInventory != null;
+                inputInventory != null;
     }
 
     @Override
@@ -163,16 +187,26 @@ public class FacePlane {
                 planeMin, planeMax, mode, canSend(), canReceive());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FacePlane other = (FacePlane) o;
+        return Objects.equals(planeMin, other.planeMin) &&
+                Objects.equals(planeMax, other.planeMax);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(planeMin, planeMax);
+    }
+
     /**
      * Returns the FaceKey for this face (for HashMap lookups).
      */
     public FaceKey getFaceKey() {
         return new FaceKey(planeMin, planeMax);
     }
-
-    // ================================================================
-    // Static Helper Methods for Collision Detection
-    // ================================================================
 
     /**
      * Checks if two faces collide (occupy the same 3D space).
@@ -185,9 +219,9 @@ public class FacePlane {
      */
     public static boolean facesCollide(FacePlane faceA, FacePlane faceB) {
         return faceA.planeMin.equals(faceB.planeMin) &&
-               faceA.planeMax.equals(faceB.planeMax);
+                faceA.planeMax.equals(faceB.planeMax);
     }
-
+    
     /**
      * Checks if two face modes are compatible for creating an edge.
      * Returns the type of edge to create, or null if incompatible.

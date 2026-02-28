@@ -1,16 +1,19 @@
 package dev.drav.glyphworks;
 
+import java.util.logging.Logger;
+
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
+import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.graph.GraphManager;
-
-import javax.annotation.Nonnull;
-import java.util.logging.Logger;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -40,6 +43,7 @@ public class GlyphworksPlugin extends JavaPlugin {
 
         this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
+        this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
 
         LOGGER.info("[Glyphworks] setup() complete.");
     }

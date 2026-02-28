@@ -1,5 +1,9 @@
 package dev.drav.glyphworks.transfer.event;
 
+import java.util.logging.Logger;
+
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -12,18 +16,16 @@ import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blockhitbox.BlockBoundingBoxes;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
-import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
+import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.graph.GraphManager;
-
-import javax.annotation.Nonnull;
-import java.util.logging.Logger;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
@@ -87,22 +89,15 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             LOGGER.info("[PlaceTransferableBlock] Default Face Mode: " + transfer.getDefaultFaceMode());
             LOGGER.info("[PlaceTransferableBlock] Number of configured faces: " + transfer.getFaces().size());
 
-            // Calculate and log all possible face planes
-            logAllPossibleFaces(pos, blockSize);
-
+            // Initialize faces on first placement, or just log if already loaded from disk
             if (transfer.getFaces().isEmpty()) {
-                LOGGER.info("[PlaceTransferableBlock] No faces configured - will use defaultFaceMode for all connections");
+                initAndLogAllFaces(transfer, pos, blockSize);
             } else {
-                LOGGER.info("[PlaceTransferableBlock] Configured faces:");
+                LOGGER.info("[PlaceTransferableBlock] Faces already configured (loaded from disk):");
                 int faceIndex = 1;
                 for (FacePlane face : transfer.getFaces().values()) {
-                    LOGGER.info("[PlaceTransferableBlock]   Face #" + faceIndex + ":");
-                    LOGGER.info("[PlaceTransferableBlock]     Min: " + face.getPlaneMin());
-                    LOGGER.info("[PlaceTransferableBlock]     Max: " + face.getPlaneMax());
-                    LOGGER.info("[PlaceTransferableBlock]     Mode: " + face.getMode());
-                    LOGGER.info("[PlaceTransferableBlock]     Can Send: " + face.canSend());
-                    LOGGER.info("[PlaceTransferableBlock]     Can Receive: " + face.canReceive());
-                    LOGGER.info("[PlaceTransferableBlock]     FaceKey: " + face.getFaceKey());
+                    LOGGER.info("[PlaceTransferableBlock]   Face #" + faceIndex + " Min: " + face.getPlaneMin()
+                            + " Max: " + face.getPlaneMax() + " Mode: " + face.getMode());
                     faceIndex++;
                 }
             }
@@ -177,83 +172,119 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
     }
 
     /**
-     * Logs all possible face planes for a block of given size.
-     * <p>
-     * For a WxHxD block, this calculates:
-     * - North/South faces: H*W face positions each
-     * - East/West faces: H*D face positions each
-     * - Up/Down faces: W*D face positions each
+     * Creates a FacePlane for each 1×1 face cell on the block surface and registers
+     * it in the TransferComponent, then logs all the created faces.
+     *
+     * <h3>Coordinate convention</h3>
+     * Each face cell is stored as an axis-aligned rectangle. The axis perpendicular
+     * to the face has the same value in planeMin and planeMax (the "constant axis").
+     * The other two axes span exactly 1 unit so the raycast can intersect it.
+     *
+     * <p>The constant-axis value is always the shared boundary between the two blocks
+     * that touch on that face, so two adjacent blocks produce identical min/max and
+     * their faces collide by key equality.
+     *
+     * <pre>
+     * NORTH (+Z wall of this block):  z_const = blockPos.z + depth
+     * SOUTH (-Z wall of this block):  z_const = blockPos.z          ← same z as neighbor's NORTH
+     * EAST  (+X wall):                x_const = blockPos.x + width
+     * WEST  (-X wall):                x_const = blockPos.x          ← same x as neighbor's EAST
+     * UP    (+Y wall):                y_const = blockPos.y + height
+     * DOWN  (-Y wall):                y_const = blockPos.y          ← same y as neighbor's UP
+     * </pre>
+     *
+     * <p>Initial mode is the component's defaultFaceMode.
      */
-    private void logAllPossibleFaces(Vector3i blockPos, Vector3i blockSize) {
-        int width = blockSize.x;   // X dimension
-        int height = blockSize.y;  // Y dimension
-        int depth = blockSize.z;   // Z dimension
+    private void initAndLogAllFaces(TransferComponent transfer, Vector3i blockPos, Vector3i blockSize) {
+        int w  = blockSize.x;
+        int h = blockSize.y;
+        int d  = blockSize.z;
+        FaceMode mode = transfer.getDefaultFaceMode();
 
-        int totalFaces = 2 * (width * height) + 2 * (width * depth) + 2 * (height * depth);
-
-        LOGGER.info("[PlaceTransferableBlock] All possible face planes (" + totalFaces + " total):");
+        int totalFaces = 2 * (w * h) + 2 * (d * h) + 2 * (w * d);
+        LOGGER.info("[PlaceTransferableBlock] Initializing " + totalFaces + " face planes (mode=" + mode + "):");
 
         int faceNum = 1;
 
-        // NORTH faces (at Z+depth, facing +Z)
-        LOGGER.info("[PlaceTransferableBlock]   NORTH side (" + (width * height) + " faces):");
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Vector3i facePos = new Vector3i(blockPos.x + x, blockPos.y + y, blockPos.z + depth);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at north edge)");
+        // NORTH (+Z wall): z constant, x/y span 1 unit each
+        int zN = blockPos.z + d;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(blockPos.x + x,     blockPos.y + y,     zN),
+                        new Vector3i(blockPos.x + x + 1, blockPos.y + y + 1, zN), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " NORTH min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
 
-        // SOUTH faces (at Z, facing -Z)
-        LOGGER.info("[PlaceTransferableBlock]   SOUTH side (" + (width * height) + " faces):");
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Vector3i facePos = new Vector3i(blockPos.x + x, blockPos.y + y, blockPos.z - 1);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at south edge)");
+        // SOUTH (-Z wall): z constant = blockPos.z  (same boundary as neighbor's NORTH)
+        int zS = blockPos.z;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(blockPos.x + x,     blockPos.y + y,     zS),
+                        new Vector3i(blockPos.x + x + 1, blockPos.y + y + 1, zS), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " SOUTH min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
 
-        // EAST faces (at X+width, facing +X)
-        LOGGER.info("[PlaceTransferableBlock]   EAST side (" + (depth * height) + " faces):");
-        for (int y = 0; y < height; y++) {
-            for (int z = 0; z < depth; z++) {
-                Vector3i facePos = new Vector3i(blockPos.x + width, blockPos.y + y, blockPos.z + z);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at east edge)");
+        // EAST (+X wall): x constant, y/z span 1 unit each
+        int xE = blockPos.x + w;
+        for (int y = 0; y < h; y++) {
+            for (int z = 0; z < d; z++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(xE, blockPos.y + y,     blockPos.z + z),
+                        new Vector3i(xE, blockPos.y + y + 1, blockPos.z + z + 1), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " EAST  min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
 
-        // WEST faces (at X, facing -X)
-        LOGGER.info("[PlaceTransferableBlock]   WEST side (" + (depth * height) + " faces):");
-        for (int y = 0; y < height; y++) {
-            for (int z = 0; z < depth; z++) {
-                Vector3i facePos = new Vector3i(blockPos.x - 1, blockPos.y + y, blockPos.z + z);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at west edge)");
+        // WEST (-X wall): x constant = blockPos.x  (same boundary as neighbor's EAST)
+        int xW = blockPos.x;
+        for (int y = 0; y < h; y++) {
+            for (int z = 0; z < d; z++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(xW, blockPos.y + y,     blockPos.z + z),
+                        new Vector3i(xW, blockPos.y + y + 1, blockPos.z + z + 1), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " WEST  min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
 
-        // UP faces (at Y+height, facing +Y)
-        LOGGER.info("[PlaceTransferableBlock]   UP side (" + (width * depth) + " faces):");
-        for (int z = 0; z < depth; z++) {
-            for (int x = 0; x < width; x++) {
-                Vector3i facePos = new Vector3i(blockPos.x + x, blockPos.y + height, blockPos.z + z);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at top edge)");
+        // UP (+Y wall): y constant, x/z span 1 unit each
+        int yU = blockPos.y + h;
+        for (int z = 0; z < d; z++) {
+            for (int x = 0; x < w; x++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(blockPos.x + x,     yU, blockPos.z + z),
+                        new Vector3i(blockPos.x + x + 1, yU, blockPos.z + z + 1), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " UP    min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
 
-        // DOWN faces (at Y, facing -Y)
-        LOGGER.info("[PlaceTransferableBlock]   DOWN side (" + (width * depth) + " faces):");
-        for (int z = 0; z < depth; z++) {
-            for (int x = 0; x < width; x++) {
-                Vector3i facePos = new Vector3i(blockPos.x + x, blockPos.y - 1, blockPos.z + z);
-                LOGGER.info("[PlaceTransferableBlock]     Face #" + faceNum + ": " + facePos + " (1x1 at bottom edge)");
+        // DOWN (-Y wall): y constant = blockPos.y  (same boundary as neighbor's UP)
+        int yD = blockPos.y;
+        for (int z = 0; z < d; z++) {
+            for (int x = 0; x < w; x++) {
+                FacePlane face = new FacePlane(
+                        new Vector3i(blockPos.x + x,     yD, blockPos.z + z),
+                        new Vector3i(blockPos.x + x + 1, yD, blockPos.z + z + 1), mode);
+                transfer.setFace(face.getFaceKey(), face);
+                LOGGER.info("[PlaceTransferableBlock]   #" + faceNum + " DOWN  min=" + face.getPlaneMin() + " max=" + face.getPlaneMax());
                 faceNum++;
             }
         }
+
+        LOGGER.info("[PlaceTransferableBlock] All " + transfer.getFaces().size() + " faces initialized.");
     }
 
     @Nonnull

@@ -278,16 +278,25 @@ public class WorldGraph {
     // =================================================================
 
     /**
-     * Rebuilds the graph by scanning all nodes and reconstructing edges
-     * from their stored connections in TransferComponent.
-     * Called on world load to restore graph state.
+     * Rebuilds the graph by scanning all nodes' face planes and recreating edges
+     * wherever two nodes share a face position with compatible modes.
+     * Called on world load to restore graph state from persisted face data.
      */
     public void rebuildFromComponents() {
         LOGGER.info("[WorldGraph] Rebuilding graph from " + nodes.size() + " components");
 
+        // Clear all existing edges before rebuild
+        for (List<GraphEdge> edgeList : adjacency.values()) {
+            edgeList.clear();
+        }
+
+        // Build a map: FaceKey → (nodeId, FacePlane) for all non-CLOSED faces.
+        // When two nodes share the same FaceKey the faces overlap — check compatibility.
+        Map<FaceKey, UUID> faceOwner = new HashMap<>();
+        Map<FaceKey, FacePlane> faceByKey = new HashMap<>();
+
         int edgesCreated = 0;
 
-        // For each node, recreate edges from stored connections
         for (Map.Entry<UUID, Ref<ChunkStore>> entry : nodes.entrySet()) {
             UUID nodeId = entry.getKey();
             Ref<ChunkStore> blockRef = entry.getValue();
@@ -298,23 +307,51 @@ public class WorldGraph {
 
             TransferComponent component = blockRef.getStore().getComponent(
                     blockRef, TransferComponent.getComponentType());
-
             if (component == null) {
                 continue;
             }
 
-            // Get stored connections and recreate edges
-            for (UUID neighborId : component.getConnections()) {
-                // Only create edge if neighbor exists and edge doesn't already exist
-                if (nodes.containsKey(neighborId) && !hasEdge(nodeId, neighborId)) {
-                    // Create unidirectional edge (bidirectional edges will be created twice)
-                    addEdge(new GraphEdge(nodeId, neighborId, false));
-                    edgesCreated++;
+            for (Map.Entry<FaceKey, FacePlane> faceEntry : component.getFaces().entrySet()) {
+                FaceKey key = faceEntry.getKey();
+                FacePlane plane = faceEntry.getValue();
+
+                if (plane.getMode() == FaceMode.CLOSED) {
+                    continue;
+                }
+
+                UUID existingOwner = faceOwner.get(key);
+                if (existingOwner == null) {
+                    // First node to register this face position
+                    faceOwner.put(key, nodeId);
+                    faceByKey.put(key, plane);
+                } else {
+                    // Second node shares this face position — check mode compatibility
+                    FacePlane otherPlane = faceByKey.get(key);
+                    FacePlane.EdgeType edgeType =
+                            FacePlane.checkModeCompatibility(otherPlane.getMode(), plane.getMode());
+
+                    if (edgeType != null) {
+                        switch (edgeType) {
+                            case A_TO_B:
+                                addEdge(new GraphEdge(existingOwner, nodeId, false));
+                                break;
+                            case B_TO_A:
+                                addEdge(new GraphEdge(nodeId, existingOwner, false));
+                                break;
+                            case BIDIRECTIONAL:
+                                addEdge(new GraphEdge(existingOwner, nodeId, true));
+                                break;
+                        }
+                        edgesCreated++;
+                        LOGGER.info("[WorldGraph] Rebuilt edge " + edgeType +
+                                " between " + existingOwner + " and " + nodeId +
+                                " via face " + key);
+                    }
                 }
             }
         }
 
-        dirty = false; // Fresh rebuild, not dirty
+        dirty = false;
         LOGGER.info("[WorldGraph] Rebuilt graph: " + nodes.size() + " nodes, " + edgesCreated + " edges");
     }
 
@@ -327,39 +364,6 @@ public class WorldGraph {
         return edges.stream().anyMatch(e -> e.getTo().equals(to));
     }
 
-    /**
-     * Saves current graph state back to TransferComponents.
-     * Called before world unload to persist connections.
-     */
-    public void saveToComponents() {
-        LOGGER.info("[WorldGraph] Saving graph to components");
-
-        for (Map.Entry<UUID, Ref<ChunkStore>> entry : nodes.entrySet()) {
-            UUID nodeId = entry.getKey();
-            Ref<ChunkStore> blockRef = entry.getValue();
-
-            if (!blockRef.isValid()) {
-                continue;
-            }
-
-            TransferComponent component = blockRef.getStore().getComponent(
-                    blockRef, TransferComponent.getComponentType());
-
-            if (component == null) {
-                continue;
-            }
-
-            // Store all outgoing connections
-            List<GraphEdge> edges = adjacency.getOrDefault(nodeId, Collections.emptyList());
-            component.clearConnections();
-            for (GraphEdge edge : edges) {
-                component.addConnection(edge.getTo());
-            }
-        }
-
-        dirty = false;
-        LOGGER.info("[WorldGraph] Saved graph to components");
-    }
 
     /**
      * Checks if graph has unsaved changes.

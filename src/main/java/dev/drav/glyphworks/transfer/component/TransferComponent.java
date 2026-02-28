@@ -1,5 +1,13 @@
 package dev.drav.glyphworks.transfer.component;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
+
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -8,11 +16,8 @@ import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import dev.drav.glyphworks.GlyphworksPlugin;
 
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.logging.Logger;
+import dev.drav.glyphworks.GlyphworksPlugin;
 
 /**
  * Turns any block into a node in the Glyphworks item transfer network.
@@ -53,45 +58,40 @@ public class TransferComponent implements Component<ChunkStore> {
     public static final BuilderCodec<TransferComponent> CODEC = BuilderCodec
             .builder(TransferComponent.class, TransferComponent::new)
             .append(
-                    new KeyedCodec<>("NodeId", Codec.STRING),
+                    new KeyedCodec<>("Transfer_NodeId", Codec.STRING),
                     (c, v) -> c.nodeId = UUID.fromString(v),
                     c -> c.nodeId.toString())
             .add()
             .append(
-                    new KeyedCodec<>("MaxOutputRate", Codec.INTEGER),
+                    new KeyedCodec<>("Transfer_MaxOutputRate", Codec.INTEGER),
                     (c, v) -> c.maxOutputRate = v,
                     c -> c.maxOutputRate)
             .add()
             .append(
-                    new KeyedCodec<>("MaxInputRate", Codec.INTEGER),
+                    new KeyedCodec<>("Transfer_MaxInputRate", Codec.INTEGER),
                     (c, v) -> c.maxInputRate = v,
                     c -> c.maxInputRate)
             .add()
             .append(
-                    new KeyedCodec<>("AutoPush", Codec.BOOLEAN),
+                    new KeyedCodec<>("Transfer_AutoPush", Codec.BOOLEAN),
                     (c, v) -> c.autoPush = v,
                     c -> c.autoPush)
             .add()
             .append(
-                    new KeyedCodec<>("AutoPull", Codec.BOOLEAN),
+                    new KeyedCodec<>("Transfer_AutoPull", Codec.BOOLEAN),
                     (c, v) -> c.autoPull = v,
                     c -> c.autoPull)
             .add()
+            // Persist face states - graph edges are reconstructed from faces on world load.
             .append(
-                    new KeyedCodec<>("Connections", new SetCodec<>(Codec.STRING, HashSet::new, false)),
+                    new KeyedCodec<>("Transfer_Faces", new SetCodec<>(FacePlane.CODEC, HashSet::new, false)),
                     (c, v) -> {
-                        c.connections = new HashSet<>();
-                        for (String s : v) {
-                            c.connections.add(UUID.fromString(s));
+                        c.faces = new HashMap<>();
+                        for (FacePlane face : v) {
+                            c.faces.put(face.getFaceKey(), face);
                         }
                     },
-                    c -> {
-                        Set<String> stringSet = new HashSet<>();
-                        for (UUID id : c.connections) {
-                            stringSet.add(id.toString());
-                        }
-                        return stringSet;
-                    })
+                    c -> new HashSet<>(c.faces.values()))
             .add()
             .build();
 
@@ -141,24 +141,6 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     private FaceMode defaultFaceMode;
 
-    /**
-     * Set of node IDs this node is connected to (outgoing edges).
-     * Persisted to maintain graph topology across world reloads.
-     * Graph is rebuilt from these connections on world load.
-     */
-    private Set<UUID> connections;
-
-    // ------------------------------------------------------------------
-    // Runtime-only fields (not persisted)
-    // ------------------------------------------------------------------
-
-
-    /**
-     * Dirty flag raised whenever the graph should re-evaluate this node
-     * (flags changed, inventory swapped).
-     * Cleared by the system after processing.
-     */
-    private transient boolean dirty;
 
     // ------------------------------------------------------------------
     // Constructors
@@ -171,8 +153,7 @@ public class TransferComponent implements Component<ChunkStore> {
     public TransferComponent() {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE, true, true);
         this.faces = new HashMap<>();
-        this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
-        this.connections = new HashSet<>();
+        this.defaultFaceMode = FaceMode.CLOSED;
     }
 
     /**
@@ -194,8 +175,7 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPush = autoPush;
         this.autoPull = autoPull;
         this.faces = new HashMap<>();
-        this.defaultFaceMode = FaceMode.BIDIRECTIONAL;
-        this.connections = new HashSet<>();
+        this.defaultFaceMode = FaceMode.CLOSED;
     }
 
     /**
@@ -210,7 +190,6 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPull = other.autoPull;
         this.faces = new HashMap<>(other.faces);
         this.defaultFaceMode = other.defaultFaceMode;
-        this.connections = new HashSet<>();  // New block = no connections yet
         // inventory references are not copied — must be re-injected at runtime
     }
 
@@ -301,19 +280,6 @@ public class TransferComponent implements Component<ChunkStore> {
         return autoPull;
     }
 
-
-    public boolean isDirty() {
-        return dirty;
-    }
-
-    public void markDirty() {
-        dirty = true;
-    }
-
-    public void clearDirty() {
-        dirty = false;
-    }
-
     public Map<FaceKey, FacePlane> getFaces() {
         return faces;
     }
@@ -342,39 +308,21 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPull = autoPull;
     }
 
-    // ------------------------------------------------------------------
-    // Connection Management (for graph persistence)
-    // ------------------------------------------------------------------
-
-    /**
-     * Gets all outgoing connections (neighbor node IDs).
-     * Used by WorldGraph to rebuild edges.
-     */
-    public Set<UUID> getConnections() {
-        return connections;
+    public void setDefaultFaceMode(FaceMode defaultFaceMode) {
+        this.defaultFaceMode = defaultFaceMode;
     }
 
     /**
-     * Adds a connection to a neighbor node.
-     * Called by WorldGraph when saving graph state.
+     * Adds or replaces a face in the faces map.
      */
-    public void addConnection(UUID neighborId) {
-        connections.add(neighborId);
+    public void setFace(FaceKey key, FacePlane face) {
+        faces.put(key, face);
     }
 
     /**
-     * Removes a connection to a neighbor node.
-     * Called when edge is removed from graph.
+     * Removes a face from the faces map.
      */
-    public void removeConnection(UUID neighborId) {
-        connections.remove(neighborId);
-    }
-
-    /**
-     * Clears all connections.
-     * Called by WorldGraph before saving to avoid stale data.
-     */
-    public void clearConnections() {
-        connections.clear();
+    public void removeFace(FaceKey key) {
+        faces.remove(key);
     }
 }
