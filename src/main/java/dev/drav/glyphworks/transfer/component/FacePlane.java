@@ -1,9 +1,11 @@
 package dev.drav.glyphworks.transfer.component;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
@@ -57,6 +59,11 @@ public class FacePlane {
                     (c, v) -> c.mode = v,
                     c -> c.mode)
             .add()
+            .append(
+                    new KeyedCodec<>("FacePlane_NeighborNodeId", Codec.STRING),
+                    (c, v) -> c.neighborNodeId = (v == null ? null : UUID.fromString(v)),
+                    c -> (c.neighborNodeId == null ? null : c.neighborNodeId.toString()))
+            .add()
             .build();
 
     /**
@@ -73,6 +80,13 @@ public class FacePlane {
      * Connection mode for this face region.
      */
     private FaceMode mode;
+
+    /**
+     * UUID of the neighboring TransferComponent node connected through this face.
+     * Null means no connection. Persisted so the edge graph survives restarts.
+     */
+    @Nullable
+    private UUID neighborNodeId;
 
     /**
      * Inventory where incoming items are deposited for this face.
@@ -106,6 +120,7 @@ public class FacePlane {
         this.planeMin = planeMin;
         this.planeMax = planeMax;
         this.mode = mode;
+        this.neighborNodeId = null;
         this.inputInventory = null;
         this.outputInventory = null;
     }
@@ -121,6 +136,11 @@ public class FacePlane {
 
     public FaceMode getMode() {
         return mode;
+    }
+
+    @Nullable
+    public UUID getNeighborNodeId() {
+        return neighborNodeId;
     }
 
     @Nullable
@@ -144,6 +164,10 @@ public class FacePlane {
 
     public void setMode(FaceMode mode) {
         this.mode = mode;
+    }
+
+    public void setNeighborNodeId(@Nullable UUID neighborNodeId) {
+        this.neighborNodeId = neighborNodeId;
     }
 
     public void setInputInventory(ItemContainer inputInventory) {

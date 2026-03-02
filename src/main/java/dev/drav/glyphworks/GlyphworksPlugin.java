@@ -13,7 +13,6 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
-import dev.drav.glyphworks.transfer.graph.GraphManager;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -34,8 +33,6 @@ public class GlyphworksPlugin extends JavaPlugin {
         LOGGER.info("[Glyphworks] setup()...");
         instance = this;
 
-        GraphManager.get().initialize();
-
         this.transferComponentType = this.getChunkStoreRegistry().registerComponent(
                 TransferComponent.class,
                 "TransferComponent",
@@ -52,17 +49,6 @@ public class GlyphworksPlugin extends JavaPlugin {
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
         // this.getChunkStoreRegistry().registerSystem(new TransferSystem());
-    }
-
-    @Override
-    protected void shutdown() {
-        LOGGER.info("[Glyphworks] Shutting down plugin...");
-
-        // Shutdown graph manager (saves all dirty graphs, stops auto-save)
-        GraphManager.get().shutdown();
-
-        LOGGER.info("[Glyphworks] Plugin shutdown complete.");
-        super.shutdown();
     }
 
     public ComponentType<ChunkStore, TransferComponent> getTransferComponentType() {

@@ -1,2 +1,2 @@
-item.Bench_AutoFurnace.name=Automated Furnace
-item.Bench_AutoFurnace.description=A furnace that automatically pulls input and pushes output.
+items.Bench_AutoFurnace.name=Automated Furnace
+items.Bench_AutoFurnace.description=A furnace that automatically pulls input and pushes output.

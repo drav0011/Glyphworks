@@ -22,10 +22,10 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.transfer.FaceLinkUtil;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.graph.GraphManager;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
@@ -103,9 +103,8 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             }
             LOGGER.info("=================================================");
 
-            GraphManager.get()
-                    .getOrCreateGraph(world.getName())
-                    .addNode(transfer.getNodeId(), blockRef, pos);
+            // Link faces to any already-placed neighbors
+            FaceLinkUtil.linkAll(transfer, blockRef, chunkStore);
         });
     }
 
