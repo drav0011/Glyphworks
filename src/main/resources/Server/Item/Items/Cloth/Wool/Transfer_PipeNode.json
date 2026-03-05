@@ -19,6 +19,7 @@
     ],
     "CustomModelScale": 1,
     "HitboxType": "Block_Seven_Eighth",
+    "VariantRotation": "Wall",
     "Flags": {},
     "FaceTags": {
       "North": ["PipeConnection"],
@@ -91,13 +92,13 @@
           "Material": "Solid"
         },
         "T_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_T.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Down.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
         },
         "T_Vertical": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_T.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Vertical.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
@@ -109,7 +110,7 @@
           "Material": "Solid"
         },
         "T_Junction_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_Cross.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Junction_Down.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
@@ -121,7 +122,7 @@
           "Material": "Solid"
         },
         "Cross_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_5_Way.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_5_Way_Up.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
