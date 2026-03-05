@@ -119,9 +119,6 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
         // Target block position comes from the event, not an undefined variable
         final Vector3i pos = event.getTargetBlock();
 
-        // Cancel the default block interaction since the wrench is handling it
-        event.setCancelled(true);
-
         commandBuffer.run(_ -> {
             World world = commandBuffer.getExternalData().getWorld();
             ChunkStore chunkStore = world.getChunkStore();
@@ -143,6 +140,9 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
                     TransferComponent.getComponentType());
             if (transfer == null)
                 return;
+
+            // Only cancel the default block interaction when we confirmed it's a transfer block
+            event.setCancelled(true);
 
             LOGGER.info("[UseTransferableBlock] Target block: " + pos + "  faces=" + transfer.getFaces().size());
             LOGGER.info("[UseTransferableBlock] Eye: (" + eyeX + ", " + eyeY + ", " + eyeZ + ")  dir: (" +

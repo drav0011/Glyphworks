@@ -2,117 +2,27 @@
   "TranslationProperties": {
     "Name": "server.items.Transfer_PipeNode.name"
   },
-  "Icon": "Icons/ItemsGenerated/Transfer_PipeNode.png",
   "Categories": [
-    "Blocks.Tinkering"
+    "Blocks.Deco"
   ],
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
+    "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Straight.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_All.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Pipe_Texture.png",
+        "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Fence_Thin",
+    "CustomModelScale": 1,
+    "HitboxType": "Block_Seven_Eighth",
     "VariantRotation": "Wall",
-    "Gathering": {
-      "Breaking": {
-        "ItemId": "Transfer_PipeNode",
-        "GatherType": "Rocks"
-      }
-    },
-    "ParticleColor": "#7a8fa0",
-    "ConnectedBlockRuleSet": {
-      "Type": "CustomTemplate",
-      "TemplateShapeAssetId": "PipeConnectedBlockTemplate",
-      "TemplateShapeBlockPatterns": {
-        "Straight":          "Transfer_PipeNode",
-        "Alone":             "*Transfer_PipeNode_State_Definitions_Alone",
-        "Straight_Vertical": "*Transfer_PipeNode_State_Definitions_Straight_Vertical",
-        "End_Cap":           "*Transfer_PipeNode_State_Definitions_End_Cap",
-        "End_Cap_Up":        "*Transfer_PipeNode_State_Definitions_End_Cap_Up",
-        "End_Cap_Down":      "*Transfer_PipeNode_State_Definitions_End_Cap_Down",
-        "Elbow":             "*Transfer_PipeNode_State_Definitions_Elbow",
-        "Elbow_Up":          "*Transfer_PipeNode_State_Definitions_Elbow_Up",
-        "Elbow_Down":        "*Transfer_PipeNode_State_Definitions_Elbow_Down",
-        "T_Junction":        "*Transfer_PipeNode_State_Definitions_T_Junction",
-        "T_Up":              "*Transfer_PipeNode_State_Definitions_T_Up",
-        "T_Down":            "*Transfer_PipeNode_State_Definitions_T_Down",
-        "T_Vertical":        "*Transfer_PipeNode_State_Definitions_T_Vertical",
-        "T_Junction_Up":     "*Transfer_PipeNode_State_Definitions_T_Junction_Up",
-        "T_Junction_Down":   "*Transfer_PipeNode_State_Definitions_T_Junction_Down",
-        "Cross":             "*Transfer_PipeNode_State_Definitions_Cross",
-        "Cross_Up":          "*Transfer_PipeNode_State_Definitions_Cross_Up",
-        "Cross_Down":        "*Transfer_PipeNode_State_Definitions_Cross_Down",
-        "All":               "*Transfer_PipeNode_State_Definitions_All"
-      }
-    },
-    "State": {
-      "Definitions": {
-        "Alone": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Alone.blockymodel"
-        },
-        "Straight_Vertical": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Straight_Vertical.blockymodel"
-        },
-        "End_Cap": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap.blockymodel"
-        },
-        "End_Cap_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap_Vertical.blockymodel"
-        },
-        "End_Cap_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap_Vertical.blockymodel"
-        },
-        "Elbow": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow.blockymodel"
-        },
-        "Elbow_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow_Vertical.blockymodel"
-        },
-        "Elbow_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow_Vertical.blockymodel"
-        },
-        "T_Junction": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Junction.blockymodel"
-        },
-        "T_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Vertical_Ends.blockymodel"
-        },
-        "T_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Vertical_Ends.blockymodel"
-        },
-        "T_Vertical": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Vertical_Through.blockymodel"
-        },
-        "T_Junction_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Junction_Vertical.blockymodel"
-        },
-        "T_Junction_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Junction_Vertical.blockymodel"
-        },
-        "Cross": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Cross.blockymodel"
-        },
-        "Cross_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Cross_Vertical.blockymodel"
-        },
-        "Cross_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Cross_Vertical.blockymodel"
-        },
-        "All": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_All.blockymodel"
-        }
-      }
-    }
+    "Flags": {}
   },
-  "Tags": {
-    "Type": [
-      "Tinkering"
-    ]
-  }
+  "PlayerAnimationsId": "Block",
+  "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
+  "Scale": 1
 }
