@@ -79,6 +79,18 @@
           "DrawType": "Model",
           "Material": "Solid"
         },
+        "Corner_Up": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_Up.blockymodel",
+          "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "Corner_Down": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_Down.blockymodel",
+          "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
         "T_Junction": {
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
@@ -103,6 +115,12 @@
           "DrawType": "Model",
           "Material": "Solid"
         },
+        "T_Up_Down": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Up_Down.blockymodel",
+          "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
         "T_Junction_Up": {
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Corner_Cross.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
@@ -111,6 +129,12 @@
         },
         "T_Junction_Down": {
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Junction_Down.blockymodel",
+          "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "T_Junction_Vertical": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_T_Junction_Vertical.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
@@ -153,12 +177,16 @@
         "Elbow":            "*Transfer_PipeNode_State_Definitions_Elbow",
         "Elbow_Up":         "*Transfer_PipeNode_State_Definitions_Elbow_Up",
         "Elbow_Down":       "*Transfer_PipeNode_State_Definitions_Elbow_Down",
+        "Corner_Up":        "*Transfer_PipeNode_State_Definitions_Corner_Up",
+        "Corner_Down":      "*Transfer_PipeNode_State_Definitions_Corner_Down",
         "T_Junction":       "*Transfer_PipeNode_State_Definitions_T_Junction",
         "T_Up":             "*Transfer_PipeNode_State_Definitions_T_Up",
         "T_Down":           "*Transfer_PipeNode_State_Definitions_T_Down",
         "T_Vertical":       "*Transfer_PipeNode_State_Definitions_T_Vertical",
+        "T_Up_Down":        "*Transfer_PipeNode_State_Definitions_T_Up_Down",
         "T_Junction_Up":    "*Transfer_PipeNode_State_Definitions_T_Junction_Up",
         "T_Junction_Down":  "*Transfer_PipeNode_State_Definitions_T_Junction_Down",
+        "T_Junction_Vertical": "*Transfer_PipeNode_State_Definitions_T_Junction_Vertical",
         "Cross":            "*Transfer_PipeNode_State_Definitions_Cross",
         "Cross_Up":         "*Transfer_PipeNode_State_Definitions_Cross_Up",
         "Cross_Down":       "*Transfer_PipeNode_State_Definitions_Cross_Down",
