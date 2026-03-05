@@ -38,7 +38,7 @@
           "Material": "Solid"
         },
         "Straight_Vertical": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Straight.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Straight_Vertical.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
@@ -50,13 +50,13 @@
           "Material": "Solid"
         },
         "End_Cap_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap_Up.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
         },
         "End_Cap_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_End_Cap_Down.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
@@ -68,13 +68,13 @@
           "Material": "Solid"
         },
         "Elbow_Up": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow_Up.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
         },
         "Elbow_Down": {
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Elbow_Down.blockymodel",
           "CustomModelTexture": [{ "Texture": "Blocks/Glyphworks/Pipe/pipe.png", "Weight": 1 }],
           "DrawType": "Model",
           "Material": "Solid"
