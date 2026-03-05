@@ -7,40 +7,40 @@
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
       "shape": {
         "type": "box",
-        "offset": {"x": 0, "y": 16, "z": 0},
+        "offset": {"x": 0, "y": 5, "z": 0},
         "stretch": {"x": 1, "y": 1, "z": 1},
         "settings": {
           "isPiece": false,
-          "size": {"x": 12, "y": 12, "z": 12}
+          "size": {"x": 8, "y": 10, "z": 8}
         },
         "textureLayout": {
           "back": {
-            "offset": {"x": 12, "y": 12},
+            "offset": {"x": 56, "y": 8},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "right": {
-            "offset": {"x": 0, "y": 12},
+            "offset": {"x": 48, "y": 8},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "front": {
-            "offset": {"x": 36, "y": 12},
+            "offset": {"x": 72, "y": 8},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "left": {
-            "offset": {"x": 24, "y": 12},
+            "offset": {"x": 64, "y": 8},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "top": {
-            "offset": {"x": 24, "y": 12},
+            "offset": {"x": 64, "y": 8},
             "mirror": {"x": true, "y": true},
             "angle": 0
           },
           "bottom": {
-            "offset": {"x": 36, "y": 0},
+            "offset": {"x": 72, "y": 0},
             "mirror": {"x": true, "y": false},
             "angle": 0
           }
@@ -53,8 +53,60 @@
       "children": [
         {
           "id": "2",
-          "name": "east--C1",
-          "position": {"x": 8, "y": -4, "z": 0},
+          "name": "center--C1",
+          "position": {"x": 0, "y": 7, "z": 0},
+          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
+          "shape": {
+            "type": "box",
+            "offset": {"x": 0, "y": 4, "z": 0},
+            "stretch": {"x": 1, "y": 1, "z": 1},
+            "settings": {
+              "isPiece": false,
+              "size": {"x": 12, "y": 12, "z": 12},
+              "isStaticBox": true
+            },
+            "textureLayout": {
+              "back": {
+                "offset": {"x": 12, "y": 12},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "right": {
+                "offset": {"x": 0, "y": 12},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "front": {
+                "offset": {"x": 36, "y": 12},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "left": {
+                "offset": {"x": 24, "y": 12},
+                "mirror": {"x": false, "y": false},
+                "angle": 0
+              },
+              "top": {
+                "offset": {"x": 24, "y": 12},
+                "mirror": {"x": true, "y": true},
+                "angle": 0
+              },
+              "bottom": {
+                "offset": {"x": 36, "y": 0},
+                "mirror": {"x": true, "y": false},
+                "angle": 0
+              }
+            },
+            "unwrapMode": "custom",
+            "visible": true,
+            "doubleSided": false,
+            "shadingMode": "flat"
+          }
+        },
+        {
+          "id": "3",
+          "name": "east--C2",
+          "position": {"x": 8, "y": 7, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -104,9 +156,9 @@
           }
         },
         {
-          "id": "3",
-          "name": "west--C2",
-          "position": {"x": -12, "y": -4, "z": 0},
+          "id": "4",
+          "name": "west--C3",
+          "position": {"x": -12, "y": 7, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -156,9 +208,9 @@
           }
         },
         {
-          "id": "4",
-          "name": "north--C3",
-          "position": {"x": 0, "y": -4, "z": -8},
+          "id": "5",
+          "name": "north--C4",
+          "position": {"x": 0, "y": 7, "z": -8},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
@@ -208,9 +260,9 @@
           }
         },
         {
-          "id": "5",
-          "name": "south--C4",
-          "position": {"x": 0, "y": -4, "z": 12},
+          "id": "6",
+          "name": "south--C5",
+          "position": {"x": 0, "y": 7, "z": 12},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
           "shape": {
             "type": "box",
