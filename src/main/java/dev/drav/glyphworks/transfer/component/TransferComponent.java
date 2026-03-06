@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -92,6 +93,14 @@ public class TransferComponent implements Component<ChunkStore> {
                         }
                     },
                     c -> new HashSet<>(c.faces.values()))
+            .add()
+            // Persist defaultFaceMode so the placement event initialises faces with
+            // the correct mode for this block type (OUTPUT for machines, INPUT for
+            // containers, BIDIRECTIONAL for pipes).
+            .append(
+                    new KeyedCodec<>("Transfer_DefaultFaceMode", new EnumCodec<>(FaceMode.class)),
+                    (c, v) -> c.defaultFaceMode = v,
+                    c -> c.defaultFaceMode)
             .add()
             .build();
 

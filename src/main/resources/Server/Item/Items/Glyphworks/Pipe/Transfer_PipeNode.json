@@ -1,0 +1,837 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Transfer_PipeNode.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+        "Weight": 1
+      }
+    ],
+    "BlockEntity": {
+      "Components": {
+        "TransferComponent": {
+          "Transfer_MaxOutputRate": 64,
+          "Transfer_MaxInputRate": 64,
+          "Transfer_AutoPush": false,
+          "Transfer_AutoPull": false,
+          "Transfer_DefaultFaceMode": "Bidirectional"
+        }
+      }
+    },
+    "CustomModelScale": 1,
+    "HitboxType": "Block_Seven_Eighth",
+    "VariantRotation": "Wall",
+    "Flags": {},
+    "FaceTags": {
+      "North": [
+        "PipeConnection"
+      ],
+      "South": [
+        "PipeConnection"
+      ],
+      "East": [
+        "PipeConnection"
+      ],
+      "West": [
+        "PipeConnection"
+      ],
+      "Up": [
+        "PipeConnection"
+      ],
+      "Down": [
+        "PipeConnection"
+      ]
+    },
+    "State": {
+      "Definitions": {
+        "Single": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "D": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_D.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "U": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_U.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "UD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_UD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "W": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_W.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "WD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "WU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "WUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "E": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_E.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "ED": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ED.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "EWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "S": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_S.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SE": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SE.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SED": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SED.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "SEWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "N": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_N.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "ND": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ND.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NE": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NE.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NED": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NED.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NEWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NS": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NS.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSE": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSE.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSED": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSED.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEW": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEW.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEWD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEWU": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWU.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        },
+        "NSEWUD": {
+          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWUD.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+              "Weight": 1
+            }
+          ],
+          "DrawType": "Model",
+          "Material": "Solid"
+        }
+      }
+    },
+    "ConnectedBlockRuleSet": {
+      "Type": "CustomTemplate",
+      "TemplateShapeBlockPatterns": {
+        "Single": "*Transfer_PipeNode_State_Definitions_Single",
+        "D": "*Transfer_PipeNode_State_Definitions_D",
+        "U": "*Transfer_PipeNode_State_Definitions_U",
+        "UD": "*Transfer_PipeNode_State_Definitions_UD",
+        "W": "*Transfer_PipeNode_State_Definitions_W",
+        "WD": "*Transfer_PipeNode_State_Definitions_WD",
+        "WU": "*Transfer_PipeNode_State_Definitions_WU",
+        "WUD": "*Transfer_PipeNode_State_Definitions_WUD",
+        "E": "*Transfer_PipeNode_State_Definitions_E",
+        "ED": "*Transfer_PipeNode_State_Definitions_ED",
+        "EU": "*Transfer_PipeNode_State_Definitions_EU",
+        "EUD": "*Transfer_PipeNode_State_Definitions_EUD",
+        "EW": "*Transfer_PipeNode_State_Definitions_EW",
+        "EWD": "*Transfer_PipeNode_State_Definitions_EWD",
+        "EWU": "*Transfer_PipeNode_State_Definitions_EWU",
+        "EWUD": "*Transfer_PipeNode_State_Definitions_EWUD",
+        "S": "*Transfer_PipeNode_State_Definitions_S",
+        "SD": "*Transfer_PipeNode_State_Definitions_SD",
+        "SU": "*Transfer_PipeNode_State_Definitions_SU",
+        "SUD": "*Transfer_PipeNode_State_Definitions_SUD",
+        "SW": "*Transfer_PipeNode_State_Definitions_SW",
+        "SWD": "*Transfer_PipeNode_State_Definitions_SWD",
+        "SWU": "*Transfer_PipeNode_State_Definitions_SWU",
+        "SWUD": "*Transfer_PipeNode_State_Definitions_SWUD",
+        "SE": "*Transfer_PipeNode_State_Definitions_SE",
+        "SED": "*Transfer_PipeNode_State_Definitions_SED",
+        "SEU": "*Transfer_PipeNode_State_Definitions_SEU",
+        "SEUD": "*Transfer_PipeNode_State_Definitions_SEUD",
+        "SEW": "*Transfer_PipeNode_State_Definitions_SEW",
+        "SEWD": "*Transfer_PipeNode_State_Definitions_SEWD",
+        "SEWU": "*Transfer_PipeNode_State_Definitions_SEWU",
+        "SEWUD": "*Transfer_PipeNode_State_Definitions_SEWUD",
+        "N": "*Transfer_PipeNode_State_Definitions_N",
+        "ND": "*Transfer_PipeNode_State_Definitions_ND",
+        "NU": "*Transfer_PipeNode_State_Definitions_NU",
+        "NUD": "*Transfer_PipeNode_State_Definitions_NUD",
+        "NW": "*Transfer_PipeNode_State_Definitions_NW",
+        "NWD": "*Transfer_PipeNode_State_Definitions_NWD",
+        "NWU": "*Transfer_PipeNode_State_Definitions_NWU",
+        "NWUD": "*Transfer_PipeNode_State_Definitions_NWUD",
+        "NE": "*Transfer_PipeNode_State_Definitions_NE",
+        "NED": "*Transfer_PipeNode_State_Definitions_NED",
+        "NEU": "*Transfer_PipeNode_State_Definitions_NEU",
+        "NEUD": "*Transfer_PipeNode_State_Definitions_NEUD",
+        "NEW": "*Transfer_PipeNode_State_Definitions_NEW",
+        "NEWD": "*Transfer_PipeNode_State_Definitions_NEWD",
+        "NEWU": "*Transfer_PipeNode_State_Definitions_NEWU",
+        "NEWUD": "*Transfer_PipeNode_State_Definitions_NEWUD",
+        "NS": "*Transfer_PipeNode_State_Definitions_NS",
+        "NSD": "*Transfer_PipeNode_State_Definitions_NSD",
+        "NSU": "*Transfer_PipeNode_State_Definitions_NSU",
+        "NSUD": "*Transfer_PipeNode_State_Definitions_NSUD",
+        "NSW": "*Transfer_PipeNode_State_Definitions_NSW",
+        "NSWD": "*Transfer_PipeNode_State_Definitions_NSWD",
+        "NSWU": "*Transfer_PipeNode_State_Definitions_NSWU",
+        "NSWUD": "*Transfer_PipeNode_State_Definitions_NSWUD",
+        "NSE": "*Transfer_PipeNode_State_Definitions_NSE",
+        "NSED": "*Transfer_PipeNode_State_Definitions_NSED",
+        "NSEU": "*Transfer_PipeNode_State_Definitions_NSEU",
+        "NSEUD": "*Transfer_PipeNode_State_Definitions_NSEUD",
+        "NSEW": "*Transfer_PipeNode_State_Definitions_NSEW",
+        "NSEWD": "*Transfer_PipeNode_State_Definitions_NSEWD",
+        "NSEWU": "*Transfer_PipeNode_State_Definitions_NSEWU",
+        "NSEWUD": "*Transfer_PipeNode_State_Definitions_NSEWUD"
+      },
+      "TemplateShapeAssetId": "PipeConnectedBlockTemplate"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
+  "Scale": 1
+}

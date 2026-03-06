@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 
@@ -56,6 +57,7 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
 
         // Clear neighborNodeId on all neighbor faces that point to this node
         FaceLinkUtil.unlinkAll(transfer, blockRef, chunkStore);
+        GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
     }
 
     @Nonnull

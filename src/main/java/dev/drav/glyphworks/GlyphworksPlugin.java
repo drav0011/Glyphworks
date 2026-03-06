@@ -1,5 +1,8 @@
 package dev.drav.glyphworks;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -9,8 +12,10 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
+import dev.drav.glyphworks.transfer.event.ChunkLoadTransferLinkEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
 
@@ -19,6 +24,21 @@ public class GlyphworksPlugin extends JavaPlugin {
     private static GlyphworksPlugin instance;
 
     private ComponentType<ChunkStore, TransferComponent> transferComponentType;
+
+    /** All TransferComponent nodes currently loaded in any chunk. */
+    private final Map<UUID, TransferComponent> loadedNodes = new ConcurrentHashMap<>();
+
+    public void registerNode(TransferComponent transfer) {
+        loadedNodes.put(transfer.getNodeId(), transfer);
+    }
+
+    public void unregisterNode(UUID nodeId) {
+        loadedNodes.remove(nodeId);
+    }
+
+    public Map<UUID, TransferComponent> getLoadedNodes() {
+        return loadedNodes;
+    }
 
     public GlyphworksPlugin(@Nonnull JavaPluginInit init) {
         super(init);
@@ -41,6 +61,12 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
+
+        // Wires (or re-wires) transfer edges the moment any TransferComponent enters the
+        // ChunkStore — covers both world load and placement with zero chunk scanning.
+        this.getChunkStoreRegistry().registerSystem(new ChunkLoadTransferLinkEvent());
+
+        this.getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 
         LOGGER.info("[Glyphworks] setup() complete.");
     }

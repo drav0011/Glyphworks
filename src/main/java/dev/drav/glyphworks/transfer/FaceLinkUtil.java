@@ -218,7 +218,7 @@ public final class FaceLinkUtil {
         FacePlane neighborFace = neighbor.getFaces().get(key);
         if (neighborFace != null) {
             neighborFace.setNeighborNodeId(null);
-            LOGGER.info("[FaceLinkUtil] Cleared neighbor face link at " + neighborPos + " key=" + key);
+            LOGGER.info("[Net] unlink at " + neighborPos);
         }
     }
 }
