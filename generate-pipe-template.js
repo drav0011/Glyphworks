@@ -6,6 +6,7 @@ const MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks
 const TMPL_DIR    = path.join(BASE, 'src/main/resources/Server/Item/CustomConnectedBlockTemplates');
 const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Transfer_PipeNode.json');
 const TMPL_OUT    = path.join(TMPL_DIR, 'PipeConnectedBlockTemplate.json');
+const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
 const OLD_ALL_MODEL  = path.join(MODELS_DIR, 'Pipe_All.blockymodel');
@@ -20,6 +21,24 @@ if (!fs.existsSync(TEMPLATE_MODEL) && fs.existsSync(OLD_ALL_MODEL)) {
 const oldFiles = fs.readdirSync(MODELS_DIR).filter(f => f !== 'Pipe_Template.blockymodel' && f !== 'pipe.png');
 for (const f of oldFiles) fs.unlinkSync(path.join(MODELS_DIR, f));
 if (oldFiles.length) console.log(`Deleted ${oldFiles.length} old generated model files`);
+
+// ─── Hitbox box definitions (block-local 0-1 coords derived from model nodes) ─
+// Model space: X/Z ∈ [-16, +16], Y ∈ [0, 32]; pivot = box center + offset.
+const CENTER_BOX = { Min: { X: 0.3125, Y: 0.3125, Z: 0.3125 }, Max: { X: 0.6875, Y: 0.6875, Z: 0.6875 } };
+const ARM_BOXES = {
+  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } },
+  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } },
+  E: { Min: { X: 0.6875, Y: 0.375,  Z: 0.375  }, Max: { X: 1,      Y: 0.625,  Z: 0.625  } },
+  W: { Min: { X: 0,      Y: 0.375,  Z: 0.375  }, Max: { X: 0.3125, Y: 0.625,  Z: 0.625  } },
+  U: { Min: { X: 0.375,  Y: 0.6875, Z: 0.375  }, Max: { X: 0.625,  Y: 1,      Z: 0.625  } },
+  D: { Min: { X: 0.375,  Y: 0,      Z: 0.375  }, Max: { X: 0.625,  Y: 0.3125, Z: 0.625  } },
+};
+
+// ─── Clean up old hitbox files ────────────────────────────────────────────────
+if (!fs.existsSync(HITBOXES_DIR)) fs.mkdirSync(HITBOXES_DIR, { recursive: true });
+const oldHitboxFiles = fs.readdirSync(HITBOXES_DIR).filter(f => f.startsWith('Pipe_') && f.endsWith('.json'));
+for (const f of oldHitboxFiles) fs.unlinkSync(path.join(HITBOXES_DIR, f));
+if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hitbox files`);
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 const DIRECTIONS = [
@@ -77,7 +96,14 @@ for (let mask = 0; mask < 64; mask++) {
   const modelFileName = `Pipe_${name}.blockymodel`;
   fs.writeFileSync(path.join(MODELS_DIR, modelFileName), JSON.stringify(model, null, 2), 'utf8');
 
+  const hitboxBoxes = [CENTER_BOX];
+  for (const dir of DIRECTIONS) {
+    if ((mask >> dir.bit) & 1) hitboxBoxes.push(ARM_BOXES[dir.name]);
+  }
+  fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
+
   stateDefs[name] = {
+    HitboxType:         `Pipe_${name}`,
     CustomModel:        `Blocks/Glyphworks/Pipe/${modelFileName}`,
     CustomModelTexture: MODEL_TEXTURE,
     DrawType:           'Model',
@@ -87,7 +113,7 @@ for (let mask = 0; mask < 64; mask++) {
   shapePatterns[name] = `*Transfer_PipeNode_State_Definitions_${name}`;
 }
 
-console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files`);
+console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
 
 // ─── Write PipeConnectedBlockTemplate.json ───────────────────────────────────
 fs.writeFileSync(TMPL_OUT, JSON.stringify({
@@ -121,7 +147,7 @@ const item = {
       },
     },
     CustomModelScale: 1,
-    HitboxType: 'Block_Seven_Eighth',
+    HitboxType: 'Pipe_Single',
     VariantRotation: 'Wall',
     Flags: {},
     FaceTags: {

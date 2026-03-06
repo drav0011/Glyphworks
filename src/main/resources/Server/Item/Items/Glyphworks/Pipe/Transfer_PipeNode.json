@@ -29,7 +29,7 @@
       }
     },
     "CustomModelScale": 1,
-    "HitboxType": "Block_Seven_Eighth",
+    "HitboxType": "Pipe_Single",
     "VariantRotation": "Wall",
     "Flags": {},
     "FaceTags": {
@@ -55,6 +55,7 @@
     "State": {
       "Definitions": {
         "Single": {
+          "HitboxType": "Pipe_Single",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
           "CustomModelTexture": [
             {
@@ -66,6 +67,7 @@
           "Material": "Solid"
         },
         "D": {
+          "HitboxType": "Pipe_D",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_D.blockymodel",
           "CustomModelTexture": [
             {
@@ -77,6 +79,7 @@
           "Material": "Solid"
         },
         "U": {
+          "HitboxType": "Pipe_U",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_U.blockymodel",
           "CustomModelTexture": [
             {
@@ -88,6 +91,7 @@
           "Material": "Solid"
         },
         "UD": {
+          "HitboxType": "Pipe_UD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_UD.blockymodel",
           "CustomModelTexture": [
             {
@@ -99,6 +103,7 @@
           "Material": "Solid"
         },
         "W": {
+          "HitboxType": "Pipe_W",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_W.blockymodel",
           "CustomModelTexture": [
             {
@@ -110,6 +115,7 @@
           "Material": "Solid"
         },
         "WD": {
+          "HitboxType": "Pipe_WD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WD.blockymodel",
           "CustomModelTexture": [
             {
@@ -121,6 +127,7 @@
           "Material": "Solid"
         },
         "WU": {
+          "HitboxType": "Pipe_WU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WU.blockymodel",
           "CustomModelTexture": [
             {
@@ -132,6 +139,7 @@
           "Material": "Solid"
         },
         "WUD": {
+          "HitboxType": "Pipe_WUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -143,6 +151,7 @@
           "Material": "Solid"
         },
         "E": {
+          "HitboxType": "Pipe_E",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_E.blockymodel",
           "CustomModelTexture": [
             {
@@ -154,6 +163,7 @@
           "Material": "Solid"
         },
         "ED": {
+          "HitboxType": "Pipe_ED",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ED.blockymodel",
           "CustomModelTexture": [
             {
@@ -165,6 +175,7 @@
           "Material": "Solid"
         },
         "EU": {
+          "HitboxType": "Pipe_EU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EU.blockymodel",
           "CustomModelTexture": [
             {
@@ -176,6 +187,7 @@
           "Material": "Solid"
         },
         "EUD": {
+          "HitboxType": "Pipe_EUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -187,6 +199,7 @@
           "Material": "Solid"
         },
         "EW": {
+          "HitboxType": "Pipe_EW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EW.blockymodel",
           "CustomModelTexture": [
             {
@@ -198,6 +211,7 @@
           "Material": "Solid"
         },
         "EWD": {
+          "HitboxType": "Pipe_EWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -209,6 +223,7 @@
           "Material": "Solid"
         },
         "EWU": {
+          "HitboxType": "Pipe_EWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -220,6 +235,7 @@
           "Material": "Solid"
         },
         "EWUD": {
+          "HitboxType": "Pipe_EWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -231,6 +247,7 @@
           "Material": "Solid"
         },
         "S": {
+          "HitboxType": "Pipe_S",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_S.blockymodel",
           "CustomModelTexture": [
             {
@@ -242,6 +259,7 @@
           "Material": "Solid"
         },
         "SD": {
+          "HitboxType": "Pipe_SD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SD.blockymodel",
           "CustomModelTexture": [
             {
@@ -253,6 +271,7 @@
           "Material": "Solid"
         },
         "SU": {
+          "HitboxType": "Pipe_SU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SU.blockymodel",
           "CustomModelTexture": [
             {
@@ -264,6 +283,7 @@
           "Material": "Solid"
         },
         "SUD": {
+          "HitboxType": "Pipe_SUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -275,6 +295,7 @@
           "Material": "Solid"
         },
         "SW": {
+          "HitboxType": "Pipe_SW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SW.blockymodel",
           "CustomModelTexture": [
             {
@@ -286,6 +307,7 @@
           "Material": "Solid"
         },
         "SWD": {
+          "HitboxType": "Pipe_SWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -297,6 +319,7 @@
           "Material": "Solid"
         },
         "SWU": {
+          "HitboxType": "Pipe_SWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -308,6 +331,7 @@
           "Material": "Solid"
         },
         "SWUD": {
+          "HitboxType": "Pipe_SWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -319,6 +343,7 @@
           "Material": "Solid"
         },
         "SE": {
+          "HitboxType": "Pipe_SE",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SE.blockymodel",
           "CustomModelTexture": [
             {
@@ -330,6 +355,7 @@
           "Material": "Solid"
         },
         "SED": {
+          "HitboxType": "Pipe_SED",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SED.blockymodel",
           "CustomModelTexture": [
             {
@@ -341,6 +367,7 @@
           "Material": "Solid"
         },
         "SEU": {
+          "HitboxType": "Pipe_SEU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEU.blockymodel",
           "CustomModelTexture": [
             {
@@ -352,6 +379,7 @@
           "Material": "Solid"
         },
         "SEUD": {
+          "HitboxType": "Pipe_SEUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -363,6 +391,7 @@
           "Material": "Solid"
         },
         "SEW": {
+          "HitboxType": "Pipe_SEW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEW.blockymodel",
           "CustomModelTexture": [
             {
@@ -374,6 +403,7 @@
           "Material": "Solid"
         },
         "SEWD": {
+          "HitboxType": "Pipe_SEWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -385,6 +415,7 @@
           "Material": "Solid"
         },
         "SEWU": {
+          "HitboxType": "Pipe_SEWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -396,6 +427,7 @@
           "Material": "Solid"
         },
         "SEWUD": {
+          "HitboxType": "Pipe_SEWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -407,6 +439,7 @@
           "Material": "Solid"
         },
         "N": {
+          "HitboxType": "Pipe_N",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_N.blockymodel",
           "CustomModelTexture": [
             {
@@ -418,6 +451,7 @@
           "Material": "Solid"
         },
         "ND": {
+          "HitboxType": "Pipe_ND",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ND.blockymodel",
           "CustomModelTexture": [
             {
@@ -429,6 +463,7 @@
           "Material": "Solid"
         },
         "NU": {
+          "HitboxType": "Pipe_NU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NU.blockymodel",
           "CustomModelTexture": [
             {
@@ -440,6 +475,7 @@
           "Material": "Solid"
         },
         "NUD": {
+          "HitboxType": "Pipe_NUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -451,6 +487,7 @@
           "Material": "Solid"
         },
         "NW": {
+          "HitboxType": "Pipe_NW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NW.blockymodel",
           "CustomModelTexture": [
             {
@@ -462,6 +499,7 @@
           "Material": "Solid"
         },
         "NWD": {
+          "HitboxType": "Pipe_NWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -473,6 +511,7 @@
           "Material": "Solid"
         },
         "NWU": {
+          "HitboxType": "Pipe_NWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -484,6 +523,7 @@
           "Material": "Solid"
         },
         "NWUD": {
+          "HitboxType": "Pipe_NWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -495,6 +535,7 @@
           "Material": "Solid"
         },
         "NE": {
+          "HitboxType": "Pipe_NE",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NE.blockymodel",
           "CustomModelTexture": [
             {
@@ -506,6 +547,7 @@
           "Material": "Solid"
         },
         "NED": {
+          "HitboxType": "Pipe_NED",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NED.blockymodel",
           "CustomModelTexture": [
             {
@@ -517,6 +559,7 @@
           "Material": "Solid"
         },
         "NEU": {
+          "HitboxType": "Pipe_NEU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEU.blockymodel",
           "CustomModelTexture": [
             {
@@ -528,6 +571,7 @@
           "Material": "Solid"
         },
         "NEUD": {
+          "HitboxType": "Pipe_NEUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -539,6 +583,7 @@
           "Material": "Solid"
         },
         "NEW": {
+          "HitboxType": "Pipe_NEW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEW.blockymodel",
           "CustomModelTexture": [
             {
@@ -550,6 +595,7 @@
           "Material": "Solid"
         },
         "NEWD": {
+          "HitboxType": "Pipe_NEWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -561,6 +607,7 @@
           "Material": "Solid"
         },
         "NEWU": {
+          "HitboxType": "Pipe_NEWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -572,6 +619,7 @@
           "Material": "Solid"
         },
         "NEWUD": {
+          "HitboxType": "Pipe_NEWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -583,6 +631,7 @@
           "Material": "Solid"
         },
         "NS": {
+          "HitboxType": "Pipe_NS",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NS.blockymodel",
           "CustomModelTexture": [
             {
@@ -594,6 +643,7 @@
           "Material": "Solid"
         },
         "NSD": {
+          "HitboxType": "Pipe_NSD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSD.blockymodel",
           "CustomModelTexture": [
             {
@@ -605,6 +655,7 @@
           "Material": "Solid"
         },
         "NSU": {
+          "HitboxType": "Pipe_NSU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSU.blockymodel",
           "CustomModelTexture": [
             {
@@ -616,6 +667,7 @@
           "Material": "Solid"
         },
         "NSUD": {
+          "HitboxType": "Pipe_NSUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -627,6 +679,7 @@
           "Material": "Solid"
         },
         "NSW": {
+          "HitboxType": "Pipe_NSW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSW.blockymodel",
           "CustomModelTexture": [
             {
@@ -638,6 +691,7 @@
           "Material": "Solid"
         },
         "NSWD": {
+          "HitboxType": "Pipe_NSWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -649,6 +703,7 @@
           "Material": "Solid"
         },
         "NSWU": {
+          "HitboxType": "Pipe_NSWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -660,6 +715,7 @@
           "Material": "Solid"
         },
         "NSWUD": {
+          "HitboxType": "Pipe_NSWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -671,6 +727,7 @@
           "Material": "Solid"
         },
         "NSE": {
+          "HitboxType": "Pipe_NSE",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSE.blockymodel",
           "CustomModelTexture": [
             {
@@ -682,6 +739,7 @@
           "Material": "Solid"
         },
         "NSED": {
+          "HitboxType": "Pipe_NSED",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSED.blockymodel",
           "CustomModelTexture": [
             {
@@ -693,6 +751,7 @@
           "Material": "Solid"
         },
         "NSEU": {
+          "HitboxType": "Pipe_NSEU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEU.blockymodel",
           "CustomModelTexture": [
             {
@@ -704,6 +763,7 @@
           "Material": "Solid"
         },
         "NSEUD": {
+          "HitboxType": "Pipe_NSEUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEUD.blockymodel",
           "CustomModelTexture": [
             {
@@ -715,6 +775,7 @@
           "Material": "Solid"
         },
         "NSEW": {
+          "HitboxType": "Pipe_NSEW",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEW.blockymodel",
           "CustomModelTexture": [
             {
@@ -726,6 +787,7 @@
           "Material": "Solid"
         },
         "NSEWD": {
+          "HitboxType": "Pipe_NSEWD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWD.blockymodel",
           "CustomModelTexture": [
             {
@@ -737,6 +799,7 @@
           "Material": "Solid"
         },
         "NSEWU": {
+          "HitboxType": "Pipe_NSEWU",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWU.blockymodel",
           "CustomModelTexture": [
             {
@@ -748,6 +811,7 @@
           "Material": "Solid"
         },
         "NSEWUD": {
+          "HitboxType": "Pipe_NSEWUD",
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWUD.blockymodel",
           "CustomModelTexture": [
             {
