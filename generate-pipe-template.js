@@ -1,3 +1,8 @@
+/**
+ * Using this for now, ideally will change to a model with conditional rendering of cubes in the models
+ * or if not still using blockstates with the minimum amount of models rotating them in 3D to position correctly
+ */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -105,9 +110,6 @@ for (let mask = 0; mask < 64; mask++) {
   stateDefs[name] = {
     HitboxType:         `Pipe_${name}`,
     CustomModel:        `Blocks/Glyphworks/Pipe/${modelFileName}`,
-    CustomModelTexture: MODEL_TEXTURE,
-    DrawType:           'Model',
-    Material:           'Solid',
   };
 
   shapePatterns[name] = `*Transfer_PipeNode_State_Definitions_${name}`;
@@ -148,7 +150,6 @@ const item = {
     },
     CustomModelScale: 1,
     HitboxType: 'Pipe_Single',
-    VariantRotation: 'Wall',
     Flags: {},
     FaceTags: {
       North: ['PipeConnection'],
