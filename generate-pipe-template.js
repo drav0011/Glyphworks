@@ -8,9 +8,7 @@ const path = require('path');
 
 const BASE        = __dirname;
 const MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
-const TMPL_DIR    = path.join(BASE, 'src/main/resources/Server/Item/CustomConnectedBlockTemplates');
 const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Transfer_PipeNode.json');
-const TMPL_OUT    = path.join(TMPL_DIR, 'PipeConnectedBlockTemplate.json');
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
@@ -47,15 +45,14 @@ if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hit
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 const DIRECTIONS = [
-  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z: -1 }, oppositeFace: 'South', nodeIdx: 3 }, // north
-  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z:  1 }, oppositeFace: 'North', nodeIdx: 2 }, // south
-  { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, oppositeFace: 'West',  nodeIdx: 5 }, // east
-  { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, oppositeFace: 'East',  nodeIdx: 4 }, // west
-  { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, oppositeFace: 'Down',  nodeIdx: 1 }, // up
-  { name: 'D', bit: 0, position: { X:  0, Y: -1, Z:  0 }, oppositeFace: 'Up',    nodeIdx: 6 }, // down
+  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 }, // north
+  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 }, // south
+  { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, nodeIdx: 5 }, // east
+  { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, nodeIdx: 4 }, // west
+  { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, nodeIdx: 1 }, // up
+  { name: 'D', bit: 0, position: { X:  0, Y: -1, Z:  0 }, nodeIdx: 6 }, // down
 ];
 
-const FACE_TAGS     = { North: ['PipeConnection'], South: ['PipeConnection'], East: ['PipeConnection'], West: ['PipeConnection'], Up: ['PipeConnection'], Down: ['PipeConnection'] };
 const MODEL_TEXTURE = [{ Texture: 'Blocks/Glyphworks/Pipe/pipe.png', Weight: 1 }];
 
 const templateModel = JSON.parse(fs.readFileSync(TEMPLATE_MODEL, 'utf8'));
@@ -66,30 +63,10 @@ function shapeNameFor(mask) {
 }
 
 // ─── Generate all 64 combinations ────────────────────────────────────────────
-const shapes        = {};
-const stateDefs     = {};
-const shapePatterns = {};
+const stateDefs = {};
 
 for (let mask = 0; mask < 64; mask++) {
   const name = shapeNameFor(mask);
-
-  // PipeConnectedBlockTemplate shape entry
-  if (mask === 0) {
-    shapes[name] = { FaceTags: { ...FACE_TAGS }, PatternsToMatchAnyOf: [] };
-  } else {
-    shapes[name] = {
-      FaceTags: { ...FACE_TAGS },
-      PatternsToMatchAnyOf: [{
-        Type: 'Custom',
-        TransformRulesToOrientation: false,
-        RulesToMatch: DIRECTIONS.map(d => ({
-          Position: d.position,
-          IncludeOrExclude: ((mask >> d.bit) & 1) ? 'Include' : 'Exclude',
-          FaceTags: { [d.oppositeFace]: ['PipeConnection'] },
-        })),
-      }],
-    };
-  }
 
   // Blockymodel — clone Pipe_Template, toggle arm visibility
   const model = JSON.parse(JSON.stringify(templateModel));
@@ -108,23 +85,12 @@ for (let mask = 0; mask < 64; mask++) {
   fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
 
   stateDefs[name] = {
-    HitboxType:         `Pipe_${name}`,
-    CustomModel:        `Blocks/Glyphworks/Pipe/${modelFileName}`,
+    HitboxType:  `Pipe_${name}`,
+    CustomModel: `Blocks/Glyphworks/Pipe/${modelFileName}`,
   };
-
-  shapePatterns[name] = `*Transfer_PipeNode_State_Definitions_${name}`;
 }
 
 console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
-
-// ─── Write PipeConnectedBlockTemplate.json ───────────────────────────────────
-fs.writeFileSync(TMPL_OUT, JSON.stringify({
-  MaterialName: 'Pipe',
-  ConnectsToOtherMaterials: true,
-  DefaultShape: 'Single',
-  Shapes: shapes,
-}, null, 2), 'utf8');
-console.log('Wrote PipeConnectedBlockTemplate.json');
 
 // ─── Write Transfer_PipeNode.json from scratch ───────────────────────────────
 const item = {
@@ -160,11 +126,6 @@ const item = {
       Down:  ['PipeConnection'],
     },
     State: { Definitions: stateDefs },
-    ConnectedBlockRuleSet: {
-      Type: 'CustomTemplate',
-      TemplateShapeBlockPatterns: shapePatterns,
-      TemplateShapeAssetId: 'PipeConnectedBlockTemplate',
-    },
   },
   PlayerAnimationsId: 'Block',
   Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',

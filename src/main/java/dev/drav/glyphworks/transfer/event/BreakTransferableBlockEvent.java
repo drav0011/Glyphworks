@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
+import dev.drav.glyphworks.transfer.PipeStateUtil;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 
 import javax.annotation.Nonnull;
@@ -58,6 +59,13 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
         // Clear neighborNodeId on all neighbor faces that point to this node
         FaceLinkUtil.unlinkAll(transfer, blockRef, chunkStore);
         GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
+
+        // Defer the neighbour state update so it runs after the block is gone from the world
+        final Vector3i breakPos = new Vector3i(pos.x, pos.y, pos.z);
+        commandBuffer.run(_ -> {
+            World w = commandBuffer.getExternalData().getWorld();
+            PipeStateUtil.updateNeighborPipeStates(w, breakPos);
+        });
     }
 
     @Nonnull

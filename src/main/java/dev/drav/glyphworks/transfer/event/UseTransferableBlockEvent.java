@@ -21,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
+import dev.drav.glyphworks.transfer.PipeStateUtil;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
@@ -180,6 +181,9 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
                 LOGGER.info("=================================================");
 
                 FaceLinkUtil.relinkFace(transfer, blockRef, hitFace, chunkStore);
+
+                // Update pipe visual state to reflect the toggled face
+                PipeStateUtil.updatePipeState(world, pos);
 
                 // Laser from eye to hit point, coloured by new mode
                 BuilderToolLaserPointer laser = new BuilderToolLaserPointer();
