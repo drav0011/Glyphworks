@@ -1,0 +1,24 @@
+{
+  "Interactions": [
+    {
+      "Type": "Simple"
+    }
+  ],
+  "Settings": {
+    "Adventure": {
+      "Cooldown": {
+        "Id": "BlockInteraction",
+        "Cooldown": 0.278,
+        "ClickBypass": true
+      }
+    },
+    "Creative": {
+      "AllowSkipChainOnClick": true,
+      "Cooldown": {
+        "Id": "BlockInteraction_Creative",
+        "Cooldown": 0.278,
+        "ClickBypass": true
+      }
+    }
+  }
+}

@@ -310,6 +310,9 @@
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWUD.blockymodel"
         }
       }
+    },
+    "Interactions": {
+      "Use": "Glyphworks_PipeUse"
     }
   },
   "PlayerAnimationsId": "Block",

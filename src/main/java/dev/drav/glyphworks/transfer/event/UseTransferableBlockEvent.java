@@ -11,6 +11,7 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.packets.buildertools.BuilderToolLaserPointer;
 import com.hypixel.hytale.server.core.event.events.ecs.UseBlockEvent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
 import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -50,8 +51,17 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
 
     /**
      * Item ID of the face wrench that triggers this interaction.
+     * Must match the filename (without extension) of the wrench's item JSON asset.
      */
-    public static final String FACE_WRENCH_ITEM_ID = "glyphworks:face_wrench";
+    public static final String FACE_WRENCH_ITEM_ID = "Face_Wrench";
+
+    /**
+     * The root-interaction ID registered on {@code Transfer_PipeNode} for
+     * {@link com.hypixel.hytale.protocol.InteractionType#Secondary}. Only
+     * events whose block maps to this interaction are handled here, so we
+     * never accidentally cancel a bench, chest, or any other block.
+     */
+    private static final String PIPE_INTERACTION_ID = "Glyphworks_PipeUse";
 
     /** Maximum raycast reach distance in blocks. */
     private static final double MAX_REACH = 10.0;
@@ -81,11 +91,19 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
             @Nonnull CommandBuffer<EntityStore> commandBuffer,
             @Nonnull UseBlockEvent.Pre event) {
 
-        // Only trigger when the player is holding the face wrench
-//        ItemStack heldItem = event.getContext().getHeldItem();
-//        if (heldItem == null || heldItem.isEmpty() || !FACE_WRENCH_ITEM_ID.equals(heldItem.getItemId())) {
-//            return;
-//        }
+        // Guard 1: only handle events for pipe blocks, never for benches, chests, etc.
+        String blockInteractionId = event.getBlockType().getInteractions().get(event.getInteractionType());
+        if (!PIPE_INTERACTION_ID.equals(blockInteractionId)) {
+            return;
+        }
+
+        // Guard 2: only activate when the player is holding the face wrench.
+        ItemStack heldItem = event.getContext().getHeldItem();
+        if (heldItem == null || heldItem.isEmpty() || !FACE_WRENCH_ITEM_ID.equals(heldItem.getItemId())) {
+            return;
+        }
+
+        LOGGER.info("[UseTransferableBlock] handle() fired for pipe, targetBlock=" + event.getTargetBlock());
 
         // Read player transform, model (for real eye height), and head rotation (actual camera look)
         TransformComponent transform = archetypeChunk.getComponent(index, TransformComponent.getComponentType());
@@ -120,30 +138,41 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
         // Target block position comes from the event, not an undefined variable
         final Vector3i pos = event.getTargetBlock();
 
+        // Do NOT cancel — letting the Glyphworks_PipeUse root interaction succeed
+        // (it is a Simple no-op) keeps state = Finished on the client so the
+        // Block_Secondary chain never falls through to PlaceBlock.
         commandBuffer.run(_ -> {
+            // Step 1: confirm commandBuffer.run fired
+            LOGGER.info("[UseTransferableBlock] commandBuffer.run fired for pos=" + pos);
+
             World world = commandBuffer.getExternalData().getWorld();
             ChunkStore chunkStore = world.getChunkStore();
 
             Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-            if (chunkRef == null || !chunkRef.isValid())
+            if (chunkRef == null || !chunkRef.isValid()) {
+                LOGGER.warning("[UseTransferableBlock] chunkRef null or invalid at " + pos);
                 return;
+            }
 
             BlockComponentChunk bcc = chunkStore.getStore().getComponent(chunkRef,
                     BlockComponentChunk.getComponentType());
-            if (bcc == null)
+            if (bcc == null) {
+                LOGGER.warning("[UseTransferableBlock] BlockComponentChunk null at " + pos);
                 return;
+            }
 
             Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-            if (blockRef == null)
+            if (blockRef == null) {
+                LOGGER.warning("[UseTransferableBlock] blockRef null at " + pos);
                 return;
+            }
 
             TransferComponent transfer = chunkStore.getStore().getComponent(blockRef,
                     TransferComponent.getComponentType());
-            if (transfer == null)
+            if (transfer == null) {
+                LOGGER.warning("[UseTransferableBlock] no TransferComponent at " + pos);
                 return;
-
-            // Only cancel the default block interaction when we confirmed it's a transfer block
-            event.setCancelled(true);
+            }
 
             LOGGER.info("[UseTransferableBlock] Target block: " + pos + "  faces=" + transfer.getFaces().size());
             LOGGER.info("[UseTransferableBlock] Eye: (" + eyeX + ", " + eyeY + ", " + eyeZ + ")  dir: (" +

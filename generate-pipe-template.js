@@ -126,6 +126,7 @@ const item = {
       Down:  ['PipeConnection'],
     },
     State: { Definitions: stateDefs },
+    Interactions: { Use: 'Glyphworks_PipeUse' },
   },
   PlayerAnimationsId: 'Block',
   Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',
