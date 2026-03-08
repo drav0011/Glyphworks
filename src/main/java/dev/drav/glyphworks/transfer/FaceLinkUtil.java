@@ -9,8 +9,6 @@ import dev.drav.glyphworks.transfer.component.FaceKey;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 
-import java.util.logging.Logger;
-
 /**
  * Utility for linking and unlinking transfer network edges directly in FacePlane data.
  *
@@ -28,8 +26,6 @@ import java.util.logging.Logger;
  * We try both, skip the one that is our own block, and use the other as the candidate neighbor.
  */
 public final class FaceLinkUtil {
-
-    private static final Logger LOGGER = Logger.getLogger(FaceLinkUtil.class.getName());
 
     private FaceLinkUtil() {}
 
@@ -156,10 +152,6 @@ public final class FaceLinkUtil {
         // Link both sides
         face.setNeighborNodeId(neighbor.getNodeId());
         neighborFace.setNeighborNodeId(transfer.getNodeId());
-
-        LOGGER.info("[FaceLinkUtil] Linked " + transfer.getNodeId()
-                + " <-> " + neighbor.getNodeId()
-                + " on face " + face.getFaceKey());
         return true;
     }
 
@@ -218,7 +210,6 @@ public final class FaceLinkUtil {
         FacePlane neighborFace = neighbor.getFaces().get(key);
         if (neighborFace != null) {
             neighborFace.setNeighborNodeId(null);
-            LOGGER.info("[Net] unlink at " + neighborPos);
         }
     }
 }

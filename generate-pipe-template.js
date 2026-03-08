@@ -78,19 +78,17 @@ for (let mask = 0; mask < 64; mask++) {
   const modelFileName = `Pipe_${name}.blockymodel`;
   fs.writeFileSync(path.join(MODELS_DIR, modelFileName), JSON.stringify(model, null, 2), 'utf8');
 
-  const hitboxBoxes = [CENTER_BOX];
-  for (const dir of DIRECTIONS) {
-    if ((mask >> dir.bit) & 1) hitboxBoxes.push(ARM_BOXES[dir.name]);
-  }
-  fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
-
   stateDefs[name] = {
-    HitboxType:  `Pipe_${name}`,
     CustomModel: `Blocks/Glyphworks/Pipe/${modelFileName}`,
   };
 }
 
-console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
+console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files`);
+
+// ─── Write single full hitbox (all arms always present) ───────────────────────
+const fullHitboxBoxes = [CENTER_BOX, ...Object.values(ARM_BOXES)];
+fs.writeFileSync(path.join(HITBOXES_DIR, 'Pipe_Full.json'), JSON.stringify({ Boxes: fullHitboxBoxes }, null, 2), 'utf8');
+console.log('Wrote Pipe_Full.json hitbox (center + all 6 arms)');
 
 // ─── Write Transfer_PipeNode.json from scratch ───────────────────────────────
 const item = {
@@ -115,7 +113,7 @@ const item = {
       },
     },
     CustomModelScale: 1,
-    HitboxType: 'Pipe_Single',
+    HitboxType: 'Pipe_Full',
     Flags: {},
     FaceTags: {
       North: ['PipeConnection'],

@@ -71,28 +71,16 @@ public final class PipeStateUtil {
 
             Vector3i neighborPos = new Vector3i(pos.x + dx, pos.y + dy, pos.z + dz);
             TransferComponent neighbor = getTransferComponent(world, neighborPos);
-            if (neighbor == null) {
-                LOGGER.fine("[PipeState] " + pos + " dir=" + label + " → no transfer neighbour");
-                continue;
-            }
+            if (neighbor == null) continue;
 
             // Hide arm if THIS pipe's face toward the neighbour is CLOSED
             FacePlane thisFace = getFaceByDirection(pipe, pos, dx, dy, dz);
-            if (thisFace != null && thisFace.getMode() == FaceMode.CLOSED) {
-                LOGGER.info("[PipeState] " + pos + " dir=" + label + " → THIS face CLOSED → arm hidden");
-                continue;
-            }
+            if (thisFace != null && thisFace.getMode() == FaceMode.CLOSED) continue;
 
             // Also hide arm if the NEIGHBOUR's face back toward this pipe is CLOSED
             FacePlane neighborFace = getFaceByDirection(neighbor, neighborPos, -dx, -dy, -dz);
-            if (neighborFace != null && neighborFace.getMode() == FaceMode.CLOSED) {
-                LOGGER.info("[PipeState] " + pos + " dir=" + label + " → NEIGHBOUR face at " + neighborPos + " CLOSED → arm hidden");
-                continue;
-            }
+            if (neighborFace != null && neighborFace.getMode() == FaceMode.CLOSED) continue;
 
-            LOGGER.info("[PipeState] " + pos + " dir=" + label + " → arm ACTIVE"
-                + " (thisFace=" + (thisFace == null ? "null" : thisFace.getMode())
-                + " neighborFace=" + (neighborFace == null ? "null" : neighborFace.getMode()) + ")");
             sb.append(label);
         }
         return sb.length() == 0 ? "Single" : sb.toString();
@@ -112,10 +100,7 @@ public final class PipeStateUtil {
      */
     public static void updatePipeState(@Nonnull World world, @Nonnull Vector3i pos) {
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
-        if (blockType == null) {
-            LOGGER.fine("[PipeState] updatePipeState " + pos + " → no blockType, skip");
-            return;
-        }
+        if (blockType == null) return;
 
         // Navigate from a potential state variant to the root block type.
         // getDefaultStateKey() is null on the root (no parent container) and
@@ -125,28 +110,15 @@ public final class PipeStateUtil {
                 ? BlockType.getAssetMap().getAsset(baseKey)
                 : blockType;
 
-        if (rootBlockType == null || rootBlockType.getData() == null) {
-            LOGGER.fine("[PipeState] updatePipeState " + pos + " → root block type not found or has no data, skip");
-            return;
-        }
+        if (rootBlockType == null || rootBlockType.getData() == null) return;
 
         // Confirm this block has the pipe state machine by checking for "Single" state
-        if (rootBlockType.getBlockForState("Single") == null) {
-            LOGGER.fine("[PipeState] updatePipeState " + pos + " → blockType '" + blockType.getId() + "' has no 'Single' state, skip");
-            return;
-        }
+        if (rootBlockType.getBlockForState("Single") == null) return;
 
         TransferComponent pipe = getTransferComponent(world, pos);
-        if (pipe == null) {
-            LOGGER.fine("[PipeState] updatePipeState " + pos + " → no TransferComponent, skip");
-            return;
-        }
+        if (pipe == null) return;
 
         String stateName = computeStateName(pipe, world, pos);
-        LOGGER.info("[PipeState] updatePipeState " + pos
-                + " variant='" + blockType.getId() + "'"
-                + " root='" + rootBlockType.getId() + "'"
-                + " → state='" + stateName + "'");
 
         WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
         if (chunk != null) {

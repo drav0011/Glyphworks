@@ -13,7 +13,6 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.logging.Logger;
 
 /**
  * Wires transfer network edges for every {@link TransferComponent} that enters
@@ -43,8 +42,6 @@ import java.util.logging.Logger;
  */
 public final class ChunkLoadTransferLinkEvent extends RefChangeSystem<ChunkStore, TransferComponent> {
 
-    private static final Logger LOGGER = Logger.getLogger(ChunkLoadTransferLinkEvent.class.getName());
-
     @Override
     public ComponentType<ChunkStore, TransferComponent> componentType() {
         return TransferComponent.getComponentType();
@@ -69,7 +66,6 @@ public final class ChunkLoadTransferLinkEvent extends RefChangeSystem<ChunkStore
 
         ChunkStore chunkStore = store.getExternalData();
         FaceLinkUtil.linkAll(transfer, ref, chunkStore);
-        LOGGER.fine("[TransferLink] linkAll on node " + transfer.getNodeId());
         GlyphworksPlugin.get().registerNode(transfer);
     }
 
