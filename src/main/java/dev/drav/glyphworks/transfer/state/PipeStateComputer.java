@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer;
+package dev.drav.glyphworks.transfer.state;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
+import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 
 /**
  * Computes the visual state name for a pipe block based on which adjacent faces are

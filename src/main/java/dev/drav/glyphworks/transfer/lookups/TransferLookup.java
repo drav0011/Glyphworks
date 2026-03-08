@@ -1,14 +1,15 @@
-package dev.drav.glyphworks.transfer;
+package dev.drav.glyphworks.transfer.lookups;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import dev.drav.glyphworks.transfer.component.TransferComponent;
 
 /**
  * Holds the result of resolving a {@link TransferComponent} and its entity {@link Ref}

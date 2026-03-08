@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.transfer.event;
 
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
@@ -10,12 +12,11 @@ import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.transfer.FaceLinkUtil;
-import dev.drav.glyphworks.transfer.TransferLookup;
-import dev.drav.glyphworks.transfer.TransferStateRegistry;
 
-import javax.annotation.Nonnull;
+import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.transfer.lookups.TransferLookup;
+import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
+import dev.drav.glyphworks.util.FaceLinkUtil;
 
 public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 

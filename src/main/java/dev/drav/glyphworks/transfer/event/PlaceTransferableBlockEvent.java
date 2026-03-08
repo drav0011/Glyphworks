@@ -14,9 +14,9 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.transfer.FaceLinkUtil;
-import dev.drav.glyphworks.transfer.TransferLookup;
-import dev.drav.glyphworks.transfer.TransferStateRegistry;
+import dev.drav.glyphworks.transfer.lookups.TransferLookup;
+import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
+import dev.drav.glyphworks.util.FaceLinkUtil;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 

@@ -12,13 +12,13 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
-import dev.drav.glyphworks.transfer.PipeStateComputer;
-import dev.drav.glyphworks.transfer.TransferStateRegistry;
 import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
+import dev.drav.glyphworks.transfer.state.PipeStateComputer;
+import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());

@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer;
+package dev.drav.glyphworks.transfer.state;
 
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;

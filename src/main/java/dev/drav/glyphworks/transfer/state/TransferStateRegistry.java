@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer;
+package dev.drav.glyphworks.transfer.state;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
 import dev.drav.glyphworks.transfer.component.TransferComponent;
+import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 
 /**
  * Maps root block type IDs to their {@link TransferStateComputer} and applies visual state
