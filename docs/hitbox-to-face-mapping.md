@@ -19,11 +19,14 @@ Any `TransferComponent` block declares its faces directly in JSON — block-rela
 | `FacePlane.java` | ✅ Done |
 | `FaceKey.java` | ✅ Deleted |
 | `TransferComponent.java` | ✅ Done |
-| `FaceLinkUtil.java` | ✅ Done |
-| `PipeStateUtil.java` | ✅ Done |
+| `FaceLinkUtil.java` | ⏳ Needs notifier + compatibility check |
+| `BlockStateNotifier.java` | ⏳ New interface |
+| `TransferStateComputer.java` | ⏳ New interface |
+| `TransferStateRegistry.java` | ⏳ New class |
+| `PipeStateUtil.java` → `PipeStateComputer.java` | ⏳ Rename + strip generic plumbing |
 | `generate-pipe-template.js` + generated assets | ✅ Done |
 | `ChunkLoadTransferLinkEvent.java` | ✅ Done |
-| `UseTransferableBlockEvent.java` | ✅ Done |
+| `UseTransferableBlockEvent.java` | ⏳ Update to new call pattern |
 | `PlaceTransferableBlockEvent.java` | ⏳ Logic commented out — needs enabling |
 | `BreakTransferableBlockEvent.java` | ⏳ Logic commented out — needs enabling |
 
@@ -152,11 +155,16 @@ for (FacePlane nf : neighbor.getFaces().values()) {
 }
 ```
 
-> **Note:** `FacePlane.checkModeCompatibility` is not yet called by `tryLink` — links form between any two non-null-faced neighbors regardless of mode. Mode filtering is done at transfer-time by `canSend()`/`canReceive()`. This is intentional for now.
+> **Planned change:** `FacePlane.checkModeCompatibility` will be added to `tryLinkAt` — currently links form unconditionally on geometry match. Mode filtering at transfer-tick time via `canSend()`/`canReceive()` continues as-is.
 
 ---
 
-## `PipeStateUtil` — implemented
+## `PipeStateUtil` → `PipeStateComputer` — planned split
+
+Will be refactored:
+- **Delete**: `updatePipeState`, `updateNeighborPipeStates`, `getTransferComponent` — all move into `TransferStateRegistry`
+- **Keep + rename file**: `computeStateName`, `getFaceByDirection`, `OFFSETS`, `LABELS` — these are pipe-specific logic only, become `PipeStateComputer.compute`
+- File rename: `PipeStateUtil.java` → `PipeStateComputer.java`
 
 `getFaceByDirection` matches faces by computing the expected world-absolute boundary from `(dx, dy, dz)` and comparing directly against each face's `getWorldMin(pos)` / `getWorldMax(pos)`.
 
@@ -198,33 +206,36 @@ Raycasts the block hitboxes, looks up the face by `hit.detailBoxIndex`, cycles m
 FacePlane face = transfer.getFaces().get(hit.detailBoxIndex);
 if (face == null) return; // non-interactable box (e.g. center)
 face.setMode(nextMode(face.getMode()));
-FaceLinkUtil.relinkFace(transfer, blockRef, face, pos, chunkStore);
-PipeStateUtil.updatePipeState(world, pos);
-PipeStateUtil.updateNeighborPipeStates(world, pos);
+FaceLinkUtil.relinkFace(transfer, blockRef, face, pos, chunkStore,
+    p -> TransferStateRegistry.applyState(world, p));
+// No separate updatePipeState calls — notifier covers self + affected neighbor
 ```
 
 Mode cycle: `BIDIRECTIONAL → INPUT → OUTPUT → CLOSED → BIDIRECTIONAL`
+
+> **Pending**: `FaceLinkUtil.relinkFace` does not yet accept a notifier — update required.
 
 ---
 
 ## `PlaceTransferableBlockEvent` + `BreakTransferableBlockEvent` — pending
 
-Both files have the core logic written but **commented out** pending testing:
+Both files have the core logic written but **commented out** pending `TransferStateRegistry` + notifier implementation. Final call patterns:
 
-**Place** — needs to uncomment:
+**Place:**
 ```java
-FaceLinkUtil.linkAll(transfer, blockRef, pos, chunkStore);
+FaceLinkUtil.linkAll(transfer, blockRef, pos, chunkStore,
+    p -> TransferStateRegistry.applyState(world, p));
 GlyphworksPlugin.get().registerNode(transfer);
-PipeStateUtil.updatePipeState(world, pos);
-PipeStateUtil.updateNeighborPipeStates(world, pos);
+// No separate updatePipeState / updateNeighborPipeStates — notifier covers both
 ```
 
-**Break** — needs to uncomment:
+**Break:**
 ```java
-FaceLinkUtil.unlinkAll(transfer, blockRef, pos, chunkStore);
+FaceLinkUtil.unlinkAll(transfer, blockRef, pos, chunkStore,
+    p -> commandBuffer.run(_ -> TransferStateRegistry.applyState(world, p)));
 GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
-// deferred:
-PipeStateUtil.updateNeighborPipeStates(world, breakPos);
+// Deferred via commandBuffer — avoids chunk read during modification
+// Notifier NOT called for breakPos — block is gone
 ```
 
 ---
@@ -241,5 +252,156 @@ Multi-block transfer nodes are supported by defining multiple `FacePlane` entrie
 ```
 
 The span per axis is still 0–1 (constructor validation holds). Coordinates are still block-relative. Each face plane can have its own `FaceMode` and links independently. The unit-cell constraint is intentional — it keeps linking logic, neighbor matching, and transfer routing uniform regardless of block size.
+
+---
+
+## Generic state update — design
+
+### Overview
+
+`FaceLinkUtil` stays completely World-agnostic. Any block with a `TransferComponent` can have its own visual state logic (pipes show `NS`/`NEU`/etc., a furnace might show `Active`/`Idle`, a chest passes `null`). The plumbing is:
+
+```
+FaceLinkUtil (generic linking)
+    → fires BlockStateNotifier (callback interface)
+        → calls TransferStateRegistry.applyState(world, pos)
+            → looks up TransferStateComputer by root block type ID
+                → PipeStateComputer.compute(...) → state name string
+                    → chunk.setBlockInteractionState(...)
+```
+
+---
+
+### New interfaces and classes
+
+**`BlockStateNotifier`** — `dev.drav.glyphworks.transfer`
+```java
+@FunctionalInterface
+public interface BlockStateNotifier {
+    void onChanged(Vector3i pos);
+}
+```
+`FaceLinkUtil` accepts this as `@Nullable` — pass `null` to skip all state updates (chunk load, tests).
+
+---
+
+**`TransferStateComputer`** — `dev.drav.glyphworks.transfer`
+```java
+@FunctionalInterface
+public interface TransferStateComputer {
+    String compute(TransferComponent transfer, Vector3i pos, World world);
+}
+```
+Block-type-specific state name logic. `PipeStateComputer.compute` is the first implementation.
+
+---
+
+**`TransferStateRegistry`** — `dev.drav.glyphworks.transfer`
+```java
+public final class TransferStateRegistry {
+    // Register at plugin init by root block type ID string (BlockType.getId())
+    public static void register(String rootBlockTypeId, TransferStateComputer computer);
+
+    // Called by the BlockStateNotifier lambda in every event handler
+    public static void applyState(World world, Vector3i pos);
+}
+```
+
+`applyState` internal flow:
+```
+1. world.getBlockType(pos) → null check
+2. getDefaultStateKey() → navigate to root block type (same as current updatePipeState)
+3. rootBlockType.getId() → look up in registry → null = no-op (unregistered block)
+4. get TransferComponent at pos → null = no-op
+5. computer.compute(transfer, pos, world) → state name
+6. world.getChunkIfLoaded(...).setBlockInteractionState(..., stateName, true)
+```
+
+The `"Single"` guard is gone — replaced by registry membership.
+
+---
+
+**`PipeStateComputer`** — `dev.drav.glyphworks.transfer` (rename of `PipeStateUtil`)
+
+Keeps only:
+- `computeStateName(TransferComponent, Vector3i, World) → String` (exposed as `compute` to match `TransferStateComputer`)
+- `getFaceByDirection` (private helper)
+- `OFFSETS`, `LABELS` constants
+
+Deletes: `updatePipeState`, `updateNeighborPipeStates`, `getTransferComponent`.
+
+---
+
+### Plugin registration
+
+In `GlyphworksPlugin.onLoad` (or equivalent init point):
+```java
+TransferStateRegistry.register(
+    "Glyphworks:Transfer_PipeNode",   // BlockType.getId() of the root block type
+    PipeStateComputer::compute
+);
+// Future:
+// TransferStateRegistry.register("Glyphworks:Transfer_FurnaceNode", FurnaceStateComputer::compute);
+```
+
+---
+
+### Compatibility matrix (resolved)
+
+Gates on `FacePlane.checkModeCompatibility(modeA, modeB)` — already implemented, returns `null` for incompatible pairs:
+
+| Face A | Face B | Compatible? | `EdgeType` returned |
+|---|---|---|---|
+| `BIDIRECTIONAL` | `BIDIRECTIONAL` | ✅ | `BIDIRECTIONAL` |
+| `BIDIRECTIONAL` | `INPUT` | ✅ | `A_TO_B` |
+| `BIDIRECTIONAL` | `OUTPUT` | ✅ | `B_TO_A` |
+| `INPUT` | `OUTPUT` | ✅ | `B_TO_A` |
+| `OUTPUT` | `INPUT` | ✅ | `A_TO_B` |
+| `INPUT` | `INPUT` | ❌ | `null` |
+| `OUTPUT` | `OUTPUT` | ❌ | `null` |
+| `CLOSED` | anything | ❌ | `null` |
+
+Added to `tryLinkAt` after geometry match, before setting `neighborNodeId`:
+```java
+EdgeType edge = FacePlane.checkModeCompatibility(face.getMode(), neighborFace.getMode());
+if (edge == null) return false;
+```
+
+`canSend()`/`canReceive()` require wired inventories — **not** used at link time, only at transfer-tick time.
+
+---
+
+### Updated `FaceLinkUtil` signatures
+
+```java
+linkAll  (TransferComponent, Ref<ChunkStore>, Vector3i blockPos, ChunkStore, @Nullable BlockStateNotifier)
+unlinkAll(TransferComponent, Ref<ChunkStore>, Vector3i blockPos, ChunkStore, @Nullable BlockStateNotifier)
+relinkFace(TransferComponent, Ref<ChunkStore>, FacePlane, Vector3i blockPos, ChunkStore, @Nullable BlockStateNotifier)
+```
+
+---
+
+### When the notifier fires
+
+| Operation | Notifier called for |
+|---|---|
+| `linkAll` — link formed for a face | `blockPos` (once) + `neighborPos` per linked neighbor |
+| `linkAll` — no link formed (CLOSED / no neighbor / incompatible) | nothing |
+| `unlinkAll` — face was linked | `neighborPos` per unlinked neighbor; **not** `blockPos` (block is gone) |
+| `relinkFace` — always | `blockPos` (mode changed regardless of link outcome) |
+| `relinkFace` — old link broken | old `neighborPos` |
+| `relinkFace` — new link formed | new `neighborPos` (may equal old) |
+
+Positions are collected in a local `Set<Vector3i>` per call and deduped before firing — avoids double-updating a neighbor when two faces touch it.
+
+---
+
+### Chunk load
+
+```java
+FaceLinkUtil.linkAll(transfer, ref, blockPos, chunkStore, null);
+// null notifier — state persisted correctly, no visual update needed.
+// Cross-chunk arm gaps: handled when the adjacent chunk's blocks also fire linkAll on their load.
+```
 
 

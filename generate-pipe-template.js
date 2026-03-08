@@ -29,8 +29,8 @@ if (oldFiles.length) console.log(`Deleted ${oldFiles.length} old generated model
 // Model space: X/Z ∈ [-16, +16], Y ∈ [0, 32]; pivot = box center + offset.
 const CENTER_BOX = { Min: { X: 0.3125, Y: 0.3125, Z: 0.3125 }, Max: { X: 0.6875, Y: 0.6875, Z: 0.6875 } };
 const ARM_BOXES = {
-  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } }, // South = -Z
-  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } }, // North = +Z
+  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } },
+  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } },
   E: { Min: { X: 0.6875, Y: 0.375,  Z: 0.375  }, Max: { X: 1,      Y: 0.625,  Z: 0.625  } },
   W: { Min: { X: 0,      Y: 0.375,  Z: 0.375  }, Max: { X: 0.3125, Y: 0.625,  Z: 0.625  } },
   U: { Min: { X: 0.375,  Y: 0.6875, Z: 0.375  }, Max: { X: 0.625,  Y: 1,      Z: 0.625  } },
@@ -45,12 +45,12 @@ if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hit
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 const DIRECTIONS = [
-  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 }, // north
-  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 }, // south
-  { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, nodeIdx: 5 }, // east
-  { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, nodeIdx: 4 }, // west
-  { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, nodeIdx: 1 }, // up
-  { name: 'D', bit: 0, position: { X:  0, Y: -1, Z:  0 }, nodeIdx: 6 }, // down
+  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 },
+  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 },
+  { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, nodeIdx: 5 },
+  { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, nodeIdx: 4 },
+  { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, nodeIdx: 1 },
+  { name: 'D', bit: 0, position: { X:  0, Y: -1, Z:  0 }, nodeIdx: 6 },
 ];
 
 const MODEL_TEXTURE = [{ Texture: 'Blocks/Glyphworks/Pipe/pipe.png', Weight: 1 }];
@@ -124,14 +124,6 @@ const item = {
     CustomModelScale: 1,
     HitboxType: 'Pipe_Full',
     Flags: {},
-    FaceTags: {
-      North: ['PipeConnection'],
-      South: ['PipeConnection'],
-      East:  ['PipeConnection'],
-      West:  ['PipeConnection'],
-      Up:    ['PipeConnection'],
-      Down:  ['PipeConnection'],
-    },
     State: { Definitions: stateDefs },
     Interactions: { Use: 'Glyphworks_PipeUse' },
   },

@@ -2,11 +2,9 @@ package dev.drav.glyphworks.transfer.event;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blockhitbox.BlockBoundingBoxes;
@@ -16,14 +14,13 @@ import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
 import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
-import dev.drav.glyphworks.transfer.PipeStateUtil;
+import dev.drav.glyphworks.transfer.TransferLookup;
+import dev.drav.glyphworks.transfer.TransferStateRegistry;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.util.BlockHitboxRaycast;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
@@ -79,17 +76,8 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
             World world = commandBuffer.getExternalData().getWorld();
             ChunkStore chunkStore = world.getChunkStore();
 
-            Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-            if (chunkRef == null || !chunkRef.isValid()) return;
-
-            BlockComponentChunk bcc = chunkStore.getStore().getComponent(chunkRef, BlockComponentChunk.getComponentType());
-            if (bcc == null) return;
-
-            Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-            if (blockRef == null) return;
-
-            TransferComponent transfer = chunkStore.getStore().getComponent(blockRef, TransferComponent.getComponentType());
-            if (transfer == null) return;
+            TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
+            if (lookup == null) return;
 
             BlockBoundingBoxes.RotatedVariantBoxes rotated =
                     BlockHitboxRaycast.resolveVariantBoxes(world, pos.x, pos.y, pos.z);
@@ -101,13 +89,12 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
 
             if (hit == null) return;
 
-            FacePlane face = transfer.getFaces().get(hit.detailBoxIndex);
+            FacePlane face = lookup.transfer().getFaces().get(hit.detailBoxIndex);
             if (face == null) return; // non-interactable hitbox (e.g. center)
 
             face.setMode(nextMode(face.getMode()));
-            FaceLinkUtil.relinkFace(transfer, blockRef, face, pos, chunkStore);
-            PipeStateUtil.updatePipeState(world, pos);
-            PipeStateUtil.updateNeighborPipeStates(world, pos);
+            FaceLinkUtil.relinkFace(lookup.transfer(), lookup.blockRef(), face, pos, chunkStore,
+                    p -> TransferStateRegistry.applyState(world, p));
         });
     }
 

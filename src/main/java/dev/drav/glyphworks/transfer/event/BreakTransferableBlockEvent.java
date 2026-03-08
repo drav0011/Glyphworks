@@ -2,21 +2,18 @@ package dev.drav.glyphworks.transfer.event;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
-import dev.drav.glyphworks.transfer.PipeStateUtil;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
+import dev.drav.glyphworks.transfer.TransferLookup;
+import dev.drav.glyphworks.transfer.TransferStateRegistry;
 
 import javax.annotation.Nonnull;
 
@@ -38,34 +35,15 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
         World world = commandBuffer.getExternalData().getWorld();
         ChunkStore chunkStore = world.getChunkStore();
 
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (chunkRef == null || !chunkRef.isValid()) {
-            return;
-        }
+        TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
+        if (lookup == null) return;
 
-        BlockComponentChunk bcc = chunkStore.getStore().getComponent(chunkRef, BlockComponentChunk.getComponentType());
-        if (bcc == null) {
-            return;
-        }
-
-        Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-        if (blockRef == null) {
-            return;
-        }
-
-        TransferComponent transfer = chunkStore.getStore().getComponent(blockRef, TransferComponent.getComponentType());
-        if (transfer == null) return;
-
-        // Clear neighborNodeId on all neighbor faces that point to this node
-        // FaceLinkUtil.unlinkAll(transfer, blockRef, chunkStore);
-        // GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
-
-        // Defer the neighbour state update so it runs after the block is gone from the world
-        // final Vector3i breakPos = new Vector3i(pos.x, pos.y, pos.z);
-        // commandBuffer.run(_ -> {
-        //     World w = commandBuffer.getExternalData().getWorld();
-        //     PipeStateUtil.updateNeighborPipeStates(w, breakPos);
-        // });
+        // Clear neighborNodeId on all neighbor faces that point to this node.
+        // Neighbor state updates are deferred so they run after the block is removed.
+        FaceLinkUtil.unlinkAll(lookup.transfer(), lookup.blockRef(), pos, chunkStore,
+                p -> commandBuffer.run(_ -> TransferStateRegistry.applyState(
+                        commandBuffer.getExternalData().getWorld(), p)));
+        GlyphworksPlugin.get().unregisterNode(lookup.transfer().getNodeId());
     }
 
     @Nonnull

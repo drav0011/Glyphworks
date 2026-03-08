@@ -117,26 +117,6 @@
     "CustomModelScale": 1,
     "HitboxType": "Pipe_Full",
     "Flags": {},
-    "FaceTags": {
-      "North": [
-        "PipeConnection"
-      ],
-      "South": [
-        "PipeConnection"
-      ],
-      "East": [
-        "PipeConnection"
-      ],
-      "West": [
-        "PipeConnection"
-      ],
-      "Up": [
-        "PipeConnection"
-      ],
-      "Down": [
-        "PipeConnection"
-      ]
-    },
     "State": {
       "Definitions": {
         "Single": {

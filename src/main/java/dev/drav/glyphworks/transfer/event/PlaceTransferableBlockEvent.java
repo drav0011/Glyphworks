@@ -4,22 +4,19 @@ import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.transfer.FaceLinkUtil;
-import dev.drav.glyphworks.transfer.PipeStateUtil;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
+import dev.drav.glyphworks.transfer.TransferLookup;
+import dev.drav.glyphworks.transfer.TransferStateRegistry;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
@@ -40,25 +37,14 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             World world = commandBuffer.getExternalData().getWorld();
             ChunkStore chunkStore = world.getChunkStore();
 
-            Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-            if (chunkRef == null || !chunkRef.isValid()) return;
-
-            BlockComponentChunk bcc = chunkStore.getStore().getComponent(chunkRef, BlockComponentChunk.getComponentType());
-            if (bcc == null) return;
-
-            Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-            if (blockRef == null) return;
-
-            TransferComponent transfer = chunkStore.getStore().getComponent(blockRef, TransferComponent.getComponentType());
-            if (transfer == null) return;
+            TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
+            if (lookup == null) return;
 
             // Faces come pre-defined from the block type JSON via clone().
             // neighborNodeIds are all null (unlinked) on first placement — correct.
-            // FaceLinkUtil.linkAll(transfer, blockRef, pos, chunkStore);
-            // GlyphworksPlugin.get().registerNode(transfer);
-
-            // PipeStateUtil.updatePipeState(world, pos);
-            // PipeStateUtil.updateNeighborPipeStates(world, pos);
+            FaceLinkUtil.linkAll(lookup.transfer(), lookup.blockRef(), pos, chunkStore,
+                    p -> TransferStateRegistry.applyState(world, p));
+            GlyphworksPlugin.get().registerNode(lookup.transfer());
         });
     }
 

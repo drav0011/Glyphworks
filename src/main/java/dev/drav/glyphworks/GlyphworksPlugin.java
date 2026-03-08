@@ -12,6 +12,8 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.transfer.PipeStateComputer;
+import dev.drav.glyphworks.transfer.TransferStateRegistry;
 import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
@@ -60,6 +62,11 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
+
+        // Register visual state computers per block type.
+        // The key must match BlockType.getId() for the root block type.
+        // If states stop updating, log "rootId" in TransferStateRegistry.applyState to verify.
+        TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
 
         this.getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 

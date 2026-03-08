@@ -221,6 +221,17 @@ public class FacePlane {
         return Integer.hashCode(hitboxIndex);
     }
 
+    /**
+     * Returns a fresh {@code FacePlane} with the same geometry and mode but no
+     * neighbour link ({@code neighborNodeId = null}).
+     *
+     * <p>Used to ensure each placed block owns independent face instances rather than
+     * sharing references from the block-type prototype.
+     */
+    public FacePlane copy() {
+        return new FacePlane(relMin, relMax, hitboxIndex, mode);
+    }
+
     // ── Mode compatibility ────────────────────────────────────────────────────
 
     /**

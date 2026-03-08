@@ -8,6 +8,10 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Utility for linking and unlinking transfer network edges directly in FacePlane data.
  *
@@ -33,18 +37,28 @@ public final class FaceLinkUtil {
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Links all faces of {@code transfer} to any matching neighbor TransferComponents.
+     * Links all faces of {@code transfer} to any matching compatible neighbor TransferComponents.
      * Safe to call on placement or on mode-change (already-linked faces are skipped).
+     *
+     * <p>If {@code notifier} is non-null, it is fired for {@code blockPos} and each neighbor
+     * position where a link was established.
      */
     public static void linkAll(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             Vector3i blockPos,
-            ChunkStore chunkStore) {
+            ChunkStore chunkStore,
+            @Nullable BlockStateNotifier notifier) {
 
+        Set<Vector3i> changed = (notifier != null) ? new HashSet<>() : null;
+        int linked = 0;
         for (FacePlane face : transfer.getFaces().values()) {
-            if (face.getNeighborNodeId() != null) continue; // already linked
-            tryLink(transfer, blockRef, face, blockPos, chunkStore);
+            if (face.getNeighborNodeId() != null) continue;
+            if (tryLink(transfer, blockRef, face, blockPos, chunkStore, changed)) linked++;
+        }
+        if (notifier != null) {
+            changed.add(blockPos); // always update self, even with no neighbors
+            changed.forEach(notifier::onChanged);
         }
     }
 
@@ -52,51 +66,70 @@ public final class FaceLinkUtil {
      * Unlinks all neighbor faces that point to {@code transfer}, then clears
      * neighborNodeId on this block's own faces.
      * Call before removing the block from the world.
+     *
+     * <p>If {@code notifier} is non-null, it is fired for each neighbor position that was
+     * unlinked. {@code blockPos} itself is NOT notified — the block is already gone.
      */
     public static void unlinkAll(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             Vector3i blockPos,
-            ChunkStore chunkStore) {
+            ChunkStore chunkStore,
+            @Nullable BlockStateNotifier notifier) {
 
+        Set<Vector3i> changed = (notifier != null) ? new HashSet<>() : null;
         for (FacePlane face : transfer.getFaces().values()) {
             if (face.getNeighborNodeId() == null) continue;
-            clearNeighborSide(face, blockRef, blockPos, chunkStore);
+            Vector3i neighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore);
             face.setNeighborNodeId(null);
+            if (changed != null && neighborPos != null) changed.add(neighborPos);
         }
+        if (notifier != null) changed.forEach(notifier::onChanged);
     }
 
     /**
      * Re-evaluates a single face after its mode has changed.
      * Clears any existing link, then re-links if modes are now compatible.
+     *
+     * <p>If {@code notifier} is non-null, it is always fired for {@code blockPos} (mode
+     * changed regardless of link outcome) and for any neighbor positions affected.
      */
     public static void relinkFace(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             FacePlane face,
             Vector3i blockPos,
-            ChunkStore chunkStore) {
+            ChunkStore chunkStore,
+            @Nullable BlockStateNotifier notifier) {
 
+        Set<Vector3i> changed = (notifier != null) ? new HashSet<>() : null;
         // Always clear the old link on both sides first
         if (face.getNeighborNodeId() != null) {
-            clearNeighborSide(face, blockRef, blockPos, chunkStore);
+            Vector3i oldNeighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore);
             face.setNeighborNodeId(null);
+            if (changed != null && oldNeighborPos != null) changed.add(oldNeighborPos);
         }
         // Attempt fresh link
-        tryLink(transfer, blockRef, face, blockPos, chunkStore);
+        tryLink(transfer, blockRef, face, blockPos, chunkStore, changed);
+        if (notifier != null) {
+            changed.add(blockPos); // always notify self — mode changed regardless of link outcome
+            changed.forEach(notifier::onChanged);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Internal helpers
     // ─────────────────────────────────────────────────────────────────────────
 
-    /** Tries both sides of the face boundary; links the first valid neighbor found. */
-    private static void tryLink(
+    /** Tries both sides of the face boundary; links the first valid compatible neighbor found.
+     * Returns true if a link was established. */
+    private static boolean tryLink(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             FacePlane face,
             Vector3i blockPos,
-            ChunkStore chunkStore) {
+            ChunkStore chunkStore,
+            @Nullable Set<Vector3i> changed) {
 
         Vector3i min = face.getWorldMin(blockPos);
         Vector3i max = face.getWorldMax(blockPos);
@@ -117,13 +150,15 @@ public final class FaceLinkUtil {
             posB = new Vector3i(min.x, min.y, K - 1);
         }
 
-        if (!tryLinkAt(transfer, blockRef, face, posA, blockPos, chunkStore)) {
-            tryLinkAt(transfer, blockRef, face, posB, blockPos, chunkStore);
+        if (!tryLinkAt(transfer, blockRef, face, posA, blockPos, chunkStore, changed)) {
+            return tryLinkAt(transfer, blockRef, face, posB, blockPos, chunkStore, changed);
         }
+        return true;
     }
 
     /**
-     * Tries to look up a TransferComponent at {@code neighborPos} and link if compatible.
+     * Tries to look up a TransferComponent at {@code neighborPos} and link if modes are compatible.
+     * Adds {@code neighborPos} to {@code changed} when a link is established.
      *
      * @return true if a link was established
      */
@@ -133,7 +168,8 @@ public final class FaceLinkUtil {
             FacePlane face,
             Vector3i neighborPos,
             Vector3i blockPos,
-            ChunkStore chunkStore) {
+            ChunkStore chunkStore,
+            @Nullable Set<Vector3i> changed) {
 
         Ref<ChunkStore> nChunkRef = chunkStore.getChunkReference(
                 ChunkUtil.indexChunkFromBlock(neighborPos.x, neighborPos.z));
@@ -145,7 +181,8 @@ public final class FaceLinkUtil {
 
         Ref<ChunkStore> nBlockRef = bcc.getEntityReference(
                 ChunkUtil.indexBlockInColumn(neighborPos.x, neighborPos.y, neighborPos.z));
-        if (nBlockRef == null || nBlockRef.equals(blockRef)) return false; // skip self
+        if (nBlockRef == null) return false;
+        if (nBlockRef.equals(blockRef)) return false; // skip self
 
         TransferComponent neighbor = chunkStore.getStore().getComponent(
                 nBlockRef, TransferComponent.getComponentType());
@@ -163,17 +200,25 @@ public final class FaceLinkUtil {
         }
         if (neighborFace == null) return false;
 
+        // Mode compatibility check — no link if data cannot flow in either direction
+        FacePlane.EdgeType edge = FacePlane.checkModeCompatibility(face.getMode(), neighborFace.getMode());
+        if (edge == null) return false;
+
         // Link both sides
         face.setNeighborNodeId(neighbor.getNodeId());
         neighborFace.setNeighborNodeId(transfer.getNodeId());
+        if (changed != null) changed.add(neighborPos);
         return true;
     }
 
     /**
      * Finds the neighbor block for {@code face} and clears its neighborNodeId.
      * Does NOT touch {@code face} itself — caller is responsible for that.
+     *
+     * @return the neighbor position that was cleared, or {@code null} if none found
      */
-    private static void clearNeighborSide(
+    @Nullable
+    private static Vector3i clearNeighborSide(
             FacePlane face,
             Ref<ChunkStore> blockRef,
             Vector3i blockPos,
@@ -198,11 +243,12 @@ public final class FaceLinkUtil {
 
         Vector3i worldMin = face.getWorldMin(blockPos);
         Vector3i worldMax = face.getWorldMax(blockPos);
-        clearNeighborAt(posA, blockRef, worldMin, worldMax, chunkStore);
-        clearNeighborAt(posB, blockRef, worldMin, worldMax, chunkStore);
+        if (clearNeighborAt(posA, blockRef, worldMin, worldMax, chunkStore)) return posA;
+        if (clearNeighborAt(posB, blockRef, worldMin, worldMax, chunkStore)) return posB;
+        return null;
     }
 
-    private static void clearNeighborAt(
+    private static boolean clearNeighborAt(
             Vector3i neighborPos,
             Ref<ChunkStore> blockRef,
             Vector3i worldMin,
@@ -211,25 +257,26 @@ public final class FaceLinkUtil {
 
         Ref<ChunkStore> nChunkRef = chunkStore.getChunkReference(
                 ChunkUtil.indexChunkFromBlock(neighborPos.x, neighborPos.z));
-        if (nChunkRef == null || !nChunkRef.isValid()) return;
+        if (nChunkRef == null || !nChunkRef.isValid()) return false;
 
         BlockComponentChunk bcc = chunkStore.getStore().getComponent(
                 nChunkRef, BlockComponentChunk.getComponentType());
-        if (bcc == null) return;
+        if (bcc == null) return false;
 
         Ref<ChunkStore> nBlockRef = bcc.getEntityReference(
                 ChunkUtil.indexBlockInColumn(neighborPos.x, neighborPos.y, neighborPos.z));
-        if (nBlockRef == null || nBlockRef.equals(blockRef)) return;
+        if (nBlockRef == null || nBlockRef.equals(blockRef)) return false;
 
         TransferComponent neighbor = chunkStore.getStore().getComponent(
                 nBlockRef, TransferComponent.getComponentType());
-        if (neighbor == null) return;
+        if (neighbor == null) return false;
 
         for (FacePlane nf : neighbor.getFaces().values()) {
             if (nf.getWorldMin(neighborPos).equals(worldMin) && nf.getWorldMax(neighborPos).equals(worldMax)) {
                 nf.setNeighborNodeId(null);
-                return;
+                return true;
             }
         }
+        return false;
     }
 }

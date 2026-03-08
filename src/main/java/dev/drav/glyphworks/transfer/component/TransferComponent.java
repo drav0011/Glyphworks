@@ -170,6 +170,7 @@ public class TransferComponent implements Component<ChunkStore> {
     /**
      * Copy constructor used by {@link #clone()}.
      * Generates a NEW nodeId for each cloned instance (each placed block gets unique ID).
+     * Each {@link FacePlane} is deep-copied so blocks don't share mutable face state.
      */
     public TransferComponent(TransferComponent other) {
         this.nodeId = UUID.randomUUID();  // Generate NEW UUID for each block!
@@ -177,7 +178,10 @@ public class TransferComponent implements Component<ChunkStore> {
         this.maxInputRate = other.maxInputRate;
         this.autoPush = other.autoPush;
         this.autoPull = other.autoPull;
-        this.faces = new HashMap<>(other.faces);
+        this.faces = new HashMap<>(other.faces.size());
+        for (Map.Entry<Integer, FacePlane> e : other.faces.entrySet()) {
+            this.faces.put(e.getKey(), e.getValue().copy());
+        }
         // inventory references are not copied — must be re-injected at runtime
     }
 
