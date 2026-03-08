@@ -57,15 +57,15 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
         if (transfer == null) return;
 
         // Clear neighborNodeId on all neighbor faces that point to this node
-        FaceLinkUtil.unlinkAll(transfer, blockRef, chunkStore);
-        GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
+        // FaceLinkUtil.unlinkAll(transfer, blockRef, chunkStore);
+        // GlyphworksPlugin.get().unregisterNode(transfer.getNodeId());
 
         // Defer the neighbour state update so it runs after the block is gone from the world
-        final Vector3i breakPos = new Vector3i(pos.x, pos.y, pos.z);
-        commandBuffer.run(_ -> {
-            World w = commandBuffer.getExternalData().getWorld();
-            PipeStateUtil.updateNeighborPipeStates(w, breakPos);
-        });
+        // final Vector3i breakPos = new Vector3i(pos.x, pos.y, pos.z);
+        // commandBuffer.run(_ -> {
+        //     World w = commandBuffer.getExternalData().getWorld();
+        //     PipeStateUtil.updateNeighborPipeStates(w, breakPos);
+        // });
     }
 
     @Nonnull

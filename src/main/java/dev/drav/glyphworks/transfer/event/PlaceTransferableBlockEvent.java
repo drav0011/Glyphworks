@@ -54,11 +54,11 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
 
             // Faces come pre-defined from the block type JSON via clone().
             // neighborNodeIds are all null (unlinked) on first placement — correct.
-            FaceLinkUtil.linkAll(transfer, blockRef, pos, chunkStore);
-            GlyphworksPlugin.get().registerNode(transfer);
+            // FaceLinkUtil.linkAll(transfer, blockRef, pos, chunkStore);
+            // GlyphworksPlugin.get().registerNode(transfer);
 
-            PipeStateUtil.updatePipeState(world, pos);
-            PipeStateUtil.updateNeighborPipeStates(world, pos);
+            // PipeStateUtil.updatePipeState(world, pos);
+            // PipeStateUtil.updateNeighborPipeStates(world, pos);
         });
     }
 
