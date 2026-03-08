@@ -21,7 +21,7 @@ import dev.drav.glyphworks.transfer.lookups.TransferLookup;
  *
  * <p>Register block types at plugin init:
  * <pre>
- *     TransferStateRegistry.register("Glyphworks/Pipe/Transfer_PipeNode", PipeStateComputer::compute);
+ *     TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
  * </pre>
  *
  * <p>Unregistered block types are silently skipped — no-op.
@@ -71,8 +71,8 @@ public final class TransferStateRegistry {
 
         TransferLookup lookup = TransferLookup.resolve(world.getChunkStore(), pos);
         if (lookup == null) return;
-        TransferComponent transfer = lookup.transfer();
 
+        TransferComponent transfer = lookup.transfer();
         String stateName = computer.compute(transfer, pos, world);
 
         WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
@@ -82,5 +82,4 @@ public final class TransferStateRegistry {
             LOGGER.warning("[TransferState] applyState " + pos + " — chunk not loaded, state not applied");
         }
     }
-
 }

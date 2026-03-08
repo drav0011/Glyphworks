@@ -15,27 +15,12 @@ import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 /**
  * Computes the visual state name for a pipe block based on which adjacent faces are
  * linked and not {@link FaceMode#CLOSED}.
- *
- * <p>Registered in {@link TransferStateRegistry} at plugin init:
- * <pre>
- *     TransferStateRegistry.register("Glyphworks/Pipe/Transfer_PipeNode", PipeStateComputer::compute);
- * </pre>
- *
- * <h3>Direction conventions</h3>
- * <pre>
- * N = NORTH (+Z)   offset (0,  0, +1)
- * S = SOUTH (−Z)   offset (0,  0, −1)
- * E = EAST  (+X)   offset (+1, 0,  0)
- * W = WEST  (−X)   offset (−1, 0,  0)
- * U = UP    (+Y)   offset (0, +1,  0)
- * D = DOWN  (−Y)   offset (0, −1,  0)
- * </pre>
  */
 public final class PipeStateComputer {
 
     private static final int[][] OFFSETS = {
-            { 0, 0,  1 }, // 0: N  (North = +Z)
-            { 0, 0, -1 }, // 1: S  (South = -Z)
+            { 0, 0,  1 }, // 0: N
+            { 0, 0, -1 }, // 1: S
             { 1, 0,  0 }, // 2: E
             { -1, 0, 0 }, // 3: W
             { 0, 1,  0 }, // 4: U
@@ -61,6 +46,7 @@ public final class PipeStateComputer {
             @Nonnull World world) {
         ChunkStore chunkStore = world.getChunkStore();
         StringBuilder sb = new StringBuilder();
+
         for (int i = 0; i < 6; i++) {
             int dx = OFFSETS[i][0], dy = OFFSETS[i][1], dz = OFFSETS[i][2];
             String label = LABELS[i];
@@ -68,6 +54,7 @@ public final class PipeStateComputer {
             Vector3i neighborPos = new Vector3i(pos.x + dx, pos.y + dy, pos.z + dz);
             TransferLookup neighborLookup = TransferLookup.resolve(chunkStore, neighborPos);
             if (neighborLookup == null) continue;
+            
             TransferComponent neighbor = neighborLookup.transfer();
 
             // Hide arm if THIS pipe's face toward the neighbour is CLOSED
@@ -80,6 +67,7 @@ public final class PipeStateComputer {
 
             sb.append(label);
         }
+
         return sb.length() == 0 ? "Single" : sb.toString();
     }
 
@@ -90,15 +78,6 @@ public final class PipeStateComputer {
     /**
      * Returns the {@link FacePlane} on {@code pipe} whose world-absolute plane matches
      * the wall of the 1×1×1 block at {@code pos} facing direction {@code (dx, dy, dz)}.
-     *
-     * <pre>
-     * N (+Z):  boundary z = bz+1  →  min=(bx,   by,   bz+1)  max=(bx+1, by+1, bz+1)
-     * S (-Z):  boundary z = bz    →  min=(bx,   by,   bz  )  max=(bx+1, by+1, bz  )
-     * E (+X):  boundary x = bx+1  →  min=(bx+1, by,   bz  )  max=(bx+1, by+1, bz+1)
-     * W (-X):  boundary x = bx    →  min=(bx,   by,   bz  )  max=(bx,   by+1, bz+1)
-     * U (+Y):  boundary y = by+1  →  min=(bx,   by+1, bz  )  max=(bx+1, by+1, bz+1)
-     * D (-Y):  boundary y = by    →  min=(bx,   by,   bz  )  max=(bx+1, by,   bz+1)
-     * </pre>
      */
     @Nullable
     private static FacePlane getFaceByDirection(

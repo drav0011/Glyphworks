@@ -13,7 +13,11 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import java.util.UUID;
+
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.transfer.TransferGraph;
+import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 import dev.drav.glyphworks.util.FaceLinkUtil;
@@ -44,7 +48,17 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             // neighborNodeIds are all null (unlinked) on first placement — correct.
             FaceLinkUtil.linkAll(lookup.transfer(), lookup.blockRef(), pos, chunkStore,
                     p -> TransferStateRegistry.applyState(world, p));
-            GlyphworksPlugin.get().registerNode(lookup.transfer());
+
+            TransferGraph graph = GlyphworksPlugin.get().getOrCreateGraph(world);
+            graph.addNode(lookup.transfer().getNodeId(), pos);
+
+            for (FacePlane face : lookup.transfer().getFaces().values()) {
+                UUID neighborId = face.getNeighborNodeId();
+                
+                if (neighborId != null) {
+                    graph.addEdge(lookup.transfer().getNodeId(), neighborId);
+                }
+            }
         });
     }
 

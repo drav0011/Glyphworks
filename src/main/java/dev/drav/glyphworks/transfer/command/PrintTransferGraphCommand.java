@@ -1,70 +1,75 @@
 package dev.drav.glyphworks.transfer.command;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.transfer.component.FacePlane;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
+import dev.drav.glyphworks.transfer.TransferGraph;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Command: {@code gwtransfer}
  *
- * <p>Prints the current state of the Glyphworks transfer graph — all loaded
- * nodes, their face modes, and which neighbours each face is linked to.
+ * <p>Prints the current state of the Glyphworks transfer graph for the world
+ * the running player is in — all nodes, their positions, and adjacency.
  *
  * <p>Example output:
  * <pre>
- * [Net] 3 node(s) loaded
- *   a3f2c1d8  OUTPUT   autoPush  faces=6  linked=1  → [9b04fe22]
- *   9b04fe22  BIDIR             faces=6  linked=2  → [a3f2c1d8, deadbeef]
- *   deadbeef  INPUT    autoPull  faces=6  linked=1  → [9b04fe22]
+ * [Net] world "Zone1" — 3 node(s)
+ *   a3f2c1d8  (12, 64, -8)   → [9b04fe22]
+ *   9b04fe22  (13, 64, -8)   → [a3f2c1d8, deadbeef]
+ *   deadbeef  (14, 64, -8)   → [9b04fe22]
  * </pre>
  */
-public final class PrintTransferGraphCommand extends AbstractCommand {
+public final class PrintTransferGraphCommand extends AbstractPlayerCommand {
 
     public PrintTransferGraphCommand() {
-        super("gwtransfer", "Print the current Glyphworks transfer graph");
+        super("gwtransfer", "Print the Glyphworks transfer graph for the current world");
     }
 
     @Override
-    @Nullable
-    protected CompletableFuture<Void> execute(@Nonnull CommandContext context) {
-        Map<UUID, TransferComponent> nodes = GlyphworksPlugin.get().getLoadedNodes();
-        context.sendMessage(Message.raw("[Net] " + nodes.size() + " node(s) loaded"));
+    protected void execute(
+            @Nonnull CommandContext context,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world) {
 
-        for (TransferComponent node : nodes.values()) {
-            Collection<FacePlane> faces = node.getFaces().values();
-            long linked = faces.stream().filter(f -> f.getNeighborNodeId() != null).count();
+        TransferGraph graph = GlyphworksPlugin.get().getGraph(world);
+        if (graph == null) {
+            context.sendMessage(Message.raw("[Net] No graph for world \"" + world.getName() + "\" (no nodes ever placed)."));
+            return;
+        }
 
-            String neighborList = faces.stream()
-                    .map(FacePlane::getNeighborNodeId)
-                    .filter(id -> id != null)
-                    .distinct()
-                    .map(PrintTransferGraphCommand::shortId)
-                    .collect(Collectors.joining(", "));
+        Set<UUID> nodeIds = graph.getNodeIds();
+        context.sendMessage(Message.raw("[Net] world \"" + world.getName() + "\" — " + nodeIds.size() + " node(s)"));
 
-            StringBuilder line = new StringBuilder("  ");
-            line.append(shortId(node.getNodeId()));
-            // line.append("  ").append(node.getDefaultFaceMode());
-            if (node.isAutoPush()) line.append("  autoPush");
-            if (node.isAutoPull()) line.append("  autoPull");
-            line.append("  faces=").append(faces.size());
-            line.append("  linked=").append(linked);
-            if (!neighborList.isEmpty()) {
-                line.append("  → [").append(neighborList).append("]");
+        for (UUID id : nodeIds) {
+            var pos = graph.getPosition(id);
+            Set<UUID> neighbors = graph.getNeighbors(id);
+
+            StringBuilder line = new StringBuilder("  ").append(shortId(id));
+            if (pos != null) {
+                line.append("  (").append(pos.x).append(", ").append(pos.y).append(", ").append(pos.z).append(")");
+            }
+            if (!neighbors.isEmpty()) {
+                StringBuilder nb = new StringBuilder();
+                for (UUID n : neighbors) {
+                    if (!nb.isEmpty()) nb.append(", ");
+                    nb.append(shortId(n));
+                }
+                line.append("  → [").append(nb).append("]");
             }
             context.sendMessage(Message.raw(line.toString()));
         }
-        return null;
     }
 
     private static String shortId(UUID id) {

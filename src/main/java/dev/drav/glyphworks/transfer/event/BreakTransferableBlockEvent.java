@@ -14,6 +14,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.transfer.TransferGraph;
 import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 import dev.drav.glyphworks.util.FaceLinkUtil;
@@ -39,12 +40,18 @@ public class BreakTransferableBlockEvent extends EntityEventSystem<EntityStore, 
         TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
         if (lookup == null) return;
 
+        // Remove the node from the graph first (while neighborNodeIds are still set),
+        // so edges are cleaned up on neighbor entries before unlinkAll clears face data.
+        TransferGraph graph = GlyphworksPlugin.get().getGraph(world);
+        if (graph != null) {
+            graph.removeNode(lookup.transfer().getNodeId());
+        }
+
         // Clear neighborNodeId on all neighbor faces that point to this node.
         // Neighbor state updates are deferred so they run after the block is removed.
         FaceLinkUtil.unlinkAll(lookup.transfer(), lookup.blockRef(), pos, chunkStore,
                 p -> commandBuffer.run(_ -> TransferStateRegistry.applyState(
                         commandBuffer.getExternalData().getWorld(), p)));
-        GlyphworksPlugin.get().unregisterNode(lookup.transfer().getNodeId());
     }
 
     @Nonnull

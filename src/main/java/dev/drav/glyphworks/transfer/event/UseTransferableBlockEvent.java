@@ -2,6 +2,8 @@ package dev.drav.glyphworks.transfer.event;
 
 import javax.annotation.Nonnull;
 
+import java.util.UUID;
+
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -21,6 +23,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.transfer.TransferGraph;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.lookups.TransferLookup;
@@ -94,9 +98,18 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
             FacePlane face = lookup.transfer().getFaces().get(hit.detailBoxIndex);
             if (face == null) return; // non-interactable hitbox (e.g. center)
 
+            UUID oldNeighborId = face.getNeighborNodeId();
             face.setMode(nextMode(face.getMode()));
             FaceLinkUtil.relinkFace(lookup.transfer(), lookup.blockRef(), face, pos, chunkStore,
                     p -> TransferStateRegistry.applyState(world, p));
+            UUID newNeighborId = face.getNeighborNodeId();
+
+            TransferGraph graph = GlyphworksPlugin.get().getGraph(world);
+            if (graph != null) {
+                UUID myId = lookup.transfer().getNodeId();
+                if (oldNeighborId != null) graph.removeEdge(myId, oldNeighborId);
+                if (newNeighborId != null) graph.addEdge(myId, newNeighborId);
+            }
         });
     }
 

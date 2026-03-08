@@ -6,12 +6,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.transfer.TransferGraph;
 import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
@@ -26,19 +30,16 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     private ComponentType<ChunkStore, TransferComponent> transferComponentType;
 
-    /** All TransferComponent nodes currently loaded in any chunk. */
-    private final Map<UUID, TransferComponent> loadedNodes = new ConcurrentHashMap<>();
+    /** One graph per world, keyed by stable world UUID. */
+    private final Map<UUID, TransferGraph> graphs = new ConcurrentHashMap<>();
 
-    public void registerNode(TransferComponent transfer) {
-        loadedNodes.put(transfer.getNodeId(), transfer);
+    @Nullable
+    public TransferGraph getGraph(World world) {
+        return graphs.get(world.getWorldConfig().getUuid());
     }
 
-    public void unregisterNode(UUID nodeId) {
-        loadedNodes.remove(nodeId);
-    }
-
-    public Map<UUID, TransferComponent> getLoadedNodes() {
-        return loadedNodes;
+    public TransferGraph getOrCreateGraph(World world) {
+        return graphs.computeIfAbsent(world.getWorldConfig().getUuid(), id -> new TransferGraph());
     }
 
     public GlyphworksPlugin(@Nonnull JavaPluginInit init) {
@@ -63,12 +64,15 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
 
+        getEventRegistry().registerGlobal(RemoveWorldEvent.class,
+                event -> graphs.remove(event.getWorld().getWorldConfig().getUuid()));
+
         // Register visual state computers per block type.
         // The key must match BlockType.getId() for the root block type.
         // If states stop updating, log "rootId" in TransferStateRegistry.applyState to verify.
         TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
 
-        this.getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
+        getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 
         LOGGER.info("[Glyphworks] setup() complete.");
     }
