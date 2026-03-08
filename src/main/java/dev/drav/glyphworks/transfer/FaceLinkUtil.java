@@ -5,7 +5,6 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import dev.drav.glyphworks.transfer.component.FaceKey;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 
@@ -40,11 +39,12 @@ public final class FaceLinkUtil {
     public static void linkAll(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
         for (FacePlane face : transfer.getFaces().values()) {
             if (face.getNeighborNodeId() != null) continue; // already linked
-            tryLink(transfer, blockRef, face, chunkStore);
+            tryLink(transfer, blockRef, face, blockPos, chunkStore);
         }
     }
 
@@ -56,11 +56,12 @@ public final class FaceLinkUtil {
     public static void unlinkAll(
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
         for (FacePlane face : transfer.getFaces().values()) {
             if (face.getNeighborNodeId() == null) continue;
-            clearNeighborSide(face, blockRef, chunkStore);
+            clearNeighborSide(face, blockRef, blockPos, chunkStore);
             face.setNeighborNodeId(null);
         }
     }
@@ -73,15 +74,16 @@ public final class FaceLinkUtil {
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             FacePlane face,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
         // Always clear the old link on both sides first
         if (face.getNeighborNodeId() != null) {
-            clearNeighborSide(face, blockRef, chunkStore);
+            clearNeighborSide(face, blockRef, blockPos, chunkStore);
             face.setNeighborNodeId(null);
         }
         // Attempt fresh link
-        tryLink(transfer, blockRef, face, chunkStore);
+        tryLink(transfer, blockRef, face, blockPos, chunkStore);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -93,17 +95,19 @@ public final class FaceLinkUtil {
             TransferComponent transfer,
             Ref<ChunkStore> blockRef,
             FacePlane face,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
-        Vector3i min = face.getPlaneMin();
+        Vector3i min = face.getWorldMin(blockPos);
+        Vector3i max = face.getWorldMax(blockPos);
 
         // Determine the two candidate positions based on constant axis
         Vector3i posA, posB;
-        if (min.x == face.getPlaneMax().x) {
+        if (min.x == max.x) {
             int K = min.x;
             posA = new Vector3i(K,     min.y, min.z);
             posB = new Vector3i(K - 1, min.y, min.z);
-        } else if (min.y == face.getPlaneMax().y) {
+        } else if (min.y == max.y) {
             int K = min.y;
             posA = new Vector3i(min.x, K,     min.z);
             posB = new Vector3i(min.x, K - 1, min.z);
@@ -113,8 +117,8 @@ public final class FaceLinkUtil {
             posB = new Vector3i(min.x, min.y, K - 1);
         }
 
-        if (!tryLinkAt(transfer, blockRef, face, posA, chunkStore)) {
-            tryLinkAt(transfer, blockRef, face, posB, chunkStore);
+        if (!tryLinkAt(transfer, blockRef, face, posA, blockPos, chunkStore)) {
+            tryLinkAt(transfer, blockRef, face, posB, blockPos, chunkStore);
         }
     }
 
@@ -128,6 +132,7 @@ public final class FaceLinkUtil {
             Ref<ChunkStore> blockRef,
             FacePlane face,
             Vector3i neighborPos,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
         Ref<ChunkStore> nChunkRef = chunkStore.getChunkReference(
@@ -146,7 +151,16 @@ public final class FaceLinkUtil {
                 nBlockRef, TransferComponent.getComponentType());
         if (neighbor == null) return false;
 
-        FacePlane neighborFace = neighbor.getFaces().get(face.getFaceKey());
+        // Scan neighbor faces for one whose world boundary matches ours (shared plane)
+        Vector3i worldMin = face.getWorldMin(blockPos);
+        Vector3i worldMax = face.getWorldMax(blockPos);
+        FacePlane neighborFace = null;
+        for (FacePlane nf : neighbor.getFaces().values()) {
+            if (nf.getWorldMin(neighborPos).equals(worldMin) && nf.getWorldMax(neighborPos).equals(worldMax)) {
+                neighborFace = nf;
+                break;
+            }
+        }
         if (neighborFace == null) return false;
 
         // Link both sides
@@ -162,15 +176,17 @@ public final class FaceLinkUtil {
     private static void clearNeighborSide(
             FacePlane face,
             Ref<ChunkStore> blockRef,
+            Vector3i blockPos,
             ChunkStore chunkStore) {
 
-        Vector3i min = face.getPlaneMin();
+        Vector3i min = face.getWorldMin(blockPos);
+        Vector3i max = face.getWorldMax(blockPos);
         Vector3i posA, posB;
-        if (min.x == face.getPlaneMax().x) {
+        if (min.x == max.x) {
             int K = min.x;
             posA = new Vector3i(K,     min.y, min.z);
             posB = new Vector3i(K - 1, min.y, min.z);
-        } else if (min.y == face.getPlaneMax().y) {
+        } else if (min.y == max.y) {
             int K = min.y;
             posA = new Vector3i(min.x, K,     min.z);
             posB = new Vector3i(min.x, K - 1, min.z);
@@ -180,15 +196,17 @@ public final class FaceLinkUtil {
             posB = new Vector3i(min.x, min.y, K - 1);
         }
 
-        FaceKey key = face.getFaceKey();
-        clearNeighborAt(posA, blockRef, key, chunkStore);
-        clearNeighborAt(posB, blockRef, key, chunkStore);
+        Vector3i worldMin = face.getWorldMin(blockPos);
+        Vector3i worldMax = face.getWorldMax(blockPos);
+        clearNeighborAt(posA, blockRef, worldMin, worldMax, chunkStore);
+        clearNeighborAt(posB, blockRef, worldMin, worldMax, chunkStore);
     }
 
     private static void clearNeighborAt(
             Vector3i neighborPos,
             Ref<ChunkStore> blockRef,
-            FaceKey key,
+            Vector3i worldMin,
+            Vector3i worldMax,
             ChunkStore chunkStore) {
 
         Ref<ChunkStore> nChunkRef = chunkStore.getChunkReference(
@@ -207,9 +225,11 @@ public final class FaceLinkUtil {
                 nBlockRef, TransferComponent.getComponentType());
         if (neighbor == null) return;
 
-        FacePlane neighborFace = neighbor.getFaces().get(key);
-        if (neighborFace != null) {
-            neighborFace.setNeighborNodeId(null);
+        for (FacePlane nf : neighbor.getFaces().values()) {
+            if (nf.getWorldMin(neighborPos).equals(worldMin) && nf.getWorldMax(neighborPos).equals(worldMax)) {
+                nf.setNeighborNodeId(null);
+                return;
+            }
         }
     }
 }

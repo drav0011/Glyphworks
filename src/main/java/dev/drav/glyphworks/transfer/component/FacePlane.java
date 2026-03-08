@@ -1,6 +1,5 @@
 package dev.drav.glyphworks.transfer.component;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -13,31 +12,23 @@ import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 
 /**
- * Defines a rectangular face region in absolute world coordinates.
+ * Defines a face region of a block in block-relative coordinates.
  *
- * <p>A face is a 3D rectangle (planeMin to planeMax) with:
- * <ul>
- *   <li>A connection mode (INPUT, OUTPUT, BIDIRECTIONAL, CLOSED)</li>
- *   <li>Its own input inventory (where items arrive)</li>
- *   <li>Its own output inventory (where items are sourced from)</li>
- * </ul>
+ * <p>Geometry is stored as offsets from the block origin (0,0,0). World-absolute
+ * coordinates are computed on demand via {@link #getWorldMin(Vector3i)} /
+ * {@link #getWorldMax(Vector3i)} — never persisted.
  *
- * <p>Coordinates are in absolute world space (from world origin 0,0,0).
- * When a block is placed, faces are calculated from block position + bounding box.
+ * <p>A face is bound to a specific hitbox detail-box via {@link #hitboxIndex}.
+ * When a player clicks that box, the face's mode cycles. {@code -1} = non-interactable.
  *
- * <p>Example: A 2x2x1 block placed at world position (10, 5, 20):
+ * <h3>Block-local coordinate convention (block origin = 0,0,0)</h3>
  * <pre>
- * North face (entire 2x2 area):
- *   planeMin = (10, 5, 22)  // World coords of one corner
- *   planeMax = (11, 6, 22)  // World coords of opposite corner
- *   mode = OUTPUT
- *   inputInventory = null (OUTPUT face doesn't receive)
- *   outputInventory = blockInventory (items sourced from here)
- * </pre>
- *
- * <p><b>Collision Detection:</b> Two faces collide if they occupy the same 3D space:
- * <pre>
- * faceA.planeMin.equals(faceB.planeMin) && faceA.planeMax.equals(faceB.planeMax)
+ * North (+Z):  relMin=(0,0,1)  relMax=(1,1,1)
+ * South (-Z):  relMin=(0,0,0)  relMax=(1,1,0)
+ * East  (+X):  relMin=(1,0,0)  relMax=(1,1,1)
+ * West  (-X):  relMin=(0,0,0)  relMax=(0,1,1)
+ * Up    (+Y):  relMin=(0,1,0)  relMax=(1,1,1)
+ * Down  (-Y):  relMin=(0,0,0)  relMax=(1,0,1)
  * </pre>
  */
 public class FacePlane {
@@ -45,14 +36,19 @@ public class FacePlane {
     public static final BuilderCodec<FacePlane> CODEC = BuilderCodec
             .builder(FacePlane.class, FacePlane::new)
             .append(
-                    new KeyedCodec<>("FacePlane_Min", Vector3i.CODEC),
-                    (c, v) -> c.planeMin = v,
-                    c -> c.planeMin)
+                    new KeyedCodec<>("FacePlane_RelMin", Vector3i.CODEC),
+                    (c, v) -> c.relMin = v,
+                    c -> c.relMin)
             .add()
             .append(
-                    new KeyedCodec<>("FacePlane_Max", Vector3i.CODEC),
-                    (c, v) -> c.planeMax = v,
-                    c -> c.planeMax)
+                    new KeyedCodec<>("FacePlane_RelMax", Vector3i.CODEC),
+                    (c, v) -> c.relMax = v,
+                    c -> c.relMax)
+            .add()
+            .append(
+                    new KeyedCodec<>("FacePlane_HitboxIndex", Codec.INTEGER),
+                    (c, v) -> c.hitboxIndex = v,
+                    c -> c.hitboxIndex)
             .add()
             .append(
                     new KeyedCodec<>("FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
@@ -66,72 +62,79 @@ public class FacePlane {
             .add()
             .build();
 
-    /**
-     * Minimum corner of the face region in absolute world coordinates.
-     */
-    private Vector3i planeMin;
+    /** Block-origin-relative minimum corner. Persisted. */
+    private Vector3i relMin;
+
+    /** Block-origin-relative maximum corner. Persisted. */
+    private Vector3i relMax;
 
     /**
-     * Maximum corner of the face region in absolute world coordinates.
+     * Index into the block's hitbox detail-box array that triggers this face.
+     * {@code -1} = non-interactable. Persisted.
      */
-    private Vector3i planeMax;
+    private int hitboxIndex;
 
-    /**
-     * Connection mode for this face region.
-     */
+    /** Connection mode for this face. Persisted. */
     private FaceMode mode;
 
-    /**
-     * UUID of the neighboring TransferComponent node connected through this face.
-     * Null means no connection. Persisted so the edge graph survives restarts.
-     */
+    /** UUID of the neighboring node. {@code null} = unlinked. Persisted. */
     @Nullable
     private UUID neighborNodeId;
 
-    /**
-     * Inventory where incoming items are deposited for this face.
-     * Null if this face doesn't accept inputs (e.g., OUTPUT or CLOSED faces).
-     * Not serialized - must be wired at runtime.
-     */
+    /** Inventory for incoming items. Transient — wired at runtime. */
     private transient ItemContainer inputInventory;
 
-    /**
-     * Inventory from which outgoing items are sourced for this face.
-     * Null if this face doesn't send outputs (e.g., INPUT or CLOSED faces).
-     * Not serialized - must be wired at runtime.
-     */
+    /** Inventory for outgoing items. Transient — wired at runtime. */
     private transient ItemContainer outputInventory;
 
-    /**
-     * No-arg constructor for serialization.
-     */
+    /** No-arg constructor for CODEC. */
     public FacePlane() {
-        this(new Vector3i(0, 0, 0), new Vector3i(0, 0, 0), FaceMode.BIDIRECTIONAL);
+        this(new Vector3i(0, 0, 0), new Vector3i(0, 0, 0), -1, FaceMode.BIDIRECTIONAL);
     }
 
     /**
-     * Full constructor.
-     *
-     * @param planeMin Minimum corner in absolute world coordinates
-     * @param planeMax Maximum corner in absolute world coordinates
-     * @param mode     Connection mode (INPUT, OUTPUT, BIDIRECTIONAL, CLOSED)
+     * @param relMin      Block-relative minimum corner
+     * @param relMax      Block-relative maximum corner
+     * @param hitboxIndex Detail-box index that triggers this face ({@code -1} = non-interactable)
+     * @param mode        Initial connection mode
      */
-    public FacePlane(Vector3i planeMin, Vector3i planeMax, FaceMode mode) {
-        this.planeMin = planeMin;
-        this.planeMax = planeMax;
+    public FacePlane(Vector3i relMin, Vector3i relMax, int hitboxIndex, FaceMode mode) {
+        int dx = relMax.x - relMin.x;
+        int dy = relMax.y - relMin.y;
+        int dz = relMax.z - relMin.z;
+        if (dx < 0 || dy < 0 || dz < 0 || dx > 1 || dy > 1 || dz > 1) {
+            throw new IllegalArgumentException(
+                    "FacePlane span must be 0 or 1 on each axis, got relMin=" + relMin + " relMax=" + relMax);
+        }
+        this.relMin = relMin;
+        this.relMax = relMax;
+        this.hitboxIndex = hitboxIndex;
         this.mode = mode;
         this.neighborNodeId = null;
-        this.inputInventory = null;
-        this.outputInventory = null;
     }
 
-    // Getters
-    public Vector3i getPlaneMin() {
-        return planeMin;
+    // ── World-coordinate helpers (computed on demand, never stored) ──────────────
+
+    public Vector3i getWorldMin(Vector3i blockPos) {
+        return new Vector3i(blockPos.x + relMin.x, blockPos.y + relMin.y, blockPos.z + relMin.z);
     }
 
-    public Vector3i getPlaneMax() {
-        return planeMax;
+    public Vector3i getWorldMax(Vector3i blockPos) {
+        return new Vector3i(blockPos.x + relMax.x, blockPos.y + relMax.y, blockPos.z + relMax.z);
+    }
+
+    // ── Getters ───────────────────────────────────────────────────────────────
+
+    public Vector3i getRelMin() {
+        return relMin;
+    }
+
+    public Vector3i getRelMax() {
+        return relMax;
+    }
+
+    public int getHitboxIndex() {
+        return hitboxIndex;
     }
 
     public FaceMode getMode() {
@@ -153,14 +156,7 @@ public class FacePlane {
         return outputInventory;
     }
 
-    // Setters
-    public void setPlaneMin(Vector3i planeMin) {
-        this.planeMin = planeMin;
-    }
-
-    public void setPlaneMax(Vector3i planeMax) {
-        this.planeMax = planeMax;
-    }
+    // ── Setters ───────────────────────────────────────────────────────────────
 
     public void setMode(FaceMode mode) {
         this.mode = mode;
@@ -180,7 +176,6 @@ public class FacePlane {
 
     /**
      * Convenience method to set both inventories to the same container.
-     * Useful for BIDIRECTIONAL faces that use a single inventory.
      */
     public void setInventory(ItemContainer inventory) {
         this.inputInventory = inventory;
@@ -205,10 +200,12 @@ public class FacePlane {
                 inputInventory != null;
     }
 
+    // ── Object overrides ──────────────────────────────────────────────────────
+
     @Override
     public String toString() {
-        return String.format("FacePlane{min=%s, max=%s, mode=%s, canSend=%s, canReceive=%s}",
-                planeMin, planeMax, mode, canSend(), canReceive());
+        return String.format("FacePlane{hitboxIndex=%d, relMin=%s, relMax=%s, mode=%s}",
+                hitboxIndex, relMin, relMax, mode);
     }
 
     @Override
@@ -216,68 +213,31 @@ public class FacePlane {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FacePlane other = (FacePlane) o;
-        return Objects.equals(planeMin, other.planeMin) &&
-                Objects.equals(planeMax, other.planeMax);
+        return hitboxIndex == other.hitboxIndex;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(planeMin, planeMax);
+        return Integer.hashCode(hitboxIndex);
     }
 
-    /**
-     * Returns the FaceKey for this face (for HashMap lookups).
-     */
-    public FaceKey getFaceKey() {
-        return new FaceKey(planeMin, planeMax);
-    }
+    // ── Mode compatibility ────────────────────────────────────────────────────
 
-    /**
-     * Checks if two faces collide (occupy the same 3D space).
-     * Since faces store absolute world coordinates, collision is simply
-     * checking if both min and max are identical.
-     *
-     * @param faceA First face
-     * @param faceB Second face
-     * @return true if faces occupy exactly the same 3D rectangle
-     */
-    public static boolean facesCollide(FacePlane faceA, FacePlane faceB) {
-        return faceA.planeMin.equals(faceB.planeMin) &&
-                faceA.planeMax.equals(faceB.planeMax);
-    }
-    
     /**
      * Checks if two face modes are compatible for creating an edge.
      * Returns the type of edge to create, or null if incompatible.
      */
     public static EdgeType checkModeCompatibility(FaceMode modeA, FaceMode modeB) {
         if (modeA == FaceMode.CLOSED || modeB == FaceMode.CLOSED) {
-            return null; // No connection with CLOSED
+            return null;
         }
-
-        if (modeA == FaceMode.OUTPUT && modeB == FaceMode.INPUT) {
-            return EdgeType.A_TO_B; // A → B
-        }
-        if (modeA == FaceMode.INPUT && modeB == FaceMode.OUTPUT) {
-            return EdgeType.B_TO_A; // B → A
-        }
-        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.BIDIRECTIONAL) {
-            return EdgeType.BIDIRECTIONAL; // A ↔ B
-        }
-        if (modeA == FaceMode.OUTPUT && modeB == FaceMode.BIDIRECTIONAL) {
-            return EdgeType.A_TO_B; // A → B
-        }
-        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.INPUT) {
-            return EdgeType.A_TO_B; // A → B
-        }
-        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.OUTPUT) {
-            return EdgeType.B_TO_A; // B → A
-        }
-        if (modeA == FaceMode.INPUT && modeB == FaceMode.BIDIRECTIONAL) {
-            return EdgeType.B_TO_A; // B → A
-        }
-
-        // INPUT + INPUT or OUTPUT + OUTPUT = incompatible
+        if (modeA == FaceMode.OUTPUT && modeB == FaceMode.INPUT) return EdgeType.A_TO_B;
+        if (modeA == FaceMode.INPUT && modeB == FaceMode.OUTPUT) return EdgeType.B_TO_A;
+        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.BIDIRECTIONAL) return EdgeType.BIDIRECTIONAL;
+        if (modeA == FaceMode.OUTPUT && modeB == FaceMode.BIDIRECTIONAL) return EdgeType.A_TO_B;
+        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.INPUT) return EdgeType.A_TO_B;
+        if (modeA == FaceMode.BIDIRECTIONAL && modeB == FaceMode.OUTPUT) return EdgeType.B_TO_A;
+        if (modeA == FaceMode.INPUT && modeB == FaceMode.BIDIRECTIONAL) return EdgeType.B_TO_A;
         return null;
     }
 
@@ -285,9 +245,7 @@ public class FacePlane {
      * Result type for edge creation based on face mode compatibility.
      */
     public enum EdgeType {
-        A_TO_B,        // Create unidirectional edge from A to B
-        B_TO_A,        // Create unidirectional edge from B to A
-        BIDIRECTIONAL  // Create bidirectional edge
+        A_TO_B, B_TO_A, BIDIRECTIONAL
     }
 }
 

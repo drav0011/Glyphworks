@@ -54,7 +54,7 @@ public final class PrintTransferGraphCommand extends AbstractCommand {
 
             StringBuilder line = new StringBuilder("  ");
             line.append(shortId(node.getNodeId()));
-            line.append("  ").append(node.getDefaultFaceMode());
+            // line.append("  ").append(node.getDefaultFaceMode());
             if (node.isAutoPush()) line.append("  autoPush");
             if (node.isAutoPull()) line.append("  autoPull");
             line.append("  faces=").append(faces.size());

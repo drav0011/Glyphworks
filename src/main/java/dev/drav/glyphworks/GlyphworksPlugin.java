@@ -15,7 +15,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
-import dev.drav.glyphworks.transfer.event.ChunkLoadTransferLinkEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
 
@@ -61,10 +60,6 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
-
-        // Wires (or re-wires) transfer edges the moment any TransferComponent enters the
-        // ChunkStore — covers both world load and placement with zero chunk scanning.
-        this.getChunkStoreRegistry().registerSystem(new ChunkLoadTransferLinkEvent());
 
         this.getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 

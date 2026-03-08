@@ -24,7 +24,93 @@
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": false,
           "Transfer_AutoPull": false,
-          "Transfer_DefaultFaceMode": "Bidirectional"
+          "Transfer_DefaultFaceMode": "Bidirectional",
+          "Transfer_Faces": [
+            {
+              "FacePlane_HitboxIndex": 1,
+              "FacePlane_RelMin": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "FacePlane_RelMax": {
+                "X": 1,
+                "Y": 1,
+                "Z": 0
+              },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_HitboxIndex": 2,
+              "FacePlane_RelMin": {
+                "X": 0,
+                "Y": 0,
+                "Z": 1
+              },
+              "FacePlane_RelMax": {
+                "X": 1,
+                "Y": 1,
+                "Z": 1
+              },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_HitboxIndex": 3,
+              "FacePlane_RelMin": {
+                "X": 1,
+                "Y": 0,
+                "Z": 0
+              },
+              "FacePlane_RelMax": {
+                "X": 1,
+                "Y": 1,
+                "Z": 1
+              },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_HitboxIndex": 4,
+              "FacePlane_RelMin": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "FacePlane_RelMax": {
+                "X": 0,
+                "Y": 1,
+                "Z": 1
+              },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_HitboxIndex": 5,
+              "FacePlane_RelMin": {
+                "X": 0,
+                "Y": 1,
+                "Z": 0
+              },
+              "FacePlane_RelMax": {
+                "X": 1,
+                "Y": 1,
+                "Z": 1
+              },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_HitboxIndex": 6,
+              "FacePlane_RelMin": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "FacePlane_RelMax": {
+                "X": 1,
+                "Y": 0,
+                "Z": 1
+              },
+              "FacePlane_Mode": "Bidirectional"
+            }
+          ]
         }
       }
     },

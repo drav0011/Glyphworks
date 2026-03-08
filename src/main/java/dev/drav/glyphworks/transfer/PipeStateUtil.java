@@ -9,7 +9,6 @@ import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
-import dev.drav.glyphworks.transfer.component.FaceKey;
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
@@ -25,11 +24,11 @@ import java.util.logging.Logger;
  * faces
  * are not {@link FaceMode#CLOSED}.
  *
- * <h3>Direction conventions (Minecraft/Hytale standard)</h3>
+ * <h3>Direction conventions</h3>
  * 
  * <pre>
- * N = NORTH (-Z)   offset (0,  0, -1)
- * S = SOUTH (+Z)   offset (0,  0, +1)
+ * N = NORTH (+Z)   offset (0,  0, +1)
+ * S = SOUTH (-Z)   offset (0,  0, -1)
  * E = EAST  (+X)   offset (+1, 0,  0)
  * W = WEST  (-X)   offset (-1, 0,  0)
  * U = UP    (+Y)   offset (0, +1,  0)
@@ -41,8 +40,8 @@ public final class PipeStateUtil {
     private static final Logger LOGGER = Logger.getLogger(PipeStateUtil.class.getName());
 
     private static final int[][] OFFSETS = {
-            { 0, 0, -1 }, // 0: N  (North = -Z, Minecraft/Hytale standard)
-            { 0, 0, 1 },  // 1: S  (South = +Z)
+            { 0, 0,  1 }, // 0: N  (North = +Z)
+            { 0, 0, -1 }, // 1: S  (South = -Z)
             { 1, 0, 0 },  // 2: E
             { -1, 0, 0 }, // 3: W
             { 0, 1, 0 },  // 4: U
@@ -165,17 +164,16 @@ public final class PipeStateUtil {
     }
 
     /**
-     * Returns the {@link FacePlane} on {@code pipe} whose plane key matches the
-     * wall of the 1×1×1 block at {@code pos} facing direction (dx, dy, dz), using
-     * the same {@link FaceKey} convention as {@code initAndLogAllFaces}:
+     * Returns the {@link FacePlane} on {@code pipe} whose world-absolute plane key matches
+     * the wall of the 1×1×1 block at {@code pos} facing direction (dx, dy, dz).
      *
      * <pre>
-     * N (-Z):  min=(x,   y,   z  )  max=(x+1, y+1, z  )
-     * S (+Z):  min=(x,   y,   z+1)  max=(x+1, y+1, z+1)
-     * E (+X):  min=(x+1, y,   z  )  max=(x+1, y+1, z+1)
-     * W (-X):  min=(x,   y,   z  )  max=(x,   y+1, z+1)
-     * U (+Y):  min=(x,   y+1, z  )  max=(x+1, y+1, z+1)
-     * D (-Y):  min=(x,   y,   z  )  max=(x+1, y,   z+1)
+     * N (+Z):  boundary z = bz+1  →  min=(bx,   by,   bz+1)  max=(bx+1, by+1, bz+1)
+     * S (-Z):  boundary z = bz    →  min=(bx,   by,   bz  )  max=(bx+1, by+1, bz  )
+     * E (+X):  boundary x = bx+1  →  min=(bx+1, by,   bz  )  max=(bx+1, by+1, bz+1)
+     * W (-X):  boundary x = bx    →  min=(bx,   by,   bz  )  max=(bx,   by+1, bz+1)
+     * U (+Y):  boundary y = by+1  →  min=(bx,   by+1, bz  )  max=(bx+1, by+1, bz+1)
+     * D (-Y):  boundary y = by    →  min=(bx,   by,   bz  )  max=(bx+1, by,   bz+1)
      * </pre>
      */
     @Nullable
@@ -205,6 +203,9 @@ public final class PipeStateUtil {
             min = new Vector3i(bx, by, bz);
             max = new Vector3i(bx + 1, by, bz + 1);
         }
-        return pipe.getFaces().get(new FaceKey(min, max));
+        for (FacePlane face : pipe.getFaces().values()) {
+            if (face.getWorldMin(pos).equals(min) && face.getWorldMax(pos).equals(max)) return face;
+        }
+        return null;
     }
 }

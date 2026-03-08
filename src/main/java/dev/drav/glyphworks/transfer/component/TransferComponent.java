@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
-import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -54,8 +52,6 @@ import dev.drav.glyphworks.GlyphworksPlugin;
  * {@code min(source.maxOutputRate, sink.maxInputRate)} as the effective limit.
  */
 public class TransferComponent implements Component<ChunkStore> {
-    private static final Logger LOGGER = Logger.getLogger(TransferComponent.class.getName());
-
     public static final BuilderCodec<TransferComponent> CODEC = BuilderCodec
             .builder(TransferComponent.class, TransferComponent::new)
             .append(
@@ -89,18 +85,10 @@ public class TransferComponent implements Component<ChunkStore> {
                     (c, v) -> {
                         c.faces = new HashMap<>();
                         for (FacePlane face : v) {
-                            c.faces.put(face.getFaceKey(), face);
+                            c.faces.put(face.getHitboxIndex(), face);
                         }
                     },
                     c -> new HashSet<>(c.faces.values()))
-            .add()
-            // Persist defaultFaceMode so the placement event initialises faces with
-            // the correct mode for this block type (OUTPUT for machines, INPUT for
-            // containers, BIDIRECTIONAL for pipes).
-            .append(
-                    new KeyedCodec<>("Transfer_DefaultFaceMode", new EnumCodec<>(FaceMode.class)),
-                    (c, v) -> c.defaultFaceMode = v,
-                    c -> c.defaultFaceMode)
             .add()
             .build();
 
@@ -138,17 +126,11 @@ public class TransferComponent implements Component<ChunkStore> {
     private boolean autoPull;
 
     /**
-     * Map of configured face regions for this block, keyed by face coordinates.
-     * Key = FaceKey(planeMin, planeMax) for fast O(1) collision lookups.
-     * Empty map means no faces configured (uses defaultFaceMode for all connections).
+     * Map of configured face regions for this block, keyed by hitboxIndex.
+     * A hitboxIndex of -1 is non-interactable (faces not triggered by click).
      */
-    private Map<FaceKey, FacePlane> faces;
+    private Map<Integer, FacePlane> faces;
 
-    /**
-     * Default connection mode for faces not explicitly configured.
-     * Used when faces map is empty or a touching area isn't covered by any face.
-     */
-    private FaceMode defaultFaceMode;
 
 
     // ------------------------------------------------------------------
@@ -162,7 +144,6 @@ public class TransferComponent implements Component<ChunkStore> {
     public TransferComponent() {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE, true, true);
         this.faces = new HashMap<>();
-        this.defaultFaceMode = FaceMode.CLOSED;
     }
 
     /**
@@ -184,7 +165,6 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPush = autoPush;
         this.autoPull = autoPull;
         this.faces = new HashMap<>();
-        this.defaultFaceMode = FaceMode.CLOSED;
     }
 
     /**
@@ -198,7 +178,6 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPush = other.autoPush;
         this.autoPull = other.autoPull;
         this.faces = new HashMap<>(other.faces);
-        this.defaultFaceMode = other.defaultFaceMode;
         // inventory references are not copied — must be re-injected at runtime
     }
 
@@ -219,8 +198,8 @@ public class TransferComponent implements Component<ChunkStore> {
      * @param faceKey   The face coordinates key (planeMin, planeMax)
      * @param inventory The ItemContainer to wire to this face
      */
-    public void setFaceInventory(FaceKey faceKey, ItemContainer inventory) {
-        FacePlane face = faces.get(faceKey);
+    public void setFaceInventory(int hitboxIndex, ItemContainer inventory) {
+        FacePlane face = faces.get(hitboxIndex);
         if (face == null) {
             return;
         }
@@ -289,12 +268,8 @@ public class TransferComponent implements Component<ChunkStore> {
         return autoPull;
     }
 
-    public Map<FaceKey, FacePlane> getFaces() {
+    public Map<Integer, FacePlane> getFaces() {
         return faces;
-    }
-
-    public FaceMode getDefaultFaceMode() {
-        return defaultFaceMode;
     }
 
     // ------------------------------------------------------------------
@@ -317,21 +292,17 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPull = autoPull;
     }
 
-    public void setDefaultFaceMode(FaceMode defaultFaceMode) {
-        this.defaultFaceMode = defaultFaceMode;
-    }
-
     /**
      * Adds or replaces a face in the faces map.
      */
-    public void setFace(FaceKey key, FacePlane face) {
-        faces.put(key, face);
+    public void setFace(int hitboxIndex, FacePlane face) {
+        faces.put(hitboxIndex, face);
     }
 
     /**
      * Removes a face from the faces map.
      */
-    public void removeFace(FaceKey key) {
-        faces.remove(key);
+    public void removeFace(int hitboxIndex) {
+        faces.remove(hitboxIndex);
     }
 }

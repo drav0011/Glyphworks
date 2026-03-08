@@ -29,8 +29,8 @@ if (oldFiles.length) console.log(`Deleted ${oldFiles.length} old generated model
 // Model space: X/Z ∈ [-16, +16], Y ∈ [0, 32]; pivot = box center + offset.
 const CENTER_BOX = { Min: { X: 0.3125, Y: 0.3125, Z: 0.3125 }, Max: { X: 0.6875, Y: 0.6875, Z: 0.6875 } };
 const ARM_BOXES = {
-  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } },
-  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } },
+  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } }, // South = -Z
+  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } }, // North = +Z
   E: { Min: { X: 0.6875, Y: 0.375,  Z: 0.375  }, Max: { X: 1,      Y: 0.625,  Z: 0.625  } },
   W: { Min: { X: 0,      Y: 0.375,  Z: 0.375  }, Max: { X: 0.3125, Y: 0.625,  Z: 0.625  } },
   U: { Min: { X: 0.375,  Y: 0.6875, Z: 0.375  }, Max: { X: 0.625,  Y: 1,      Z: 0.625  } },
@@ -45,8 +45,8 @@ if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hit
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 const DIRECTIONS = [
-  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 }, // north
-  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 }, // south
+  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 }, // north
+  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 }, // south
   { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, nodeIdx: 5 }, // east
   { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, nodeIdx: 4 }, // west
   { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, nodeIdx: 1 }, // up
@@ -109,6 +109,15 @@ const item = {
           Transfer_AutoPush: false,
           Transfer_AutoPull: false,
           Transfer_DefaultFaceMode: 'Bidirectional',
+          // Hitbox index layout in Pipe_Full.json: 0=Center, 1=S(-Z), 2=N(+Z), 3=E(+X), 4=W(-X), 5=U(+Y), 6=D(-Y)
+          Transfer_Faces: [
+            { FacePlane_HitboxIndex: 1, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)
+            { FacePlane_HitboxIndex: 2, FacePlane_RelMin: {X:0, Y:0, Z:1}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // N (+Z)
+            { FacePlane_HitboxIndex: 3, FacePlane_RelMin: {X:1, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // E (+X)
+            { FacePlane_HitboxIndex: 4, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:0, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // W (-X)
+            { FacePlane_HitboxIndex: 5, FacePlane_RelMin: {X:0, Y:1, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // U (+Y)
+            { FacePlane_HitboxIndex: 6, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:0, Z:1}, FacePlane_Mode: 'Bidirectional' }, // D (-Y)
+          ],
         },
       },
     },
