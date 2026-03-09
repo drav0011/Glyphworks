@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Bench_AutoFurnace.name",
-    "Description": "server.items.Bench_AutoFurnace.description"
+    "Name": "server.items.Auto_Bench_Furnace.name",
+    "Description": "server.items.Auto_Bench_Furnace.description"
   },
   "Icon": "Icons/ItemsGenerated/Bench_Furnace.png",
   "Categories": [
@@ -20,7 +20,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Bench_AutoFurnace"
+        "ItemId": "Auto_Bench_Furnace"
       }
     ],
     "BenchRequirement": [
@@ -38,7 +38,7 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Benches/Furnace.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Bench/Auto_Bench_Furnace.blockymodel",
     "CustomModelTexture": [
       {
         "Texture": "Blocks/Benches/Furnace_Texture_Off.png",
@@ -131,7 +131,27 @@
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": true,
           "Transfer_AutoPull": false,
-          "Transfer_DefaultFaceMode": "Output"
+          "Transfer_DefaultFaceMode": "Output",
+          "Transfer_Faces": [
+            {
+              "FacePlane_HitboxIndex": 1,
+              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 0 },
+              "FacePlane_Mode": "Output"
+            },
+            {
+              "FacePlane_HitboxIndex": 2,
+              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_Mode": "Input"
+            },
+            {
+              "FacePlane_HitboxIndex": 3,
+              "FacePlane_RelMin": { "X": 1, "Y": 0, "Z": 0 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_Mode": "Input"
+            }
+          ]
         }
       }
     },
@@ -184,7 +204,7 @@
               "Weight": 1
             }
           ],
-          "HitboxType": "Bench_Furnace",
+          "HitboxType": "Auto_Bench_Furnace",
           "State": {
             "Definitions": {
               "Processing": {
@@ -236,7 +256,7 @@
         "GatherType": "Benches"
       }
     },
-    "HitboxType": "Bench_Furnace",
+    "HitboxType": "Auto_Bench_Furnace",
     "BlockParticleSetId": "Stone",
     "ParticleColor": "#5C583E",
     "Support": {

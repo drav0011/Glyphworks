@@ -8,7 +8,7 @@ const path = require('path');
 
 const BASE        = __dirname;
 const MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
-const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Transfer_PipeNode.json');
+const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Pipe.json');
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
@@ -87,12 +87,12 @@ console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files`);
 
 // ─── Write single full hitbox (all arms always present) ───────────────────────
 const fullHitboxBoxes = [CENTER_BOX, ...Object.values(ARM_BOXES)];
-fs.writeFileSync(path.join(HITBOXES_DIR, 'Pipe_Full.json'), JSON.stringify({ Boxes: fullHitboxBoxes }, null, 2), 'utf8');
-console.log('Wrote Pipe_Full.json hitbox (center + all 6 arms)');
+fs.writeFileSync(path.join(HITBOXES_DIR, 'Pipe.json'), JSON.stringify({ Boxes: fullHitboxBoxes }, null, 2), 'utf8');
+console.log('Wrote Pipe.json hitbox (center + all 6 arms)');
 
-// ─── Write Transfer_PipeNode.json from scratch ───────────────────────────────
+// ─── Write Pipe.json from scratch ───────────────────────────────────────────
 const item = {
-  TranslationProperties: { Name: 'server.items.Transfer_PipeNode.name' },
+  TranslationProperties: { Name: 'server.items.Pipe.name' },
   Categories: ['Blocks.Deco'],
   BlockType: {
     Material: 'Solid',
@@ -109,7 +109,7 @@ const item = {
           Transfer_AutoPush: false,
           Transfer_AutoPull: false,
           Transfer_DefaultFaceMode: 'Bidirectional',
-          // Hitbox index layout in Pipe_Full.json: 0=Center, 1=S(-Z), 2=N(+Z), 3=E(+X), 4=W(-X), 5=U(+Y), 6=D(-Y)
+          // Hitbox index layout in Pipe.json: 0=Center, 1=S(-Z), 2=N(+Z), 3=E(+X), 4=W(-X), 5=U(+Y), 6=D(-Y)
           Transfer_Faces: [
             { FacePlane_HitboxIndex: 1, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)
             { FacePlane_HitboxIndex: 2, FacePlane_RelMin: {X:0, Y:0, Z:1}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // N (+Z)
@@ -122,10 +122,10 @@ const item = {
       },
     },
     CustomModelScale: 1,
-    HitboxType: 'Pipe_Full',
+    HitboxType: 'Pipe',
     Flags: {},
     State: { Definitions: stateDefs },
-    Interactions: { Use: 'Glyphworks_PipeUse' },
+    Interactions: { Secondary: 'Pipe_Use' },
   },
   PlayerAnimationsId: 'Block',
   Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',
@@ -133,4 +133,4 @@ const item = {
 };
 
 fs.writeFileSync(ITEM_PATH, JSON.stringify(item, null, 2), 'utf8');
-console.log(`Wrote Transfer_PipeNode.json with ${Object.keys(stateDefs).length} state definitions`);
+console.log(`Wrote Pipe.json with ${Object.keys(stateDefs).length} state definitions`);

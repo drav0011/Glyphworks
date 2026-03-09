@@ -36,7 +36,7 @@ public final class UseTransferableBlockEvent extends EntityEventSystem<EntitySto
 
     public static final String FACE_WRENCH_ITEM_ID = "Face_Wrench";
 
-    private static final String PIPE_INTERACTION_ID = "Glyphworks_PipeUse";
+    private static final String PIPE_INTERACTION_ID = "Pipe_Use";
 
     private static final double MAX_REACH = 10.0;
 

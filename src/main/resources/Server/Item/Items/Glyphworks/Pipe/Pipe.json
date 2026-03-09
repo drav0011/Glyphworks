@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Transfer_PipeNode.name"
+    "Name": "server.items.Pipe.name"
   },
   "Categories": [
     "Blocks.Deco"
@@ -115,7 +115,7 @@
       }
     },
     "CustomModelScale": 1,
-    "HitboxType": "Pipe_Full",
+    "HitboxType": "Pipe",
     "Flags": {},
     "State": {
       "Definitions": {
@@ -312,9 +312,6 @@
           "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWUD.blockymodel"
         }
       }
-    },
-    "Interactions": {
-      "Use": "Glyphworks_PipeUse"
     }
   },
   "PlayerAnimationsId": "Block",

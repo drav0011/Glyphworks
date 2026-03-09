@@ -74,7 +74,7 @@ public class GlyphworksPlugin extends JavaPlugin {
         // The key must match BlockType.getId() for the root block type.
         // If states stop updating, log "rootId" in TransferStateRegistry.applyState to
         // verify.
-        TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
+        TransferStateRegistry.register("Pipe", PipeStateComputer::compute);
 
         getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 

@@ -1,7 +1,17 @@
 {
   "Interactions": [
     {
-      "Type": "Simple"
+      "Type": "BlockCondition",
+      "Matchers": [
+        {
+          "Block": {
+            "Id": "Pipe"
+          }
+        }
+      ],
+      "Next": {
+        "Type": "UseBlock"
+      }
     }
   ],
   "Settings": {

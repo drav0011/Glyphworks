@@ -21,7 +21,7 @@ import dev.drav.glyphworks.transfer.lookups.TransferLookup;
  *
  * <p>Register block types at plugin init:
  * <pre>
- *     TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
+ *     TransferStateRegistry.register("Pipe", PipeStateComputer::compute);
  * </pre>
  *
  * <p>Unregistered block types are silently skipped — no-op.

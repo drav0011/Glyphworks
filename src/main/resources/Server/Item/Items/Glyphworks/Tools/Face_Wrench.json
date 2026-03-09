@@ -8,6 +8,9 @@
   ],
   "Icon": "Icons/ItemsGenerated/Tool_Hammer_Crude.png",
   "MaxStack": 1,
+  "Interactions": {
+    "Secondary": "Wrench_Pipe_Use"
+  },
   "Tags": {
     "Type": [
       "Tool"
