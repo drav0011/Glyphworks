@@ -10,9 +10,11 @@ import javax.annotation.Nullable;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -90,6 +92,11 @@ public class TransferComponent implements Component<ChunkStore> {
                     },
                     c -> new HashSet<>(c.faces.values()))
             .add()
+            .append(
+                    new KeyedCodec<>("Transfer_Yaw", new EnumCodec<>(Rotation.class)),
+                    (c, v) -> c.yaw = (v == null ? Rotation.None : v),
+                    c -> c.yaw)
+            .add()
             .build();
 
     public static ComponentType<ChunkStore, TransferComponent> getComponentType() {
@@ -130,6 +137,12 @@ public class TransferComponent implements Component<ChunkStore> {
      * A hitboxIndex of -1 is non-interactable (faces not triggered by click).
      */
     private Map<Integer, FacePlane> faces;
+
+    /**
+     * Yaw rotation the block was placed with, in north-facing coords.
+     * Always non-null; defaults to {@link Rotation#None}.
+     */
+    private Rotation yaw = Rotation.None;
 
 
 
@@ -209,6 +222,7 @@ public class TransferComponent implements Component<ChunkStore> {
         TransferComponent copy = new TransferComponent(
                 this.maxOutputRate, this.maxInputRate, this.autoPush, this.autoPull);
         copy.nodeId = this.nodeId; // preserve stable identity
+        copy.yaw = this.yaw;
         copy.faces = new HashMap<>(this.faces.size());
         for (Map.Entry<Integer, FacePlane> e : this.faces.entrySet()) {
             copy.faces.put(e.getKey(), e.getValue().copyFull()); // preserve neighbourNodeId
@@ -301,6 +315,10 @@ public class TransferComponent implements Component<ChunkStore> {
         return faces;
     }
 
+    public Rotation getYaw() {
+        return yaw;
+    }
+
     // ------------------------------------------------------------------
     // Setters (runtime config — no graph rebuild needed unless noted)
     // ------------------------------------------------------------------
@@ -333,5 +351,9 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     public void removeFace(int hitboxIndex) {
         faces.remove(hitboxIndex);
+    }
+
+    public void setYaw(Rotation yaw) {
+        this.yaw = (yaw == null ? Rotation.None : yaw);
     }
 }

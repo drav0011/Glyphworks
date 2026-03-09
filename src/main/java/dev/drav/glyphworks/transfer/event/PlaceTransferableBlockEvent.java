@@ -22,6 +22,8 @@ import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 import dev.drav.glyphworks.util.FaceLinkUtil;
 
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
     public PlaceTransferableBlockEvent() {
@@ -43,6 +45,11 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
 
             TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
             if (lookup == null) return;
+
+            // Store the yaw so getWorldMin/Max can apply it dynamically.
+            // Face coords in JSON are always authored for the north-facing (None) orientation.
+            Rotation yaw = event.getRotation().yaw();
+            lookup.transfer().setYaw(yaw);
 
             // Faces come pre-defined from the block type JSON via clone().
             // neighborNodeIds are all null (unlinked) on first placement — correct.

@@ -9,6 +9,7 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 
 /**
@@ -113,14 +114,37 @@ public class FacePlane {
         this.neighborNodeId = null;
     }
 
-    // ── World-coordinate helpers (computed on demand, never stored) ──────────────
-
-    public Vector3i getWorldMin(Vector3i blockPos) {
-        return new Vector3i(blockPos.x + relMin.x, blockPos.y + relMin.y, blockPos.z + relMin.z);
+    /**
+     * Returns the world-space minimum corner of this face, accounting for the block's
+     * yaw rotation. The stored relMin/relMax are always in north-facing (authored)
+     * coordinates; this method rotates them around the block unit-cell centre (0.5,y,0.5)
+     * before adding {@code blockPos}.
+     */
+    public Vector3i getWorldMin(Vector3i blockPos, Rotation yaw) {
+        Vector3i ra = rotateYaw(relMin, yaw);
+        Vector3i rb = rotateYaw(relMax, yaw);
+        return new Vector3i(
+                blockPos.x + Math.min(ra.x, rb.x),
+                blockPos.y + Math.min(ra.y, rb.y),
+                blockPos.z + Math.min(ra.z, rb.z));
     }
 
-    public Vector3i getWorldMax(Vector3i blockPos) {
-        return new Vector3i(blockPos.x + relMax.x, blockPos.y + relMax.y, blockPos.z + relMax.z);
+    public Vector3i getWorldMax(Vector3i blockPos, Rotation yaw) {
+        Vector3i ra = rotateYaw(relMin, yaw);
+        Vector3i rb = rotateYaw(relMax, yaw);
+        return new Vector3i(
+                blockPos.x + Math.max(ra.x, rb.x),
+                blockPos.y + Math.max(ra.y, rb.y),
+                blockPos.z + Math.max(ra.z, rb.z));
+    }
+
+    private static Vector3i rotateYaw(Vector3i v, Rotation yaw) {
+        switch (yaw) {
+            case Ninety:     return new Vector3i(v.z,     v.y, 1 - v.x);
+            case OneEighty:  return new Vector3i(1 - v.x, v.y, 1 - v.z);
+            case TwoSeventy: return new Vector3i(1 - v.z, v.y, v.x);
+            default:         return new Vector3i(v.x,     v.y, v.z);
+        }
     }
 
     // ── Getters ───────────────────────────────────────────────────────────────

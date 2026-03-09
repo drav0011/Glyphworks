@@ -108,7 +108,6 @@ const item = {
           Transfer_MaxInputRate: 64,
           Transfer_AutoPush: false,
           Transfer_AutoPull: false,
-          Transfer_DefaultFaceMode: 'Bidirectional',
           // Hitbox index layout in Pipe.json: 0=Center, 1=S(-Z), 2=N(+Z), 3=E(+X), 4=W(-X), 5=U(+Y), 6=D(-Y)
           Transfer_Faces: [
             { FacePlane_HitboxIndex: 1, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)

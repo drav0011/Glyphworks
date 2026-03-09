@@ -1,18 +1,6 @@
 {
   "Interactions": [
-    {
-      "Type": "BlockCondition",
-      "Matchers": [
-        {
-          "Block": {
-            "Id": "Pipe"
-          }
-        }
-      ],
-      "Next": {
-        "Type": "UseBlock"
-      }
-    }
+    "Wrench_Pipe_Use"
   ],
   "Settings": {
     "Adventure": {

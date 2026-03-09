@@ -24,7 +24,6 @@
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": false,
           "Transfer_AutoPull": false,
-          "Transfer_DefaultFaceMode": "Bidirectional",
           "Transfer_Faces": [
             {
               "FacePlane_HitboxIndex": 1,

@@ -4,112 +4,67 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.transfer.component.FaceMode;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 
 /**
- * Computes the visual state name for a pipe block based on which adjacent faces are
- * linked and not {@link FaceMode#CLOSED}.
+ * Computes the visual state name for a pipe block based on which faces are linked.
+ *
+ * <p>Face relMin/relMax are stored in north-facing (authored) coordinates.
+ * The block's placed yaw is applied when computing the world direction of each face,
+ * so the state label (N/S/E/W/U/D) always reflects the actual world axis.
  */
 public final class PipeStateComputer {
 
-    private static final int[][] OFFSETS = {
-            { 0, 0,  1 }, // 0: N
-            { 0, 0, -1 }, // 1: S
-            { 1, 0,  0 }, // 2: E
-            { -1, 0, 0 }, // 3: W
-            { 0, 1,  0 }, // 4: U
-            { 0, -1, 0 }, // 5: D
-    };
-    private static final String[] LABELS = { "N", "S", "E", "W", "U", "D" };
-
     private PipeStateComputer() {}
 
-    /**
-     * Computes the pipe state name for the block at {@code pos}.
-     * An arm is active when the neighbour has a {@link TransferComponent} AND
-     * the face on THIS pipe toward that neighbour is not {@link FaceMode#CLOSED}.
-     * Returns {@code "Single"} when no arms are active.
-     *
-     * <p>Implements {@link TransferStateComputer} — use {@code PipeStateComputer::compute}
-     * when registering with {@link TransferStateRegistry}.
-     */
     @Nonnull
     public static String compute(
             @Nonnull TransferComponent pipe,
             @Nonnull Vector3i pos,
             @Nonnull World world) {
-        ChunkStore chunkStore = world.getChunkStore();
+        Rotation yaw = pipe.getYaw();
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < 6; i++) {
-            int dx = OFFSETS[i][0], dy = OFFSETS[i][1], dz = OFFSETS[i][2];
-            String label = LABELS[i];
+        for (FacePlane face : pipe.getFaces().values()) {
+            if (face.getMode() == FaceMode.CLOSED) continue;
+            if (face.getNeighborNodeId() == null) continue;
 
-            Vector3i neighborPos = new Vector3i(pos.x + dx, pos.y + dy, pos.z + dz);
-            TransferLookup neighborLookup = TransferLookup.resolve(chunkStore, neighborPos);
-            if (neighborLookup == null) continue;
-            
-            TransferComponent neighbor = neighborLookup.transfer();
-
-            // Hide arm if THIS pipe's face toward the neighbour is CLOSED
-            FacePlane thisFace = getFaceByDirection(pipe, pos, dx, dy, dz);
-            if (thisFace != null && thisFace.getMode() == FaceMode.CLOSED) continue;
-
-            // Also hide arm if the NEIGHBOUR's face back toward this pipe is CLOSED
-            FacePlane neighborFace = getFaceByDirection(neighbor, neighborPos, -dx, -dy, -dz);
-            if (neighborFace != null && neighborFace.getMode() == FaceMode.CLOSED) continue;
-
-            sb.append(label);
+            String label = worldDirectionLabel(face.getRelMin(), face.getRelMax(), yaw);
+            if (label != null) sb.append(label);
         }
 
         return sb.length() == 0 ? "Single" : sb.toString();
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     /**
-     * Returns the {@link FacePlane} on {@code pipe} whose world-absolute plane matches
-     * the wall of the 1×1×1 block at {@code pos} facing direction {@code (dx, dy, dz)}.
+     * Determines the world-direction label (N/S/E/W/U/D) of a face by rotating
+     * its north-facing relMin/relMax by the block's yaw.
      */
     @Nullable
-    private static FacePlane getFaceByDirection(
-            @Nonnull TransferComponent pipe,
-            @Nonnull Vector3i pos,
-            int dx, int dy, int dz) {
-        int bx = pos.x, by = pos.y, bz = pos.z;
-        Vector3i min, max;
+    private static String worldDirectionLabel(Vector3i relMin, Vector3i relMax, Rotation yaw) {
+        Vector3i ra = rotateYaw(relMin, yaw);
+        Vector3i rb = rotateYaw(relMax, yaw);
+        int minX = Math.min(ra.x, rb.x), maxX = Math.max(ra.x, rb.x);
+        int minY = Math.min(ra.y, rb.y), maxY = Math.max(ra.y, rb.y);
+        int minZ = Math.min(ra.z, rb.z), maxZ = Math.max(ra.z, rb.z);
 
-        if (dz == 1) {
-            min = new Vector3i(bx, by, bz + 1);
-            max = new Vector3i(bx + 1, by + 1, bz + 1);
-        } else if (dz == -1) {
-            min = new Vector3i(bx, by, bz);
-            max = new Vector3i(bx + 1, by + 1, bz);
-        } else if (dx == 1) {
-            min = new Vector3i(bx + 1, by, bz);
-            max = new Vector3i(bx + 1, by + 1, bz + 1);
-        } else if (dx == -1) {
-            min = new Vector3i(bx, by, bz);
-            max = new Vector3i(bx, by + 1, bz + 1);
-        } else if (dy == 1) {
-            min = new Vector3i(bx, by + 1, bz);
-            max = new Vector3i(bx + 1, by + 1, bz + 1);
-        } else { // dy == -1
-            min = new Vector3i(bx, by, bz);
-            max = new Vector3i(bx + 1, by, bz + 1);
-        }
+        if (minX == maxX) return minX == 1 ? "E" : "W";
+        if (minY == maxY) return minY == 1 ? "U" : "D";
+        if (minZ == maxZ) return minZ == 1 ? "N" : "S";
+        return null; // malformed face
+    }
 
-        for (FacePlane face : pipe.getFaces().values()) {
-            if (face.getWorldMin(pos).equals(min) && face.getWorldMax(pos).equals(max)) return face;
+    private static Vector3i rotateYaw(Vector3i v, Rotation yaw) {
+        switch (yaw) {
+            case Ninety:     return new Vector3i(v.z,     v.y, 1 - v.x);
+            case OneEighty:  return new Vector3i(1 - v.x, v.y, 1 - v.z);
+            case TwoSeventy: return new Vector3i(1 - v.z, v.y, v.x);
+            default:         return new Vector3i(v.x,     v.y, v.z);
         }
-        return null;
     }
 }

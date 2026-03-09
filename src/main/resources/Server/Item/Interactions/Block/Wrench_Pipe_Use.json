@@ -1,0 +1,14 @@
+{
+  "Type": "BlockCondition",
+  "Matchers": [
+    {
+      "Block": {
+        "Id": "Pipe"
+      }
+    }
+  ],
+  "Next": {
+    "Type": "UseBlock"
+  },
+  "Failed": "Block_Secondary"
+}

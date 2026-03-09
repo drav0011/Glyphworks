@@ -41,7 +41,7 @@
     "CustomModel": "Blocks/Glyphworks/Bench/Auto_Bench_Furnace.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Benches/Furnace_Texture_Off.png",
+        "Texture": "Blocks/Glyphworks/Bench/Auto_Furnace_Texture.png",
         "Weight": 1
       }
     ],
@@ -131,24 +131,23 @@
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": true,
           "Transfer_AutoPull": false,
-          "Transfer_DefaultFaceMode": "Output",
           "Transfer_Faces": [
             {
               "FacePlane_HitboxIndex": 1,
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 0 },
+              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": -1 },
               "FacePlane_Mode": "Output"
             },
             {
               "FacePlane_HitboxIndex": 2,
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_RelMin": { "X": -1, "Y": 0, "Z": 3 },
+              "FacePlane_RelMax": { "X": 0, "Y": 1, "Z": 3 },
               "FacePlane_Mode": "Input"
             },
             {
               "FacePlane_HitboxIndex": 3,
-              "FacePlane_RelMin": { "X": 1, "Y": 0, "Z": 0 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_RelMin": { "X": 1, "Y": 0, "Z": 3 },
+              "FacePlane_RelMax": { "X": 2, "Y": 1, "Z": 3 },
               "FacePlane_Mode": "Input"
             }
           ]
@@ -273,7 +272,7 @@
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
-    "Scale": 0.365,
+    "Scale": 0.05,
     "Rotation": [
       22.5,
       45,
