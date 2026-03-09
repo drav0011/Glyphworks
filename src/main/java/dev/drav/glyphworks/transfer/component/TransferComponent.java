@@ -185,10 +185,35 @@ public class TransferComponent implements Component<ChunkStore> {
         // inventory references are not copied — must be re-injected at runtime
     }
 
+    /**
+     * Placement copy: generates a fresh node UUID and strips all neighbour linkage.
+     * Used by the engine when a player places a block from a prototype.
+     */
     @Nullable
     @Override
     public Component<ChunkStore> clone() {
         return new TransferComponent(this);
+    }
+
+    /**
+     * Serialization copy: preserves the existing node UUID and all face state
+     * including {@link FacePlane#getNeighborNodeId()} so that edges survive a
+     * chunk save/load cycle.
+     *
+     * <p>The default {@code Component.cloneSerializable()} falls back to
+     * {@link #clone()}, which resets everything — overriding it here is critical.
+     */
+    @Nullable
+    @Override
+    public Component<ChunkStore> cloneSerializable() {
+        TransferComponent copy = new TransferComponent(
+                this.maxOutputRate, this.maxInputRate, this.autoPush, this.autoPull);
+        copy.nodeId = this.nodeId; // preserve stable identity
+        copy.faces = new HashMap<>(this.faces.size());
+        for (Map.Entry<Integer, FacePlane> e : this.faces.entrySet()) {
+            copy.faces.put(e.getKey(), e.getValue().copyFull()); // preserve neighbourNodeId
+        }
+        return copy;
     }
 
     // ------------------------------------------------------------------

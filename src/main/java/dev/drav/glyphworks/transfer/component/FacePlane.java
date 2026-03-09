@@ -225,11 +225,21 @@ public class FacePlane {
      * Returns a fresh {@code FacePlane} with the same geometry and mode but no
      * neighbour link ({@code neighborNodeId = null}).
      *
-     * <p>Used to ensure each placed block owns independent face instances rather than
-     * sharing references from the block-type prototype.
+     * Shallow copy for <em>block placement</em>: no neighbor linkage is carried over,
+     * because a freshly placed block starts unconnected.
      */
     public FacePlane copy() {
         return new FacePlane(relMin, relMax, hitboxIndex, mode);
+    }
+
+    /**
+     * Full copy for <em>serialization</em>: preserves {@link #neighborNodeId} so that
+     * established edges survive a chunk save/load cycle.
+     */
+    public FacePlane copyFull() {
+        FacePlane f = new FacePlane(relMin, relMax, hitboxIndex, mode);
+        f.neighborNodeId = this.neighborNodeId;
+        return f;
     }
 
     // ── Mode compatibility ────────────────────────────────────────────────────

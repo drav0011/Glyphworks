@@ -108,6 +108,8 @@ public final class FaceLinkUtil {
             }
         }
 
+        markBccDirty(blockPos, chunkStore);
+
         if (notifier != null) {
             changed.forEach(notifier::onChanged);
         }
@@ -137,6 +139,7 @@ public final class FaceLinkUtil {
             Vector3i oldNeighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore);
 
             face.setNeighborNodeId(null);
+            markBccDirty(blockPos, chunkStore);
 
             if (changed != null && oldNeighborPos != null) {
                 changed.add(oldNeighborPos);
@@ -256,6 +259,10 @@ public final class FaceLinkUtil {
         face.setNeighborNodeId(neighbor.getNodeId());
         neighborFace.setNeighborNodeId(transfer.getNodeId());
 
+        // Persist changes: mark both chunks dirty so neighborNodeId is saved to disk.
+        markBccDirty(blockPos, chunkStore);
+        bcc.markNeedsSaving();
+
         if (changed != null)
             changed.add(neighborPos);
         
@@ -334,10 +341,20 @@ public final class FaceLinkUtil {
         for (FacePlane nf : neighbor.getFaces().values()) {
             if (nf.getWorldMin(neighborPos).equals(worldMin) && nf.getWorldMax(neighborPos).equals(worldMax)) {
                 nf.setNeighborNodeId(null);
+                bcc.markNeedsSaving();
                 return true;
             }
         }
         
         return false;
+    }
+
+    private static void markBccDirty(Vector3i pos, ChunkStore chunkStore) {
+        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(
+                ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
+        if (chunkRef == null) return;
+        BlockComponentChunk bcc = chunkStore.getStore().getComponent(
+                chunkRef, BlockComponentChunk.getComponentType());
+        if (bcc != null) bcc.markNeedsSaving();
     }
 }

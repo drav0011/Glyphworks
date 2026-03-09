@@ -12,6 +12,7 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -19,6 +20,7 @@ import dev.drav.glyphworks.transfer.TransferGraph;
 import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
 import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
+import dev.drav.glyphworks.transfer.event.ChunkLoadTransferGraphEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.state.PipeStateComputer;
@@ -66,10 +68,12 @@ public class GlyphworksPlugin extends JavaPlugin {
 
         getEventRegistry().registerGlobal(RemoveWorldEvent.class,
                 event -> graphs.remove(event.getWorld().getWorldConfig().getUuid()));
+        getEventRegistry().registerGlobal(ChunkPreLoadProcessEvent.class, ChunkLoadTransferGraphEvent::handle);
 
         // Register visual state computers per block type.
         // The key must match BlockType.getId() for the root block type.
-        // If states stop updating, log "rootId" in TransferStateRegistry.applyState to verify.
+        // If states stop updating, log "rootId" in TransferStateRegistry.applyState to
+        // verify.
         TransferStateRegistry.register("Transfer_PipeNode", PipeStateComputer::compute);
 
         getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
