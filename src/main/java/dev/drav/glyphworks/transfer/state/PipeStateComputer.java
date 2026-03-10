@@ -39,7 +39,7 @@ public final class PipeStateComputer {
         Rotation yaw = pipe.getYaw();
         Set<Dir> active = EnumSet.noneOf(Dir.class);
 
-        for (FacePlane face : pipe.getFaces().values()) {
+        for (FacePlane face : pipe.getFaces()) {
             if (face.getMode() == FaceMode.CLOSED) continue;
             if (face.getNeighborNodeId() == null) continue;
 

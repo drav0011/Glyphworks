@@ -61,7 +61,7 @@ public final class ChunkLoadTransferGraphEvent {
 
             graph.addNode(transfer.getNodeId(), pos);
 
-            for (FacePlane face : transfer.getFaces().values()) {
+            for (FacePlane face : transfer.getFaces()) {
                 UUID neighborId = face.getNeighborNodeId();
                 if (neighborId != null) {
                     graph.addEdge(transfer.getNodeId(), neighborId);

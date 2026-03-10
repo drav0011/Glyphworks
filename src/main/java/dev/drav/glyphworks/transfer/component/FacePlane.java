@@ -19,9 +19,6 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
  * coordinates are computed on demand via {@link #getWorldMin(Vector3i)} /
  * {@link #getWorldMax(Vector3i)} — never persisted.
  *
- * <p>A face is bound to a specific hitbox detail-box via {@link #hitboxIndex}.
- * When a player clicks that box, the face's mode cycles. {@code -1} = non-interactable.
- *
  * <h3>Block-local coordinate convention (block origin = 0,0,0)</h3>
  * <pre>
  * North (+Z):  relMin=(0,0,1)  relMax=(1,1,1)
@@ -47,11 +44,6 @@ public class FacePlane {
                     c -> c.relMax)
             .add()
             .append(
-                    new KeyedCodec<>("FacePlane_HitboxIndex", Codec.INTEGER),
-                    (c, v) -> c.hitboxIndex = v,
-                    c -> c.hitboxIndex)
-            .add()
-            .append(
                     new KeyedCodec<>("FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
                     (c, v) -> c.mode = v,
                     c -> c.mode)
@@ -69,12 +61,6 @@ public class FacePlane {
     /** Block-origin-relative maximum corner. Persisted. */
     private Vector3i relMax;
 
-    /**
-     * Index into the block's hitbox detail-box array that triggers this face.
-     * {@code -1} = non-interactable. Persisted.
-     */
-    private int hitboxIndex;
-
     /** Connection mode for this face. Persisted. */
     private FaceMode mode;
 
@@ -90,16 +76,15 @@ public class FacePlane {
 
     /** No-arg constructor for CODEC. */
     public FacePlane() {
-        this(new Vector3i(0, 0, 0), new Vector3i(0, 0, 0), -1, FaceMode.BIDIRECTIONAL);
+        this(new Vector3i(0, 0, 0), new Vector3i(0, 0, 0), FaceMode.BIDIRECTIONAL);
     }
 
     /**
-     * @param relMin      Block-relative minimum corner
-     * @param relMax      Block-relative maximum corner
-     * @param hitboxIndex Detail-box index that triggers this face ({@code -1} = non-interactable)
-     * @param mode        Initial connection mode
+     * @param relMin Block-relative minimum corner
+     * @param relMax Block-relative maximum corner
+     * @param mode   Initial connection mode
      */
-    public FacePlane(Vector3i relMin, Vector3i relMax, int hitboxIndex, FaceMode mode) {
+    public FacePlane(Vector3i relMin, Vector3i relMax, FaceMode mode) {
         int dx = relMax.x - relMin.x;
         int dy = relMax.y - relMin.y;
         int dz = relMax.z - relMin.z;
@@ -109,7 +94,6 @@ public class FacePlane {
         }
         this.relMin = relMin;
         this.relMax = relMax;
-        this.hitboxIndex = hitboxIndex;
         this.mode = mode;
         this.neighborNodeId = null;
     }
@@ -155,10 +139,6 @@ public class FacePlane {
 
     public Vector3i getRelMax() {
         return relMax;
-    }
-
-    public int getHitboxIndex() {
-        return hitboxIndex;
     }
 
     public FaceMode getMode() {
@@ -228,8 +208,8 @@ public class FacePlane {
 
     @Override
     public String toString() {
-        return String.format("FacePlane{hitboxIndex=%d, relMin=%s, relMax=%s, mode=%s}",
-                hitboxIndex, relMin, relMax, mode);
+        return String.format("FacePlane{relMin=%s, relMax=%s, mode=%s}",
+                relMin, relMax, mode);
     }
 
     @Override
@@ -237,12 +217,15 @@ public class FacePlane {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FacePlane other = (FacePlane) o;
-        return hitboxIndex == other.hitboxIndex;
+        return relMin.x == other.relMin.x && relMin.y == other.relMin.y && relMin.z == other.relMin.z
+            && relMax.x == other.relMax.x && relMax.y == other.relMax.y && relMax.z == other.relMax.z;
     }
 
+    /** Base-37 polynomial per corner (37² for x, 37 for y, 1 for z); combined with prime 31. */
     @Override
     public int hashCode() {
-        return Integer.hashCode(hitboxIndex);
+        return 31 * (relMin.x * 1369 + relMin.y * 37 + relMin.z)
+                   + (relMax.x * 1369 + relMax.y * 37 + relMax.z);
     }
 
     /**
@@ -253,7 +236,7 @@ public class FacePlane {
      * because a freshly placed block starts unconnected.
      */
     public FacePlane copy() {
-        return new FacePlane(relMin, relMax, hitboxIndex, mode);
+        return new FacePlane(relMin, relMax, mode);
     }
 
     /**
@@ -261,7 +244,7 @@ public class FacePlane {
      * established edges survive a chunk save/load cycle.
      */
     public FacePlane copyFull() {
-        FacePlane f = new FacePlane(relMin, relMax, hitboxIndex, mode);
+        FacePlane f = new FacePlane(relMin, relMax, mode);
         f.neighborNodeId = this.neighborNodeId;
         return f;
     }

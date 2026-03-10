@@ -1,8 +1,8 @@
 package dev.drav.glyphworks.transfer.component;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -84,13 +84,8 @@ public class TransferComponent implements Component<ChunkStore> {
             // Persist face states - graph edges are reconstructed from faces on world load.
             .append(
                     new KeyedCodec<>("Transfer_Faces", new SetCodec<>(FacePlane.CODEC, HashSet::new, false)),
-                    (c, v) -> {
-                        c.faces = new HashMap<>();
-                        for (FacePlane face : v) {
-                            c.faces.put(face.getHitboxIndex(), face);
-                        }
-                    },
-                    c -> new HashSet<>(c.faces.values()))
+                    (c, v) -> c.faces = new ArrayList<>(v),
+                    c -> new HashSet<>(c.faces))
             .add()
             .append(
                     new KeyedCodec<>("Transfer_Yaw", new EnumCodec<>(Rotation.class)),
@@ -133,10 +128,9 @@ public class TransferComponent implements Component<ChunkStore> {
     private boolean autoPull;
 
     /**
-     * Map of configured face regions for this block, keyed by hitboxIndex.
-     * A hitboxIndex of -1 is non-interactable (faces not triggered by click).
+     * Configured face regions for this block.
      */
-    private Map<Integer, FacePlane> faces;
+    private List<FacePlane> faces;
 
     /**
      * Yaw rotation the block was placed with, in north-facing coords.
@@ -156,7 +150,7 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     public TransferComponent() {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE, true, true);
-        this.faces = new HashMap<>();
+        this.faces = new ArrayList<>();
     }
 
     /**
@@ -177,7 +171,7 @@ public class TransferComponent implements Component<ChunkStore> {
         this.maxInputRate = maxInputRate;
         this.autoPush = autoPush;
         this.autoPull = autoPull;
-        this.faces = new HashMap<>();
+        this.faces = new ArrayList<>();
     }
 
     /**
@@ -191,9 +185,9 @@ public class TransferComponent implements Component<ChunkStore> {
         this.maxInputRate = other.maxInputRate;
         this.autoPush = other.autoPush;
         this.autoPull = other.autoPull;
-        this.faces = new HashMap<>(other.faces.size());
-        for (Map.Entry<Integer, FacePlane> e : other.faces.entrySet()) {
-            this.faces.put(e.getKey(), e.getValue().copy());
+        this.faces = new ArrayList<>(other.faces.size());
+        for (FacePlane f : other.faces) {
+            this.faces.add(f.copy());
         }
         // inventory references are not copied — must be re-injected at runtime
     }
@@ -223,9 +217,9 @@ public class TransferComponent implements Component<ChunkStore> {
                 this.maxOutputRate, this.maxInputRate, this.autoPush, this.autoPull);
         copy.nodeId = this.nodeId; // preserve stable identity
         copy.yaw = this.yaw;
-        copy.faces = new HashMap<>(this.faces.size());
-        for (Map.Entry<Integer, FacePlane> e : this.faces.entrySet()) {
-            copy.faces.put(e.getKey(), e.getValue().copyFull()); // preserve neighbourNodeId
+        copy.faces = new ArrayList<>(this.faces.size());
+        for (FacePlane f : this.faces) {
+            copy.faces.add(f.copyFull()); // preserve neighbourNodeId
         }
         return copy;
     }
@@ -238,11 +232,10 @@ public class TransferComponent implements Component<ChunkStore> {
      * Sets the inventory for a specific face.
      * Wires the inventory based on the face's mode.
      *
-     * @param faceKey   The face coordinates key (planeMin, planeMax)
+     * @param face      The face to wire inventory to
      * @param inventory The ItemContainer to wire to this face
      */
-    public void setFaceInventory(int hitboxIndex, ItemContainer inventory) {
-        FacePlane face = faces.get(hitboxIndex);
+    public void setFaceInventory(FacePlane face, ItemContainer inventory) {
         if (face == null) {
             return;
         }
@@ -269,7 +262,7 @@ public class TransferComponent implements Component<ChunkStore> {
      * Useful for simple blocks with a single inventory.
      */
     public void setInventoryForAllFaces(ItemContainer inventory) {
-        for (FacePlane face : faces.values()) {
+        for (FacePlane face : faces) {
             switch (face.getMode()) {
                 case INPUT:
                     face.setInputInventory(inventory);
@@ -311,7 +304,7 @@ public class TransferComponent implements Component<ChunkStore> {
         return autoPull;
     }
 
-    public Map<Integer, FacePlane> getFaces() {
+    public List<FacePlane> getFaces() {
         return faces;
     }
 
@@ -339,18 +332,12 @@ public class TransferComponent implements Component<ChunkStore> {
         this.autoPull = autoPull;
     }
 
-    /**
-     * Adds or replaces a face in the faces map.
-     */
-    public void setFace(int hitboxIndex, FacePlane face) {
-        faces.put(hitboxIndex, face);
+    public void addFace(FacePlane face) {
+        faces.add(face);
     }
 
-    /**
-     * Removes a face from the faces map.
-     */
-    public void removeFace(int hitboxIndex) {
-        faces.remove(hitboxIndex);
+    public void removeFace(FacePlane face) {
+        faces.remove(face);
     }
 
     public void setYaw(Rotation yaw) {

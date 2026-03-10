@@ -9,7 +9,7 @@ const path = require('path');
 const BASE        = __dirname;
 const MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
 const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Pipe.json');
-const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks');
+const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks/Pipe');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
 const OLD_ALL_MODEL  = path.join(MODELS_DIR, 'Pipe_All.blockymodel');
@@ -78,17 +78,19 @@ for (let mask = 0; mask < 64; mask++) {
   const modelFileName = `Pipe_${name}.blockymodel`;
   fs.writeFileSync(path.join(MODELS_DIR, modelFileName), JSON.stringify(model, null, 2), 'utf8');
 
+  const hitboxBoxes = [CENTER_BOX];
+  for (const dir of DIRECTIONS) {
+    if ((mask >> dir.bit) & 1) hitboxBoxes.push(ARM_BOXES[dir.name]);
+  }
+  fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
+
   stateDefs[name] = {
+    HitboxType:  `Pipe_${name}`,
     CustomModel: `Blocks/Glyphworks/Pipe/${modelFileName}`,
   };
 }
 
-console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files`);
-
-// ─── Write single full hitbox (all arms always present) ───────────────────────
-const fullHitboxBoxes = [CENTER_BOX, ...Object.values(ARM_BOXES)];
-fs.writeFileSync(path.join(HITBOXES_DIR, 'Pipe.json'), JSON.stringify({ Boxes: fullHitboxBoxes }, null, 2), 'utf8');
-console.log('Wrote Pipe.json hitbox (center + all 6 arms)');
+console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
 
 // ─── Write Pipe.json from scratch ───────────────────────────────────────────
 const item = {
@@ -108,14 +110,13 @@ const item = {
           Transfer_MaxInputRate: 64,
           Transfer_AutoPush: false,
           Transfer_AutoPull: false,
-          // Hitbox index layout in Pipe.json: 0=Center, 1=S(-Z), 2=N(+Z), 3=E(+X), 4=W(-X), 5=U(+Y), 6=D(-Y)
           Transfer_Faces: [
-            { FacePlane_HitboxIndex: 1, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)
-            { FacePlane_HitboxIndex: 2, FacePlane_RelMin: {X:0, Y:0, Z:1}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // N (+Z)
-            { FacePlane_HitboxIndex: 3, FacePlane_RelMin: {X:1, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // E (+X)
-            { FacePlane_HitboxIndex: 4, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:0, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // W (-X)
-            { FacePlane_HitboxIndex: 5, FacePlane_RelMin: {X:0, Y:1, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // U (+Y)
-            { FacePlane_HitboxIndex: 6, FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:0, Z:1}, FacePlane_Mode: 'Bidirectional' }, // D (-Y)
+            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)
+            { FacePlane_RelMin: {X:0, Y:0, Z:1}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // N (+Z)
+            { FacePlane_RelMin: {X:1, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // E (+X)
+            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:0, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // W (-X)
+            { FacePlane_RelMin: {X:0, Y:1, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // U (+Y)
+            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:0, Z:1}, FacePlane_Mode: 'Bidirectional' }, // D (-Y)
           ],
         },
       },
@@ -124,7 +125,6 @@ const item = {
     HitboxType: 'Pipe',
     Flags: {},
     State: { Definitions: stateDefs },
-    Interactions: { Secondary: 'Pipe_Use' },
   },
   PlayerAnimationsId: 'Block',
   Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',

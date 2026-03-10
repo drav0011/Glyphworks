@@ -1,0 +1,43 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Extractor.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/IO/Extractor/Extractor.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Extractor/Extractor.png",
+        "Weight": 1
+      }
+    ],
+    "VariantRotation": "NESW",
+    "BlockEntity": {
+      "Components": {
+        "TransferComponent": {
+          "Transfer_MaxOutputRate": 64,
+          "Transfer_MaxInputRate": 64,
+          "Transfer_AutoPush": true,
+          "Transfer_AutoPull": false,
+          "Transfer_Faces": [
+            {
+              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_Mode": "Output"
+            }
+          ]
+        }
+      }
+    },
+    "CustomModelScale": 1,
+    "HitboxType": "Extractor",
+    "Flags": {}
+  },
+  "PlayerAnimationsId": "Block"
+}

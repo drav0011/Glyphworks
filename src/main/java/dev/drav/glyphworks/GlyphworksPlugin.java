@@ -22,7 +22,7 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.ChunkLoadTransferGraphEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
-import dev.drav.glyphworks.transfer.event.UseTransferableBlockEvent;
+
 import dev.drav.glyphworks.transfer.state.PipeStateComputer;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 
@@ -64,7 +64,6 @@ public class GlyphworksPlugin extends JavaPlugin {
 
         this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
-        this.getEntityStoreRegistry().registerSystem(new UseTransferableBlockEvent());
 
         getEventRegistry().registerGlobal(RemoveWorldEvent.class,
                 event -> graphs.remove(event.getWorld().getWorldConfig().getUuid()));

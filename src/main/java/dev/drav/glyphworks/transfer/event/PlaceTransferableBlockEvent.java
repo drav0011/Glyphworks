@@ -59,7 +59,7 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             TransferGraph graph = GlyphworksPlugin.get().getOrCreateGraph(world);
             graph.addNode(lookup.transfer().getNodeId(), pos);
 
-            for (FacePlane face : lookup.transfer().getFaces().values()) {
+            for (FacePlane face : lookup.transfer().getFaces()) {
                 UUID neighborId = face.getNeighborNodeId();
                 
                 if (neighborId != null) {

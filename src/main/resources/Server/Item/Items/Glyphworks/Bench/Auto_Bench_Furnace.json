@@ -133,19 +133,16 @@
           "Transfer_AutoPull": false,
           "Transfer_Faces": [
             {
-              "FacePlane_HitboxIndex": 1,
               "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": -1 },
               "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": -1 },
               "FacePlane_Mode": "Output"
             },
             {
-              "FacePlane_HitboxIndex": 2,
               "FacePlane_RelMin": { "X": -1, "Y": 0, "Z": 3 },
               "FacePlane_RelMax": { "X": 0, "Y": 1, "Z": 3 },
               "FacePlane_Mode": "Input"
             },
             {
-              "FacePlane_HitboxIndex": 3,
               "FacePlane_RelMin": { "X": 1, "Y": 0, "Z": 3 },
               "FacePlane_RelMax": { "X": 2, "Y": 1, "Z": 3 },
               "FacePlane_Mode": "Input"

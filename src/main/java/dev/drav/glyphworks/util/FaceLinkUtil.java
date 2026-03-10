@@ -68,7 +68,7 @@ public final class FaceLinkUtil {
 
         Set<Vector3i> changed = (notifier != null) ? new HashSet<>() : null;
 
-        for (FacePlane face : transfer.getFaces().values()) {
+        for (FacePlane face : transfer.getFaces()) {
             if (face.getNeighborNodeId() != null) {
                 continue;
             }
@@ -102,7 +102,7 @@ public final class FaceLinkUtil {
 
         Set<Vector3i> changed = (notifier != null) ? new HashSet<>() : null;
 
-        for (FacePlane face : transfer.getFaces().values()) {
+        for (FacePlane face : transfer.getFaces()) {
             if (face.getNeighborNodeId() == null) {
                 continue;
             }
@@ -301,7 +301,7 @@ public final class FaceLinkUtil {
 
         FacePlane neighborFace = null;
 
-        for (FacePlane nf : neighbor.getFaces().values()) {
+        for (FacePlane nf : neighbor.getFaces()) {
             Vector3i nfMin = nf.getWorldMin(actualNeighborPos, neighbor.getYaw());
             Vector3i nfMax = nf.getWorldMax(actualNeighborPos, neighbor.getYaw());
             LOGGER.info("[tryLinkAt]   Neighbor face: worldMin=" + nfMin + ", worldMax=" + nfMax + ", mode=" + nf.getMode());
@@ -406,7 +406,7 @@ public final class FaceLinkUtil {
             return false;
 
         Rotation neighborYaw = neighbor.getYaw();
-        for (FacePlane nf : neighbor.getFaces().values()) {
+        for (FacePlane nf : neighbor.getFaces()) {
             if (nf.getWorldMin(neighborPos, neighborYaw).equals(worldMin) && nf.getWorldMax(neighborPos, neighborYaw).equals(worldMax)) {
                 nf.setNeighborNodeId(null);
                 bcc.markNeedsSaving();

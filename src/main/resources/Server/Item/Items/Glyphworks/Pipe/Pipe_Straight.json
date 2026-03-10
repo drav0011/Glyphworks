@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Extractor.name"
+    "Name": "server.items.Pipe_Straight.name"
   },
   "Categories": [
     "Blocks.Deco"
@@ -10,10 +10,10 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Extractor/Extractor.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NS.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Extractor/Extractor.png",
+        "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
         "Weight": 1
       }
     ],
@@ -23,22 +23,28 @@
         "TransferComponent": {
           "Transfer_MaxOutputRate": 64,
           "Transfer_MaxInputRate": 64,
-          "Transfer_AutoPush": true,
+          "Transfer_AutoPush": false,
           "Transfer_AutoPull": false,
           "Transfer_Faces": [
             {
-              "FacePlane_HitboxIndex": 1,
+              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 0 },
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
               "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
               "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
-              "FacePlane_Mode": "Output"
+              "FacePlane_Mode": "Bidirectional"
             }
           ]
         }
       }
     },
     "CustomModelScale": 1,
-    "HitboxType": "Extractor",
+    "HitboxType": "Pipe_Straight",
     "Flags": {}
   },
-  "PlayerAnimationsId": "Block"
+  "PlayerAnimationsId": "Block",
+  "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
+  "Scale": 1
 }
