@@ -126,6 +126,56 @@ Node identity, rates, face positions, modes, and neighbour UUIDs are all seriali
 
 ## Project Structure
 
+---
+
+## Game Object Model
+
+```mermaid
+classDiagram
+    direction TB
+
+    class Item {
+        +UUID itemId
+        +String displayName
+    }
+
+    class Block {
+        +BlockPos position
+        +Bounds footprint
+    }
+
+    class Entity {
+        +UUID entityId
+        +Vec3 position
+    }
+
+    class NPC {
+        +DialogueTree dialogue
+        +AIBehaviour behaviour
+    }
+
+    class Hitbox {
+        +AABB bounds
+        note: may exceed 1×1×1 grid unit
+    }
+
+    Item <|-- Block : is-a
+    Entity <|-- NPC : is-a
+    Block ..|> Entity : optionally is-a
+    Block *-- Hitbox : requires
+```
+
+- **Block** is always an **Item** (can be picked up, placed from inventory).
+- **Item** does not need to be a **Block** (consumables, tools, etc.).
+- **Block** can optionally be an **Entity** (e.g. a machine with tick behaviour, health, AI).
+- **Entity** does not need to be a **Block** (mobs, projectiles, etc.).
+- **NPC** is always an **Entity**.
+- Every **Block** requires a **Hitbox**; hitboxes are not constrained to a single 1×1×1 grid unit (multi-block machines may use a larger AABB).
+
+---
+
+## Project Structure
+
 ```
 src/main/java/dev/drav/glyphworks/
 ├── GlyphworksPlugin.java          — plugin entry point, component registration
