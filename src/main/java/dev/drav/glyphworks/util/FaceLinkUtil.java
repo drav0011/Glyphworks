@@ -4,13 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -107,7 +106,7 @@ public final class FaceLinkUtil {
                 continue;
             }
 
-            Vector3i neighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore, transfer.getYaw());
+            Vector3i neighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore, transfer.getRotation());
             face.setNeighborNodeId(null);
 
             if (changed != null && neighborPos != null) {
@@ -143,7 +142,7 @@ public final class FaceLinkUtil {
 
         // Always clear the old link on both sides first
         if (face.getNeighborNodeId() != null) {
-            Vector3i oldNeighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore, transfer.getYaw());
+            Vector3i oldNeighborPos = clearNeighborSide(face, blockRef, blockPos, chunkStore, transfer.getRotation());
 
             face.setNeighborNodeId(null);
             markBccDirty(blockPos, chunkStore);
@@ -179,8 +178,8 @@ public final class FaceLinkUtil {
             ChunkStore chunkStore,
             @Nullable Set<Vector3i> changed) {
 
-        Vector3i min = face.getWorldMin(blockPos, transfer.getYaw());
-        Vector3i max = face.getWorldMax(blockPos, transfer.getYaw());
+        Vector3i min = face.getWorldMin(blockPos, transfer.getRotation());
+        Vector3i max = face.getWorldMax(blockPos, transfer.getRotation());
 
         // Determine the two candidate positions based on constant axis
         Vector3i posA, posB;
@@ -295,15 +294,15 @@ public final class FaceLinkUtil {
         LOGGER.info("[tryLinkAt] Found neighbor at " + actualNeighborPos + " (nodeId=" + neighbor.getNodeId() + ")");
 
         // Scan neighbor faces for one whose world boundary matches ours (shared plane)
-        Vector3i worldMin = face.getWorldMin(blockPos, transfer.getYaw());
-        Vector3i worldMax = face.getWorldMax(blockPos, transfer.getYaw());
+        Vector3i worldMin = face.getWorldMin(blockPos, transfer.getRotation());
+        Vector3i worldMax = face.getWorldMax(blockPos, transfer.getRotation());
         LOGGER.info("[tryLinkAt] Self face: relMin=" + face.getRelMin() + ", relMax=" + face.getRelMax() + ", mode=" + face.getMode() + " -> worldMin=" + worldMin + ", worldMax=" + worldMax);
 
         FacePlane neighborFace = null;
 
         for (FacePlane nf : neighbor.getFaces()) {
-            Vector3i nfMin = nf.getWorldMin(actualNeighborPos, neighbor.getYaw());
-            Vector3i nfMax = nf.getWorldMax(actualNeighborPos, neighbor.getYaw());
+            Vector3i nfMin = nf.getWorldMin(actualNeighborPos, neighbor.getRotation());
+            Vector3i nfMax = nf.getWorldMax(actualNeighborPos, neighbor.getRotation());
             LOGGER.info("[tryLinkAt]   Neighbor face: worldMin=" + nfMin + ", worldMax=" + nfMax + ", mode=" + nf.getMode());
             if (nfMin.equals(worldMin) && nfMax.equals(worldMax)) {
                 neighborFace = nf;
@@ -347,10 +346,10 @@ public final class FaceLinkUtil {
             Ref<ChunkStore> blockRef,
             Vector3i blockPos,
             ChunkStore chunkStore,
-            Rotation yaw) {
+            RotationTuple rotation) {
 
-        Vector3i min = face.getWorldMin(blockPos, yaw);
-        Vector3i max = face.getWorldMax(blockPos, yaw);
+        Vector3i min = face.getWorldMin(blockPos, rotation);
+        Vector3i max = face.getWorldMax(blockPos, rotation);
         Vector3i posA, posB;
 
         if (min.x == max.x) {
@@ -367,8 +366,8 @@ public final class FaceLinkUtil {
             posB = new Vector3i(min.x, min.y, K - 1);
         }
 
-        Vector3i worldMin = face.getWorldMin(blockPos, yaw);
-        Vector3i worldMax = face.getWorldMax(blockPos, yaw);
+        Vector3i worldMin = face.getWorldMin(blockPos, rotation);
+        Vector3i worldMax = face.getWorldMax(blockPos, rotation);
 
         if (clearNeighborAt(posA, blockRef, worldMin, worldMax, chunkStore))
             return posA;
@@ -405,9 +404,9 @@ public final class FaceLinkUtil {
         if (neighbor == null)
             return false;
 
-        Rotation neighborYaw = neighbor.getYaw();
+        RotationTuple neighborRotation = neighbor.getRotation();
         for (FacePlane nf : neighbor.getFaces()) {
-            if (nf.getWorldMin(neighborPos, neighborYaw).equals(worldMin) && nf.getWorldMax(neighborPos, neighborYaw).equals(worldMax)) {
+            if (nf.getWorldMin(neighborPos, neighborRotation).equals(worldMin) && nf.getWorldMax(neighborPos, neighborRotation).equals(worldMax)) {
                 nf.setNeighborNodeId(null);
                 bcc.markNeedsSaving();
                 return true;

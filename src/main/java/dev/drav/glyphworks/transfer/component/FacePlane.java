@@ -10,6 +10,7 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 
 /**
@@ -100,26 +101,33 @@ public class FacePlane {
 
     /**
      * Returns the world-space minimum corner of this face, accounting for the block's
-     * yaw rotation. The stored relMin/relMax are always in north-facing (authored)
-     * coordinates; this method rotates them around the block unit-cell centre (0.5,y,0.5)
-     * before adding {@code blockPos}.
+     * full 3-axis rotation (yaw → pitch → roll). The stored relMin/relMax are always
+     * in the authored (north-facing, upright) orientation.
      */
-    public Vector3i getWorldMin(Vector3i blockPos, Rotation yaw) {
-        Vector3i ra = rotateYaw(relMin, yaw);
-        Vector3i rb = rotateYaw(relMax, yaw);
+    public Vector3i getWorldMin(Vector3i blockPos, RotationTuple rotation) {
+        Vector3i ra = rotate(relMin, rotation);
+        Vector3i rb = rotate(relMax, rotation);
         return new Vector3i(
                 blockPos.x + Math.min(ra.x, rb.x),
                 blockPos.y + Math.min(ra.y, rb.y),
                 blockPos.z + Math.min(ra.z, rb.z));
     }
 
-    public Vector3i getWorldMax(Vector3i blockPos, Rotation yaw) {
-        Vector3i ra = rotateYaw(relMin, yaw);
-        Vector3i rb = rotateYaw(relMax, yaw);
+    public Vector3i getWorldMax(Vector3i blockPos, RotationTuple rotation) {
+        Vector3i ra = rotate(relMin, rotation);
+        Vector3i rb = rotate(relMax, rotation);
         return new Vector3i(
                 blockPos.x + Math.max(ra.x, rb.x),
                 blockPos.y + Math.max(ra.y, rb.y),
                 blockPos.z + Math.max(ra.z, rb.z));
+    }
+
+    /** Applies pitch → yaw → roll (each a 90°-step rotation around X/Y/Z), matching the Hytale engine order. */
+    private static Vector3i rotate(Vector3i v, RotationTuple rotation) {
+        Vector3i r = rotatePitch(v, rotation.pitch());
+        r = rotateYaw(r, rotation.yaw());
+        r = rotateRoll(r, rotation.roll());
+        return r;
     }
 
     private static Vector3i rotateYaw(Vector3i v, Rotation yaw) {
@@ -128,6 +136,24 @@ public class FacePlane {
             case OneEighty:  return new Vector3i(1 - v.x, v.y, 1 - v.z);
             case TwoSeventy: return new Vector3i(1 - v.z, v.y, v.x);
             default:         return new Vector3i(v.x,     v.y, v.z);
+        }
+    }
+
+    private static Vector3i rotatePitch(Vector3i v, Rotation pitch) {
+        switch (pitch) {
+            case Ninety:     return new Vector3i(v.x, 1 - v.z, v.y);
+            case OneEighty:  return new Vector3i(v.x, 1 - v.y, 1 - v.z);
+            case TwoSeventy: return new Vector3i(v.x, v.z, 1 - v.y);
+            default:         return new Vector3i(v.x, v.y, v.z);
+        }
+    }
+
+    private static Vector3i rotateRoll(Vector3i v, Rotation roll) {
+        switch (roll) {
+            case Ninety:     return new Vector3i(1 - v.y, v.x, v.z);
+            case OneEighty:  return new Vector3i(1 - v.x, 1 - v.y, v.z);
+            case TwoSeventy: return new Vector3i(v.y, 1 - v.x, v.z);
+            default:         return new Vector3i(v.x, v.y, v.z);
         }
     }
 

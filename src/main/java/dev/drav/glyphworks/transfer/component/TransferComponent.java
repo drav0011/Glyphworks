@@ -10,11 +10,10 @@ import javax.annotation.Nullable;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
-import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -88,9 +87,9 @@ public class TransferComponent implements Component<ChunkStore> {
                     c -> new HashSet<>(c.faces))
             .add()
             .append(
-                    new KeyedCodec<>("Transfer_Yaw", new EnumCodec<>(Rotation.class)),
-                    (c, v) -> c.yaw = (v == null ? Rotation.None : v),
-                    c -> c.yaw)
+                    new KeyedCodec<>("Transfer_Rotation", Codec.INTEGER),
+                    (c, v) -> c.rotation = (v == null ? RotationTuple.NONE : RotationTuple.get(v)),
+                    c -> c.rotation.index())
             .add()
             .build();
 
@@ -132,13 +131,10 @@ public class TransferComponent implements Component<ChunkStore> {
      */
     private List<FacePlane> faces;
 
-    /**
-     * Yaw rotation the block was placed with, in north-facing coords.
-     * Always non-null; defaults to {@link Rotation#None}.
+    /** 
+     * Full 3-axis rotation the block was placed with. Always non-null; defaults to {@link RotationTuple#NONE}.
      */
-    private Rotation yaw = Rotation.None;
-
-
+    private RotationTuple rotation = RotationTuple.NONE;
 
     // ------------------------------------------------------------------
     // Constructors
@@ -216,7 +212,7 @@ public class TransferComponent implements Component<ChunkStore> {
         TransferComponent copy = new TransferComponent(
                 this.maxOutputRate, this.maxInputRate, this.autoPush, this.autoPull);
         copy.nodeId = this.nodeId; // preserve stable identity
-        copy.yaw = this.yaw;
+        copy.rotation = this.rotation;
         copy.faces = new ArrayList<>(this.faces.size());
         for (FacePlane f : this.faces) {
             copy.faces.add(f.copyFull()); // preserve neighbourNodeId
@@ -308,8 +304,8 @@ public class TransferComponent implements Component<ChunkStore> {
         return faces;
     }
 
-    public Rotation getYaw() {
-        return yaw;
+    public RotationTuple getRotation() {
+        return rotation;
     }
 
     // ------------------------------------------------------------------
@@ -340,7 +336,7 @@ public class TransferComponent implements Component<ChunkStore> {
         faces.remove(face);
     }
 
-    public void setYaw(Rotation yaw) {
-        this.yaw = (yaw == null ? Rotation.None : yaw);
+    public void setRotation(RotationTuple rotation) {
+        this.rotation = (rotation == null ? RotationTuple.NONE : rotation);
     }
 }

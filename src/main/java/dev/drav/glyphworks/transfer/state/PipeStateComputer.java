@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.transfer.component.FaceMode;
@@ -36,14 +37,14 @@ public final class PipeStateComputer {
             @Nonnull TransferComponent pipe,
             @Nonnull Vector3i pos,
             @Nonnull World world) {
-        Rotation yaw = pipe.getYaw();
+        RotationTuple rotation = pipe.getRotation();
         Set<Dir> active = EnumSet.noneOf(Dir.class);
 
         for (FacePlane face : pipe.getFaces()) {
             if (face.getMode() == FaceMode.CLOSED) continue;
             if (face.getNeighborNodeId() == null) continue;
 
-            Dir dir = worldDir(face.getRelMin(), face.getRelMax(), yaw);
+            Dir dir = worldDir(face.getRelMin(), face.getRelMax(), rotation);
             if (dir != null) active.add(dir);
         }
 
@@ -56,9 +57,13 @@ public final class PipeStateComputer {
     }
 
     @Nullable
-    private static Dir worldDir(Vector3i relMin, Vector3i relMax, Rotation yaw) {
-        Vector3i ra = rotateYaw(relMin, yaw);
-        Vector3i rb = rotateYaw(relMax, yaw);
+    private static Dir worldDir(Vector3i relMin, Vector3i relMax, RotationTuple rotation) {
+        Vector3i ra = rotatePitch(relMin, rotation.pitch());
+        ra = rotateYaw(ra, rotation.yaw());
+        ra = rotateRoll(ra, rotation.roll());
+        Vector3i rb = rotatePitch(relMax, rotation.pitch());
+        rb = rotateYaw(rb, rotation.yaw());
+        rb = rotateRoll(rb, rotation.roll());
         int minX = Math.min(ra.x, rb.x), maxX = Math.max(ra.x, rb.x);
         int minY = Math.min(ra.y, rb.y), maxY = Math.max(ra.y, rb.y);
         int minZ = Math.min(ra.z, rb.z), maxZ = Math.max(ra.z, rb.z);
@@ -75,6 +80,24 @@ public final class PipeStateComputer {
             case OneEighty:  return new Vector3i(1 - v.x, v.y, 1 - v.z);
             case TwoSeventy: return new Vector3i(1 - v.z, v.y, v.x);
             default:         return new Vector3i(v.x,     v.y, v.z);
+        }
+    }
+
+    private static Vector3i rotatePitch(Vector3i v, Rotation pitch) {
+        switch (pitch) {
+            case Ninety:     return new Vector3i(v.x, 1 - v.z, v.y);
+            case OneEighty:  return new Vector3i(v.x, 1 - v.y, 1 - v.z);
+            case TwoSeventy: return new Vector3i(v.x, v.z, 1 - v.y);
+            default:         return new Vector3i(v.x, v.y, v.z);
+        }
+    }
+
+    private static Vector3i rotateRoll(Vector3i v, Rotation roll) {
+        switch (roll) {
+            case Ninety:     return new Vector3i(1 - v.y, v.x, v.z);
+            case OneEighty:  return new Vector3i(1 - v.x, 1 - v.y, v.z);
+            case TwoSeventy: return new Vector3i(v.y, 1 - v.x, v.z);
+            default:         return new Vector3i(v.x, v.y, v.z);
         }
     }
 }
