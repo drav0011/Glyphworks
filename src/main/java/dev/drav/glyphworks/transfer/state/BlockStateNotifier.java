@@ -2,7 +2,7 @@ package dev.drav.glyphworks.transfer.state;
 
 import com.hypixel.hytale.math.vector.Vector3i;
 
-import dev.drav.glyphworks.util.FaceLinkUtil;
+import dev.drav.glyphworks.transfer.util.FaceLinkUtil;
 
 /**
  * Callback fired by {@link FaceLinkUtil} for every world position whose visual block state

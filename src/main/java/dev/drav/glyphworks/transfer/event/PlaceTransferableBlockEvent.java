@@ -21,7 +21,7 @@ import dev.drav.glyphworks.transfer.TransferGraph;
 import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
-import dev.drav.glyphworks.util.FaceLinkUtil;
+import dev.drav.glyphworks.transfer.util.FaceLinkUtil;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 

@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.util;
+package dev.drav.glyphworks.transfer.util;
 
 import java.util.HashSet;
 import java.util.Set;
