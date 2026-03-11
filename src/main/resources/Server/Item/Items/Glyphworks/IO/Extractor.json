@@ -10,14 +10,15 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
+    "VariantRotation": "DoublePipe",
+    "HitboxType": "Extractor",
     "CustomModel": "Blocks/Glyphworks/IO/Extractor/Extractor.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Extractor/Extractor.png",
+        "Texture": "Blocks/Glyphworks/IO/Extractor/Extractor.png",
         "Weight": 1
       }
     ],
-    "VariantRotation": "NESW",
     "BlockEntity": {
       "Components": {
         "TransferComponent": {
@@ -27,17 +28,14 @@
           "Transfer_AutoPull": false,
           "Transfer_Faces": [
             {
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
+              "FacePlane_RelMin": { "X": 0, "Y": 1, "Z": 0 },
               "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
               "FacePlane_Mode": "Output"
             }
           ]
         }
       }
-    },
-    "CustomModelScale": 1,
-    "HitboxType": "Extractor",
-    "Flags": {}
+    }
   },
   "PlayerAnimationsId": "Block"
 }

@@ -10,14 +10,15 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NS.blockymodel",
+    "VariantRotation": "DoublePipe",
+    "HitboxType": "Pipe_UD",
+    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_UD.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+        "Texture": "Blocks/Glyphworks/Pipe/Pipe.png",
         "Weight": 1
       }
     ],
-    "VariantRotation": "NESW",
     "BlockEntity": {
       "Components": {
         "TransferComponent": {
@@ -28,21 +29,18 @@
           "Transfer_Faces": [
             {
               "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 0 },
+              "FacePlane_RelMax": { "X": 1, "Y": 0, "Z": 1 },
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 1 },
+              "FacePlane_RelMin": { "X": 0, "Y": 1, "Z": 0 },
               "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
               "FacePlane_Mode": "Bidirectional"
             }
           ]
         }
       }
-    },
-    "CustomModelScale": 1,
-    "HitboxType": "Pipe_Straight",
-    "Flags": {}
+    }
   },
   "PlayerAnimationsId": "Block",
   "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",

@@ -10,10 +10,11 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
+    "HitboxType": "Pipe_Single",
     "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Pipe/pipe.png",
+        "Texture": "Blocks/Glyphworks/Pipe/Pipe.png",
         "Weight": 1
       }
     ],
@@ -107,9 +108,6 @@
         }
       }
     },
-    "CustomModelScale": 1,
-    "HitboxType": "Pipe",
-    "Flags": {},
     "State": {
       "Definitions": {
         "Single": {
