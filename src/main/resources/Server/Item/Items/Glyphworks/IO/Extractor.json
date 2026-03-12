@@ -21,17 +21,16 @@
     ],
     "BlockEntity": {
       "Components": {
-        "TransferComponent": {
-          "Transfer_MaxOutputRate": 64,
-          "Transfer_MaxInputRate": 64,
-          "Transfer_AutoPush": true,
-          "Transfer_Faces": [
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_Faces": [
             {
-              "FacePlane_RelMin": { "X": 0, "Y": 1, "Z": 0 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "Up",
               "FacePlane_Mode": "Output"
             }
-          ]
+          ],
+          "GridComponent_Neighbors": []
         }
       }
     }

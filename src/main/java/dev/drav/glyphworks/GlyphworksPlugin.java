@@ -16,34 +16,35 @@ import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessE
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
-import dev.drav.glyphworks.transfer.TransferGraph;
-import dev.drav.glyphworks.transfer.command.PrintTransferGraphCommand;
-import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
-import dev.drav.glyphworks.transfer.event.ChunkLoadTransferGraphEvent;
-import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
-import dev.drav.glyphworks.transfer.state.PipeStateComputer;
-import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
-import dev.drav.glyphworks.transfer.system.TransferSystem;
-import dev.drav.glyphworks.transfer.wiring.IOInventoryWirer;
-import dev.drav.glyphworks.transfer.wiring.InventoryWiringRegistry;
+import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
+import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
+import dev.drav.glyphworks.grid.event.ChunkUnloadGridGraphEvent;
+import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
+import dev.drav.glyphworks.grid.graph.GridGraph;
+import dev.drav.glyphworks.grid.system.GridSystem;
+import dev.drav.glyphworks.grid.type.GridType;
+import dev.drav.glyphworks.grid.type.GridTypeRegistry;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
     private static GlyphworksPlugin instance;
 
-    private ComponentType<ChunkStore, TransferComponent> transferComponentType;
+    private ComponentType<ChunkStore, GridComponent> gridComponentType;
 
-    /** One graph per world, keyed by stable world UUID. */
-    private final Map<UUID, TransferGraph> graphs = new ConcurrentHashMap<>();
+    /** Grid graphs per world, then per grid type ID. */
+    private final Map<UUID, Map<String, GridGraph>> gridGraphs = new ConcurrentHashMap<>();
 
     @Nullable
-    public TransferGraph getGraph(World world) {
-        return graphs.get(world.getWorldConfig().getUuid());
+    public GridGraph getGridGraph(World world, GridType type) {
+        Map<String, GridGraph> worldGraphs = gridGraphs.get(world.getWorldConfig().getUuid());
+        return worldGraphs != null ? worldGraphs.get(type.id()) : null;
     }
 
-    public TransferGraph getOrCreateGraph(World world) {
-        return graphs.computeIfAbsent(world.getWorldConfig().getUuid(), id -> new TransferGraph());
+    public GridGraph getOrCreateGridGraph(World world, GridType type) {
+        return gridGraphs
+                .computeIfAbsent(world.getWorldConfig().getUuid(), id -> new ConcurrentHashMap<>())
+                .computeIfAbsent(type.id(), id -> new GridGraph());
     }
 
     public GlyphworksPlugin(@Nonnull JavaPluginInit init) {
@@ -59,28 +60,24 @@ public class GlyphworksPlugin extends JavaPlugin {
         LOGGER.info("[Glyphworks] setup()...");
         instance = this;
 
-        this.transferComponentType = this.getChunkStoreRegistry().registerComponent(
-                TransferComponent.class,
-                "TransferComponent",
-                TransferComponent.CODEC);
+        // Register built-in grid network types.
+        GridTypeRegistry.register(GridType.of("Item"));
 
-        this.getEntityStoreRegistry().registerSystem(new PlaceTransferableBlockEvent());
-        this.getEntityStoreRegistry().registerSystem(new BreakTransferableBlockEvent());
+        getEventRegistry().registerGlobal(RemoveWorldEvent.class, event -> {
+            UUID worldId = event.getWorld().getWorldConfig().getUuid();
 
-        getEventRegistry().registerGlobal(RemoveWorldEvent.class,
-                event -> graphs.remove(event.getWorld().getWorldConfig().getUuid()));
-        getEventRegistry().registerGlobal(ChunkPreLoadProcessEvent.class, ChunkLoadTransferGraphEvent::handle);
+            gridGraphs.remove(worldId);
+        });
 
-        // Register visual state computers per block type.
-        // The key must match BlockType.getId() for the root block type.
-        // If states stop updating, log "rootId" in TransferStateRegistry.applyState to
-        // verify.
-        TransferStateRegistry.register("Pipe", PipeStateComputer::compute);
+        getEventRegistry().registerGlobal(ChunkPreLoadProcessEvent.class, ChunkLoadGridGraphEvent::handle);
 
-        InventoryWiringRegistry.register("Inserter",  IOInventoryWirer::wireInserter);
-        InventoryWiringRegistry.register("Extractor", IOInventoryWirer::wireExtractor);
+        this.gridComponentType = this.getChunkStoreRegistry().registerComponent(
+                GridComponent.class,
+                "GridComponent",
+                GridComponent.CODEC);
 
-        getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
+        this.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
+        this.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
 
         LOGGER.info("[Glyphworks] setup() complete.");
     }
@@ -88,10 +85,11 @@ public class GlyphworksPlugin extends JavaPlugin {
     @Override
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
-        this.getChunkStoreRegistry().registerSystem(new TransferSystem());
+        this.getChunkStoreRegistry().registerSystem(new GridSystem());
+        this.getChunkStoreRegistry().registerSystem(new ChunkUnloadGridGraphEvent());
     }
 
-    public ComponentType<ChunkStore, TransferComponent> getTransferComponentType() {
-        return transferComponentType;
+    public ComponentType<ChunkStore, GridComponent> getGridComponentType() {
+        return gridComponentType;
     }
 }

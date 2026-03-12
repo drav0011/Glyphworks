@@ -6,9 +6,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASE        = __dirname;
-const MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
-const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Pipe.json');
+const BASE = __dirname;
+const MODELS_DIR = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
+const ITEM_PATH = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Pipe.json');
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks/Pipe');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
@@ -22,12 +22,12 @@ if (oldFiles.length) console.log(`Deleted ${oldFiles.length} old generated model
 // Model space: X/Z ∈ [-16, +16], Y ∈ [0, 32]; pivot = box center + offset.
 const CENTER_BOX = { Min: { X: 0.3125, Y: 0.3125, Z: 0.3125 }, Max: { X: 0.6875, Y: 0.6875, Z: 0.6875 } };
 const ARM_BOXES = {
-  S: { Min: { X: 0.375,  Y: 0.375,  Z: 0      }, Max: { X: 0.625,  Y: 0.625,  Z: 0.3125 } },
-  N: { Min: { X: 0.375,  Y: 0.375,  Z: 0.6875 }, Max: { X: 0.625,  Y: 0.625,  Z: 1      } },
-  E: { Min: { X: 0.6875, Y: 0.375,  Z: 0.375  }, Max: { X: 1,      Y: 0.625,  Z: 0.625  } },
-  W: { Min: { X: 0,      Y: 0.375,  Z: 0.375  }, Max: { X: 0.3125, Y: 0.625,  Z: 0.625  } },
-  U: { Min: { X: 0.375,  Y: 0.6875, Z: 0.375  }, Max: { X: 0.625,  Y: 1,      Z: 0.625  } },
-  D: { Min: { X: 0.375,  Y: 0,      Z: 0.375  }, Max: { X: 0.625,  Y: 0.3125, Z: 0.625  } },
+  S: { Min: { X: 0.375, Y: 0.375, Z: 0 }, Max: { X: 0.625, Y: 0.625, Z: 0.3125 } },
+  N: { Min: { X: 0.375, Y: 0.375, Z: 0.6875 }, Max: { X: 0.625, Y: 0.625, Z: 1 } },
+  E: { Min: { X: 0.6875, Y: 0.375, Z: 0.375 }, Max: { X: 1, Y: 0.625, Z: 0.625 } },
+  W: { Min: { X: 0, Y: 0.375, Z: 0.375 }, Max: { X: 0.3125, Y: 0.625, Z: 0.625 } },
+  U: { Min: { X: 0.375, Y: 0.6875, Z: 0.375 }, Max: { X: 0.625, Y: 1, Z: 0.625 } },
+  D: { Min: { X: 0.375, Y: 0, Z: 0.375 }, Max: { X: 0.625, Y: 0.3125, Z: 0.625 } },
 };
 
 // ─── Clean up old hitbox files ────────────────────────────────────────────────
@@ -38,12 +38,12 @@ if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hit
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 const DIRECTIONS = [
-  { name: 'N', bit: 5, position: { X:  0, Y:  0, Z:  1 }, nodeIdx: 2 },
-  { name: 'S', bit: 4, position: { X:  0, Y:  0, Z: -1 }, nodeIdx: 3 },
-  { name: 'E', bit: 3, position: { X:  1, Y:  0, Z:  0 }, nodeIdx: 5 },
-  { name: 'W', bit: 2, position: { X: -1, Y:  0, Z:  0 }, nodeIdx: 4 },
-  { name: 'U', bit: 1, position: { X:  0, Y:  1, Z:  0 }, nodeIdx: 1 },
-  { name: 'D', bit: 0, position: { X:  0, Y: -1, Z:  0 }, nodeIdx: 6 },
+  { name: 'N', bit: 5, position: { X: 0, Y: 0, Z: 1 }, nodeIdx: 2 },
+  { name: 'S', bit: 4, position: { X: 0, Y: 0, Z: -1 }, nodeIdx: 3 },
+  { name: 'E', bit: 3, position: { X: 1, Y: 0, Z: 0 }, nodeIdx: 5 },
+  { name: 'W', bit: 2, position: { X: -1, Y: 0, Z: 0 }, nodeIdx: 4 },
+  { name: 'U', bit: 1, position: { X: 0, Y: 1, Z: 0 }, nodeIdx: 1 },
+  { name: 'D', bit: 0, position: { X: 0, Y: -1, Z: 0 }, nodeIdx: 6 },
 ];
 
 const MODEL_TEXTURE = [{ Texture: 'Blocks/Glyphworks/Pipe/pipe.png', Weight: 1 }];
@@ -78,7 +78,7 @@ for (let mask = 0; mask < 64; mask++) {
   fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
 
   stateDefs[name] = {
-    HitboxType:  `Pipe_${name}`,
+    HitboxType: `Pipe_${name}`,
     CustomModel: `Blocks/Glyphworks/Pipe/${modelFileName}`,
   };
 }
@@ -98,20 +98,41 @@ const item = {
     CustomModelTexture: MODEL_TEXTURE,
     BlockEntity: {
       Components: {
-        TransferComponent: {
-          Transfer_MaxOutputRate: 64,
-          Transfer_MaxInputRate: 64,
-          Transfer_AutoPush: false,
-          Transfer_AutoPull: false,
-          Transfer_Faces: [
-            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:0}, FacePlane_Mode: 'Bidirectional' }, // S (-Z)
-            { FacePlane_RelMin: {X:0, Y:0, Z:1}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // N (+Z)
-            { FacePlane_RelMin: {X:1, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // E (+X)
-            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:0, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // W (-X)
-            { FacePlane_RelMin: {X:0, Y:1, Z:0}, FacePlane_RelMax: {X:1, Y:1, Z:1}, FacePlane_Mode: 'Bidirectional' }, // U (+Y)
-            { FacePlane_RelMin: {X:0, Y:0, Z:0}, FacePlane_RelMax: {X:1, Y:0, Z:1}, FacePlane_Mode: 'Bidirectional' }, // D (-Y)
-          ],
-        },
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "South",
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "North",
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "East",
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "West",
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "Up",
+              "FacePlane_Mode": "Bidirectional"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "Down",
+              "FacePlane_Mode": "Bidirectional"
+            }
+          ]
+        }
       },
     },
     CustomModelScale: 1,

@@ -126,27 +126,26 @@
       "Components": {
         "BenchBlock": {},
         "ProcessingBenchBlock": {},
-        "TransferComponent": {
-          "Transfer_MaxOutputRate": 64,
-          "Transfer_MaxInputRate": 64,
-          "Transfer_AutoPush": true,
-          "Transfer_Faces": [
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_Faces": [
             {
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": -1 },
-              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": -1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Normal": "South",
               "FacePlane_Mode": "Output"
             },
             {
-              "FacePlane_RelMin": { "X": -1, "Y": 0, "Z": 3 },
-              "FacePlane_RelMax": { "X": 0, "Y": 1, "Z": 3 },
+              "FacePlane_Position": { "X": -1, "Y": 0, "Z": 2 },
+              "FacePlane_Normal": "North",
               "FacePlane_Mode": "Input"
             },
             {
-              "FacePlane_RelMin": { "X": 1, "Y": 0, "Z": 3 },
-              "FacePlane_RelMax": { "X": 2, "Y": 1, "Z": 3 },
+              "FacePlane_Position": { "X": 1, "Y": 0, "Z": 2 },
+              "FacePlane_Normal": "North",
               "FacePlane_Mode": "Input"
             }
-          ]
+          ],
+          "GridComponent_Neighbors": []
         }
       }
     },

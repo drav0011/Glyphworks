@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer.component;
+package dev.drav.glyphworks.grid.component;
 
 /**
  * Defines the connection mode for a face of a transfer block.

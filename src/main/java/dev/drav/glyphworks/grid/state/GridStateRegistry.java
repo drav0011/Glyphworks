@@ -1,8 +1,7 @@
-package dev.drav.glyphworks.transfer.state;
+package dev.drav.glyphworks.grid.state;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -12,33 +11,30 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 
-import dev.drav.glyphworks.transfer.component.TransferComponent;
-import dev.drav.glyphworks.transfer.lookups.TransferLookup;
+import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.lookup.GridLookup;
 
 /**
- * Maps root block type IDs to their {@link TransferStateComputer} and applies visual state
- * updates generically for any {@link TransferComponent} block.
+ * Maps root block type IDs to their {@link GridStateComputer} and applies visual state
+ * updates for any {@link GridComponent} block.
  *
  * <p>Register block types at plugin init:
  * <pre>
- *     TransferStateRegistry.register("Pipe", PipeStateComputer::compute);
+ *     GridStateRegistry.register("Pipe", PipeStateComputer::compute);
  * </pre>
  *
  * <p>Unregistered block types are silently skipped — no-op.
  */
-public final class TransferStateRegistry {
+public final class GridStateRegistry {
+    private static final Map<String, GridStateComputer> REGISTRY = new HashMap<>();
 
-    private static final Logger LOGGER = Logger.getLogger(TransferStateRegistry.class.getName());
-
-    private static final Map<String, TransferStateComputer> REGISTRY = new HashMap<>();
-
-    private TransferStateRegistry() {}
+    private GridStateRegistry() {}
 
     /**
      * Registers a state computer for a root block type identified by its ID string
      * ({@code BlockType.getId()}).
      */
-    public static void register(@Nonnull String rootBlockTypeId, @Nonnull TransferStateComputer computer) {
+    public static void register(@Nonnull String rootBlockTypeId, @Nonnull GridStateComputer computer) {
         REGISTRY.put(rootBlockTypeId, computer);
     }
 
@@ -50,7 +46,7 @@ public final class TransferStateRegistry {
      * <ul>
      *   <li>The block type at {@code pos} is not registered</li>
      *   <li>The chunk is not loaded</li>
-     *   <li>There is no {@link TransferComponent} at {@code pos}</li>
+     *   <li>There is no {@link GridComponent} at {@code pos}</li>
      * </ul>
      */
     public static void applyState(@Nonnull World world, @Nonnull Vector3i pos) {
@@ -58,7 +54,6 @@ public final class TransferStateRegistry {
         if (blockType == null) return;
 
         // Navigate from a state variant back to the root block type whose ID we key by.
-        // getDefaultStateKey() is null on the root and non-null on variants.
         String baseKey = blockType.getDefaultStateKey();
         BlockType rootBlockType = (baseKey != null)
                 ? BlockType.getAssetMap().getAsset(baseKey)
@@ -66,20 +61,18 @@ public final class TransferStateRegistry {
         if (rootBlockType == null || rootBlockType.getData() == null) return;
 
         String rootId = rootBlockType.getId();
-        TransferStateComputer computer = REGISTRY.get(rootId);
+        GridStateComputer computer = REGISTRY.get(rootId);
         if (computer == null) return; // unregistered block — no-op
 
-        TransferLookup lookup = TransferLookup.resolve(world.getChunkStore(), pos);
+        GridLookup lookup = GridLookup.resolve(world.getChunkStore(), pos);
         if (lookup == null) return;
 
-        TransferComponent transfer = lookup.transfer();
-        String stateName = computer.compute(transfer, pos, world);
+        GridComponent grid = lookup.component();
+        String stateName = computer.compute(grid, lookup.originPos(), world);
 
         WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
         if (chunk != null) {
             chunk.setBlockInteractionState(pos.x, pos.y, pos.z, rootBlockType, stateName, true);
-        } else {
-            LOGGER.warning("[TransferState] applyState " + pos + " — chunk not loaded, state not applied");
         }
     }
 }
