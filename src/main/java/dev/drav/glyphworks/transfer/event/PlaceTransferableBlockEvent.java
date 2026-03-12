@@ -22,6 +22,7 @@ import dev.drav.glyphworks.transfer.component.FacePlane;
 import dev.drav.glyphworks.transfer.lookups.TransferLookup;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
 import dev.drav.glyphworks.transfer.util.FaceLinkUtil;
+import dev.drav.glyphworks.transfer.wiring.InventoryWiringRegistry;
 
 public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityStore, PlaceBlockEvent> {
 
@@ -43,7 +44,12 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
             ChunkStore chunkStore = world.getChunkStore();
 
             TransferLookup lookup = TransferLookup.resolve(chunkStore, pos);
-            if (lookup == null) return;
+            if (lookup == null) {
+                // Not a transfer block — but it might be a chest just placed next to an IO block.
+                // Re-wire any neighbouring IO blocks that were waiting for this inventory.
+                InventoryWiringRegistry.rewireNeighbors(chunkStore, pos);
+                return;
+            }
 
             // Store the yaw so getWorldMin/Max can apply it dynamically.
             // Face coords in JSON are always authored for the north-facing (None) orientation.
@@ -65,6 +71,10 @@ public final class PlaceTransferableBlockEvent extends EntityEventSystem<EntityS
                     graph.addEdge(lookup.transfer().getNodeId(), neighborId);
                 }
             }
+
+            InventoryWiringRegistry.wire(chunkStore, lookup.transfer(), pos);
+
+            graph.rebuildRoutesInComponent(lookup.transfer().getNodeId(), chunkStore);
         });
     }
 

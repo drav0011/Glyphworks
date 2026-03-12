@@ -22,9 +22,11 @@ import dev.drav.glyphworks.transfer.component.TransferComponent;
 import dev.drav.glyphworks.transfer.event.BreakTransferableBlockEvent;
 import dev.drav.glyphworks.transfer.event.ChunkLoadTransferGraphEvent;
 import dev.drav.glyphworks.transfer.event.PlaceTransferableBlockEvent;
-
 import dev.drav.glyphworks.transfer.state.PipeStateComputer;
 import dev.drav.glyphworks.transfer.state.TransferStateRegistry;
+import dev.drav.glyphworks.transfer.system.TransferSystem;
+import dev.drav.glyphworks.transfer.wiring.IOInventoryWirer;
+import dev.drav.glyphworks.transfer.wiring.InventoryWiringRegistry;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -75,6 +77,9 @@ public class GlyphworksPlugin extends JavaPlugin {
         // verify.
         TransferStateRegistry.register("Pipe", PipeStateComputer::compute);
 
+        InventoryWiringRegistry.register("Inserter",  IOInventoryWirer::wireInserter);
+        InventoryWiringRegistry.register("Extractor", IOInventoryWirer::wireExtractor);
+
         getCommandRegistry().registerCommand(new PrintTransferGraphCommand());
 
         LOGGER.info("[Glyphworks] setup() complete.");
@@ -83,7 +88,7 @@ public class GlyphworksPlugin extends JavaPlugin {
     @Override
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
-        // this.getChunkStoreRegistry().registerSystem(new TransferSystem());
+        this.getChunkStoreRegistry().registerSystem(new TransferSystem());
     }
 
     public ComponentType<ChunkStore, TransferComponent> getTransferComponentType() {
