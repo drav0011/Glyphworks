@@ -1,5 +1,10 @@
 package dev.drav.glyphworks.transfer.command;
 
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
@@ -8,12 +13,9 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayer
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.transfer.TransferGraph;
-
-import javax.annotation.Nonnull;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Command: {@code gwtransfer}

@@ -24,7 +24,6 @@
           "Transfer_MaxOutputRate": 64,
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": false,
-          "Transfer_AutoPull": false,
           "Transfer_Faces": [
             {
               "FacePlane_RelMin": {

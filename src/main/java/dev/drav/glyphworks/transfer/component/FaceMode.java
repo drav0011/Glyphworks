@@ -1,32 +1,31 @@
 package dev.drav.glyphworks.transfer.component;
 
 /**
- * Defines the connection mode for a side of a transfer block.
- * Each side (north, south, east, west, up, down) can have one of these modes.
+ * Defines the connection mode for a face of a transfer block.
  */
 public enum FaceMode {
     /**
-     * This side can only receive items (acts as input).
-     * Creates incoming edges when adjacent to OUTPUT or BIDIRECTIONAL sides.
+     * This face can only receive items (acts as input).
+     * Creates incoming edges when adjacent to OUTPUT or BIDIRECTIONAL faces.
      */
     INPUT,
 
     /**
-     * This side can only send items (acts as output).
-     * Creates outgoing edges when adjacent to INPUT or BIDIRECTIONAL sides.
+     * This face can only send items (acts as output).
+     * Creates outgoing edges when adjacent to INPUT or BIDIRECTIONAL faces.
      */
     OUTPUT,
 
     /**
-     * This side can both send and receive items.
-     * Creates bidirectional edges with other BIDIRECTIONAL sides.
-     * Creates appropriate directional edges with INPUT/OUTPUT sides.
+     * This face can both send and receive items.
+     * Creates bidirectional edges with other BIDIRECTIONAL faces.
+     * Creates appropriate directional edges with INPUT/OUTPUT faces.
      */
     BIDIRECTIONAL,
 
     /**
-     * This side does not connect to anything.
-     * No edges are created for this side.
+     * This face does not connect to anything.
+     * No edges are created for this face.
      */
     CLOSED
 }

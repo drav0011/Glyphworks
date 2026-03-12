@@ -12,13 +12,6 @@ const ITEM_PATH   = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphw
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks/Pipe');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
-const OLD_ALL_MODEL  = path.join(MODELS_DIR, 'Pipe_All.blockymodel');
-
-// ─── Rename Pipe_All → Pipe_Template if needed ───────────────────────────────
-if (!fs.existsSync(TEMPLATE_MODEL) && fs.existsSync(OLD_ALL_MODEL)) {
-  fs.renameSync(OLD_ALL_MODEL, TEMPLATE_MODEL);
-  console.log('Renamed Pipe_All.blockymodel → Pipe_Template.blockymodel');
-}
 
 // ─── Delete all existing models except the template ──────────────────────────
 const oldFiles = fs.readdirSync(MODELS_DIR).filter(f => f !== 'Pipe_Template.blockymodel' && f !== 'pipe.png');

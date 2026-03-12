@@ -25,11 +25,10 @@
           "Transfer_MaxOutputRate": 64,
           "Transfer_MaxInputRate": 64,
           "Transfer_AutoPush": false,
-          "Transfer_AutoPull": true,
           "Transfer_Faces": [
             {
-              "FacePlane_RelMin": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_RelMax": { "X": 1, "Y": 0, "Z": 1 },
+              "FacePlane_RelMin": { "X": 0, "Y": 1, "Z": 0 },
+              "FacePlane_RelMax": { "X": 1, "Y": 1, "Z": 1 },
               "FacePlane_Mode": "Input"
             }
           ]

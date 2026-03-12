@@ -16,19 +16,10 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 /**
  * Defines a face region of a block in block-relative coordinates.
  *
- * <p>Geometry is stored as offsets from the block origin (0,0,0). World-absolute
- * coordinates are computed on demand via {@link #getWorldMin(Vector3i)} /
- * {@link #getWorldMax(Vector3i)} — never persisted.
- *
- * <h3>Block-local coordinate convention (block origin = 0,0,0)</h3>
- * <pre>
- * North (+Z):  relMin=(0,0,1)  relMax=(1,1,1)
- * South (-Z):  relMin=(0,0,0)  relMax=(1,1,0)
- * East  (+X):  relMin=(1,0,0)  relMax=(1,1,1)
- * West  (-X):  relMin=(0,0,0)  relMax=(0,1,1)
- * Up    (+Y):  relMin=(0,1,0)  relMax=(1,1,1)
- * Down  (-Y):  relMin=(0,0,0)  relMax=(1,0,1)
- * </pre>
+ * Geometry is stored as offsets from the block origin (0,0,0). 
+ * World-absolute coordinates are computed on demand via 
+ * {@link #getWorldMin(Vector3i)} / {@link #getWorldMax(Vector3i)} 
+ * never persisted.
  */
 public class FacePlane {
 
