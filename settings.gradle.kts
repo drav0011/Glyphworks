@@ -1,6 +1,6 @@
 import dev.scaffoldit.hytale.wire.HytaleManifest
 
-rootProject.name = "dev.drav"
+rootProject.name = "dev.drav.glyphworks"
 
 plugins {
     id("dev.scaffoldit") version "0.2.+"

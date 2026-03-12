@@ -16,10 +16,10 @@ import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessE
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
-import dev.drav.glyphworks.grid.event.ChunkUnloadGridGraphEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.system.GridSystem;
@@ -79,6 +79,8 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
 
+        this.getCommandRegistry().registerCommand(new GridGraphCommand());
+
         LOGGER.info("[Glyphworks] setup() complete.");
     }
 
@@ -86,7 +88,7 @@ public class GlyphworksPlugin extends JavaPlugin {
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
         this.getChunkStoreRegistry().registerSystem(new GridSystem());
-        this.getChunkStoreRegistry().registerSystem(new ChunkUnloadGridGraphEvent());
+        // ChunkUnloadGridGraphEvent is NOT registered here — see its class-level javadoc.
     }
 
     public ComponentType<ChunkStore, GridComponent> getGridComponentType() {

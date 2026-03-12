@@ -77,6 +77,18 @@ public final class GridGraph {
     }
 
     /**
+     * Returns the number of unique undirected edges in this graph.
+     * Each edge is stored in both directions, so the total neighbor count is halved.
+     */
+    public int getEdgeCount() {
+        int total = 0;
+        for (Set<Vector3i> neighbors : adjacency.values()) {
+            total += neighbors.size();
+        }
+        return total / 2;
+    }
+
+    /**
      * Returns an unmodifiable view of all node positions currently in the graph.
      */
     public Set<Vector3i> getNodePositions() {

@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.grid.type;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -51,5 +53,11 @@ public final class GridTypeRegistry {
         }
 
         return type;
+    }
+
+    /** Returns an unmodifiable view of all registered grid types. */
+    @Nonnull
+    public static Collection<GridType> getAll() {
+        return Collections.unmodifiableCollection(REGISTRY.values());
     }
 }

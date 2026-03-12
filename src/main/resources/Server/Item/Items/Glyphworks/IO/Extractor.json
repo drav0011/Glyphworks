@@ -29,8 +29,7 @@
               "FacePlane_Normal": "Up",
               "FacePlane_Mode": "Output"
             }
-          ],
-          "GridComponent_Neighbors": []
+          ]
         }
       }
     }

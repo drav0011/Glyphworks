@@ -34,8 +34,7 @@
               "FacePlane_Normal": "Up",
               "FacePlane_Mode": "Bidirectional"
             }
-          ],
-          "GridComponent_Neighbors": []
+          ]
         }
       }
     }
