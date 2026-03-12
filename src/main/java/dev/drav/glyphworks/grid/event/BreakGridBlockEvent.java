@@ -19,7 +19,6 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
-import dev.drav.glyphworks.grid.state.GridStateRegistry;
 
 public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 
@@ -63,14 +62,7 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             neighborLookup.component().removeNeighbor(pos);
         }
         
-        // @Deprecated remove
-        // Refresh the visual state of every former neighbor (they may now show
-        // "Single").
-        commandBuffer.run(_ -> {
-            for (Vector3i neighborPos : neighbors) {
-                GridStateRegistry.applyState(world, neighborPos);
-            }
-        });
+
     }
 
     @Nonnull

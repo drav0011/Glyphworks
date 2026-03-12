@@ -12,11 +12,13 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlockRuleSet;
 import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.command.GridGraphCommand;
+import dev.drav.glyphworks.content.connectedblocks.PipeConnectedBlockRuleSet;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
@@ -60,6 +62,9 @@ public class GlyphworksPlugin extends JavaPlugin {
         LOGGER.info("[Glyphworks] setup()...");
         instance = this;
 
+        // Register the pipe visual-state ruleset so the engine can resolve pipe shapes.
+        ConnectedBlockRuleSet.CODEC.register("Pipe", PipeConnectedBlockRuleSet.class, PipeConnectedBlockRuleSet.CODEC);
+
         // Register built-in grid network types.
         GridTypeRegistry.register(GridType.of("Item"));
 
@@ -88,7 +93,6 @@ public class GlyphworksPlugin extends JavaPlugin {
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
         this.getChunkStoreRegistry().registerSystem(new GridSystem());
-        // ChunkUnloadGridGraphEvent is NOT registered here — see its class-level javadoc.
     }
 
     public ComponentType<ChunkStore, GridComponent> getGridComponentType() {

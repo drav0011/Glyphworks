@@ -10,7 +10,9 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "HitboxType": "Pipe_Single",
+    "ConnectedBlockRuleSet": {
+      "Type": "Pipe"
+    },
     "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
     "CustomModelTexture": [
       {
@@ -24,32 +26,56 @@
           "GridComponent_Type": "Item",
           "GridComponent_Faces": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "North",
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "East",
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "West",
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "Up",
               "FacePlane_Mode": "Bidirectional"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
               "FacePlane_Normal": "Down",
               "FacePlane_Mode": "Bidirectional"
             }
@@ -57,6 +83,9 @@
         }
       }
     },
+    "CustomModelScale": 1,
+    "HitboxType": "Pipe",
+    "Flags": {},
     "State": {
       "Definitions": {
         "Single": {
