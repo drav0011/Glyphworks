@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.grid.event;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -19,6 +20,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
+import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 
@@ -61,7 +63,19 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
                 continue;
             neighborLookup.component().removeNeighbor(pos);
         }
-        
+
+        // Snapshot the neighbour positions for the deferred visual update.
+        // We copy the set here (on the WorldThread) before the furnace entity is
+        // destroyed, then apply the update in commandBuffer.run() which executes
+        // after naturallyRemoveBlock() has removed the entity.  At that point,
+        // GridLookup.resolve at the furnace position returns null, so
+        // PipeConnectedBlockRuleSet correctly computes a disconnected state.
+        Set<Vector3i> neighborSnapshot = new HashSet<>(neighbors);
+        commandBuffer.run(_ -> {
+            for (Vector3i n : neighborSnapshot) {
+                GridFaceUtil.forceConnectedBlockUpdate(world, n);
+            }
+        });
 
     }
 

@@ -97,6 +97,12 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
                 graph.addEdge(pos, n);
             }
 
+            // Trigger visual-state updates for neighbours that live outside the engine's
+            // ±1 notification radius (e.g. pipes adjacent to filler cells of a multi-block
+            // structure like the auto-furnace).
+            for (Vector3i n : component.getNeighbors()) {
+                GridFaceUtil.forceConnectedBlockUpdate(world, n);
+            }
 
         });
     }
