@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.command;
+package dev.drav.glyphworks.grid.command;
 
 import java.util.ArrayList;
 import java.util.Collection;

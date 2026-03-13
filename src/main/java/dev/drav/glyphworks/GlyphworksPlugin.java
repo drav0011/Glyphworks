@@ -17,8 +17,8 @@ import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessE
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
-import dev.drav.glyphworks.command.GridGraphCommand;
 import dev.drav.glyphworks.content.connectedblocks.PipeConnectedBlockRuleSet;
+import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
