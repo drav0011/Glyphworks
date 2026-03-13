@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -46,9 +48,60 @@ public final class GridFaceUtil {
     }
 
     /**
-     * Finds the face on {@code component} whose normal matches {@code requiredNormal}
-     * AND whose world position ({@code originPos + face.getPosition()}) equals
-     * {@code requiredWorldPos}.
+     * Rotates a local-space filler-cell offset vector to world space using the
+     * block's {@link RotationTuple}. For 1×1 blocks the position is always
+     * {@code (0,0,0)} so this is a no-op, but for multi-block structures it
+     * maps the JSON-space filler offset to the correct world-space offset.
+     */
+    public static Vector3i rotateFacePosition(Vector3i localPos, RotationTuple rotation) {
+        if (rotation.yaw() == Rotation.None && rotation.pitch() == Rotation.None && rotation.roll() == Rotation.None)
+            return localPos;
+        Vector3i rotated = new Vector3i(localPos.x, localPos.y, localPos.z);
+        Rotation.applyRotationTo(rotated, rotation.yaw(), rotation.pitch(), rotation.roll());
+        return rotated;
+    }
+
+    /**
+     * Rotates a local-space {@link BlockFace} to world-space using the block's
+     * {@link RotationTuple}. Returns {@link BlockFace#None} for unrecognised
+     * direction vectors after rotation.
+     */
+    public static BlockFace rotateBlockFace(BlockFace face, RotationTuple rotation) {
+        if (face == BlockFace.None)
+            return BlockFace.None;
+        if (rotation.yaw() == Rotation.None && rotation.pitch() == Rotation.None && rotation.roll() == Rotation.None)
+            return face;
+        Vector3i dir = blockFaceToVec(face);
+        Rotation.applyRotationTo(dir, rotation.yaw(), rotation.pitch(), rotation.roll());
+        return vecToBlockFace(dir);
+    }
+
+    private static Vector3i blockFaceToVec(BlockFace face) {
+        return switch (face) {
+            case North -> new Vector3i( 0,  0, -1);
+            case South -> new Vector3i( 0,  0,  1);
+            case East  -> new Vector3i( 1,  0,  0);
+            case West  -> new Vector3i(-1,  0,  0);
+            case Up    -> new Vector3i( 0,  1,  0);
+            case Down  -> new Vector3i( 0, -1,  0);
+            default    -> new Vector3i( 0,  0,  0);
+        };
+    }
+
+    private static BlockFace vecToBlockFace(Vector3i v) {
+        if (v.x ==  0 && v.y ==  0 && v.z == -1) return BlockFace.North;
+        if (v.x ==  0 && v.y ==  0 && v.z ==  1) return BlockFace.South;
+        if (v.x ==  1 && v.y ==  0 && v.z ==  0) return BlockFace.East;
+        if (v.x == -1 && v.y ==  0 && v.z ==  0) return BlockFace.West;
+        if (v.x ==  0 && v.y ==  1 && v.z ==  0) return BlockFace.Up;
+        if (v.x ==  0 && v.y == -1 && v.z ==  0) return BlockFace.Down;
+        return BlockFace.None;
+    }
+
+    /**
+     * Finds the face on {@code component} whose world-space normal (after applying
+     * {@code componentRotation}) matches {@code requiredNormal} AND whose world
+     * position ({@code originPos + face.getPosition()}) equals {@code requiredWorldPos}.
      *
      * <p>The position check is essential for multi-block structures: a 2×2×2 block
      * may have multiple faces with the same normal on different cells; only the one
@@ -58,12 +111,14 @@ public final class GridFaceUtil {
     public static FacePlane findMatchingFace(
             GridComponent component,
             Vector3i originPos,
+            RotationTuple componentRotation,
             BlockFace requiredNormal,
             Vector3i requiredWorldPos) {
         for (FacePlane face : component.getFaces()) {
-            if (face.getNormal() != requiredNormal)
+            if (rotateBlockFace(face.getNormal(), componentRotation) != requiredNormal)
                 continue;
-            if (addOffset(originPos, face.getPosition()).equals(requiredWorldPos))
+            Vector3i worldFacePos = rotateFacePosition(face.getPosition(), componentRotation);
+            if (addOffset(originPos, worldFacePos).equals(requiredWorldPos))
                 return face;
         }
         return null;

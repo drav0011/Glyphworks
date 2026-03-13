@@ -53,10 +53,17 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
                 if (face.getMode() == FaceMode.CLOSED || face.getNormal() == BlockFace.None)
                     continue;
 
-                // The world cell this face touches: origin + face.position + normal.offset.
+                // Rotate normal and filler-cell offset from local/JSON space to world space
+                // using the block's placement rotation, so rotated blocks connect correctly.
+                BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), lookup.rotation());
+                if (worldNormal == BlockFace.None)
+                    continue;
+
+                // The world cell this face touches: origin + rotated(face.position) + normal.offset.
                 // For a 1x1 block, face.position is (0,0,0) so this reduces to pos + normal.
                 // For a multi-block, face.position offsets to the correct filler cell first.
-                Vector3i candidatePos = GridFaceUtil.addOffset(GridFaceUtil.addOffset(pos, face.getPosition()), face.getNormal());
+                Vector3i worldFacePos = GridFaceUtil.rotateFacePosition(face.getPosition(), lookup.rotation());
+                Vector3i candidatePos = GridFaceUtil.addOffset(GridFaceUtil.addOffset(pos, worldFacePos), worldNormal);
 
                 GridLookup neighborLookup = GridLookup.resolve(chunkStore, candidatePos);
                 if (neighborLookup == null)
@@ -69,11 +76,12 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
                         || !neighbor.getGridType().id().equals(component.getGridType().id()))
                     continue;
 
-                // The neighbor's face must have the opposite normal AND its world position
-                // (neighborOrigin + faceB.position) must equal candidatePos — ensuring the
-                // two faces are spatially adjacent, not just directionally compatible.
+                // The neighbor's face must have the opposite world-space normal AND its world
+                // position (neighborOrigin + faceB.position) must equal candidatePos — ensuring
+                // the two faces are spatially adjacent, not just directionally compatible.
                 FacePlane neighborFace = GridFaceUtil.findMatchingFace(neighbor, resolvedNeighborPos,
-                        GridFaceUtil.opposite(face.getNormal()), candidatePos);
+                        neighborLookup.rotation(),
+                        GridFaceUtil.opposite(worldNormal), candidatePos);
                 if (neighborFace == null || neighborFace.getMode() == FaceMode.CLOSED)
                     continue;
                 if (!GridFaceUtil.areLinkable(face.getMode(), neighborFace.getMode()))

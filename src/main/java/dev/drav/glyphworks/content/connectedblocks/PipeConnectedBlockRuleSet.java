@@ -136,15 +136,19 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
             if (face.getMode() == FaceMode.CLOSED) {
                 continue;
             }
-            Dir dir = normalToDir(face.getNormal());
+
+            // Rotate the face normal from local/JSON space to world space.
+            BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), selfLookup.rotation());
+            Dir dir = normalToDir(worldNormal);
             if (dir == null) {
                 continue;
             }
 
-            // World position of the cell this face touches.
+            // World position of the cell this face touches (filler offset also rotated).
+            Vector3i worldFacePos = GridFaceUtil.rotateFacePosition(face.getPosition(), selfLookup.rotation());
             Vector3i adjacentPos = GridFaceUtil.addOffset(
-                    GridFaceUtil.addOffset(selfLookup.originPos(), face.getPosition()),
-                    face.getNormal());
+                    GridFaceUtil.addOffset(selfLookup.originPos(), worldFacePos),
+                    worldNormal);
 
             GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), adjacentPos);
             if (neighborLookup == null) {
@@ -166,7 +170,8 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
             // The neighbour must expose a compatible face pointing back at us.
             FacePlane neighborFace = GridFaceUtil.findMatchingFace(
                     neighbor, neighborLookup.originPos(),
-                    GridFaceUtil.opposite(face.getNormal()), adjacentPos);
+                    neighborLookup.rotation(),
+                    GridFaceUtil.opposite(worldNormal), adjacentPos);
             if (neighborFace == null) {
                 LOGGER.fine("[PipeRuleSet]   face " + dir + " -> no matching return-face on neighbor at " + adjacentPos);
                 continue;

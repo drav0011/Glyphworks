@@ -131,17 +131,17 @@
           "GridComponent_Faces": [
             {
               "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
-              "FacePlane_Normal": "South",
+              "FacePlane_Normal": "North",
               "FacePlane_Mode": "Output"
             },
             {
               "FacePlane_Position": { "X": -1, "Y": 0, "Z": 2 },
-              "FacePlane_Normal": "North",
+              "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input"
             },
             {
               "FacePlane_Position": { "X": 1, "Y": 0, "Z": 2 },
-              "FacePlane_Normal": "North",
+              "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input"
             }
           ]

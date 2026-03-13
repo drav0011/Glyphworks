@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -24,7 +25,8 @@ import dev.drav.glyphworks.grid.component.GridComponent;
 public record GridLookup(
         @Nonnull GridComponent component,
         @Nonnull Ref<ChunkStore> blockRef,
-        @Nonnull Vector3i originPos) {
+        @Nonnull Vector3i originPos,
+        @Nonnull RotationTuple rotation) {
 
     @Nullable
     public static GridLookup resolve(@Nonnull ChunkStore chunkStore, @Nonnull Vector3i pos) {
@@ -80,6 +82,13 @@ public record GridLookup(
         if (component == null)
             return null;
 
-        return new GridLookup(component, blockRef, originPos);
+        long originChunkIdx = ChunkUtil.indexChunkFromBlock(originPos.x, originPos.z);
+        WorldChunk originWorldChunk = chunkStore.getWorld().getChunkIfLoaded(originChunkIdx);
+        RotationTuple rotation = RotationTuple.NONE;
+        if (originWorldChunk != null) {
+            rotation = RotationTuple.get(originWorldChunk.getRotationIndex(originPos.x, originPos.y, originPos.z));
+        }
+
+        return new GridLookup(component, blockRef, originPos, rotation);
     }
 }
