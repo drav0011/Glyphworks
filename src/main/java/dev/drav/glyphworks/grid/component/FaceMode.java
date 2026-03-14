@@ -1,7 +1,7 @@
 package dev.drav.glyphworks.grid.component;
 
 /**
- * Defines the connection mode for a face of a transfer block.
+ * Defines the connection mode for a face of a grid component block.
  */
 public enum FaceMode {
     /**

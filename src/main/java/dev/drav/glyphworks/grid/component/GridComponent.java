@@ -40,6 +40,11 @@ public class GridComponent implements Component<ChunkStore> {
                     (c, v) -> c.neighbors = v,
                     c -> c.neighbors)
             .add()
+            .append(
+                    new KeyedCodec<>("GridComponent_TransferRate", Codec.FLOAT),
+                    (c, v) -> c.transferRate = v,
+                    c -> c.transferRate)
+            .add()
             .build();
 
     public static ComponentType<ChunkStore, GridComponent> getComponentType() {
@@ -65,12 +70,38 @@ public class GridComponent implements Component<ChunkStore> {
     private Set<Vector3i> neighbors;
 
     /**
+     * Maximum throughput of this node per tick, expressed in the native unit of the
+     * grid type (items, energy units, millibuckets, etc.).
+     * Values ≥ 1 transfer that many items per tick; values < 1 transfer one item
+     * every {@code 1/rate} ticks (e.g. {@code 0.2} = 1 item every 5 ticks).
+     * On a grid path, the effective rate is min(rate of all nodes on the path).
+     */
+    private float transferRate = 1.0f;
+
+    /**
+     * Runtime-only fractional carry-over for sub-tick transfer rates.
+     * Accumulates {@code effectiveRate} each tick; an integer batch is transferred
+     * and consumed whenever the accumulator reaches 1.0.
+     */
+    private transient float transferAccumulator = 0.0f;
+
+    /**
+     * Runtime-only world origin position. Set at block load/place time by event
+     * handlers; not serialised, not present in the codec.
+     * Used by {@link dev.drav.glyphworks.transfer.item.ItemGridTypeHandler} to
+     * locate the external inventory adjacent to extractor / inserter faces.
+     */
+    @Nullable
+    private transient Vector3i originPosition;
+
+    /**
      * No-arg constructor required by {@link #CODEC}.
      */
     public GridComponent() {
         this.gridType = null;
         this.faces = new HashSet<>();
         this.neighbors = new HashSet<>();
+        this.transferRate = 1.0f;
     }
 
     /**
@@ -85,6 +116,8 @@ public class GridComponent implements Component<ChunkStore> {
             this.faces.add(f.clone());
         }
         this.neighbors = new HashSet<>(other.neighbors);
+        this.transferRate = other.transferRate;
+        // transferAccumulator intentionally not copied — fresh placement starts at zero.
     }
 
     public GridType getGridType() {
@@ -125,6 +158,39 @@ public class GridComponent implements Component<ChunkStore> {
 
     public void removeNeighbor(Vector3i neighbor) {
         neighbors.remove(neighbor);
+    }
+
+    public float getTransferRate() {
+        return transferRate;
+    }
+
+    public void setTransferRate(float transferRate) {
+        this.transferRate = transferRate;
+    }
+
+    @Nullable
+    public Vector3i getOriginPosition() {
+        return originPosition;
+    }
+
+    public void setOriginPosition(@Nullable Vector3i originPosition) {
+        this.originPosition = originPosition;
+    }
+
+    /**
+     * Adds {@code amount} to the accumulator and returns the number of whole units
+     * that have accumulated (floored). The fractional remainder is kept for the
+     * next tick.
+     *
+     * @param amount the per-tick contribution (typically {@code effectiveRate * dt * TPS})
+     * @return how many whole items (or other units) to transfer this tick; 0 if
+     *         the threshold has not been reached yet
+     */
+    public int drainAccumulator(float amount) {
+        transferAccumulator += amount;
+        int whole = (int) transferAccumulator;
+        transferAccumulator -= whole;
+        return whole;
     }
 
     /**

@@ -54,6 +54,8 @@ public final class ChunkLoadGridGraphEvent {
                     ChunkUtil.yFromBlockInColumn(blockIndex),
                     chunkOriginZ + ChunkUtil.zFromBlockInColumn(blockIndex));
 
+            component.setOriginPosition(pos);
+
             GridGraph graph = GlyphworksPlugin.get().getOrCreateGridGraph(event.getChunk().getWorld(), type);
             graph.addNode(pos);
 

@@ -1,12 +1,12 @@
 # Glyphworks
 
-A Hytale server plugin that adds a **networked item transfer system** — machines, pipes, and configurable per-face routing built entirely on the Hytale component and connected-block APIs.
+A Hytale server plugin built around a **typed, extensible grid network system** — any block can become a node in a named grid, and multiple independent grid types (item transfer, fluid, energy, …) can coexist in the same world. The first concrete grid type being developed is **Item** transfer.
 
 ---
 
 ## Concept
 
-Glyphworks lets you link machines and storage together using **Transfer Pipes**. Pipes are standard 1×1×1 blocks and expose exactly six faces. Machines and storage blocks, however, can occupy any footprint (e.g. 2×2×1, 3×5×3) and therefore expose a variable number of connectable faces — one per block-sized cell on each outer surface. Every face on any node can be independently configured as an input, output, bidirectional connection, or closed. Pipes connect nodes into a network and the system automatically routes items from sources to sinks each tick.
+Every participating block carries a `GridComponent` that declares which **grid type** it belongs to and what faces are exposed for connections. Blocks of the same type that share a compatible face-pair are automatically linked into an undirected graph. Pipes are ordinary grid nodes that carry no payload of their own; they simply extend the graph so machines and storage blocks can reach each other across space.
 
 ```
 [ Furnace (OUTPUT) ] ──pipe──> [ Chest (INPUT) ]
@@ -21,110 +21,113 @@ Glyphworks lets you link machines and storage together using **Transfer Pipes**.
 
 ---
 
-## Network Nodes
+## Grid Types
 
-Every block that participates in the network carries a **`TransferComponent`**. It stores:
+Grid types are registered at plugin initialisation and serve as namespaces that keep otherwise identical blocks from accidentally cross-connecting:
 
-| Property | Description |
+```java
+GridTypeRegistry.register(GridType.of("Item"));
+```
+
+Each world holds one `GridGraph` per registered type. A block declares its type through `GridComponent_Type` in its item JSON.
+
+---
+
+## Grid Nodes
+
+Every block that participates in any grid carries a **`GridComponent`**:
+
+| Field | Description |
 |---|---|
-| `nodeId` | Unique UUID identifying this node across the world |
-| `maxOutputRate` | Max item stacks pushed out per tick |
-| `maxInputRate` | Max item stacks accepted per tick |
-| `autoPush` | If true, the system initiates transfers from this node automatically |
-| `autoPull` | If true, the system initiates pulls into this node automatically |
-| `faces` | Per-face connection state (see Face Modes below) |
-
-At runtime, two `ItemContainer` references are wired in by the owning block:
-
-- **`inputInventory`** — where incoming items land
-- **`outputInventory`** — where outgoing items are taken from
-
-Both can point to the same inventory (e.g. a chest) or to separate ones (e.g. a machine with distinct input and output slots).
+| `gridType` | The `GridType` this node belongs to. Determines which graph it enters. |
+| `faces` | Set of `FacePlane` entries that describe every connectable surface of this block. |
+| `neighbors` | World-position set of all currently linked adjacent blocks. Persisted in the chunk store. |
 
 ---
 
 ## Face Modes
 
-Each face on a node can be independently configured by right-clicking with an appropriate tool. A 1×1×1 node has six faces; larger multi-block structures expose one face per outer cell, so a 2×2×1 block has 12 connectable faces (4 top, 4 bottom, 2×2 on each of its four sides). The mode controls how that face participates in the network graph:
+Each `FacePlane` has a `FaceMode` that governs whether and how it participates in connections:
 
 | Mode | Description |
 |---|---|
-| `INPUT` | This face only receives items. Connects to adjacent OUTPUT or BIDIRECTIONAL faces. |
-| `OUTPUT` | This face only sends items. Connects to adjacent INPUT or BIDIRECTIONAL faces. |
-| `BIDIRECTIONAL` | This face both sends and receives. |
-| `CLOSED` | This face does not connect. No edge is created. |
+| `INPUT` | This face only receives. Connects to adjacent OUTPUT or BIDIRECTIONAL faces. |
+| `OUTPUT` | This face only sends. Connects to adjacent INPUT or BIDIRECTIONAL faces. |
+| `BIDIRECTIONAL` | This face both sends and receives. Compatible with any non-CLOSED mode. |
+| `CLOSED` | This face does not connect. No edge is formed. |
 
-When two adjacent blocks have compatible face modes on their shared side, a directed graph edge is formed between their nodes.
+Two faces are linkable when they are spatially adjacent, carry opposite world-space normals (face each other), and their modes are compatible — two INPUTs or two OUTPUTs cannot link to each other.
+
+Multi-block structures expose one `FacePlane` per outer surface cell. The `FacePlane.position` field is a block-origin-relative offset that points to the correct filler cell, and `FacePlane.normal` is the outward direction in local/JSON space. Both are rotated to world space at runtime using the block's `RotationTuple` so rotated placements connect correctly.
 
 ---
 
-## Transfer Pipes
+## Pipes
 
-**Transfer Pipes** (`Transfer_PipeNode`) are the connective tissue of the network. They are passive — they carry no inventory of their own — and act purely as graph edges between nodes.
+**Pipes** (`Pipe`) are 1×1×1 `Item`-type grid nodes with six `BIDIRECTIONAL` faces — one per direction. They carry no payload; their only role is to extend the graph.
 
-Pipes use Hytale's **connected-block system** to automatically choose the correct model based on which of their six faces has a neighbouring pipe or machine connection. The visual shape updates in real time as the network is built or broken.
+Pipes use Hytale's **connected-block system** (`PipeConnectedBlockRuleSet`) to automatically select the correct visual model variant based on which of their six faces has a linked neighbour at any given moment. All 64 direction-set combinations (bitmask of N/S/E/W/U/D) map to a named state in `Pipe.json`; the rule set resolves the state name at runtime and returns the matching block-type key.
 
-### Pipe shapes
+### Pipe state naming
 
-Every combination of connected faces maps to a dedicated model:
+States are named by concatenating the active direction letters in declaration order:
 
-| Connections | Shape |
+| Active faces | State name |
 |---|---|
-| Alone | Core (floating node) |
-| 1 face | End Cap |
-| 2 opposite faces (horizontal) | Straight |
-| Up + Down | Straight Vertical |
-| 2 adjacent horizontal faces | Elbow |
-| 1 horizontal + Up | Elbow Up |
-| 1 horizontal + Down | Elbow Down |
-| 3 horizontal faces | T Junction |
-| 2 opposite horizontal + Up | T Up |
-| 2 opposite horizontal + Down | T Down |
-| 1 horizontal + Up + Down | T Vertical |
-| 2 opposite horizontal + Up + Down | T Up Down |
-| 1 horizontal + Up + Down (L-shape) | Corner Up / Corner Down |
-| 3 horizontal + Up | T Junction Up |
-| 3 horizontal + Down | T Junction Down |
-| 3 horizontal + Up + Down | T Junction Vertical |
-| 4 horizontal | Cross |
-| 4 horizontal + Up | Cross Up |
-| 4 horizontal + Down | Cross Down |
-| All 6 faces | All |
+| None | `Single` |
+| North only | `N` |
+| North + South | `NS` |
+| North + South + Up | `NSU` |
+| All six | `NSEWUD` |
+| … | … (64 states total) |
 
 ---
 
-## Transfer Flow
+## Runtime Graph
 
-Each tick the `TransferSystem` runs over all active nodes with `autoPush` enabled:
+`GridGraph` is an in-memory, position-keyed undirected graph that is **not serialised**. It is rebuilt entirely from the persisted `GridComponent.neighbors` sets as chunks load. One `GridGraph` instance exists per world per registered grid type.
 
-1. **Find sources** — nodes where `canSend()` is true (has items, has OUTPUT/BIDIRECTIONAL faces).
-2. **Traverse the graph** — follow outgoing edges through pipes to reach sink nodes where `canReceive()` is true.
-3. **Move items** — call Hytale's native `ItemContainer.moveItemStackFromSlot` up to `min(source.maxOutputRate, sink.maxInputRate)` stacks.
+```
+GridGraph
+  pos → { neighbor positions … }
+  pos → { neighbor positions … }
+  …
+```
 
-The effective transfer rate is always the minimum of the source output rate and the sink input rate, preventing bottlenecks from being bypassed.
+Operations: `addNode`, `removeNode`, `addEdge`, `removeEdge`, `getNeighbors`, `getComponent` (BFS connected-component), `getEdgeCount`.
 
 ---
 
 ## Block Lifecycle
 
-The transfer graph is **embedded in the components themselves** — each `FacePlane` stores a `neighborNodeId` (UUID) pointing to the adjacent node it is connected to. There is no separate graph object; the persisted component data *is* the graph.
+Four event handlers keep the persisted component data and the runtime graph in sync:
 
-Four event handlers maintain this embedded graph:
+| Event | Handler | Action |
+|---|---|---|
+| `PlaceBlockEvent` | `PlaceGridBlockEvent` | Scans all faces of the placed block, finds compatible neighbours of the same grid type, records positions in both `GridComponent.neighbors`, and adds the node + edges to `GridGraph`. |
+| `BreakBlockEvent` | `BreakGridBlockEvent` | Removes the node from `GridGraph`, then removes its position from every neighbour's `neighbors` set. Connected-block updates are deferred so the pipe shapes of neighbours refresh after the block entity is gone. |
+| `ChunkPreLoadProcessEvent` | `ChunkLoadGridGraphEvent` | Iterates every `GridComponent` in the loading chunk and re-adds nodes and their persisted edges to the `GridGraph`. Cross-chunk edges are completed naturally as each chunk loads. |
+| `ChunkUnloadEvent` | `ChunkUnloadGridGraphEvent` | Removes all nodes in the unloading chunk from their `GridGraph`. Persisted `neighbors` are untouched so the graph can be reconstructed on the next load. |
 
-| Event | Action |
-|---|---|
-| `PlaceTransferableBlockEvent` | Generates faces from block bounds, calls `FaceLinkUtil.linkAll` to connect to any loaded neighbours |
-| `BreakTransferableBlockEvent` | Calls `FaceLinkUtil.unlinkAll` — clears `neighborNodeId` on this block and on all neighbour faces pointing to it |
-| `UseTransferableBlockEvent` | Cycles the clicked face's mode, calls `FaceLinkUtil.relinkFace` to update the single changed edge |
-| `ChunkLoadTransferLinkEvent` | On every chunk column load, calls `FaceLinkUtil.linkAll` for each `TransferComponent` in that chunk — resolves cross-chunk connections where one side's chunk was not loaded at placement time |
-
-`FaceLinkUtil.linkAll` is always safe to call: it skips faces that already have a `neighborNodeId` set, so duplicate calls are harmless.
-
-Node identity, rates, face positions, modes, and neighbour UUIDs are all serialised into the chunk via the Hytale component store. On restart the full edge graph is restored from disk automatically. The chunk-load handler then fills in any edges that could not be formed because neighbour chunks were still absent.
+`GridLookup.resolve(chunkStore, pos)` transparently follows filler-cell redirections, so all event handlers work correctly for multi-block structures without special-casing.
 
 ---
 
-## Project Structure
+## Tick System
+
+`GridSystem` is a `EntityTickingSystem` registered against the `GridComponent` query. It currently dispatches no behaviour. Once a grid-type behaviour registry is introduced, each type will register its own per-tick logic (e.g. the Item type will traverse the graph and move item stacks between connected source and sink nodes).
+
+---
+
+## Debug Command
+
+`/glyphgraph [--type <id>] [--verbose]`
+
+Prints the in-memory grid graph for the current world.
+
+- No flags: one summary line per registered type showing node count, edge count, and connected component count.
+- `--type <id>`: restrict output to that type.
+- `--verbose`: also list every node position and its direct neighbours.
 
 ---
 
@@ -170,7 +173,7 @@ classDiagram
 - **Block** can optionally be an **Entity** (e.g. a machine with tick behaviour, health, AI).
 - **Entity** does not need to be a **Block** (mobs, projectiles, etc.).
 - **NPC** is always an **Entity**.
-- Every **Block** requires a **Hitbox**; hitboxes are not constrained to a single 1×1×1 grid unit (multi-block machines may use a larger AABB).
+- Every **Block** requires a **Hitbox**; hitboxes are not constrained to a single 1×1×1 grid unit.
 
 ---
 
@@ -178,27 +181,47 @@ classDiagram
 
 ```
 src/main/java/dev/drav/glyphworks/
-├── GlyphworksPlugin.java          — plugin entry point, component registration
-└── transfer/
-    ├── FaceLinkUtil.java           — helper to resolve face↔neighbour adjacency
+├── GlyphworksPlugin.java               — plugin entry point, component + system registration
+├── content/
+│   └── connectedblocks/
+│       └── PipeConnectedBlockRuleSet.java  — maps active-face bitmask to pipe model variant
+└── grid/
+    ├── command/
+    │   └── GridGraphCommand.java           — /glyphgraph debug command
     ├── component/
-    │   ├── TransferComponent.java  — per-block network node, serialised state
-    │   ├── FaceKey.java            — enum: NORTH, SOUTH, EAST, WEST, UP, DOWN
-    │   ├── FaceMode.java           — enum: INPUT, OUTPUT, BIDIRECTIONAL, CLOSED
-    │   └── FacePlane.java          — a face key + its current mode, codec included
+    │   ├── FaceMode.java                   — enum: INPUT, OUTPUT, BIDIRECTIONAL, CLOSED
+    │   ├── FacePlane.java                  — a face region: position + normal + mode, with codec
+    │   └── GridComponent.java              — per-block node: grid type, faces, persisted neighbours
     ├── event/
-    │   ├── PlaceTransferableBlockEvent.java
-    │   ├── BreakTransferableBlockEvent.java
-    │   ├── UseTransferableBlockEvent.java
-    │   └── ChunkLoadTransferLinkEvent.java  — re-links cross-chunk edges on chunk load
-    └── system/
-        └── TransferSystem.java     — tick system: traverses graph, moves items
+    │   ├── PlaceGridBlockEvent.java        — links new block into the graph on placement
+    │   ├── BreakGridBlockEvent.java        — removes block and its edges on break
+    │   ├── ChunkLoadGridGraphEvent.java    — rebuilds graph entries on chunk load
+    │   └── ChunkUnloadGridGraphEvent.java  — prunes graph entries on chunk unload
+    ├── graph/
+    │   └── GridGraph.java                  — runtime position-keyed adjacency graph (not serialised)
+    ├── lookup/
+    │   └── GridLookup.java                 — resolves GridComponent from world pos, filler-aware
+    ├── system/
+    │   └── GridSystem.java                 — per-tick system stub; dispatches type-specific behaviour
+    ├── type/
+    │   ├── GridType.java                   — functional interface: id() string
+    │   └── GridTypeRegistry.java           — static registry: id → GridType
+    └── util/
+        └── GridFaceUtil.java               — spatial helpers: offsets, face rotation, linkability
 
 src/main/resources/
-├── Common/Blocks/Glyphworks/Pipe/  — all pipe .blockymodel files
-└── Server/Item/
-    ├── CustomConnectedBlockTemplates/
-    │   └── PipeConnectedBlockTemplate.json
-    └── Items/Cloth/Wool/
-        └── Transfer_PipeNode.json
+├── Common/Blocks/Glyphworks/
+│   ├── Pipe/                           — pipe .blockymodel files (Single + one per state)
+│   ├── IO/Inserter/                    — inserter block model
+│   ├── IO/Extractor/                   — extractor block model
+│   └── Bench/                          — auto-furnace bench model
+└── Server/Item/Items/Glyphworks/
+    ├── Pipe/
+    │   ├── Pipe.json                   — pipe item + BlockEntity with GridComponent
+    │   └── Pipe_Straight.json          — straight-variant item stub
+    ├── IO/
+    │   ├── Inserter.json               — inserter item stub
+    │   └── Extractor.json              — extractor item stub
+    └── Bench/
+        └── Auto_Bench_Furnace.json     — automated furnace item stub
 ```

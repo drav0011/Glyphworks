@@ -26,7 +26,9 @@ import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.system.GridSystem;
 import dev.drav.glyphworks.grid.type.GridType;
+import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
+import dev.drav.glyphworks.transfer.item.ItemGridTypeHandler;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -65,8 +67,9 @@ public class GlyphworksPlugin extends JavaPlugin {
         // Register the pipe visual-state ruleset so the engine can resolve pipe shapes.
         ConnectedBlockRuleSet.CODEC.register("Pipe", PipeConnectedBlockRuleSet.class, PipeConnectedBlockRuleSet.CODEC);
 
-        // Register built-in grid network types.
+        // Register built-in grid network types and their tick handlers.
         GridTypeRegistry.register(GridType.of("Item"));
+        GridTypeHandlerRegistry.register(new ItemGridTypeHandler());
 
         getEventRegistry().registerGlobal(RemoveWorldEvent.class, event -> {
             UUID worldId = event.getWorld().getWorldConfig().getUuid();

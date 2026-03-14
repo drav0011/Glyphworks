@@ -48,6 +48,8 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             if (component.getGridType() == null)
                 return;
 
+            component.setOriginPosition(lookup.originPos());
+
             // Scan faces, find compatible neighbors of the same grid type, and link.
             for (FacePlane face : component.getFaces()) {
                 if (face.getMode() == FaceMode.CLOSED || face.getNormal() == BlockFace.None)

@@ -24,6 +24,7 @@
       "Components": {
         "GridComponent": {
           "GridComponent_Type": "Item",
+          "GridComponent_TransferRate": 0.2,
           "GridComponent_Faces": [
             {
               "FacePlane_Position": {
