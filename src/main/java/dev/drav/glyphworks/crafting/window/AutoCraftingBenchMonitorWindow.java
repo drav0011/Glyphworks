@@ -16,6 +16,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.event.EventRegistration;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.protocol.packets.window.SetActiveAction;
+import com.hypixel.hytale.protocol.packets.window.TierUpgradeAction;
 import com.hypixel.hytale.protocol.packets.window.WindowAction;
 import com.hypixel.hytale.protocol.packets.window.WindowType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -163,6 +164,17 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
+        if (action instanceof TierUpgradeAction) {
+            CraftingManager craftingManager = (CraftingManager) store.getComponent(ref, CraftingManager.getComponentType());
+            if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
+                World world = store.getExternalData().getWorld();
+                setBlockInteractionState(BENCH_UPGRADING, world);
+                if (bench.getBenchUpgradeSoundEventIndex() != 0) {
+                    SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI, store);
+                }
+            }
+            return;
+        }
         if (!(action instanceof SetActiveAction)) return;
         SetActiveAction setActive = (SetActiveAction) action;
         if (setActive.state) return; // "activate" — bench always auto-runs; ignore

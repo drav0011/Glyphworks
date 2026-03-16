@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.protocol.packets.window.CraftRecipeAction;
+import com.hypixel.hytale.protocol.packets.window.TierUpgradeAction;
 import com.hypixel.hytale.protocol.packets.window.WindowAction;
 import com.hypixel.hytale.protocol.packets.window.WindowType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -53,13 +54,28 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
 
     /**
      * Intercepts {@link CraftRecipeAction}: locks the chosen recipe into the bench
-     * and closes this window. All other actions are silently ignored.
+     * and closes this window.
+     * Intercepts {@link TierUpgradeAction}: delegates to the vanilla upgrade flow.
+     * All other actions are silently ignored.
      */
     @Override
     public void handleAction(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
+        if (action instanceof TierUpgradeAction) {
+            com.hypixel.hytale.builtin.crafting.component.CraftingManager craftingManager =
+                (com.hypixel.hytale.builtin.crafting.component.CraftingManager) store.getComponent(ref,
+                    com.hypixel.hytale.builtin.crafting.component.CraftingManager.getComponentType());
+            if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
+                World world = store.getExternalData().getWorld();
+                setBlockInteractionState(BENCH_UPGRADING, world);
+                if (bench.getBenchUpgradeSoundEventIndex() != 0) {
+                    SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI, store);
+                }
+            }
+            return;
+        }
         if (!(action instanceof CraftRecipeAction)) return;
         CraftRecipeAction craftAction = (CraftRecipeAction) action;
         String recipeId = craftAction.recipeId;
