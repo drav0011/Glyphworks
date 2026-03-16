@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
+import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -287,6 +288,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         ProcessingBenchBlock pbb = worldStore.getComponent(blockRef, ProcessingBenchBlock.getComponentType());
         if (pbb != null) return pbb.getItemContainer();
 
+        AutoCraftingBenchBlock acbb = worldStore.getComponent(blockRef, AutoCraftingBenchBlock.getComponentType());
+        if (acbb != null) return acbb.getItemContainer();
+
         ItemContainerBlock icb = worldStore.getComponent(blockRef, ItemContainerBlock.getComponentType());
         if (icb != null) return icb.getItemContainer();
 
@@ -311,6 +315,14 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 case "input"  -> pbb.getInputContainer();
                 case "output" -> pbb.getOutputContainer();
                 case "fuel"   -> pbb.getFuelContainer();
+                default       -> null;
+            };
+        }
+        AutoCraftingBenchBlock acbb = store.getComponent(ref, AutoCraftingBenchBlock.getComponentType());
+        if (acbb != null) {
+            return switch (key) {
+                case "input"  -> acbb.getInputContainer();
+                case "output" -> acbb.getOutputContainer();
                 default       -> null;
             };
         }

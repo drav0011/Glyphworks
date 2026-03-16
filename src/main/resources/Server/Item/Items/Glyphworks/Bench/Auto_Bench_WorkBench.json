@@ -1,0 +1,145 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Auto_Bench_WorkBench.name",
+    "Description": "server.items.Auto_Bench_WorkBench.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Bench_WorkBench.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 6
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Auto_Bench_WorkBench"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Crafting"
+        ],
+        "Id": "Workbench"
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Benches/Workbench.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Benches/Workbench_Texture.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Bench_Workbench",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "Workbench_Survival",
+          "Icon": "Icons/CraftingCategories/Workbench/WeaponsCrude.png",
+          "Name": "server.benchCategories.workbench.survival"
+        },
+        {
+          "Id": "Workbench_Tools",
+          "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
+          "Name": "server.benchCategories.workbench.tools"
+        },
+        {
+          "Id": "Workbench_Crafting",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.workbench.crafting"
+        },
+        {
+          "Id": "Workbench_Tinkering",
+          "Icon": "Icons/CraftingCategories/Workbench/Deco_Target.png",
+          "Name": "server.benchCategories.workbench.tinkering"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Id": "Workbench"
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "AutoCraftingBenchBlock": {},
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Normal": "North",
+              "FacePlane_Mode": "Output",
+              "FacePlane_ContainerKey": "output"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 2 },
+              "FacePlane_Normal": "South",
+              "FacePlane_Mode": "Input",
+              "FacePlane_ContainerKey": "input"
+            }
+          ]
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "ParticleColor": "#6e4a2f",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Wood",
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.42,
+    "Rotation": [
+      22.5,
+      45.0,
+      22.5
+    ],
+    "Translation": [
+      12.9,
+      -11.7
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

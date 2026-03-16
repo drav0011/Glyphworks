@@ -9,6 +9,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.assetstore.codec.AssetCodecMapCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -25,6 +28,10 @@ import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.content.system.ProcessingBenchAutoStartSystem;
+import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction;
+import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem;
+import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem;
 import dev.drav.glyphworks.grid.system.GridSystem;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
@@ -36,6 +43,7 @@ public class GlyphworksPlugin extends JavaPlugin {
     private static GlyphworksPlugin instance;
 
     private ComponentType<ChunkStore, GridComponent> gridComponentType;
+    private ComponentType<ChunkStore, AutoCraftingBenchBlock> autoCraftingBenchBlockComponentType;
 
     /** Grid graphs per world, then per grid type ID. */
     private final Map<UUID, Map<String, GridGraph>> gridGraphs = new ConcurrentHashMap<>();
@@ -85,6 +93,15 @@ public class GlyphworksPlugin extends JavaPlugin {
                 "GridComponent",
                 GridComponent.CODEC);
 
+        this.autoCraftingBenchBlockComponentType = this.getChunkStoreRegistry().registerComponent(
+                AutoCraftingBenchBlock.class,
+                "AutoCraftingBenchBlock",
+                AutoCraftingBenchBlock.CODEC);
+
+        getCodecRegistry((AssetCodecMapCodec) Interaction.CODEC).register(
+                "OpenAutoCraftingBench", OpenAutoCraftingBenchInteraction.class,
+                (BuilderCodec) OpenAutoCraftingBenchInteraction.CODEC);
+
         this.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
 
@@ -98,9 +115,15 @@ public class GlyphworksPlugin extends JavaPlugin {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
         this.getChunkStoreRegistry().registerSystem(new GridSystem());
         this.getChunkStoreRegistry().registerSystem(new ProcessingBenchAutoStartSystem());
+        this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSetupSystem());
+        this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());
     }
 
     public ComponentType<ChunkStore, GridComponent> getGridComponentType() {
         return gridComponentType;
+    }
+
+    public ComponentType<ChunkStore, AutoCraftingBenchBlock> getAutoCraftingBenchBlockComponentType() {
+        return autoCraftingBenchBlockComponentType;
     }
 }
