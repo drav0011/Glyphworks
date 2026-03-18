@@ -26,6 +26,9 @@ import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContain
 import com.hypixel.hytale.server.core.inventory.Inventory;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -36,12 +39,15 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 /**
  * Processing-style monitor window for {@link AutoCraftingBenchBlock}.
  *
- * <p>Displays the bench's combined input + output container and a live progress
+ * <p>
+ * Displays the bench's combined input + output container and a live progress
  * bar. The "active" toggle is repurposed: sending {@link SetActiveAction}{@code
- * (false)} acts as a "Change Recipe" button — it clears the locked recipe, ejects
+ * (false)} acts as a "Change Recipe" button — it clears the locked recipe,
+ * ejects
  * all input items, and closes the window so the player can pick a new recipe.
  *
- * <p>Progress is pushed each server tick by
+ * <p>
+ * Progress is pushed each server tick by
  * {@link dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem} via
  * {@link #setProgress(float)}.
  */
@@ -71,18 +77,32 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
         this.acbb = acbb;
         this.blockStateInfo = blockStateInfo;
 
-        CombinedItemContainer container = acbb.getItemContainer();
-        this.itemContainer = (container != null) ? container : new CombinedItemContainer();
+        // Build a slot layout that matches the client's expectation: fuel | input | output.
+        // The dummy 1-slot fuel container is output-only so nothing can be inserted into it.
+        ItemContainer dummyFuel = SimpleItemContainer.getNewContainer((short) 1);
+        dummyFuel.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
+        ItemContainer input = acbb.getInputContainer();
+        ItemContainer output = acbb.getOutputContainer();
+        this.itemContainer = (input != null && output != null)
+                ? new CombinedItemContainer(dummyFuel, input, output)
+                : new CombinedItemContainer(dummyFuel);
 
         this.progress = computeProgress(acbb);
 
         // Fields expected by the Processing client renderer.
-        windowData.addProperty("active",              Boolean.TRUE);
-        windowData.addProperty("progress",            Float.valueOf(this.progress));
-        windowData.addProperty("maxFuel",             Integer.valueOf(0));
-        windowData.addProperty("fuelTime",            Float.valueOf(0.0f));
-        windowData.addProperty("processingSlots",     Integer.valueOf(0));
-        windowData.addProperty("processingFuelSlots", Integer.valueOf(0));
+        windowData.addProperty("active", Boolean.TRUE);
+        windowData.addProperty("progress", Float.valueOf(this.progress));
+        // Dummy fuel slot — one slot keeps the stop button interactive.
+        JsonArray fuelArr = new JsonArray();
+        JsonObject fuelSlot = new JsonObject();
+        fuelSlot.addProperty("icon", "");
+        fuelSlot.addProperty("resourceTypeId", "");
+        fuelArr.add(fuelSlot);
+        windowData.add("fuel", fuelArr);
+        windowData.addProperty("maxFuel", Integer.valueOf(1));
+        windowData.addProperty("fuelTime", Float.valueOf(1.0f));
+        windowData.addProperty("processingSlots", Integer.valueOf(0));
+        windowData.addProperty("processingFuelSlots", Integer.valueOf(1)); // slot 0 active
 
         String lockedId = acbb.getLockedRecipeId();
         if (lockedId != null) {
@@ -97,22 +117,25 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
             List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(locked);
             for (MaterialQuantity mat : inputs) {
                 JsonObject slot = new JsonObject();
-                slot.addProperty("icon", mat.getItemId() != null ? mat.getItemId() : (mat.getResourceTypeId() != null ? mat.getResourceTypeId() : ""));
+                slot.addProperty("icon", mat.getItemId() != null ? mat.getItemId()
+                        : (mat.getResourceTypeId() != null ? mat.getResourceTypeId() : ""));
                 inputArr.add(slot);
             }
         }
         windowData.add("input", inputArr);
         windowData.addProperty("outputSlotsCount", Integer.valueOf(4)); // matches AutoCraftingBenchBlock.OUTPUT_SLOTS
     }
-
+ 
     // ── Lifecycle ──────────────────────────────────────────────────────────────
 
     @Override
     protected boolean onOpen0(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
-        if (!super.onOpen0(ref, store)) return false;
+        if (!super.onOpen0(ref, store))
+            return false;
 
         Player playerComponent = (Player) store.getComponent(ref, Player.getComponentType());
-        if (playerComponent == null) return false;
+        if (playerComponent == null)
+            return false;
 
         Inventory inventory = playerComponent.getInventory();
         // inventoryHints are empty for auto-crafting benches (no manual fuel/recipe
@@ -144,9 +167,13 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
 
     // ── Progress ───────────────────────────────────────────────────────────────
 
-    /** Called each tick by {@link dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem}. */
+    /**
+     * Called each tick by
+     * {@link dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem}.
+     */
     public void setProgress(float progress) {
-        if (this.progress == progress) return;
+        if (this.progress == progress)
+            return;
         this.progress = progress;
         windowData.addProperty("progress", Float.valueOf(progress));
         invalidate();
@@ -154,18 +181,14 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
 
     // ── Window actions ─────────────────────────────────────────────────────────
 
-    /**
-     * Handles {@link SetActiveAction}{@code (false)} as the "Change Recipe" button:
-     * clears the locked recipe, ejects input items, and closes this window.
-     * {@code SetActiveAction(true)} and all other actions are ignored.
-     */
     @Override
     public void handleAction(
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
         if (action instanceof TierUpgradeAction) {
-            CraftingManager craftingManager = (CraftingManager) store.getComponent(ref, CraftingManager.getComponentType());
+            CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
+                    CraftingManager.getComponentType());
             if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
                 World world = store.getExternalData().getWorld();
                 setBlockInteractionState(BENCH_UPGRADING, world);
@@ -175,12 +198,17 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
             }
             return;
         }
-        if (!(action instanceof SetActiveAction)) return;
+        if (!(action instanceof SetActiveAction))
+            return;
         SetActiveAction setActive = (SetActiveAction) action;
-        if (setActive.state) return; // "activate" — bench always auto-runs; ignore
+        if (setActive.state)
+            return; // "activate" — bench always auto-runs; ignore
 
         World world = store.getExternalData().getWorld();
         acbb.setLockedRecipe(null, blockStateInfo, world, x, y, z, blockType, rotationIndex);
+
+        windowData.addProperty("active", Boolean.FALSE);
+        invalidate(); // push active=false to the client before we close
 
         if (bench.getFailedSoundEventIndex() != 0) {
             SoundUtil.playSoundEvent2d(ref, bench.getFailedSoundEventIndex(), SoundCategory.UI, store);
@@ -193,7 +221,8 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
 
     private static float computeProgress(@Nonnull AutoCraftingBenchBlock acbb) {
         var recipe = acbb.getLockedRecipe();
-        if (recipe == null || recipe.getTimeSeconds() <= 0.0f) return 0.0f;
+        if (recipe == null || recipe.getTimeSeconds() <= 0.0f)
+            return 0.0f;
         return Math.min(acbb.getCraftingProgress() / recipe.getTimeSeconds(), 1.0f);
     }
 }

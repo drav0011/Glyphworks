@@ -33,8 +33,16 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
  *       space becomes available.</li>
  *   <li>If ingredients are removed mid-cycle, progress resets to 0.</li>
  * </ol>
+ *
+ * <p>Standard workbench-type {@link com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe}s
+ * report {@code getTimeSeconds() == 0} (instant craft). For auto-processing
+ * we assign them {@link #DEFAULT_RECIPE_TIME} so the bench has a measurable
+ * cycle instead of exiting immediately.
  */
 public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStore> {
+
+    /** Processing time used for crafting recipes that declare 0 (instant) time. */
+    private static final float DEFAULT_RECIPE_TIME = 1.0f;
 
     @Override
     public Query<ChunkStore> getQuery() {
@@ -56,8 +64,11 @@ public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStor
         CraftingRecipe recipe = acbb.getLockedRecipe();
         if (recipe == null) return;
 
+        // Standard crafting recipes (workbench type) declare timeSeconds == 0 because
+        // they are supposed to be instant. We convert them to processing recipes, so we
+        // substitute a sensible default cycle time instead of exiting early.
         float recipeTime = recipe.getTimeSeconds();
-        if (recipeTime <= 0.0f) return;
+        if (recipeTime <= 0.0f) recipeTime = DEFAULT_RECIPE_TIME;
 
         // Resolve block coordinates and context — required for completeCraft's item ejection.
         BlockModule.BlockStateInfo blockStateInfo = archetypeChunk.getComponent(

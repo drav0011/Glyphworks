@@ -3,6 +3,7 @@ package dev.drav.glyphworks.crafting.window;
 import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
+import com.hypixel.hytale.builtin.crafting.component.CraftingManager;
 import com.hypixel.hytale.builtin.crafting.window.CraftingWindow;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -25,10 +26,12 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 /**
  * Recipe-selector window for {@link AutoCraftingBenchBlock}.
  *
- * <p>Uses the {@link WindowType#BasicCrafting} renderer so the player sees the
+ * <p>
+ * Uses the {@link WindowType#BasicCrafting} renderer so the player sees the
  * full workbench recipe browser. When the player clicks any recipe,
  * {@link AutoCraftingBenchBlock#setLockedRecipe} is called to lock it into the
- * bench and this window is closed automatically. The player can then re-open the
+ * bench and this window is closed automatically. The player can then re-open
+ * the
  * bench to see the {@link AutoCraftingBenchMonitorWindow}.
  */
 public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
@@ -64,9 +67,8 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
         if (action instanceof TierUpgradeAction) {
-            com.hypixel.hytale.builtin.crafting.component.CraftingManager craftingManager =
-                (com.hypixel.hytale.builtin.crafting.component.CraftingManager) store.getComponent(ref,
-                    com.hypixel.hytale.builtin.crafting.component.CraftingManager.getComponentType());
+            CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
+                    CraftingManager.getComponentType());
             if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
                 World world = store.getExternalData().getWorld();
                 setBlockInteractionState(BENCH_UPGRADING, world);
@@ -76,13 +78,16 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
             }
             return;
         }
-        if (!(action instanceof CraftRecipeAction)) return;
+        if (!(action instanceof CraftRecipeAction))
+            return;
         CraftRecipeAction craftAction = (CraftRecipeAction) action;
         String recipeId = craftAction.recipeId;
-        if (recipeId == null) return;
+        if (recipeId == null)
+            return;
 
         CraftingRecipe recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(recipeId);
-        if (recipe == null) return;
+        if (recipe == null)
+            return;
 
         LOGGER.info("[AutoCraftingBench] Recipe selected: id=" + recipeId
                 + ", output=" + (recipe.getOutputs() != null ? recipe.getOutputs() : "none")
@@ -93,7 +98,8 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
 
         // Signal the client's crafting state machine that the "craft" was accepted,
         // preventing a NullReferenceException when the window is closed immediately
-        // after. Vanilla SimpleCraftingWindow always sends this before any state change.
+        // after. Vanilla SimpleCraftingWindow always sends this before any state
+        // change.
         setBlockInteractionState(CRAFT_COMPLETED, world);
 
         if (bench.getCompletedSoundEventIndex() != 0) {
