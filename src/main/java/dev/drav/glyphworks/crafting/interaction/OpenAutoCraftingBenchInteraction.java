@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
+import com.hypixel.hytale.builtin.crafting.window.BenchWindow;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -39,23 +40,22 @@ import dev.drav.glyphworks.crafting.window.AutoCraftingBenchSelectWindow;
  * Opens the automated crafting bench UI.
  *
  * <ul>
- *   <li>If no recipe is locked → opens {@link AutoCraftingBenchSelectWindow}
- *       (basic crafting browser) so the player can pick a recipe.</li>
- *   <li>If a recipe is locked → opens {@link AutoCraftingBenchMonitorWindow}
- *       (processing-style view) showing live progress and the item containers.
- *       The "Change Recipe" button (SetActive=false) clears the lock.</li>
+ * <li>If no recipe is locked → opens {@link AutoCraftingBenchSelectWindow}
+ * (basic crafting browser) so the player can pick a recipe.</li>
+ * <li>If a recipe is locked → opens {@link AutoCraftingBenchMonitorWindow}
+ * (processing-style view) showing live progress and the item containers.
+ * The "Change Recipe" button (SetActive=false) clears the lock.</li>
  * </ul>
  */
 public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
 
     @Nonnull
-    public static final BuilderCodec<OpenAutoCraftingBenchInteraction> CODEC =
-            BuilderCodec.builder(
-                            OpenAutoCraftingBenchInteraction.class,
-                            OpenAutoCraftingBenchInteraction::new,
-                            SimpleBlockInteraction.CODEC)
-                    .documentation("Opens the automated crafting bench.")
-                    .build();
+    public static final BuilderCodec<OpenAutoCraftingBenchInteraction> CODEC = BuilderCodec.builder(
+            OpenAutoCraftingBenchInteraction.class,
+            OpenAutoCraftingBenchInteraction::new,
+            SimpleBlockInteraction.CODEC)
+            .documentation("Opens the automated crafting bench.")
+            .build();
 
     @Override
     protected void interactWithBlock(
@@ -71,20 +71,24 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
         Store<EntityStore> store = ref.getStore();
 
         Player playerComponent = (Player) commandBuffer.getComponent(ref, Player.getComponentType());
-        if (playerComponent == null) return;
+        if (playerComponent == null)
+            return;
 
         ChunkStore chunkStore = world.getChunkStore();
         Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (chunkRef == null || !chunkRef.isValid()) return;
+        if (chunkRef == null || !chunkRef.isValid())
+            return;
 
         Store<ChunkStore> chunkStoreStore = chunkStore.getStore();
         BlockComponentChunk blockComponentChunk = (BlockComponentChunk) chunkStoreStore.getComponent(
                 chunkRef, BlockComponentChunk.getComponentType());
-        if (blockComponentChunk == null) return;
+        if (blockComponentChunk == null)
+            return;
 
         Ref<ChunkStore> blockEntityRef = blockComponentChunk.getEntityReference(
                 ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-        if (blockEntityRef == null || !blockEntityRef.isValid()) return;
+        if (blockEntityRef == null || !blockEntityRef.isValid())
+            return;
 
         AutoCraftingBenchBlock acbb = (AutoCraftingBenchBlock) chunkStoreStore.getComponent(
                 blockEntityRef, AutoCraftingBenchBlock.getComponentType());
@@ -93,20 +97,24 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
         BlockModule.BlockStateInfo blockStateInfo = (BlockModule.BlockStateInfo) chunkStoreStore.getComponent(
                 blockEntityRef, BlockModule.BlockStateInfo.getComponentType());
 
-        if (acbb == null || benchBlock == null || blockStateInfo == null) return;
+        if (acbb == null || benchBlock == null || blockStateInfo == null)
+            return;
 
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
-        if (blockType == null) return;
+        if (blockType == null)
+            return;
 
         UUIDComponent uuidComponent = (UUIDComponent) commandBuffer.getComponent(ref, UUIDComponent.getComponentType());
-        if (uuidComponent == null) return;
+        if (uuidComponent == null)
+            return;
         UUID uuid = uuidComponent.getUuid();
 
         WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (worldChunk == null) return;
+        if (worldChunk == null)
+            return;
         int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
 
-        int openSoundIndex  = blockType.getBench().getLocalOpenSoundEventIndex();
+        int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();
 
         if (acbb.getLockedRecipeId() == null) {
@@ -114,18 +122,8 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
             AutoCraftingBenchSelectWindow selectWindow = new AutoCraftingBenchSelectWindow(
                     acbb, benchBlock, blockStateInfo,
                     pos.x, pos.y, pos.z, rotationIndex, blockType);
-
-            if (playerComponent.getPageManager().setPageWithWindows(
-                    ref, store, Page.Bench, true, selectWindow)) {
-                selectWindow.registerCloseEvent(event -> {
-                    if (closeSoundIndex != 0) {
-                        SoundUtil.playSoundEvent2d(ref, closeSoundIndex, SoundCategory.UI, commandBuffer);
-                    }
-                });
-                if (openSoundIndex != 0) {
-                    SoundUtil.playSoundEvent2d(ref, openSoundIndex, SoundCategory.UI, commandBuffer);
-                }
-            }
+            openBenchPage(playerComponent, ref, store, selectWindow,
+                    openSoundIndex, closeSoundIndex, commandBuffer, null);
         } else {
             // ── Recipe locked: open monitor window ────────────────────────────
             Map<UUID, AutoCraftingBenchMonitorWindow> windows = acbb.getWindows();
@@ -134,22 +132,47 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
                     pos.x, pos.y, pos.z, rotationIndex, blockType);
 
             if (windows.putIfAbsent(uuid, monitorWindow) == null) {
-                if (playerComponent.getPageManager().setPageWithWindows(
-                        ref, store, Page.Bench, true, monitorWindow)) {
-                    monitorWindow.registerCloseEvent(event -> {
-                        windows.remove(uuid, monitorWindow);
-                        if (closeSoundIndex != 0) {
-                            SoundUtil.playSoundEvent2d(ref, closeSoundIndex, SoundCategory.UI, commandBuffer);
-                        }
-                    });
-                    if (openSoundIndex != 0) {
-                        SoundUtil.playSoundEvent2d(ref, openSoundIndex, SoundCategory.UI, commandBuffer);
-                    }
-                } else {
+                if (!openBenchPage(playerComponent, ref, store, monitorWindow,
+                        openSoundIndex, closeSoundIndex, commandBuffer,
+                        () -> windows.remove(uuid, monitorWindow))) {
                     windows.remove(uuid, monitorWindow);
                 }
             }
         }
+    }
+
+    /**
+     * Opens {@code window} on {@link Page#Bench}, registers the close sound, and
+     * optionally runs {@code onClose} when the window is dismissed.
+     *
+     * @return {@code true} if the page was successfully opened
+     */
+    private static boolean openBenchPage(
+            @Nonnull Player playerComponent,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull BenchWindow window,
+            int openSoundIndex,
+            int closeSoundIndex,
+            @Nonnull CommandBuffer<EntityStore> commandBuffer,
+            @Nullable Runnable onClose) {
+        if (!playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window)) {
+            return false;
+        }
+
+        window.registerCloseEvent(event -> {
+            if (onClose != null)
+                onClose.run();
+            if (closeSoundIndex != 0) {
+                SoundUtil.playSoundEvent2d(ref, closeSoundIndex, SoundCategory.UI, commandBuffer);
+            }
+        });
+
+        if (openSoundIndex != 0) {
+            SoundUtil.playSoundEvent2d(ref, openSoundIndex, SoundCategory.UI, commandBuffer);
+        }
+        
+        return true;
     }
 
     @Override
