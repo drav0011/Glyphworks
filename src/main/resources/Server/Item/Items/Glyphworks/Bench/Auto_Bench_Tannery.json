@@ -42,14 +42,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Bench/Auto_Bench_Furnace.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Bench/Tannery/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Bench/Auto_Furnace_Texture.png",
+        "Texture": "Blocks/Glyphworks/Bench/Tannery/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Auto_Bench_Furnace",
+    "HitboxType": "Auto_Bench_Tannery",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Processing",
@@ -107,13 +107,13 @@
           "GridComponent_Type": "Item",
           "GridComponent_Faces": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
               "FacePlane_Normal": "North",
               "FacePlane_Mode": "Output",
               "FacePlane_ContainerKey": "output"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 2 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input",
               "FacePlane_ContainerKey": "input"
@@ -131,12 +131,12 @@
           },
           "CustomModelTexture": [
             {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
+              "Texture": "Blocks/Glyphworks/Bench/Tannery/Default.png",
               "Weight": 1
             }
           ],
           "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+          "CustomModelAnimation": "Blocks/Glyphworks/Bench/Tannery/Processing.blockyanim"
         },
         "ProcessCompleted": {
           "Light": {
@@ -144,13 +144,13 @@
           },
           "CustomModelTexture": [
             {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
+              "Texture": "Blocks/Glyphworks/Bench/Tannery/Default.png",
               "Weight": 1
             }
           ],
           "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
           "Looping": true,
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+          "CustomModelAnimation": "Blocks/Glyphworks/Bench/Tannery/Processing.blockyanim"
         }
       }
     },

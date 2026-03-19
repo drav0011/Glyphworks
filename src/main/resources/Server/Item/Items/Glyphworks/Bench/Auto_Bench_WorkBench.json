@@ -38,14 +38,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Benches/Workbench.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Bench/Workbench/Tier_1.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Benches/Workbench_Texture.png",
+        "Texture": "Blocks/Glyphworks/Bench/Workbench/Tier_1.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Bench_Workbench",
+    "HitboxType": "Auto_Bench_WorkBench",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
@@ -116,13 +116,13 @@
           "GridComponent_Type": "Item",
           "GridComponent_Faces": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
               "FacePlane_Normal": "North",
               "FacePlane_Mode": "Output",
               "FacePlane_ContainerKey": "output"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 2 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input",
               "FacePlane_ContainerKey": "input"
@@ -134,36 +134,36 @@
     "State": {
       "Definitions": {
         "CraftCompleted": {
-          "CustomModelAnimation": "Blocks/Benches/Workbench_Crafting.blockyanim",
+          "CustomModelAnimation": "Blocks/Glyphworks/Bench/Workbench/Tier_1_Crafting.blockyanim",
           "Looping": true
         },
         "CraftCompletedInstant": {
           "CustomModelAnimation": "Blocks/Benches/Workbench_Crafting.blockyanim"
         },
         "Tier2": {
-          "CustomModel": "Blocks/Benches/Workbench2.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Bench/Workbench/Tier_2.blockymodel",
           "CustomModelTexture": [
-            { "Texture": "Blocks/Benches/Workbench2_Texture.png", "Weight": 1 }
+            { "Texture": "Blocks/Glyphworks/Bench/Workbench/Tier_2.png", "Weight": 1 }
           ],
-          "HitboxType": "Bench_Workbench2",
+          "HitboxType": "Auto_Bench_WorkBench",
           "State": {
             "Definitions": {
               "CraftCompleted": {
-                "CustomModelAnimation": "Blocks/Benches/Workbench2_Crafting.blockyanim"
+                "CustomModelAnimation": "Blocks/Glyphworks/Bench/Workbench/Tier_2_Crafting.blockyanim"
               }
             }
           }
         },
         "Tier3": {
-          "CustomModel": "Blocks/Benches/Workbench3.blockymodel",
+          "CustomModel": "Blocks/Glyphworks/Bench/Workbench/Tier_3.blockymodel",
           "CustomModelTexture": [
-            { "Texture": "Blocks/Benches/Workbench3_Texture.png", "Weight": 1 }
+            { "Texture": "Blocks/Glyphworks/Bench/Workbench/Tier_3.png", "Weight": 1 }
           ],
-          "HitboxType": "Bench_Workbench3",
+          "HitboxType": "Auto_Bench_WorkBench",
           "State": {
             "Definitions": {
               "CraftCompleted": {
-                "CustomModelAnimation": "Blocks/Benches/Workbench3_Crafting.blockyanim"
+                "CustomModelAnimation": "Blocks/Glyphworks/Bench/Workbench/Tier_3_Crafting.blockyanim"
               }
             }
           }

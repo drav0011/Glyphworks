@@ -38,14 +38,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Benches/Farming.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Bench/Farming/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Benches/Farming_Texture.png",
+        "Texture": "Blocks/Glyphworks/Bench/Farming/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Bench_Farming",
+    "HitboxType": "Auto_Bench_Farming",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
@@ -179,13 +179,13 @@
           "GridComponent_Type": "Item",
           "GridComponent_Faces": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
               "FacePlane_Normal": "North",
               "FacePlane_Mode": "Output",
               "FacePlane_ContainerKey": "output"
             },
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 2 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input",
               "FacePlane_ContainerKey": "input"

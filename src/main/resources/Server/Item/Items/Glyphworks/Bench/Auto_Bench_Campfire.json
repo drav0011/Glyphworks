@@ -44,14 +44,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Bench/Auto_Bench_Furnace.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Bench/Campfire/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Bench/Auto_Furnace_Texture.png",
+        "Texture": "Blocks/Glyphworks/Bench/Campfire/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Auto_Bench_Furnace",
+    "HitboxType": "Auto_Bench_Campfire",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Processing",
@@ -104,19 +104,19 @@
           "GridComponent_Type": "Item",
           "GridComponent_Faces": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -1 },
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
               "FacePlane_Normal": "North",
               "FacePlane_Mode": "Output",
               "FacePlane_ContainerKey": "output"
             },
             {
-              "FacePlane_Position": { "X": -1, "Y": 0, "Z": 2 },
+              "FacePlane_Position": { "X": -1, "Y": 0, "Z": 1 },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input",
               "FacePlane_ContainerKey": "input"
             },
             {
-              "FacePlane_Position": { "X": 1, "Y": 0, "Z": 2 },
+              "FacePlane_Position": { "X": 1, "Y": 0, "Z": 1 },
               "FacePlane_Normal": "South",
               "FacePlane_Mode": "Input",
               "FacePlane_ContainerKey": "fuel"

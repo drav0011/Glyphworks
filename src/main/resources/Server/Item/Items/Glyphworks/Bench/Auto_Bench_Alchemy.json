@@ -1,0 +1,207 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Auto_Bench_Alchemy.name",
+    "Description": "server.items.Auto_Bench_Alchemy.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Bench_Alchemy.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "TimeSeconds": 3,
+    "Input": [
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 20
+      },
+      {
+        "ItemId": "Ingredient_Bar_Gold",
+        "Quantity": 5
+      },
+      {
+        "ItemId": "Ingredient_Sac_Venom",
+        "Quantity": 10
+      },
+      {
+        "ItemId": "Ingredient_Bone_Fragment",
+        "Quantity": 10
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Auto_Bench_Alchemy"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "Workbench",
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Crafting"
+        ],
+        "RequiredTierLevel": 2
+      }
+    ]
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Bench/Alchemy/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Bench/Alchemy/Default.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Auto_Bench_Alchemy",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "LocalOpenSoundEventId": "SFX_Alchemy_Bench_Open",
+      "LocalCloseSoundEventId": "SFX_Alchemy_Bench_Close",
+      "CompletedSoundEventId": "SFX_Alchemy_Bench_Craft",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Categories": [
+        {
+          "Id": "Alchemy_Potions",
+          "Icon": "Icons/CraftingCategories/Alchemy/Combat_Potions.png",
+          "Name": "server.benchCategories.combatPotions"
+        },
+        {
+          "Id": "Alchemy_Potions_Misc",
+          "Icon": "Icons/CraftingCategories/Alchemy/Misc_Potions.png",
+          "Name": "server.benchCategories.miscPotions"
+        },
+        {
+          "Id": "Alchemy_Seeds",
+          "Icon": "Icons/CraftingCategories/Alchemy/Seeds.png",
+          "Name": "benchCategories.alchemy.seeds"
+        },
+        {
+          "Id": "Alchemy_Bombs",
+          "Icon": "Icons/CraftingCategories/Alchemy/Bombs.png",
+          "Name": "server.benchCategories.bombs"
+        }
+      ],
+      "Id": "Alchemybench",
+      "TierLevels": [
+        {
+          "CraftingTimeReductionModifier": 0.0,
+          "UpgradeRequirement": {
+            "Material": [
+              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 5 },
+              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 10 },
+              { "ItemId": "Ingredient_Sac_Venom", "Quantity": 10 },
+              { "ItemId": "Rock_Gem_Emerald", "Quantity": 1 }
+            ],
+            "TimeSeconds": 3
+          }
+        },
+        {
+          "CraftingTimeReductionModifier": 0.2,
+          "UpgradeRequirement": {
+            "Material": [
+              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 10 },
+              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 20 },
+              { "ItemId": "Ingredient_Chitin_Sturdy", "Quantity": 20 },
+              { "ItemId": "Rock_Gem_Zephyr", "Quantity": 1 }
+            ],
+            "TimeSeconds": 6
+          }
+        },
+        {
+          "CraftingTimeReductionModifier": 0.4,
+          "UpgradeRequirement": {
+            "Material": [
+              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 20 },
+              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 40 },
+              { "ItemId": "Ingredient_Fabric_Scrap_Shadoweave", "Quantity": 30 },
+              { "ItemId": "Rock_Gem_Sapphire", "Quantity": 1 }
+            ],
+            "TimeSeconds": 9
+          }
+        },
+        {
+          "CraftingTimeReductionModifier": 0.6,
+          "UpgradeRequirement": {
+            "Material": [
+              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 40 },
+              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 80 },
+              { "ItemId": "Ingredient_Fabric_Scrap_Cindercloth", "Quantity": 120 },
+              { "ItemId": "Rock_Gem_Ruby", "Quantity": 1 }
+            ],
+            "TimeSeconds": 9
+          }
+        }
+      ]
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "AutoCraftingBenchBlock": {},
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
+              "FacePlane_Normal": "North",
+              "FacePlane_Mode": "Output",
+              "FacePlane_ContainerKey": "output"
+            },
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
+              "FacePlane_Normal": "South",
+              "FacePlane_Mode": "Input",
+              "FacePlane_ContainerKey": "input"
+            }
+          ]
+        }
+      }
+    },
+    "State": {
+      "Definitions": {
+        "CraftCompleted": {
+          "CustomModelAnimation": "Blocks/Glyphworks/Bench/Alchemy/Crafting.blockyanim",
+          "Looping": true
+        },
+        "CraftCompletedInstant": {
+          "CustomModelAnimation": "Blocks/Glyphworks/Bench/Alchemy/Crafting.blockyanim"
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Stone",
+    "ParticleColor": "#5C583E",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Stone",
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.435,
+    "Translation": [11.4, -18.6],
+    "Rotation": [22.5, 45, 22.5]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 9,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}
