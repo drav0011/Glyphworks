@@ -25,6 +25,7 @@ import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
+import dev.drav.glyphworks.grid.event.ChunkUnloadGridGraphEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.content.system.ProcessingBenchAutoStartSystem;
@@ -114,6 +115,7 @@ public class GlyphworksPlugin extends JavaPlugin {
     protected void start() {
         LOGGER.info("[Glyphworks] start() — plugin is live.");
         this.getChunkStoreRegistry().registerSystem(new GridSystem());
+        // this.getChunkStoreRegistry().registerSystem(new ChunkUnloadGridGraphEvent());
         this.getChunkStoreRegistry().registerSystem(new ProcessingBenchAutoStartSystem());
         this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSetupSystem());
         this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());

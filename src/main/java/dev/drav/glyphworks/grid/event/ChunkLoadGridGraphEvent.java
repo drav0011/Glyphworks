@@ -60,6 +60,10 @@ public final class ChunkLoadGridGraphEvent {
             graph.addNode(pos);
 
             for (Vector3i neighborPos : component.getNeighbors()) {
+                // Ensure the neighbor node exists before adding the edge so that
+                // addEdge can populate both sides immediately, regardless of the
+                // order in which blocks are iterated within (or across) chunks.
+                graph.addNode(neighborPos);
                 graph.addEdge(pos, neighborPos);
             }
         }

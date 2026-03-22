@@ -2,6 +2,7 @@ package dev.drav.glyphworks.transfer.item;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
@@ -28,9 +29,11 @@ import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
+import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridTypeHandler;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
@@ -107,32 +110,49 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sourceContainers.isEmpty()) return;
 
         // --- Step 2: BFS to find all reachable sinks ---
+        // Use the runtime GridGraph for neighborhood traversal rather than 
+        // component.getNeighbors(). The GridGraph is a plain HashMap updated by
+        // PlaceGridBlockEvent/ChunkLoadGridGraphEvent and is always authoritative.
+        // component.getNeighbors() can return stale data because ECS component
+        // instances obtained via store.getComponent() during placement events may
+        // differ from the instance the tick system operates on via archetypeChunk,
+        // causing neighbor mutations made during one commandBuffer.run() to be
+        // invisible to a later commandBuffer.run() for a different block.
+        GridGraph gridGraph = GlyphworksPlugin.get().getGridGraph(chunkStore.getWorld(), component.getGridType());
+
         // BFSEntry carries the full GridLookup (includes rotation, needed for face-matching),
         // the effective rate along the path, and the origin-position of the node that
         // enqueued this entry so we can identify which face the path arrived through.
-        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom) {}
+        // distance = BFS hop count from this node to the discovered sink.
+        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {}
 
         // SinkEntry is bound to the single specific face the BFS path arrived through.
         // This prevents items from being routed to every intake container on a multi-face
         // machine regardless of which pipe actually connects there.
-        record SinkEntry(Ref<ChunkStore> ref, GridComponent comp, FacePlane sinkFace, float rate) {}
+        // distance is carried from BFSEntry so sinks can be sorted closest-first.
+        record SinkEntry(Ref<ChunkStore> ref, GridComponent comp, FacePlane sinkFace, float rate, int distance) {}
 
         Set<Ref<ChunkStore>> visited = new HashSet<>();
         visited.add(blockRef);
         Queue<BFSEntry> queue = new ArrayDeque<>();
         List<SinkEntry> sinks = new ArrayList<>();
 
-        for (Vector3i neighborPos : component.getNeighbors()) {
+        // Prefer graph neighbors (always up-to-date) over component.getNeighbors() (may be stale).
+        Set<Vector3i> seedNeighbors = (gridGraph != null && originPos != null)
+                ? gridGraph.getNeighbors(originPos)
+                : component.getNeighbors();
+        for (Vector3i neighborPos : seedNeighbors) {
             GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
             if (lookup == null) continue;
             if (!visited.add(lookup.blockRef())) continue;
             float rate = Math.min(component.getTransferRate(), lookup.component().getTransferRate());
-            queue.add(new BFSEntry(lookup, rate, originPos));
+            queue.add(new BFSEntry(lookup, rate, originPos, 1));
         }
 
         while (!queue.isEmpty()) {
             BFSEntry entry = queue.poll();
             GridComponent entryComp = entry.lookup().component();
+            Vector3i entryPos = entry.lookup().originPos();
 
             // A node is a terminal if it has ANY face that is not a pure-pipe face
             // (BIDIRECTIONAL + null containerKey). Terminals do not relay the BFS.
@@ -155,7 +175,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                         if ((mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL)
                                 && (key != null || mode == FaceMode.INPUT)) {
                             sinks.add(new SinkEntry(
-                                    entry.lookup().blockRef(), entryComp, entryFace, entry.rate()));
+                                    entry.lookup().blockRef(), entryComp, entryFace, entry.rate(), entry.distance()));
                         }
                     }
                 }
@@ -163,40 +183,50 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 continue;
             }
 
-            // Pure pipe node: relay BFS, passing this pipe's position as arrivedFrom.
-            Vector3i myPos = entryComp.getOriginPosition();
-            for (Vector3i neighborPos : entryComp.getNeighbors()) {
+            // Pure pipe node: relay BFS using the GridGraph for neighbor discovery.
+            // Use entry.lookup().originPos() (not entryComp.getOriginPosition()) because
+            // the latter is a transient field that may be null at tick time.
+            Vector3i myPos = entry.lookup().originPos();
+            Set<Vector3i> relayNeighbors = (gridGraph != null)
+                    ? gridGraph.getNeighbors(myPos)
+                    : entryComp.getNeighbors();
+            for (Vector3i neighborPos : relayNeighbors) {
                 GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
                 if (lookup == null) continue;
                 if (!visited.add(lookup.blockRef())) continue;
                 float rate = Math.min(entry.rate(), lookup.component().getTransferRate());
-                queue.add(new BFSEntry(lookup, rate, myPos));
+                queue.add(new BFSEntry(lookup, rate, myPos, entry.distance() + 1));
             }
         }
 
         if (sinks.isEmpty()) return;
 
-        // --- Step 3: push items from each source to each qualified sink ---
-        // Each SinkEntry is already bound to one face, so we push only to that container.
+        // --- Step 3: push items from each source toward the closest available sink ---
+        // Sinks are sorted closest-first (by BFS hop count). The accumulator is drained
+        // once per source. Items overflow to the next-closest sink only when the current
+        // sink cannot accept any more.
+        sinks.sort(Comparator.comparingInt(SinkEntry::distance));
+
         for (ItemContainer srcContainer : sourceContainers) {
+            int toTransfer = component.drainAccumulator(component.getTransferRate() * dt * TickingThread.TPS);
+            if (toTransfer < 1) continue;
+
             for (SinkEntry sink : sinks) {
+                if (toTransfer <= 0) break;
                 FacePlane sinkFace = sink.sinkFace();
                 String sinkKey = sinkFace.getContainerKey();
                 ItemContainer sinkContainer;
+                Vector3i sinkOriginPos = sink.comp().getOriginPosition();
                 if (sinkKey != null) {
                     sinkContainer = resolveContainer(store, sink.ref(), sinkKey);
                 } else {
                     // Inserter: push into the external block on the opposite side of the face.
-                    Vector3i sinkOriginPos = sink.comp().getOriginPosition();
                     if (sinkOriginPos == null) continue;
                     sinkContainer = resolveAdjacentContainer(chunkStore, sinkOriginPos, sinkFace);
                 }
                 if (sinkContainer == null) continue;
 
-                float effectiveRate = Math.min(component.getTransferRate(), sink.rate());
-                int toTransfer = component.drainAccumulator(effectiveRate * dt * TickingThread.TPS);
-                if (toTransfer < 1) continue;
-                moveItems(srcContainer, sinkContainer, toTransfer);
+                toTransfer -= moveItems(srcContainer, sinkContainer, toTransfer);
             }
         }
     }
@@ -335,8 +365,11 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
      * Moves up to {@code maxItems} items from {@code src} to {@code dst},
      * iterating source slots from index 0. Remainder returned to the source slot
      * by the move API is accounted for in the rate counter.
+     *
+     * @return the number of items actually moved (may be less than {@code maxItems}
+     *         if the destination is full or the source runs out)
      */
-    private static void moveItems(
+    private static int moveItems(
             @Nonnull ItemContainer src,
             @Nonnull ItemContainer dst,
             int maxItems) {
@@ -351,6 +384,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             ItemStack remainder = tx.getAddTransaction().getRemainder();
             remaining -= toMove - (ItemStack.isEmpty(remainder) ? 0 : remainder.getQuantity());
         }
+        return maxItems - remaining;
     }
 
     /** Returns {@code true} if {@code container} has at least one non-empty slot. */
@@ -361,4 +395,5 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         }
         return false;
     }
+
 }
