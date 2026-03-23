@@ -20,6 +20,8 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
@@ -335,7 +337,26 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (bcc == null) return null;
 
         Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-        if (blockRef == null) return null;
+
+        // pos may be a filler cell of a multi-block structure (e.g. a double chest that
+        // occupies 2×1×1). Resolve to the origin block exactly as GridLookup does.
+        if (blockRef == null) {
+            WorldChunk worldChunk = chunkStore.getWorld().getChunkIfLoaded(chunkIndex);
+            if (worldChunk == null) return null;
+            int filler = worldChunk.getFiller(pos.x, pos.y, pos.z);
+            if (filler == FillerBlockUtil.NO_FILLER) return null;
+            Vector3i originPos = new Vector3i(
+                    pos.x - FillerBlockUtil.unpackX(filler),
+                    pos.y - FillerBlockUtil.unpackY(filler),
+                    pos.z - FillerBlockUtil.unpackZ(filler));
+            long originChunkIndex = ChunkUtil.indexChunkFromBlock(originPos.x, originPos.z);
+            Ref<ChunkStore> originChunkRef = chunkStore.getChunkReference(originChunkIndex);
+            if (originChunkRef == null || !originChunkRef.isValid()) return null;
+            BlockComponentChunk originBcc = worldStore.getComponent(originChunkRef, BlockComponentChunk.getComponentType());
+            if (originBcc == null) return null;
+            blockRef = originBcc.getEntityReference(ChunkUtil.indexBlockInColumn(originPos.x, originPos.y, originPos.z));
+            if (blockRef == null) return null;
+        }
 
         ProcessingBenchBlock pbb = worldStore.getComponent(blockRef, ProcessingBenchBlock.getComponentType());
         if (pbb != null) return pbb.getItemContainer();
