@@ -11,9 +11,13 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.ChunkColumn;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 /**
@@ -137,9 +141,24 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
             for (int y = oy; y < oy + test.getAreaHeight(); y++) {
                 for (int z = oz; z < oz + test.getAreaDepth(); z++) {
                     world.setBlock(x, y, z, "Empty");
+                    clearFluid(world, x, y, z);
                 }
             }
         }
+    }
+
+    private static void clearFluid(@Nonnull World world, int x, int y, int z) {
+        ChunkStore chunkStore = world.getChunkStore();
+        Store<ChunkStore> store = chunkStore.getStore();
+        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(x, z));
+        if (chunkRef == null || !chunkRef.isValid()) return;
+        ChunkColumn column = store.getComponent(chunkRef, ChunkColumn.getComponentType());
+        if (column == null) return;
+        Ref<ChunkStore> sectionRef = column.getSection(ChunkUtil.chunkCoordinate(y));
+        if (sectionRef == null) return;
+        FluidSection fs = store.getComponent(sectionRef, FluidSection.getComponentType());
+        if (fs == null) return;
+        fs.setFluid(x, y, z, 0, (byte) 0);
     }
 
     private static void reportAndCleanup(

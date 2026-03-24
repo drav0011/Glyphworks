@@ -51,6 +51,7 @@ import dev.drav.glyphworks.test.TestRunnerSystem;
 import dev.drav.glyphworks.test.command.GlyphTestCommand;
 import dev.drav.glyphworks.test.suite.BasicBlockTests;
 import dev.drav.glyphworks.test.suite.FluidTests;
+import dev.drav.glyphworks.test.suite.PipeConnectionTests;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -149,6 +150,7 @@ public class GlyphworksPlugin extends JavaPlugin {
 
         BasicBlockTests.register();
         FluidTests.register();
+        PipeConnectionTests.register();
 
         this.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
