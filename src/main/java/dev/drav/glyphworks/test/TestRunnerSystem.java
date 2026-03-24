@@ -101,8 +101,10 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (result.isFailed()) {
-            component.results.add("FAIL  " + currentTest.getName()
-                    + " [step " + component.stepIndex + "]: " + result.getFailReason());
+            String entry = "FAIL  " + currentTest.getName()
+                    + " [step " + component.stepIndex + "]: " + result.getFailReason();
+            component.results.add(entry);
+            LOGGER.info("[GlyphTest] " + entry);
             advanceTest(component);
         } else {
             // DONE — advance to next step.
@@ -111,7 +113,9 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
 
             if (component.stepIndex >= steps.size()) {
                 // All steps passed.
-                component.results.add("PASS  " + currentTest.getName());
+                String entry = "PASS  " + currentTest.getName();
+                component.results.add(entry);
+                LOGGER.info("[GlyphTest] " + entry);
                 advanceTest(component);
             }
         }
@@ -169,18 +173,20 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
 
         PlayerRef player = (PlayerRef) store.getComponent(ref, PlayerRef.getComponentType());
 
-        if (player != null) {
-            long passed = component.results.stream().filter(r -> r.startsWith("PASS")).count();
-            long total  = component.results.size();
+        long passed = component.results.stream().filter(r -> r.startsWith("PASS")).count();
+        long total  = component.results.size();
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("[GlyphTest] ").append(passed).append("/").append(total).append(" passed\n");
-            for (String r : component.results) {
-                sb.append("  ").append(r).append("\n");
-            }
-            String report = sb.toString().stripTrailing();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[GlyphTest] ").append(passed).append("/").append(total).append(" passed");
+        for (String r : component.results) {
+            sb.append("\n  ").append(r);
+        }
+        String report = sb.toString();
+
+        LOGGER.info(report);
+
+        if (player != null) {
             player.sendMessage(Message.raw(report));
-            LOGGER.info(report);
         }
 
         commandBuffer.removeComponent(ref, TestRunnerComponent.getComponentType());

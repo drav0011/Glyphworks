@@ -5,6 +5,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.Steps;
@@ -82,8 +83,11 @@ public final class PipeConnectionTests {
         return new TestCase("connect_x", 4, 3, 1)
                 .step(Steps.run(ctx -> {
                     World world = ctx.getWorld();
-                    world.setBlock(ctx.getOriginX(),     ctx.getOriginY(), ctx.getOriginZ(), PIPE_ID);
-                    world.setBlock(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ(), PIPE_ID);
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    world.setBlock(ox,     oy, oz, PIPE_ID);
+                    world.setBlock(ox + 1, oy, oz, PIPE_ID);
+                    PlaceGridBlockEvent.connectBlock(world, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))
@@ -104,8 +108,11 @@ public final class PipeConnectionTests {
         return new TestCase("connect_y", 3, 3, 3)
                 .step(Steps.run(ctx -> {
                     World world = ctx.getWorld();
-                    world.setBlock(ctx.getOriginX(), ctx.getOriginY(),     ctx.getOriginZ(), PIPE_ID);
-                    world.setBlock(ctx.getOriginX(), ctx.getOriginY() + 1, ctx.getOriginZ(), PIPE_ID);
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    world.setBlock(ox, oy,     oz, PIPE_ID);
+                    world.setBlock(ox, oy + 1, oz, PIPE_ID);
+                    PlaceGridBlockEvent.connectBlock(world, v(ox, oy,     oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox, oy + 1, oz));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))
@@ -126,8 +133,11 @@ public final class PipeConnectionTests {
         return new TestCase("connect_z", 3, 4, 1)
                 .step(Steps.run(ctx -> {
                     World world = ctx.getWorld();
-                    world.setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(),     PIPE_ID);
-                    world.setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ() + 1, PIPE_ID);
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    world.setBlock(ox, oy, oz,     PIPE_ID);
+                    world.setBlock(ox, oy, oz + 1, PIPE_ID);
+                    PlaceGridBlockEvent.connectBlock(world, v(ox, oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox, oy, oz + 1));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))
@@ -152,9 +162,13 @@ public final class PipeConnectionTests {
         return new TestCase("chain_of_3_x", 5, 3, 1)
                 .step(Steps.run(ctx -> {
                     World world = ctx.getWorld();
-                    world.setBlock(ctx.getOriginX(),     ctx.getOriginY(), ctx.getOriginZ(), PIPE_ID);
-                    world.setBlock(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ(), PIPE_ID);
-                    world.setBlock(ctx.getOriginX() + 2, ctx.getOriginY(), ctx.getOriginZ(), PIPE_ID);
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    world.setBlock(ox,     oy, oz, PIPE_ID);
+                    world.setBlock(ox + 1, oy, oz, PIPE_ID);
+                    world.setBlock(ox + 2, oy, oz, PIPE_ID);
+                    PlaceGridBlockEvent.connectBlock(world, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox + 2, oy, oz));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))
@@ -186,9 +200,13 @@ public final class PipeConnectionTests {
         return new TestCase("l_turn_xz", 4, 4, 1)
                 .step(Steps.run(ctx -> {
                     World world = ctx.getWorld();
-                    world.setBlock(ctx.getOriginX(),     ctx.getOriginY(), ctx.getOriginZ(),     PIPE_ID); // A
-                    world.setBlock(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ(),     PIPE_ID); // B (corner)
-                    world.setBlock(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ() + 1, PIPE_ID); // C
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    world.setBlock(ox,     oy, oz,     PIPE_ID); // A
+                    world.setBlock(ox + 1, oy, oz,     PIPE_ID); // B (corner)
+                    world.setBlock(ox + 1, oy, oz + 1, PIPE_ID); // C
+                    PlaceGridBlockEvent.connectBlock(world, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz));
+                    PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz + 1));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))
@@ -230,6 +248,11 @@ public final class PipeConnectionTests {
                     world.setBlock(cx - 1, cy, cz,     PIPE_ID); // West  arm
                     world.setBlock(cx,     cy, cz + 1, PIPE_ID); // South arm
                     world.setBlock(cx,     cy, cz - 1, PIPE_ID); // North arm
+                    PlaceGridBlockEvent.connectBlock(world, v(cx,     cy, cz));
+                    PlaceGridBlockEvent.connectBlock(world, v(cx + 1, cy, cz));
+                    PlaceGridBlockEvent.connectBlock(world, v(cx - 1, cy, cz));
+                    PlaceGridBlockEvent.connectBlock(world, v(cx,     cy, cz + 1));
+                    PlaceGridBlockEvent.connectBlock(world, v(cx,     cy, cz - 1));
                 }))
 
                 .step(Steps.wait(WAIT_TICKS))

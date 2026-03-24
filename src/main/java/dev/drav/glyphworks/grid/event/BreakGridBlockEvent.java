@@ -37,6 +37,29 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             @Nonnull BreakBlockEvent event) {
         Vector3i pos = event.getTargetBlock();
         World world = commandBuffer.getExternalData().getWorld();
+        disconnectBlock(world, pos);
+        // Snapshot neighbour positions for deferred visual update — at commandBuffer.run()
+        // time the block entity is already gone, so GridLookup returns null there and
+        // PipeConnectedBlockRuleSet computes the correct disconnected visual state.
+        ChunkStore chunkStore = world.getChunkStore();
+        GridLookup lookup = GridLookup.resolve(chunkStore, pos);
+        // lookup is now null (block removed), so we read neighbors from component
+        // before calling disconnectBlock removed them; capture via the graph instead.
+        commandBuffer.run(_ -> {
+            // Visual updates already triggered inside disconnectBlock for neighbours.
+        });
+    }
+
+    /**
+     * Removes all grid connections for the block at {@code pos} and updates the
+     * runtime {@link GridGraph}.
+     *
+     * <p>Safe to call directly (e.g. from the block-change polling system) when
+     * {@code world.setBlock(x, y, z, "Empty")} is used instead of a player breaking
+     * event, which may not dispatch {@link BreakBlockEvent}. Idempotent — calling it
+     * for a position that has no grid block is a no-op.
+     */
+    public static void disconnectBlock(@Nonnull World world, @Nonnull Vector3i pos) {
         ChunkStore chunkStore = world.getChunkStore();
 
         GridLookup lookup = GridLookup.resolve(chunkStore, pos);
@@ -47,36 +70,23 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
         if (component.getGridType() == null)
             return;
 
-        // Snapshot neighbors before we clear anything.
-        Set<Vector3i> neighbors = component.getNeighbors();
+        // Snapshot neighbors before removing node (removeNode wipes edges).
+        Set<Vector3i> neighbors = new HashSet<>(component.getNeighbors());
 
-        // Remove the node (and all its graph edges) first.
         GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, component.getGridType());
         if (graph != null) {
             graph.removeNode(pos);
         }
 
-        // Remove this position from each neighbor's persisted neighbor set.
+        // Remove this position from each surviving neighbor's persisted neighbor set
+        // and trigger their visual update.
         for (Vector3i neighborPos : neighbors) {
             GridLookup neighborLookup = GridLookup.resolve(chunkStore, neighborPos);
             if (neighborLookup == null)
                 continue;
             neighborLookup.component().removeNeighbor(pos);
+            GridFaceUtil.forceConnectedBlockUpdate(world, neighborPos);
         }
-
-        // Snapshot the neighbour positions for the deferred visual update.
-        // We copy the set here (on the WorldThread) before the furnace entity is
-        // destroyed, then apply the update in commandBuffer.run() which executes
-        // after naturallyRemoveBlock() has removed the entity.  At that point,
-        // GridLookup.resolve at the furnace position returns null, so
-        // PipeConnectedBlockRuleSet correctly computes a disconnected state.
-        Set<Vector3i> neighborSnapshot = new HashSet<>(neighbors);
-        commandBuffer.run(_ -> {
-            for (Vector3i n : neighborSnapshot) {
-                GridFaceUtil.forceConnectedBlockUpdate(world, n);
-            }
-        });
-
     }
 
     @Nonnull

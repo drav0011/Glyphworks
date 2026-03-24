@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.content.system;
+package dev.drav.glyphworks.crafting.system;
 
 import javax.annotation.Nonnull;
 

@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.content.connectedblocks;
+package dev.drav.glyphworks.grid.connectedblocks;
 
 import java.util.EnumSet;
 import java.util.HashMap;
