@@ -19,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBl
 import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.content.connectedblocks.PipeConnectedBlockRuleSet;
 import dev.drav.glyphworks.grid.command.GridGraphCommand;
@@ -45,6 +46,11 @@ import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
 import dev.drav.glyphworks.transfer.fluid.FluidGridTypeHandler;
 import dev.drav.glyphworks.transfer.item.ItemGridTypeHandler;
+import dev.drav.glyphworks.test.TestRunnerComponent;
+import dev.drav.glyphworks.test.TestRunnerSystem;
+import dev.drav.glyphworks.test.command.GlyphTestCommand;
+import dev.drav.glyphworks.test.suite.BasicBlockTests;
+import dev.drav.glyphworks.test.suite.FluidTests;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -56,6 +62,7 @@ public class GlyphworksPlugin extends JavaPlugin {
     private ComponentType<ChunkStore, FluidPipeComponent> fluidPipeComponentType;
     private ComponentType<ChunkStore, FluidRemoverComponent> fluidRemoverComponentType;
     private ComponentType<ChunkStore, FluidPlacerComponent> fluidPlacerComponentType;
+    private ComponentType<EntityStore, TestRunnerComponent> testRunnerComponentType;
 
     /** Grid graphs per world, then per grid type ID. */
     private final Map<UUID, Map<String, GridGraph>> gridGraphs = new ConcurrentHashMap<>();
@@ -136,10 +143,18 @@ public class GlyphworksPlugin extends JavaPlugin {
                 "OpenAutoCraftingBench", OpenAutoCraftingBenchInteraction.class,
                 (BuilderCodec) OpenAutoCraftingBenchInteraction.CODEC);
 
+        this.testRunnerComponentType = this.getEntityStoreRegistry().registerComponent(
+                TestRunnerComponent.class,
+                TestRunnerComponent::new);
+
+        BasicBlockTests.register();
+        FluidTests.register();
+
         this.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
         this.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
 
         this.getCommandRegistry().registerCommand(new GridGraphCommand());
+        this.getCommandRegistry().registerCommand(new GlyphTestCommand());
 
         LOGGER.info("[Glyphworks] setup() complete.");
     }
@@ -154,6 +169,7 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());
         this.getChunkStoreRegistry().registerSystem(new FluidRemoverSystem());
         this.getChunkStoreRegistry().registerSystem(new FluidPlacerSystem());
+        this.getEntityStoreRegistry().registerSystem(new TestRunnerSystem());
     }
 
     public ComponentType<ChunkStore, GridComponent> getGridComponentType() {
@@ -178,5 +194,9 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, FluidPlacerComponent> getFluidPlacerComponentType() {
         return fluidPlacerComponentType;
+    }
+
+    public ComponentType<EntityStore, TestRunnerComponent> getTestRunnerComponentType() {
+        return testRunnerComponentType;
     }
 }
