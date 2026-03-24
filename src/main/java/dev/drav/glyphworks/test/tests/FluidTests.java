@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.test.suite;
+package dev.drav.glyphworks.test.tests;
 
 import javax.annotation.Nullable;
 

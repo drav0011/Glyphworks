@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.test.suite;
+package dev.drav.glyphworks.grid.tests;
 
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -40,7 +40,7 @@ public final class PipeConnectionTests {
 
     /**
      * Builds and registers the {@code "pipe_connections"} test suite.
-     * Call once from {@code GlyphworksPlugin.setup()}.
+     * Called from {@link dev.drav.glyphworks.grid.GridModule#setupTests()}.
      */
     public static void register() {
         TestRegistry.register(buildSuite());

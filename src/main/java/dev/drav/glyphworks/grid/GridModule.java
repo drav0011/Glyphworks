@@ -18,6 +18,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.grid.tests.PipeConnectionTests;
 import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.connectedblocks.PipeConnectedBlockRuleSet;
@@ -102,5 +103,10 @@ public final class GridModule extends GlyphworksModule {
     public void start(@Nonnull GlyphworksPlugin plugin) {
         plugin.getChunkStoreRegistry().registerSystem(new GridSystem());
         plugin.getChunkStoreRegistry().registerSystem(new BlockChangeGridSystem());
+    }
+
+    @Override
+    public void setupTests() {
+        PipeConnectionTests.register();
     }
 }

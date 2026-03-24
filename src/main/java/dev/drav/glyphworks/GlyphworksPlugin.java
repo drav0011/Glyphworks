@@ -74,8 +74,13 @@ public class GlyphworksPlugin extends JavaPlugin {
     }
 
     // -------------------------------------------------------------------------
-    // Grid graph state — delegated to GridSubPlugin
+    // Grid graph state — delegated to GridModule
     // -------------------------------------------------------------------------
+
+    /** Returns all registered modules. Used by {@link dev.drav.glyphworks.test.TestModule} to call setupTests(). */
+    public List<GlyphworksModule> getModules() {
+        return modules;
+    }
 
     @Nullable
     public GridGraph getGridGraph(World world, GridType type) {

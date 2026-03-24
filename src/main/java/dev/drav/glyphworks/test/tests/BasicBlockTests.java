@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.test.suite;
+package dev.drav.glyphworks.test.tests;
 
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
