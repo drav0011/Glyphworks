@@ -37,6 +37,13 @@ import dev.drav.glyphworks.grid.system.GridSystem;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
+import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
+import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
+import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
+import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
+import dev.drav.glyphworks.transfer.fluid.FluidGridTypeHandler;
 import dev.drav.glyphworks.transfer.item.ItemGridTypeHandler;
 
 public class GlyphworksPlugin extends JavaPlugin {
@@ -45,6 +52,10 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     private ComponentType<ChunkStore, GridComponent> gridComponentType;
     private ComponentType<ChunkStore, AutoCraftingBenchBlock> autoCraftingBenchBlockComponentType;
+    private ComponentType<ChunkStore, FluidContainerComponent> fluidContainerComponentType;
+    private ComponentType<ChunkStore, FluidPipeComponent> fluidPipeComponentType;
+    private ComponentType<ChunkStore, FluidRemoverComponent> fluidRemoverComponentType;
+    private ComponentType<ChunkStore, FluidPlacerComponent> fluidPlacerComponentType;
 
     /** Grid graphs per world, then per grid type ID. */
     private final Map<UUID, Map<String, GridGraph>> gridGraphs = new ConcurrentHashMap<>();
@@ -80,6 +91,8 @@ public class GlyphworksPlugin extends JavaPlugin {
         // Register built-in grid network types and their tick handlers.
         GridTypeRegistry.register(GridType.of("Item"));
         GridTypeHandlerRegistry.register(new ItemGridTypeHandler());
+        GridTypeRegistry.register(GridType.of("Fluid"));
+        GridTypeHandlerRegistry.register(new FluidGridTypeHandler());
 
         getEventRegistry().registerGlobal(RemoveWorldEvent.class, event -> {
             UUID worldId = event.getWorld().getWorldConfig().getUuid();
@@ -98,6 +111,26 @@ public class GlyphworksPlugin extends JavaPlugin {
                 AutoCraftingBenchBlock.class,
                 "AutoCraftingBenchBlock",
                 AutoCraftingBenchBlock.CODEC);
+
+        this.fluidContainerComponentType = this.getChunkStoreRegistry().registerComponent(
+                FluidContainerComponent.class,
+                "FluidContainerComponent",
+                FluidContainerComponent.CODEC);
+
+        this.fluidPipeComponentType = this.getChunkStoreRegistry().registerComponent(
+                FluidPipeComponent.class,
+                "FluidPipeComponent",
+                FluidPipeComponent.CODEC);
+
+        this.fluidRemoverComponentType = this.getChunkStoreRegistry().registerComponent(
+                FluidRemoverComponent.class,
+                "FluidRemoverComponent",
+                FluidRemoverComponent.CODEC);
+
+        this.fluidPlacerComponentType = this.getChunkStoreRegistry().registerComponent(
+                FluidPlacerComponent.class,
+                "FluidPlacerComponent",
+                FluidPlacerComponent.CODEC);
 
         getCodecRegistry((AssetCodecMapCodec) Interaction.CODEC).register(
                 "OpenAutoCraftingBench", OpenAutoCraftingBenchInteraction.class,
@@ -119,6 +152,8 @@ public class GlyphworksPlugin extends JavaPlugin {
         this.getChunkStoreRegistry().registerSystem(new ProcessingBenchAutoStartSystem());
         this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSetupSystem());
         this.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());
+        this.getChunkStoreRegistry().registerSystem(new FluidRemoverSystem());
+        this.getChunkStoreRegistry().registerSystem(new FluidPlacerSystem());
     }
 
     public ComponentType<ChunkStore, GridComponent> getGridComponentType() {
@@ -127,5 +162,21 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, AutoCraftingBenchBlock> getAutoCraftingBenchBlockComponentType() {
         return autoCraftingBenchBlockComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidContainerComponent> getFluidContainerComponentType() {
+        return fluidContainerComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidPipeComponent> getFluidPipeComponentType() {
+        return fluidPipeComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidRemoverComponent> getFluidRemoverComponentType() {
+        return fluidRemoverComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidPlacerComponent> getFluidPlacerComponentType() {
+        return fluidPlacerComponentType;
     }
 }

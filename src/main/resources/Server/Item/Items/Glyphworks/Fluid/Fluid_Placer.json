@@ -1,0 +1,49 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.FluidPlacer.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Transparent",
+    "VariantRotation": "DoublePipe",
+    "HitboxType": "Inserter",
+    "CustomModel": "Blocks/Glyphworks/IO/Inserter/Inserter.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/IO/Inserter/Inserter.png",
+        "Weight": 1
+      }
+    ],
+    "BlockEntity": {
+      "Components": {
+        "GridComponent": {
+          "GridComponent_Type": "Fluid",
+          "GridComponent_TransferRate": 25,
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "Up",
+              "FacePlane_Mode": "Input",
+              "FacePlane_ContainerKey": "container"
+            }
+          ]
+        },
+        "FluidContainerComponent": {
+          "FluidContainer_Capacity": 2000,
+          "FluidContainer_Amount": 0,
+          "FluidContainer_LockedFluidId": null
+        },
+        "FluidPlacerComponent": {
+            "FluidPlacer_TargetNormal": "Down",
+            "FluidPlacer_TargetPosition": { "X": 0, "Y": 0, "Z": 0 }
+        }
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block"
+}
