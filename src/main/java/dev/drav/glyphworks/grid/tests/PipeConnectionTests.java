@@ -42,8 +42,8 @@ public final class PipeConnectionTests {
      * Builds and registers the {@code "pipe_connections"} test suite.
      * Called from {@link dev.drav.glyphworks.grid.GridModule#setupTests()}.
      */
-    public static void register() {
-        TestRegistry.register(buildSuite());
+    public static void register(String moduleId) {
+        TestRegistry.register(moduleId, buildSuite());
     }
 
     private static TestSuite buildSuite() {

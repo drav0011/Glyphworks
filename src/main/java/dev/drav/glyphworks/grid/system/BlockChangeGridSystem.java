@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.grid.system;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -21,10 +22,10 @@ import com.hypixel.hytale.server.core.universe.world.chunk.systems.ChunkSystems;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
+import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
@@ -44,18 +45,18 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
  *
  * <h3>Per-position logic</h3>
  * <ul>
- *   <li>If {@link GridLookup} resolves at the new position → a grid block has
- *       been placed or replaced; call {@link PlaceGridBlockEvent#connectBlock}.</li>
- *   <li>If {@link GridLookup} returns {@code null} but the {@link GridGraph}
- *       still contains that position → a grid block was removed; call
- *       {@link BreakGridBlockEvent#disconnectBlock}.</li>
- *   <li>Otherwise → ordinary non-grid block change; ignore.</li>
+ * <li>If {@link GridLookup} resolves at the new position → a grid block has
+ * been placed or replaced; call {@link PlaceGridBlockEvent#connectBlock}.</li>
+ * <li>If {@link GridLookup} returns {@code null} but the {@link GridGraph}
+ * still contains that position → a grid block was removed; call
+ * {@link BreakGridBlockEvent#disconnectBlock}.</li>
+ * <li>Otherwise → ordinary non-grid block change; ignore.</li>
  * </ul>
  */
 public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore> {
 
-    private static final Query<ChunkStore> QUERY =
-            Query.and(ChunkSection.getComponentType(), BlockSection.getComponentType());
+    private static final Query<ChunkStore> QUERY = Query.and(ChunkSection.getComponentType(),
+            BlockSection.getComponentType());
 
     @Override
     public Query<ChunkStore> getQuery() {
@@ -81,11 +82,13 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
 
         ChunkSection section = archetypeChunk.getComponent(index, ChunkSection.getComponentType());
         BlockSection blockSection = archetypeChunk.getComponent(index, BlockSection.getComponentType());
-        if (section == null || blockSection == null) return;
+        if (section == null || blockSection == null)
+            return;
 
         // Drain changed positions — we own this set until we put indices back.
         IntOpenHashSet changed = blockSection.getAndClearChangedPositions();
-        if (changed.isEmpty()) return;
+        if (changed.isEmpty())
+            return;
 
         World world = store.getExternalData().getWorld();
 
@@ -107,20 +110,38 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
 
             if (lookup != null) {
                 // A grid block now exists here — connect it.
+                // The engine's ±1 block-change notification already updates the visual
+                // connected-block state for adjacent pipes; no forceConnectedBlockUpdate
+                // needed.
                 PlaceGridBlockEvent.connectBlock(world, pos);
             } else {
                 // No grid block here — check if one was just removed from the graph.
-                // If the graph still contains this position as a node, the block that
-                // was there was a grid block that got replaced with a non-grid block.
-                boolean wasGridNode = false;
+                // The block entity is already gone so GridLookup.resolve returns null and
+                // disconnectBlock() would be a no-op. Use the graph's adjacency instead.
                 for (GridGraph graph : GlyphworksPlugin.get().getAllGridGraphs(world)) {
-                    if (graph.contains(pos)) {
-                        wasGridNode = true;
-                        break;
+                    if (!graph.contains(pos))
+                        continue;
+                    Set<Vector3i> graphNeighbors = new HashSet<>(graph.getNeighbors(pos));
+                    graph.removeNode(pos);
+                    // Remove this position from each surviving neighbour's component set.
+                    for (Vector3i neighborPos : graphNeighbors) {
+                        GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), neighborPos);
+                        if (neighborLookup != null) {
+                            neighborLookup.component().removeNeighbor(pos);
+                        }
                     }
-                }
-                if (wasGridNode) {
-                    BreakGridBlockEvent.disconnectBlock(world, pos);
+                    // Defer visual updates for far-away neighbours (filler-cell multi-blocks
+                    // outside
+                    // the engine's ±1 notification radius). commandBuffer.run() is safe here
+                    // because it fires outside Store.tick(), where removeEntity is allowed.
+                    if (!graphNeighbors.isEmpty()) {
+                        commandBuffer.run(_ -> {
+                            for (Vector3i n : graphNeighbors) {
+                                GridFaceUtil.forceConnectedBlockUpdate(world, n);
+                            }
+                        });
+                    }
+                    break; // a position belongs to at most one grid type
                 }
             }
 

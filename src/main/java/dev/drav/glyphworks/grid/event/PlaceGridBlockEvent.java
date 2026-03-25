@@ -37,7 +37,16 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             @Nonnull PlaceBlockEvent event) {
         commandBuffer.run(_ -> {
             World world = commandBuffer.getExternalData().getWorld();
-            connectBlock(world, event.getTargetBlock());
+            Vector3i target = event.getTargetBlock();
+            connectBlock(world, target);
+            // Visual update for neighbours outside ±1 notification radius — safe here,
+            // deferred outside Store.tick() by commandBuffer.run().
+            GridLookup postLookup = GridLookup.resolve(world.getChunkStore(), target);
+            if (postLookup != null) {
+                for (Vector3i n : postLookup.component().getNeighbors()) {
+                    GridFaceUtil.forceConnectedBlockUpdate(world, n);
+                }
+            }
         });
     }
 
@@ -120,12 +129,6 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             graph.addEdge(pos, n);
         }
 
-        // Trigger visual-state updates for neighbours that live outside the engine's
-        // ±1 notification radius (e.g. pipes adjacent to filler cells of a multi-block
-        // structure like the auto-furnace).
-        for (Vector3i n : component.getNeighbors()) {
-            GridFaceUtil.forceConnectedBlockUpdate(world, n);
-        }
     }
 
     @Nonnull

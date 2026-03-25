@@ -31,6 +31,32 @@ public final class Steps {
     }
 
     /**
+     * Polls the predicate every tick until it returns {@code true} or {@code maxTicks}
+     * ticks have elapsed.
+     *
+     * <p>Returns {@link StepResult#DONE} the first tick the predicate passes.
+     * Returns {@link StepResult#PENDING} while still waiting.
+     * Returns {@link StepResult#failed(String)} with {@code description} when the
+     * timeout is reached.
+     *
+     * <p>Uses {@code ctx.component.ticksRemaining} as a countdown, consistent with
+     * {@link #wait(int)}. The counter is reset automatically when transitioning to
+     * the next step or test.
+     */
+    public static TestStep waitUntil(Predicate<TestRunnerContext> predicate, int maxTicks, String description) {
+        return ctx -> {
+            if (predicate.test(ctx)) return StepResult.DONE;
+            if (ctx.component.ticksRemaining < 0) {
+                ctx.component.ticksRemaining = maxTicks;
+            }
+            ctx.component.ticksRemaining--;
+            return ctx.component.ticksRemaining > 0
+                    ? StepResult.PENDING
+                    : StepResult.failed("Timed out after " + maxTicks + " ticks waiting for: " + description);
+        };
+    }
+
+    /**
      * Executes the given action and immediately returns {@link StepResult#DONE}.
      *
      * <p>Use this for imperative side-effects (e.g. placing a block, spawning an

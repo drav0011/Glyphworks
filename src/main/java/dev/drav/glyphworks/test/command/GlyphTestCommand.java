@@ -2,6 +2,7 @@ package dev.drav.glyphworks.test.command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -26,7 +27,13 @@ import dev.drav.glyphworks.test.TestRunnerComponent;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * {@code /gtest <suite>} or {@code /gtest <suite>.<test>}
+ * {@code /gtest <module> [suite] [test]}
+ *
+ * <ul>
+ *   <li>{@code /gtest <module>} — run all suites in the module</li>
+ *   <li>{@code /gtest <module> <suite>} — run all tests in one suite</li>
+ *   <li>{@code /gtest <module> <suite> <test>} — run a single test</li>
+ * </ul>
  *
  * <p>Resolves the target from the {@link TestRegistry}, builds the test queue,
  * and attaches a {@link TestRunnerComponent} to the executing player so that
@@ -34,13 +41,15 @@ import dev.drav.glyphworks.test.TestSuite;
  */
 public final class GlyphTestCommand extends AbstractPlayerCommand {
 
-    private final RequiredArg<String> suiteArg;
+    private final RequiredArg<String> moduleArg;
+    private final OptionalArg<String> suiteArg;
     private final OptionalArg<String> testArg;
 
     public GlyphTestCommand() {
-        super("gtest", "Run a Glyphworks test suite or single test");
-        this.suiteArg = withRequiredArg("suite", "Suite ID", ArgTypes.STRING);
-        this.testArg  = withOptionalArg("test",  "Test name within the suite", ArgTypes.STRING);
+        super("gtest", "Run a Glyphworks test module, suite, or single test");
+        this.moduleArg = withRequiredArg("module", "Module ID", ArgTypes.STRING);
+        this.suiteArg  = withOptionalArg("suite",  "Suite ID within the module", ArgTypes.STRING);
+        this.testArg   = withOptionalArg("test",   "Test name within the suite", ArgTypes.STRING);
     }
 
     @Override
@@ -51,33 +60,48 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
             @Nonnull PlayerRef playerRef,
             @Nonnull World world) {
 
-        String suiteName = suiteArg.get(context);
-        String testName  = testArg.get(context); // null when not provided
+        String moduleName = moduleArg.get(context);
+        String suiteName  = suiteArg.get(context); // null when not provided
+        String testName   = testArg.get(context);  // null when not provided
 
-        TestSuite suite = TestRegistry.get(suiteName);
-        if (suite == null) {
-            context.sendMessage(Message.raw("[GlyphTest] Unknown suite: \"" + suiteName
-                    + "\". Available: " + TestRegistry.all().stream()
-                            .map(TestSuite::getId)
-                            .reduce((a, b) -> a + ", " + b).orElse("<none>")));
+        Map<String, TestSuite> moduleSuites = TestRegistry.getModule(moduleName);
+        if (moduleSuites == null) {
+            context.sendMessage(Message.raw("[GlyphTest] Unknown module: \"" + moduleName
+                    + "\". Available: " + String.join(", ", TestRegistry.moduleIds())));
             return;
         }
 
         List<TestCase> queue = new ArrayList<>();
-        if (testName != null) {
-            Optional<TestCase> found = suite.findTest(testName);
-            if (found.isEmpty()) {
-                context.sendMessage(Message.raw("[GlyphTest] Unknown test \"" + testName
-                        + "\" in suite \"" + suiteName + "\"."));
+        if (suiteName == null) {
+            // Run everything in the module.
+            for (TestSuite suite : moduleSuites.values()) {
+                queue.addAll(suite.getTests());
+            }
+        } else {
+            TestSuite suite = moduleSuites.get(suiteName);
+            if (suite == null) {
+                context.sendMessage(Message.raw("[GlyphTest] Unknown suite: \"" + suiteName
+                        + "\" in module \"" + moduleName + "\". Available: "
+                        + String.join(", ", moduleSuites.keySet())));
                 return;
             }
-            queue.add(found.get());
-        } else {
-            queue.addAll(suite.getTests());
+            if (testName == null) {
+                queue.addAll(suite.getTests());
+            } else {
+                Optional<TestCase> found = suite.findTest(testName);
+                if (found.isEmpty()) {
+                    context.sendMessage(Message.raw("[GlyphTest] Unknown test \"" + testName
+                            + "\" in suite \"" + moduleName + "." + suiteName + "\". Available: "
+                            + suite.getTests().stream().map(TestCase::getName)
+                                    .reduce((a, b) -> a + ", " + b).orElse("<none>")));
+                    return;
+                }
+                queue.add(found.get());
+            }
         }
 
         if (queue.isEmpty()) {
-            context.sendMessage(Message.raw("[GlyphTest] Suite \"" + suiteName + "\" has no tests."));
+            context.sendMessage(Message.raw("[GlyphTest] No tests found for the given target."));
             return;
         }
 

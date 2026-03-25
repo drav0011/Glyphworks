@@ -49,7 +49,7 @@ public final class TestModule extends GlyphworksModule {
 
     @Override
     public void setupTests() {
-        BasicBlockTests.register();
-        FluidTests.register();
+        BasicBlockTests.register("smoke");
+        FluidTests.register("smoke");
     }
 }

@@ -28,8 +28,8 @@ public final class BasicBlockTests {
      * Builds and registers the {@code "blocks"} test suite.
      * Call once from {@code GlyphworksPlugin.setup()}.
      */
-    public static void register() {
-        TestRegistry.register(buildSuite());
+    public static void register(String moduleId) {
+        TestRegistry.register(moduleId, buildSuite());
     }
 
     private static TestSuite buildSuite() {
