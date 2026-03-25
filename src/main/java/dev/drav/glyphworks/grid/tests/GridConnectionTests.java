@@ -8,6 +8,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
+import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.Steps;
 import dev.drav.glyphworks.test.TestCase;
@@ -46,7 +47,8 @@ public final class GridConnectionTests {
                 .test(breakRemovesNode())
                 .test(breakUpdatesNeighbor())
                 .test(breakSplitsChain())
-                .test(reconnectAfterBreak());
+                .test(reconnectAfterBreak())
+                .test(crossTypeNoConnection());
     }
 
     // -------------------------------------------------------------------------
@@ -241,5 +243,37 @@ public final class GridConnectionTests {
                     Vector3i pb = v(ox + 1, oy, oz);
                     return connected(w, pa, pb) && connected(w, pb, pa);
                 }, "re-placed pipe reconnects bidirectionally with its neighbor"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 8: blocks of different grid types must NOT connect to each other
+    // -------------------------------------------------------------------------
+
+    private static TestCase crossTypeNoConnection() {
+        return new TestCase("cross_type_no_connection", 5, 3, 1)
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    Vector3i pa = v(ox, oy, oz);
+                    Vector3i pb = v(ox + 1, oy, oz);
+                    // Place two adjacent pipes.
+                    w.setBlock(pa.x, pa.y, pa.z, PIPE_ID);
+                    w.setBlock(pb.x, pb.y, pb.z, PIPE_ID);
+                    // Change B's grid type to a different type before connecting.
+                    GridLookup luB = GridLookup.resolve(w.getChunkStore(), pb);
+                    if (luB != null) {
+                        luB.component().setGridType(GridType.of("__other_type__"));
+                    }
+                    // Connect both: A is \"Item\", B is now \"__other_type__\".
+                    PlaceGridBlockEvent.connectBlock(w, pa);
+                    PlaceGridBlockEvent.connectBlock(w, pb);
+                }))
+                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.assertThat(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    return !connected(w, v(ox, oy, oz), v(ox + 1, oy, oz))
+                            && !connected(w, v(ox + 1, oy, oz), v(ox, oy, oz));
+                }, "blocks of different grid types are not connected to each other in either direction"));
     }
 }

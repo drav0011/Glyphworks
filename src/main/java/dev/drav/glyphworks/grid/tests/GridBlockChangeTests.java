@@ -7,6 +7,7 @@ import com.hypixel.hytale.server.core.util.thread.TickingThread;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
+import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.Steps;
 import dev.drav.glyphworks.test.TestCase;
@@ -49,7 +50,10 @@ public final class GridBlockChangeTests {
     private static TestSuite buildSuite() {
         return new TestSuite("grid_block_change")
                 .test(autoConnectOnSetBlock())
-                .test(autoDisconnectOnSetBlockEmpty());
+                .test(autoDisconnectOnSetBlockEmpty())
+                .test(autoReconnectAfterSetBlockCycle())
+                .test(survivorNeighborCleanedOnAutoDisconnect())
+                .test(chainSplitAutoDisconnect());
     }
 
     // -------------------------------------------------------------------------
@@ -126,5 +130,128 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return !graph(w).contains(v(ox + 1, oy, oz));
                 }, TIMEOUT_TICKS, "BlockChangeGridSystem auto-removes a pipe replaced with Empty"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 3: full break-and-replace cycle driven entirely by setBlock
+    // -------------------------------------------------------------------------
+
+    private static TestCase autoReconnectAfterSetBlockCycle() {
+        return new TestCase("auto_reconnect_after_setblock_cycle", 5, 3, 1)
+                // Phase 1: auto-connect A and B via setBlock only.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox,     oy, oz, PIPE_ID);
+                    w.setBlock(ox + 1, oy, oz, PIPE_ID);
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
+                }, TIMEOUT_TICKS, "pipes auto-connected before cycle test"))
+                // Phase 2: auto-remove B.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox + 1, oy, oz, "Empty");
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    return !graph(w).contains(v(ox + 1, oy, oz));
+                }, TIMEOUT_TICKS, "B auto-removed before re-placement"))
+                // Phase 3: re-place B via setBlock and verify reconnect.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox + 1, oy, oz, PIPE_ID);
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    Vector3i pa = v(ox, oy, oz);
+                    Vector3i pb = v(ox + 1, oy, oz);
+                    return connected(w, pa, pb) && connected(w, pb, pa);
+                }, TIMEOUT_TICKS, "BlockChangeGridSystem reconnects two pipes after a full break-and-replace cycle via setBlock only"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 4: surviving pipe's component.neighbors is clean after auto-disconnect
+    //
+    // The existing test 2 only checks whether the dead node is gone from the
+    // graph. This test also verifies the surviving node's persisted neighbor
+    // set is updated by the system.
+    // -------------------------------------------------------------------------
+
+    private static TestCase survivorNeighborCleanedOnAutoDisconnect() {
+        return new TestCase("survivor_neighbor_cleaned_on_auto_disconnect", 5, 3, 1)
+                // Establish a known-good connected pair using explicit connectBlock.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox,     oy, oz, PIPE_ID);
+                    w.setBlock(ox + 1, oy, oz, PIPE_ID);
+                    PlaceGridBlockEvent.connectBlock(w, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
+                }, TIMEOUT_TICKS, "pipes connected before testing auto-disconnect survivor state"))
+                // Auto-remove the second pipe via setBlock.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox + 1, oy, oz, "Empty");
+                }))
+                // Wait until the survivor's component.neighbors is empty.
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    GridLookup lu = GridLookup.resolve(w.getChunkStore(), v(ox, oy, oz));
+                    return lu != null && lu.component().getNeighbors().isEmpty();
+                }, TIMEOUT_TICKS, "surviving pipe's component.neighbors is empty after auto-disconnect via setBlock"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 5: breaking the middle of a chain via setBlock splits A and C
+    // -------------------------------------------------------------------------
+
+    private static TestCase chainSplitAutoDisconnect() {
+        return new TestCase("chain_split_auto_disconnect", 7, 3, 1)
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox,     oy, oz, PIPE_ID); // A
+                    w.setBlock(ox + 1, oy, oz, PIPE_ID); // B (middle)
+                    w.setBlock(ox + 2, oy, oz, PIPE_ID); // C
+                    PlaceGridBlockEvent.connectBlock(w, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
+                    PlaceGridBlockEvent.connectBlock(w, v(ox + 2, oy, oz));
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz))
+                            && connected(w, v(ox + 1, oy, oz), v(ox + 2, oy, oz));
+                }, TIMEOUT_TICKS, "chain A-B-C connected before testing split"))
+                // Remove B via setBlock only.
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    w.setBlock(ox + 1, oy, oz, "Empty");
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    GridGraph g = graph(w);
+                    Vector3i pa = v(ox,     oy, oz);
+                    Vector3i pc = v(ox + 2, oy, oz);
+                    return g.contains(pa) && g.contains(pc)
+                            && !g.contains(v(ox + 1, oy, oz))
+                            && !g.getComponent(pa).contains(pc);
+                }, TIMEOUT_TICKS, "auto-removing the middle pipe splits A and C into separate components"));
     }
 }

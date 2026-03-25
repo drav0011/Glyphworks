@@ -1,9 +1,12 @@
 package dev.drav.glyphworks.grid.tests;
 
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
+import dev.drav.glyphworks.grid.component.FaceMode;
+import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -38,7 +41,10 @@ public final class GridComponentTests {
                 .test(placeUpdatesNeighborSet())
                 .test(breakRemovesFromNeighborSet())
                 .test(transferAccumulatorWhole())
-                .test(transferAccumulatorSubTick());
+                .test(transferAccumulatorSubTick())
+                .test(cloneDeepCopyFaces())
+                .test(cloneDeepCopyNeighbors())
+                .test(facePlaneEqualsIgnoresContainerKey());
     }
 
     // -------------------------------------------------------------------------
@@ -173,4 +179,65 @@ public final class GridComponentTests {
                     return r1 == 0 && r2 == 0 && r3 == 0 && r4 == 1;
                 }, "drainAccumulator(0.3) x 3 → 0 each; 4th call crosses 1.0 and returns 1"));
     }
-}
+    // -------------------------------------------------------------------------
+    // Test 6: clone() creates a deep copy of the faces set
+    //
+    // Mutating a FacePlane obtained from the clone must not affect the original
+    // because each FacePlane is cloned individually in the copy constructor.
+    // -------------------------------------------------------------------------
+
+    private static TestCase cloneDeepCopyFaces() {
+        return new TestCase("clone_deep_copy_faces", 1, 1, 1)
+                .step(Steps.assertThat(ctx -> {
+                    GridComponent original = new GridComponent();
+                    original.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    GridComponent clone = (GridComponent) original.clone();
+                    // Mutate the face in the clone — should not affect the original.
+                    for (FacePlane f : clone.getFaces()) {
+                        f.setMode(FaceMode.CLOSED);
+                    }
+                    return original.getFaces().stream().allMatch(f -> f.getMode() == FaceMode.BIDIRECTIONAL)
+                            && clone.getFaces().stream().allMatch(f -> f.getMode() == FaceMode.CLOSED);
+                }, "clone() deep-copies FacePlane instances: mutating a face in the clone does not affect the original"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 7: clone() creates an independent neighbor set
+    //
+    // Adding a neighbor to the clone must not appear in the original's set
+    // because the copy constructor builds a new HashSet.
+    // -------------------------------------------------------------------------
+
+    private static TestCase cloneDeepCopyNeighbors() {
+        return new TestCase("clone_deep_copy_neighbors", 1, 1, 1)
+                .step(Steps.assertThat(ctx -> {
+                    GridComponent original = new GridComponent();
+                    original.addNeighbor(new Vector3i(1, 0, 0));
+                    GridComponent clone = (GridComponent) original.clone();
+                    clone.addNeighbor(new Vector3i(2, 0, 0));
+                    return original.getNeighbors().size() == 1 && clone.getNeighbors().size() == 2;
+                }, "clone() creates an independent neighbor set: adding to clone does not affect the original"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 8: FacePlane.equals ignores containerKey
+    //
+    // Two FacePlanes with the same position, normal, and mode must be equal
+    // regardless of containerKey, and must share the same hashCode.
+    // -------------------------------------------------------------------------
+
+    private static TestCase facePlaneEqualsIgnoresContainerKey() {
+        return new TestCase("face_plane_equals_ignores_container_key", 1, 1, 1)
+                .step(Steps.assertThat(ctx -> {
+                    FacePlane withKeyA = new FacePlane(
+                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, "key_a");
+                    FacePlane withKeyB = new FacePlane(
+                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, "key_b");
+                    FacePlane withNull = new FacePlane(
+                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, null);
+                    return withKeyA.equals(withKeyB)
+                            && withKeyA.equals(withNull)
+                            && withKeyA.hashCode() == withKeyB.hashCode()
+                            && withKeyA.hashCode() == withNull.hashCode();
+                }, "FacePlane.equals and hashCode ignore containerKey — only position, normal, and mode matter"));
+    }}

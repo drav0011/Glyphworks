@@ -44,7 +44,9 @@ public final class GridGraphTests {
                 .test(edgeCountChain())
                 .test(getComponentBfs())
                 .test(getComponentIsolated())
-                .test(getComponentUnknownStart());
+                .test(getComponentUnknownStart())
+                .test(addEdgeNonExistentNodesNoOp())
+                .test(addNodeIdempotentPreservesEdges());
     }
 
     // -------------------------------------------------------------------------
@@ -309,5 +311,63 @@ public final class GridGraphTests {
                     Set<Vector3i> comp = graph(ctx.getWorld()).getComponent(pos);
                     return comp.isEmpty();
                 }, "getComponent on unknown start position returns empty set"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 10: addEdge on non-existent nodes is a silent no-op
+    // -------------------------------------------------------------------------
+
+    private static TestCase addEdgeNonExistentNodesNoOp() {
+        return new TestCase("add_edge_non_existent_nodes_no_op", 4, 3, 1)
+                .step(Steps.run(ctx -> {
+                    GridGraph g = graph(ctx.getWorld());
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    // Ensure neither node is present.
+                    g.removeNode(a(ox, oy, oz));
+                    g.removeNode(b(ox, oy, oz));
+                    // addEdge on non-existent nodes — should do nothing.
+                    g.addEdge(a(ox, oy, oz), b(ox, oy, oz));
+                }))
+                .step(Steps.assertThat(ctx -> {
+                    GridGraph g = graph(ctx.getWorld());
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    // Nodes must not have been implicitly created.
+                    return !g.contains(a(ox, oy, oz)) && !g.contains(b(ox, oy, oz));
+                }, "addEdge on non-existent nodes is a no-op and does not implicitly create phantom nodes"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 11: addNode called twice on the same position preserves existing edges
+    // -------------------------------------------------------------------------
+
+    private static TestCase addNodeIdempotentPreservesEdges() {
+        return new TestCase("add_node_idempotent_preserves_edges", 4, 3, 1)
+                .step(Steps.run(ctx -> {
+                    GridGraph g = graph(ctx.getWorld());
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    Vector3i pa = a(ox, oy, oz);
+                    Vector3i pb = b(ox, oy, oz);
+                    g.removeNode(pa);
+                    g.removeNode(pb);
+                    g.addNode(pa);
+                    g.addNode(pb);
+                    g.addEdge(pa, pb);
+                    // Call addNode again on the already-registered node.
+                    g.addNode(pa);
+                }))
+                .step(Steps.assertThat(ctx -> {
+                    GridGraph g = graph(ctx.getWorld());
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    Vector3i pa = a(ox, oy, oz);
+                    Vector3i pb = b(ox, oy, oz);
+                    // Edge must still be intact after the duplicate addNode call.
+                    return g.getNeighbors(pa).contains(pb) && g.getNeighbors(pb).contains(pa);
+                }, "addNode on an already-registered node is idempotent and preserves existing edges"))
+                .step(Steps.run(ctx -> {
+                    GridGraph g = graph(ctx.getWorld());
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    g.removeNode(a(ox, oy, oz));
+                    g.removeNode(b(ox, oy, oz));
+                }));
     }
 }
