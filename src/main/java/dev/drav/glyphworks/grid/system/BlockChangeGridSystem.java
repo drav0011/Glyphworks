@@ -22,10 +22,10 @@ import com.hypixel.hytale.server.core.universe.world.chunk.systems.ChunkSystems;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
-import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
@@ -55,12 +55,11 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
  */
 public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore> {
 
-    private static final Query<ChunkStore> QUERY = Query.and(ChunkSection.getComponentType(),
-            BlockSection.getComponentType());
-
     @Override
     public Query<ChunkStore> getQuery() {
-        return QUERY;
+        return Query.and(
+                ChunkSection.getComponentType(),
+                BlockSection.getComponentType());
     }
 
     /**
@@ -69,7 +68,7 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
      */
     @Override
     public Set<Dependency<ChunkStore>> getDependencies() {
-        return Set.of(new SystemDependency(Order.BEFORE, ChunkSystems.ReplicateChanges.class));
+        return Set.of(new SystemDependency<>(Order.BEFORE, ChunkSystems.ReplicateChanges.class));
     }
 
     @Override
@@ -130,14 +129,17 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
                             neighborLookup.component().removeNeighbor(pos);
                         }
                     }
-                    // Defer visual updates for far-away neighbours (filler-cell multi-blocks
-                    // outside
-                    // the engine's ±1 notification radius). commandBuffer.run() is safe here
-                    // because it fires outside Store.tick(), where removeEntity is allowed.
+                    // Deferred rebuild: by the time commandBuffer.run() fires the broken
+                    // block's entity is gone. Clearing stale neighbor sets then re-running
+                    // connectBlock rebuilds them correctly from the live world.
                     if (!graphNeighbors.isEmpty()) {
                         commandBuffer.run(_ -> {
                             for (Vector3i n : graphNeighbors) {
-                                GridFaceUtil.forceConnectedBlockUpdate(world, n);
+                                GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
+                                if (nl == null)
+                                    continue;
+                                nl.component().setNeighbors(new HashSet<>());
+                                PlaceGridBlockEvent.connectBlock(world, n);
                             }
                         });
                     }

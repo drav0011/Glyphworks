@@ -1,18 +1,11 @@
 package dev.drav.glyphworks.grid.util;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
-import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
-import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlocksUtil;
 
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -143,30 +136,5 @@ public final class GridFaceUtil {
         if (a == FaceMode.OUTPUT && b == FaceMode.OUTPUT)
             return false;
         return true;
-    }
-
-    /**
-     * Forces the engine to re-evaluate the {@link ConnectedBlocksUtil ConnectedBlockRuleSet}
-     * visual state for the block at {@code pos}. Used to update pipes that are
-     * adjacent to filler cells of a multi-block structure (e.g. a furnace), which
-     * lie outside the engine's normal &plusmn;1 notification radius.
-     *
-     * <p>Safe to call from the WorldThread. No-op if the chunk or block is not loaded.
-     */
-    public static void forceConnectedBlockUpdate(@Nonnull World world, @Nonnull Vector3i pos) {
-        long chunkIdx = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
-        WorldChunk worldChunk = world.getChunkIfLoaded(chunkIdx);
-        if (worldChunk == null)
-            return;
-        BlockChunk blockChunk = worldChunk.getBlockChunk();
-        if (blockChunk == null)
-            return;
-        BlockSection section = blockChunk.getSectionAtBlockY(pos.y);
-        if (section == null)
-            return;
-        int blockId = section.get(pos.x, pos.y, pos.z);
-        int rotIdx = section.getRotationIndex(pos.x, pos.y, pos.z);
-        ConnectedBlocksUtil.setConnectedBlockAndNotifyNeighbors(
-                blockId, RotationTuple.get(rotIdx), Vector3i.ZERO, pos, worldChunk, blockChunk);
     }
 }

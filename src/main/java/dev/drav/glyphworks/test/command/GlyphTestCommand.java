@@ -124,7 +124,6 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
 
         int n    = queue.size();
         int cols = (int) Math.ceil(Math.sqrt(n));
-        int rows = (int) Math.ceil((double) n / cols);
 
         // Use the largest declared area as the uniform cell size so no test overflows into another.
         int maxWidth = queue.stream().mapToInt(TestCase::getAreaWidth).max().orElse(1);
@@ -144,7 +143,10 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
 
         TestRunnerComponent runner = store.addComponent(ref, TestRunnerComponent.getComponentType());
         runner.init(queue, originXs, originYs, originZs);
-        context.sendMessage(Message.raw("[GlyphTest] Started " + n + " test(s) from suite \""
-                + suiteName + "\" in a " + cols + "x" + rows + " grid."));
+
+        String target = "module \"" + moduleName + "\"";
+        if (suiteName != null) target += ", suite \"" + suiteName + "\"";
+        if (testName  != null) target += ", test \""  + testName  + "\"";
+        context.sendMessage(Message.raw("[GlyphTest] Started " + n + " test(s) — " + target + "."));
     }
 }

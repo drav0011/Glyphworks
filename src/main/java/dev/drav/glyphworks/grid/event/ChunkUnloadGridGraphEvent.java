@@ -36,6 +36,12 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
         super(ChunkUnloadEvent.class);
     }
 
+    @Nonnull
+    @Override
+    public Query<ChunkStore> getQuery() {
+        return Query.any();
+    }
+
     @Override
     public void handle(
             int index,
@@ -72,11 +78,5 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
                 graph.removeNode(pos);
             }
         }
-    }
-
-    @Nonnull
-    @Override
-    public Query<ChunkStore> getQuery() {
-        return Query.any();
     }
 }

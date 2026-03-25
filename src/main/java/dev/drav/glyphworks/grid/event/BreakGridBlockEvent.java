@@ -20,12 +20,17 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
-import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, BreakBlockEvent> {
 
     public BreakGridBlockEvent() {
         super(BreakBlockEvent.class);
+    }
+
+    @Nonnull
+    @Override
+    public Query<EntityStore> getQuery() {
+        return Query.any();
     }
 
     @Override
@@ -37,17 +42,26 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             @Nonnull BreakBlockEvent event) {
         Vector3i pos = event.getTargetBlock();
         World world = commandBuffer.getExternalData().getWorld();
-        disconnectBlock(world, pos);
-        // Snapshot neighbour positions for deferred visual update — at commandBuffer.run()
-        // time the block entity is already gone, so GridLookup returns null there and
-        // PipeConnectedBlockRuleSet computes the correct disconnected visual state.
+        // Snapshot neighbours before disconnectBlock wipes the component.
         ChunkStore chunkStore = world.getChunkStore();
         GridLookup lookup = GridLookup.resolve(chunkStore, pos);
-        // lookup is now null (block removed), so we read neighbors from component
-        // before calling disconnectBlock removed them; capture via the graph instead.
-        commandBuffer.run(_ -> {
-            // Visual updates already triggered inside disconnectBlock for neighbours.
-        });
+        Set<Vector3i> survivors = lookup != null
+                ? new HashSet<>(lookup.component().getNeighbors())
+                : Set.of();
+        disconnectBlock(world, pos);
+        // Deferred rebuild: by the time commandBuffer.run() fires the broken block's
+        // entity is gone. Clearing each survivor's stale neighbor set then re-running
+        // connectBlock rebuilds it correctly from the live world without entity replacement.
+        if (!survivors.isEmpty()) {
+            commandBuffer.run(_ -> {
+                for (Vector3i n : survivors) {
+                    GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
+                    if (nl == null) continue;
+                    nl.component().setNeighbors(new HashSet<>());
+                    PlaceGridBlockEvent.connectBlock(world, n);
+                }
+            });
+        }
     }
 
     /**
@@ -78,20 +92,14 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             graph.removeNode(pos);
         }
 
-        // Remove this position from each surviving neighbor's persisted neighbor set
-        // and trigger their visual update.
+        // Remove this position from each surviving neighbor's persisted neighbor set.
+        // The deferred rebuild in handle() will re-run connectBlock on each survivor
+        // once the broken block's entity is truly gone.
         for (Vector3i neighborPos : neighbors) {
             GridLookup neighborLookup = GridLookup.resolve(chunkStore, neighborPos);
             if (neighborLookup == null)
                 continue;
             neighborLookup.component().removeNeighbor(pos);
-            GridFaceUtil.forceConnectedBlockUpdate(world, neighborPos);
         }
-    }
-
-    @Nonnull
-    @Override
-    public Query<EntityStore> getQuery() {
-        return Query.any();
     }
 }

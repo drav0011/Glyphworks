@@ -28,6 +28,12 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
         super(PlaceBlockEvent.class);
     }
 
+    @Nonnull
+    @Override
+    public Query<EntityStore> getQuery() {
+        return Query.any();
+    }
+
     @Override
     public void handle(
             int index,
@@ -39,14 +45,6 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             World world = commandBuffer.getExternalData().getWorld();
             Vector3i target = event.getTargetBlock();
             connectBlock(world, target);
-            // Visual update for neighbours outside ±1 notification radius — safe here,
-            // deferred outside Store.tick() by commandBuffer.run().
-            GridLookup postLookup = GridLookup.resolve(world.getChunkStore(), target);
-            if (postLookup != null) {
-                for (Vector3i n : postLookup.component().getNeighbors()) {
-                    GridFaceUtil.forceConnectedBlockUpdate(world, n);
-                }
-            }
         });
     }
 
@@ -129,11 +127,5 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             graph.addEdge(pos, n);
         }
 
-    }
-
-    @Nonnull
-    @Override
-    public Query<EntityStore> getQuery() {
-        return Query.any();
     }
 }
