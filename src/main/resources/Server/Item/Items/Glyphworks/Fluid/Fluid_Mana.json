@@ -1,0 +1,60 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Fluid_Mana.name"
+  },
+  "Categories": [
+    "Blocks.Fluids"
+  ],
+  "Interactions": {
+    "Secondary": {
+      "Interactions": [
+        {
+          "Type": "PlaceFluid",
+          "FluidToPlace": "Mana_Source"
+        }
+      ]
+    }
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "Group": "Mana",
+    "HitboxType": "Block_Three_Quarter",
+    "Light": {
+      "Color": "#448"
+    },
+    "Flags": {},
+    "Gathering": {
+      "Breaking": {}
+    },
+    "BlockParticleSetId": "Snow",
+    "Textures": [
+      {
+        "Weight": 1,
+        "All": "BlockTextures/Fluid_Mana.png"
+      }
+    ],
+    "BlockSoundSetId": "Mud",
+    "Opacity": "Solid",
+    "ParticleColor": "#8844ff",
+    "CubeShadingMode": "Flat"
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Material": [
+      "Fluid"
+    ]
+  },
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45.0,
+      22.5
+    ],
+    "Translation": [
+      0.0,
+      -13.5
+    ]
+  }
+}

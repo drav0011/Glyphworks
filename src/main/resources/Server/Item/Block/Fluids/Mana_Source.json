@@ -1,0 +1,26 @@
+{
+  "MaxFluidLevel": 1,
+  "Opacity": "Transparent",
+  "Textures": [
+    {
+      "Weight": 1,
+      "All": "BlockTextures/Fluid_Mana.png"
+    }
+  ],
+  "BlockParticleSetId": "Snow",
+  "BlockSoundSetId": "Mud",
+  "FluidFXId": "Slime",
+  "ParticleColor": "#8844ff",
+  "Light": {
+    "Color": "#448"
+  },
+  "Ticker": {
+    "CanDemote": false,
+    "SpreadFluid": "Mana"
+  },
+  "Tags": {
+    "Fluid": [
+      "Mana"
+    ]
+  }
+}

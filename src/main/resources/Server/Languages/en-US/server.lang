@@ -2,3 +2,4 @@ items.Bench_AutoFurnace.name=Automated Furnace
 items.Bench_AutoFurnace.description=A furnace that automatically pulls input and pushes output.
 items.Auto_Bench_Farming.name=Automated Farming Bench
 items.Auto_Bench_Farming.description=A farming bench that automatically pulls input and pushes output.
+items.Fluid_Mana.name=Liquid Mana

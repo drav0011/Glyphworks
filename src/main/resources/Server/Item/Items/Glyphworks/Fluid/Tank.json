@@ -11,7 +11,7 @@
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
     "VariantRotation": "UpDown",
-    "HitboxType": "FluidTank",
+    "HitboxType": "Tank",
     "CustomModel": "Blocks/Glyphworks/Fluid/Tank/Default.blockymodel",
     "CustomModelTexture": [
       {
