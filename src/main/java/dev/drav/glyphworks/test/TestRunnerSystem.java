@@ -189,6 +189,25 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
             player.sendMessage(Message.raw(report));
         }
 
+        // Clear all test areas to Empty unless the --no-cleanup flag was used.
+        if (component.cleanupAfterRun) {
+            World world = store.getExternalData().getWorld();
+            for (int i = 0; i < component.queue.size(); i++) {
+                TestCase test = component.queue.get(i);
+                int ox = component.originXs[i];
+                int oy = component.originYs[i];
+                int oz = component.originZs[i];
+                for (int x = ox; x < ox + test.getAreaWidth(); x++) {
+                    for (int y = oy; y < oy + test.getAreaHeight(); y++) {
+                        for (int z = oz; z < oz + test.getAreaDepth(); z++) {
+                            world.setBlock(x, y, z, "Empty");
+                            clearFluid(world, x, y, z);
+                        }
+                    }
+                }
+            }
+        }
+
         commandBuffer.removeComponent(ref, TestRunnerComponent.getComponentType());
     }
 }

@@ -12,6 +12,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
@@ -44,12 +45,14 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
     private final RequiredArg<String> moduleArg;
     private final OptionalArg<String> suiteArg;
     private final OptionalArg<String> testArg;
+    private final FlagArg noCleanupArg;
 
     public GlyphTestCommand() {
-        super("gtest", "Run a Glyphworks test module, suite, or single test");
-        this.moduleArg = withRequiredArg("module", "Module ID", ArgTypes.STRING);
-        this.suiteArg  = withOptionalArg("suite",  "Suite ID within the module", ArgTypes.STRING);
-        this.testArg   = withOptionalArg("test",   "Test name within the suite", ArgTypes.STRING);
+        super("gw:test", "Run a Glyphworks test module, suite, or single test");
+        this.moduleArg    = withRequiredArg("module", "Module ID", ArgTypes.STRING);
+        this.suiteArg     = withOptionalArg("suite",  "Suite ID within the module", ArgTypes.STRING);
+        this.testArg      = withOptionalArg("test",   "Test name within the suite", ArgTypes.STRING);
+        this.noCleanupArg = withFlagArg("no-cleanup", "Keep test area blocks after the run (default: clean up)");
     }
 
     @Override
@@ -63,6 +66,7 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
         String moduleName = moduleArg.get(context);
         String suiteName  = suiteArg.get(context); // null when not provided
         String testName   = testArg.get(context);  // null when not provided
+        boolean cleanupAfterRun = !noCleanupArg.get(context);
 
         Map<String, TestSuite> moduleSuites = TestRegistry.getModule(moduleName);
         if (moduleSuites == null) {
@@ -142,11 +146,12 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
         }
 
         TestRunnerComponent runner = store.addComponent(ref, TestRunnerComponent.getComponentType());
-        runner.init(queue, originXs, originYs, originZs);
+        runner.init(queue, originXs, originYs, originZs, cleanupAfterRun);
 
         String target = "module \"" + moduleName + "\"";
         if (suiteName != null) target += ", suite \"" + suiteName + "\"";
         if (testName  != null) target += ", test \""  + testName  + "\"";
-        context.sendMessage(Message.raw("[GlyphTest] Started " + n + " test(s) — " + target + "."));
+        String cleanupNote = cleanupAfterRun ? "" : " [no-cleanup]";
+        context.sendMessage(Message.raw("[GlyphTest] Started " + n + " test(s) — " + target + cleanupNote + "."));
     }
 }

@@ -52,6 +52,9 @@ public final class TestRunnerComponent implements Component<EntityStore> {
      */
     boolean areaCleared = false;
 
+    /** Whether to clear all test areas once the entire run finishes (default {@code true}). */
+    boolean cleanupAfterRun = true;
+
     /** Accumulated PASS / FAIL strings reported at the end of the run. */
     final List<String> results = new ArrayList<>();
 
@@ -72,13 +75,15 @@ public final class TestRunnerComponent implements Component<EntityStore> {
             @Nonnull List<TestCase> tests,
             @Nonnull int[] originXs,
             @Nonnull int[] originYs,
-            @Nonnull int[] originZs) {
+            @Nonnull int[] originZs,
+            boolean cleanupAfterRun) {
         this.queue.clear();
         this.queue.addAll(tests);
-        this.originXs   = originXs;
-        this.originYs   = originYs;
-        this.originZs   = originZs;
-        this.areaCleared = false;
+        this.originXs        = originXs;
+        this.originYs        = originYs;
+        this.originZs        = originZs;
+        this.cleanupAfterRun = cleanupAfterRun;
+        this.areaCleared     = false;
     }
 
     public static ComponentType<EntityStore, TestRunnerComponent> getComponentType() {

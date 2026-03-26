@@ -40,7 +40,7 @@ public final class GridGraphCommand extends AbstractWorldCommand {
     private final FlagArg verboseArg;
 
     public GridGraphCommand() {
-        super("glyphgraph", "Print the Glyphworks grid graph for this world");
+        super("gw:graph", "Print the Glyphworks grid graph for this world");
         this.typeArg = withOptionalArg("type", "Grid type ID to inspect (e.g. Item)", ArgTypes.STRING);
         this.verboseArg = withFlagArg("verbose", "Also list individual node positions and their neighbours");
     }
