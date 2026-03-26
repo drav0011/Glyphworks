@@ -13,6 +13,10 @@ import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
+import dev.drav.glyphworks.fluid.tests.FluidContainerComponentTests;
+import dev.drav.glyphworks.fluid.tests.FluidPipeComponentTests;
+import dev.drav.glyphworks.fluid.tests.FluidPlacerComponentTests;
+import dev.drav.glyphworks.fluid.tests.FluidRemoverComponentTests;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
@@ -56,5 +60,13 @@ public final class FluidModule extends GlyphworksModule {
     public void start(@Nonnull GlyphworksPlugin plugin) {
         plugin.getChunkStoreRegistry().registerSystem(new FluidRemoverSystem());
         plugin.getChunkStoreRegistry().registerSystem(new FluidPlacerSystem());
+    }
+
+    @Override
+    public void setupTests() {
+        FluidContainerComponentTests.register("fluid");
+        FluidPipeComponentTests.register("fluid");
+        FluidPlacerComponentTests.register("fluid");
+        FluidRemoverComponentTests.register("fluid");
     }
 }
