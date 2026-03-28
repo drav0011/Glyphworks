@@ -48,8 +48,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
 public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
     private static final Logger LOGGER = Logger.getLogger(FluidPlacerSystem.class.getName());
-    private static final long LOG_INTERVAL_MS = 5_000;
-    private long lastLogTime = 0;
 
     /** Liters per world source-fluid block (one bucket). */
     private static final int LITERS_PER_BLOCK = 1_000;
@@ -71,51 +69,33 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             @Nonnull Store<ChunkStore> store,
             @Nonnull CommandBuffer<ChunkStore> commandBuffer) {
 
-        boolean log = System.currentTimeMillis() - lastLogTime >= LOG_INTERVAL_MS;
-        if (log)
-            lastLogTime = System.currentTimeMillis();
-
         FluidContainerComponent fcc = chunk.getComponent(index, FluidContainerComponent.getComponentType());
         if (fcc == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] fcc is null — entity skipped");
             return;
         }
         if (fcc.getAmount() < LITERS_PER_BLOCK) {
-            if (log)
-                LOGGER.info("[FluidPlacer] not enough fluid (amount=" + fcc.getAmount() + ") — skipping");
             return;
         }
         if (fcc.getLockedFluidId() == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] no locked fluid — skipping");
             return;
         }
 
         FluidPlacerComponent placer = chunk.getComponent(index, FluidPlacerComponent.getComponentType());
         if (placer == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] placer component is null — entity skipped");
             return;
         }
 
         BlockModule.BlockStateInfo bsi = chunk.getComponent(index, BlockModule.BlockStateInfo.getComponentType());
         if (bsi == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] BlockStateInfo is null — entity skipped");
             return;
         }
         if (!bsi.getChunkRef().isValid()) {
-            if (log)
-                LOGGER.info("[FluidPlacer] chunkRef invalid — entity skipped");
             return;
         }
 
         ChunkStore chunkStore = commandBuffer.getExternalData();
         BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
         if (blockChunk == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] BlockChunk is null — entity skipped");
             return;
         }
 
@@ -131,55 +111,31 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         BlockSection blockSection = blockChunk.getSectionAtBlockY(localY);
         RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
 
-        if (log)
-            LOGGER.info("[FluidPlacer] block at " + originPos
-                    + " | rotation=" + rotation
-                    + " | localNormal=" + placer.getTargetNormal()
-                    + " | localPos=" + placer.getTargetPosition()
-                    + " | container=" + fcc.getAmount() + "/" + fcc.getCapacity() + "L"
-                    + " | lockedFluid='" + fcc.getLockedFluidId() + "'");
-
         Vector3i adjacent = resolveTargetCell(originPos, placer, rotation);
         if (adjacent == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] resolveTargetCell returned null (worldNormal=None after rotation)");
             return;
         }
 
-        if (log)
-            LOGGER.info("[FluidPlacer] target cell=" + adjacent);
-
         FluidSection fs = getFluidSection(chunkStore, store, adjacent);
         if (fs == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] no FluidSection at " + adjacent);
             return;
         }
 
         int existingFluidId = fs.getFluidId(adjacent.x, adjacent.y, adjacent.z);
         if (existingFluidId != EMPTY_FLUID_ID) {
-            if (log)
-                LOGGER.info("[FluidPlacer] cell already occupied (fluidId=" + existingFluidId + ") — skipping");
             return;
         }
 
         int indexedId = Fluid.getAssetMap().getIndex(fcc.getLockedFluidId());
         if (indexedId <= EMPTY_FLUID_ID) {
-            if (log)
-                LOGGER.info("[FluidPlacer] unknown fluid id='" + fcc.getLockedFluidId() + "' (indexedId=" + indexedId
-                        + ")");
             return;
         }
 
         Fluid fluid = Fluid.getAssetMap().getAsset(indexedId);
         if (fluid == null) {
-            if (log)
-                LOGGER.info("[FluidPlacer] Fluid asset not found for indexedId=" + indexedId);
             return;
         }
 
-        if (log)
-            LOGGER.info("[FluidPlacer] placing fluid='" + fcc.getLockedFluidId() + "' at " + adjacent);
         int drained = fcc.drain(LITERS_PER_BLOCK);
         if (drained > 0) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, indexedId, (byte) fluid.getMaxFluidLevel());
@@ -190,11 +146,6 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
                 if (adjBlockChunk != null)
                     adjBlockChunk.setTicking(adjacent.x, adjacent.y, adjacent.z, true);
             }
-            if (log)
-                LOGGER.info("[FluidPlacer] drained " + drained + "L and placed fluid source block");
-        } else {
-            if (log)
-                LOGGER.info("[FluidPlacer] drain() returned 0 — nothing placed");
         }
     }
 

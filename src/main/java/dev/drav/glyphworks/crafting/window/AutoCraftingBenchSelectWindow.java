@@ -1,7 +1,5 @@
 package dev.drav.glyphworks.crafting.window;
 
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
@@ -35,8 +33,6 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
  * bench to see the {@link AutoCraftingBenchMonitorWindow}.
  */
 public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
-
-    private static final Logger LOGGER = Logger.getLogger(AutoCraftingBenchSelectWindow.class.getName());
 
     @Nonnull
     private final AutoCraftingBenchBlock acbb;
@@ -88,10 +84,6 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
         CraftingRecipe recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(recipeId);
         if (recipe == null)
             return;
-
-        LOGGER.info("[AutoCraftingBench] Recipe selected: id=" + recipeId
-                + ", output=" + (recipe.getOutputs() != null ? recipe.getOutputs() : "none")
-                + ", time=" + recipe.getTimeSeconds() + "s");
 
         World world = store.getExternalData().getWorld();
         acbb.setLockedRecipe(recipeId, blockStateInfo, world, x, y, z, blockType, rotationIndex);

@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,10 +55,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  * by a separate system outside the grid.
  */
 public final class FluidGridTypeHandler implements GridTypeHandler {
-
-    private static final Logger LOGGER = Logger.getLogger(FluidGridTypeHandler.class.getName());
-    private static final long LOG_INTERVAL_MS = 5_000;
-    private long lastLogTime = 0;
 
     @Override
     public String typeId() {
@@ -128,19 +123,9 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             // BIDIRECTIONAL/OUTPUT + null containerKey → pipe face or world-IO block, not a
             // grid source.
         }
-        boolean log = System.currentTimeMillis() - lastLogTime >= LOG_INTERVAL_MS;
-        if (log)
-            lastLogTime = System.currentTimeMillis();
-
         if (sources.isEmpty()) {
-            if (log)
-                LOGGER.info("[FluidGrid] block at " + originPos + " — no sources (faces=" + component.getFaces().size()
-                        + ")");
             return;
         }
-
-        if (log)
-            LOGGER.info("[FluidGrid] block at " + originPos + " — " + sources.size() + " source(s)");
 
         // ---- Step 3 & 4: BFS + transfer (once per source) ---------------
 
@@ -160,12 +145,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         for (FluidSource source : sources) {
             // Accumulator-based budget (liters this tick).
             int toTransfer = component.drainAccumulator(component.getTransferRate() * dt * TickingThread.TPS);
-            if (log)
-                LOGGER.info("[FluidGrid]   source fluid='" + source.fluidId() + "' toTransfer=" + toTransfer
-                        + " available=" + source.maxAvailable());
             if (toTransfer < 1) {
-                if (log)
-                    LOGGER.info("[FluidGrid]   accumulator not yet ready — skipping");
                 continue;
             }
 
@@ -264,13 +244,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             }
 
             if (sinks.isEmpty()) {
-                if (log)
-                    LOGGER.info("[FluidGrid]   no sinks found (traversedPipes=" + traversedPipes.size() + ")");
                 continue;
             }
-
-            if (log)
-                LOGGER.info("[FluidGrid]   " + sinks.size() + " sink(s) found");
 
             // -- Transfer --------------------------------------------------
             sinks.sort(Comparator.comparingInt(SinkEntry::distance));
@@ -289,8 +264,6 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 totalMoved += moved;
             }
 
-            if (log)
-                LOGGER.info("[FluidGrid]   totalMoved=" + totalMoved + "L");
             if (totalMoved <= 0)
                 continue;
 

@@ -1,7 +1,5 @@
 package dev.drav.glyphworks.fluid.system;
 
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -46,12 +44,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  */
 public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
 
-    private static final Logger LOGGER = Logger.getLogger(FluidRemoverSystem.class.getName());
-
-    /** Log at most once per this interval (ms) to avoid flooding the console. */
-    private static final long LOG_INTERVAL_MS = 5_000;
-    private long lastLogTime = 0;
-
     /** Liters per world source-fluid block (one bucket). */
     private static final int LITERS_PER_BLOCK = 1_000;
 
@@ -72,46 +64,30 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
             @Nonnull Store<ChunkStore> store,
             @Nonnull CommandBuffer<ChunkStore> commandBuffer) {
 
-        boolean log = System.currentTimeMillis() - lastLogTime >= LOG_INTERVAL_MS;
-        if (log)
-            lastLogTime = System.currentTimeMillis();
-
         FluidContainerComponent fcc = chunk.getComponent(index, FluidContainerComponent.getComponentType());
         if (fcc == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] fcc is null — entity skipped");
             return;
         }
         if (fcc.availableSpace() < LITERS_PER_BLOCK) {
-            if (log)
-                LOGGER.info("[FluidRemover] container full (space=" + fcc.availableSpace() + ") — skipping");
             return;
         }
 
         FluidRemoverComponent remover = chunk.getComponent(index, FluidRemoverComponent.getComponentType());
         if (remover == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] remover component is null — entity skipped");
             return;
         }
 
         BlockModule.BlockStateInfo bsi = chunk.getComponent(index, BlockModule.BlockStateInfo.getComponentType());
         if (bsi == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] BlockStateInfo is null — entity skipped");
             return;
         }
         if (!bsi.getChunkRef().isValid()) {
-            if (log)
-                LOGGER.info("[FluidRemover] chunkRef invalid — entity skipped");
             return;
         }
 
         ChunkStore chunkStore = commandBuffer.getExternalData();
         BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
         if (blockChunk == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] BlockChunk is null — entity skipped");
             return;
         }
 
@@ -127,49 +103,27 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         BlockSection blockSection = blockChunk.getSectionAtBlockY(localY);
         RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
 
-        if (log)
-            LOGGER.info("[FluidRemover] block at " + originPos
-                    + " | rotation=" + rotation
-                    + " | localNormal=" + remover.getTargetNormal()
-                    + " | localPos=" + remover.getTargetPosition()
-                    + " | container=" + fcc.getAmount() + "/" + fcc.getCapacity() + "L");
-
         Vector3i adjacent = resolveTargetCell(originPos, remover, rotation);
         if (adjacent == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] resolveTargetCell returned null (worldNormal=None after rotation)");
             return;
         }
 
-        if (log)
-            LOGGER.info("[FluidRemover] target cell=" + adjacent);
-
         FluidSection fs = getFluidSection(chunkStore, store, adjacent);
         if (fs == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] no FluidSection at " + adjacent);
             return;
         }
 
         int fluidId = fs.getFluidId(adjacent.x, adjacent.y, adjacent.z);
-        if (log)
-            LOGGER.info("[FluidRemover] fluidId at " + adjacent + "=" + fluidId);
 
         if (fluidId == EMPTY_FLUID_ID) {
-            if (log)
-                LOGGER.info("[FluidRemover] cell is empty — nothing to drain");
             return;
         }
 
         Fluid fluid = Fluid.getAssetMap().getAsset(fluidId);
         if (fluid == null) {
-            if (log)
-                LOGGER.info("[FluidRemover] Fluid asset not found for id=" + fluidId);
             return;
         }
 
-        if (log)
-            LOGGER.info("[FluidRemover] draining fluid='" + fluid.getId() + "' from " + adjacent);
         int filled = fcc.fill(fluid.getId(), LITERS_PER_BLOCK);
         if (filled > 0) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, EMPTY_FLUID_ID, (byte) 0);
@@ -180,11 +134,6 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
                 if (adjBlockChunk != null)
                     adjBlockChunk.setTicking(adjacent.x, adjacent.y, adjacent.z, true);
             }
-            if (log)
-                LOGGER.info("[FluidRemover] filled " + filled + "L into container, cleared world cell");
-        } else {
-            if (log)
-                LOGGER.info("[FluidRemover] fill() returned 0 — container may reject this fluid type");
         }
     }
 
