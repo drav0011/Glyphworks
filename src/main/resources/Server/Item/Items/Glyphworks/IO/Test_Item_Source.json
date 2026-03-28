@@ -9,7 +9,7 @@
     "Material": "Solid",
     "DrawType": "Cube",
     "BlockSoundSetId": "Stone",
-    "Opacity": "Opaque",
+    "Opacity": "Solid",
     "BlockEntity": {
       "Components": {
         "ItemContainerBlock": {

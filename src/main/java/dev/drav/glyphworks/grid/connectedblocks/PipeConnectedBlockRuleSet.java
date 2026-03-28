@@ -106,8 +106,6 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
             }
         }
         this.stateToBlockKey = map;
-        LOGGER.info("[PipeRuleSet] updateCachedBlockTypes: resolved " + map.size()
-                + "/64 states for base block \"" + baseBlockType.getId() + "\"");
     }
 
     @Override
