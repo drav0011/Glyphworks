@@ -1,0 +1,38 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Test_Item_Source.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Opaque",
+    "BlockEntity": {
+      "Components": {
+        "ItemContainerBlock": {
+          "ItemContainer": {
+            "Capacity": 20,
+            "Items": {}
+          },
+          "Capacity": 20
+        },
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_TransferRate": 1.0,
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "East",
+              "FacePlane_Mode": "Output",
+              "FacePlane_ContainerKey": "items"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block"
+}

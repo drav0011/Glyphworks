@@ -19,6 +19,7 @@ import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
 import dev.drav.glyphworks.transfer.item.ItemGridTypeHandler;
+import dev.drav.glyphworks.transfer.item.tests.ItemGridTransferTests;
 
 /**
  * Sub-plugin that owns the Item grid type, the auto-crafting bench component,
@@ -50,5 +51,10 @@ public final class CraftingModule extends GlyphworksModule {
         plugin.getChunkStoreRegistry().registerSystem(new ProcessingBenchAutoStartSystem());
         plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSetupSystem());
         plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());
+    }
+
+    @Override
+    public void setupTests() {
+        ItemGridTransferTests.register("crafting");
     }
 }

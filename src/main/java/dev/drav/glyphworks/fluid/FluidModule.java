@@ -14,6 +14,7 @@ import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
 import dev.drav.glyphworks.fluid.tests.FluidContainerComponentTests;
+import dev.drav.glyphworks.fluid.tests.FluidGridTransferTests;
 import dev.drav.glyphworks.fluid.tests.FluidPipeComponentTests;
 import dev.drav.glyphworks.fluid.tests.FluidPlacerComponentTests;
 import dev.drav.glyphworks.fluid.tests.FluidRemoverComponentTests;
@@ -65,6 +66,7 @@ public final class FluidModule extends GlyphworksModule {
     @Override
     public void setupTests() {
         FluidContainerComponentTests.register("fluid");
+        FluidGridTransferTests.register("fluid");
         FluidPipeComponentTests.register("fluid");
         FluidPlacerComponentTests.register("fluid");
         FluidRemoverComponentTests.register("fluid");

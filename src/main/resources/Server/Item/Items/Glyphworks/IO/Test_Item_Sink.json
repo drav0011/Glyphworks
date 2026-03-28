@@ -1,0 +1,38 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Test_Item_Sink.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Opaque",
+    "BlockEntity": {
+      "Components": {
+        "ItemContainerBlock": {
+          "ItemContainer": {
+            "Capacity": 20,
+            "Items": {}
+          },
+          "Capacity": 20
+        },
+        "GridComponent": {
+          "GridComponent_Type": "Item",
+          "GridComponent_TransferRate": 1.0,
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "West",
+              "FacePlane_Mode": "Input",
+              "FacePlane_ContainerKey": "items"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block"
+}
