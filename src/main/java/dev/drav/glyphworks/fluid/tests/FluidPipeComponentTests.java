@@ -9,12 +9,14 @@ import dev.drav.glyphworks.test.TestSuite;
 /**
  * Suite {@code "fluid_pipe"} — pure unit tests for {@link FluidPipeComponent}.
  *
- * <p>Verifies the lock/accept logic and that {@link FluidPipeComponent#clone()}
+ * <p>
+ * Verifies the lock/accept logic and that {@link FluidPipeComponent#clone()}
  * always produces an uncontaminated pipe.
  */
 public final class FluidPipeComponentTests {
 
-    private FluidPipeComponentTests() {}
+    private FluidPipeComponentTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());

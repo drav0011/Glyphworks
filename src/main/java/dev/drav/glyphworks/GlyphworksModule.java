@@ -13,12 +13,23 @@ import javax.annotation.Nonnull;
  */
 public abstract class GlyphworksModule {
 
-    /** Called during {@link GlyphworksPlugin#setup()}. Register components, events and commands here. */
+    /**
+     * Called during {@link GlyphworksPlugin#setup()}. Register components, events
+     * and commands here.
+     */
     public abstract void setup(@Nonnull GlyphworksPlugin plugin);
 
-    /** Called during {@link GlyphworksPlugin#start()}. Register ticking systems here. Defaults to a no-op. */
-    public void start(@Nonnull GlyphworksPlugin plugin) {}
+    /**
+     * Called during {@link GlyphworksPlugin#start()}. Register ticking systems
+     * here. Defaults to a no-op.
+     */
+    public void start(@Nonnull GlyphworksPlugin plugin) {
+    }
 
-    /** Override to register module-specific test suites. Called from {@link dev.drav.glyphworks.test.TestModule}. */
-    public void setupTests() {}
+    /**
+     * Override to register module-specific test suites. Called from
+     * {@link dev.drav.glyphworks.test.TestModule}.
+     */
+    public void setupTests() {
+    }
 }

@@ -12,7 +12,8 @@ import javax.annotation.Nullable;
 /**
  * Maps {@link GridType} IDs to their {@link GridTypeHandler} implementations.
  *
- * <p>Register handlers at plugin init alongside their matching
+ * <p>
+ * Register handlers at plugin init alongside their matching
  * {@link GridType}:
  *
  * <pre>
@@ -20,7 +21,8 @@ import javax.annotation.Nullable;
  * GridTypeHandlerRegistry.register(new ItemGridTypeHandler());
  * </pre>
  *
- * <p>Unknown IDs are logged and return {@code null}.
+ * <p>
+ * Unknown IDs are logged and return {@code null}.
  */
 public final class GridTypeHandlerRegistry {
 
@@ -28,7 +30,8 @@ public final class GridTypeHandlerRegistry {
 
     private static final Map<String, GridTypeHandler> REGISTRY = new HashMap<>();
 
-    private GridTypeHandlerRegistry() {}
+    private GridTypeHandlerRegistry() {
+    }
 
     /**
      * Registers a handler, keyed by {@link GridTypeHandler#typeId()}.

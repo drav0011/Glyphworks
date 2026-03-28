@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.grid.tests;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
@@ -17,13 +18,15 @@ import dev.drav.glyphworks.test.TestSuite;
 /**
  * Suite {@code "grid_face_util"} — tests {@link GridFaceUtil} static helpers.
  *
- * <p>All tests are purely in-memory (no block placement, no world interaction).
+ * <p>
+ * All tests are purely in-memory (no block placement, no world interaction).
  * Each {@link TestCase} uses a {@code 1×1×1} area and consists of a single
  * {@link Steps#assertThat} step, making the suite instant to run.
  */
 public final class GridFaceUtilTests {
 
-    private GridFaceUtilTests() {}
+    private GridFaceUtilTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());
@@ -82,7 +85,7 @@ public final class GridFaceUtilTests {
         return new TestCase("linkable_input_bidir", 1, 1, 1)
                 .step(Steps.assertThat(
                         ctx -> GridFaceUtil.areLinkable(FaceMode.INPUT, FaceMode.BIDIRECTIONAL)
-                            && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.INPUT),
+                                && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.INPUT),
                         "areLinkable(INPUT, BIDIR) and areLinkable(BIDIR, INPUT) are both true"));
     }
 
@@ -90,7 +93,7 @@ public final class GridFaceUtilTests {
         return new TestCase("linkable_output_bidir", 1, 1, 1)
                 .step(Steps.assertThat(
                         ctx -> GridFaceUtil.areLinkable(FaceMode.OUTPUT, FaceMode.BIDIRECTIONAL)
-                            && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.OUTPUT),
+                                && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.OUTPUT),
                         "areLinkable(OUTPUT, BIDIR) and areLinkable(BIDIR, OUTPUT) are both true"));
     }
 
@@ -116,9 +119,9 @@ public final class GridFaceUtilTests {
         return new TestCase("not_linkable_closed_any", 1, 1, 1)
                 .step(Steps.assertThat(
                         ctx -> !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.BIDIRECTIONAL)
-                            && !GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.CLOSED)
-                            && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.INPUT)
-                            && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.OUTPUT),
+                                && !GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.CLOSED)
+                                && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.INPUT)
+                                && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.OUTPUT),
                         "areLinkable returns false for any pair involving CLOSED"));
     }
 
@@ -130,11 +133,11 @@ public final class GridFaceUtilTests {
         return new TestCase("opposite_all_faces", 1, 1, 1)
                 .step(Steps.assertThat(
                         ctx -> GridFaceUtil.opposite(BlockFace.North) == BlockFace.South
-                            && GridFaceUtil.opposite(BlockFace.South) == BlockFace.North
-                            && GridFaceUtil.opposite(BlockFace.East)  == BlockFace.West
-                            && GridFaceUtil.opposite(BlockFace.West)  == BlockFace.East
-                            && GridFaceUtil.opposite(BlockFace.Up)    == BlockFace.Down
-                            && GridFaceUtil.opposite(BlockFace.Down)  == BlockFace.Up,
+                                && GridFaceUtil.opposite(BlockFace.South) == BlockFace.North
+                                && GridFaceUtil.opposite(BlockFace.East) == BlockFace.West
+                                && GridFaceUtil.opposite(BlockFace.West) == BlockFace.East
+                                && GridFaceUtil.opposite(BlockFace.Up) == BlockFace.Down
+                                && GridFaceUtil.opposite(BlockFace.Down) == BlockFace.Up,
                         "opposite() returns the correct inverse for all 6 cardinal BlockFace values"));
     }
 
@@ -146,12 +149,12 @@ public final class GridFaceUtilTests {
         return new TestCase("add_offset_all_faces", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     Vector3i o = new Vector3i(0, 0, 0);
-                    return GridFaceUtil.addOffset(o, BlockFace.North).equals(new Vector3i( 0,  0, -1))
-                        && GridFaceUtil.addOffset(o, BlockFace.South).equals(new Vector3i( 0,  0,  1))
-                        && GridFaceUtil.addOffset(o, BlockFace.East) .equals(new Vector3i( 1,  0,  0))
-                        && GridFaceUtil.addOffset(o, BlockFace.West) .equals(new Vector3i(-1,  0,  0))
-                        && GridFaceUtil.addOffset(o, BlockFace.Up)   .equals(new Vector3i( 0,  1,  0))
-                        && GridFaceUtil.addOffset(o, BlockFace.Down) .equals(new Vector3i( 0, -1,  0));
+                    return GridFaceUtil.addOffset(o, BlockFace.North).equals(new Vector3i(0, 0, -1))
+                            && GridFaceUtil.addOffset(o, BlockFace.South).equals(new Vector3i(0, 0, 1))
+                            && GridFaceUtil.addOffset(o, BlockFace.East).equals(new Vector3i(1, 0, 0))
+                            && GridFaceUtil.addOffset(o, BlockFace.West).equals(new Vector3i(-1, 0, 0))
+                            && GridFaceUtil.addOffset(o, BlockFace.Up).equals(new Vector3i(0, 1, 0))
+                            && GridFaceUtil.addOffset(o, BlockFace.Down).equals(new Vector3i(0, -1, 0));
                 }, "addOffset(origin, face) moves position by exactly one step in the expected direction"));
     }
 
@@ -161,13 +164,13 @@ public final class GridFaceUtilTests {
 
     private static TestCase rotateBlockFaceIdentityNoOp() {
         return new TestCase("rotate_block_face_identity_no_op", 1, 1, 1)
-                .step(Steps.assertThat(ctx ->
-                        GridFaceUtil.rotateBlockFace(BlockFace.North, RotationTuple.NONE) == BlockFace.North
-                        && GridFaceUtil.rotateBlockFace(BlockFace.South, RotationTuple.NONE) == BlockFace.South
-                        && GridFaceUtil.rotateBlockFace(BlockFace.East,  RotationTuple.NONE) == BlockFace.East
-                        && GridFaceUtil.rotateBlockFace(BlockFace.West,  RotationTuple.NONE) == BlockFace.West
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Up,    RotationTuple.NONE) == BlockFace.Up
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Down,  RotationTuple.NONE) == BlockFace.Down,
+                .step(Steps.assertThat(
+                        ctx -> GridFaceUtil.rotateBlockFace(BlockFace.North, RotationTuple.NONE) == BlockFace.North
+                                && GridFaceUtil.rotateBlockFace(BlockFace.South, RotationTuple.NONE) == BlockFace.South
+                                && GridFaceUtil.rotateBlockFace(BlockFace.East, RotationTuple.NONE) == BlockFace.East
+                                && GridFaceUtil.rotateBlockFace(BlockFace.West, RotationTuple.NONE) == BlockFace.West
+                                && GridFaceUtil.rotateBlockFace(BlockFace.Up, RotationTuple.NONE) == BlockFace.Up
+                                && GridFaceUtil.rotateBlockFace(BlockFace.Down, RotationTuple.NONE) == BlockFace.Down,
                         "rotateBlockFace with NONE rotation returns the same face for all 6 cardinal directions"));
     }
 
@@ -177,10 +180,11 @@ public final class GridFaceUtilTests {
 
     private static TestCase rotateBlockFaceNoneInput() {
         return new TestCase("rotate_block_face_none_input", 1, 1, 1)
-                .step(Steps.assertThat(ctx ->
-                        GridFaceUtil.rotateBlockFace(BlockFace.None, RotationTuple.NONE) == BlockFace.None
-                        && GridFaceUtil.rotateBlockFace(BlockFace.None,
-                                RotationTuple.of(Rotation.Ninety, Rotation.None, Rotation.None)) == BlockFace.None,
+                .step(Steps.assertThat(
+                        ctx -> GridFaceUtil.rotateBlockFace(BlockFace.None, RotationTuple.NONE) == BlockFace.None
+                                && GridFaceUtil.rotateBlockFace(BlockFace.None,
+                                        RotationTuple.of(Rotation.Ninety, Rotation.None,
+                                                Rotation.None)) == BlockFace.None,
                         "rotateBlockFace(None, ...) always returns BlockFace.None regardless of rotation"));
     }
 
@@ -193,11 +197,11 @@ public final class GridFaceUtilTests {
                 .step(Steps.assertThat(ctx -> {
                     RotationTuple yaw90 = RotationTuple.of(Rotation.Ninety, Rotation.None, Rotation.None);
                     return GridFaceUtil.rotateBlockFace(BlockFace.North, yaw90) == BlockFace.West
-                        && GridFaceUtil.rotateBlockFace(BlockFace.East,  yaw90) == BlockFace.North
-                        && GridFaceUtil.rotateBlockFace(BlockFace.South, yaw90) == BlockFace.East
-                        && GridFaceUtil.rotateBlockFace(BlockFace.West,  yaw90) == BlockFace.South
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Up,    yaw90) == BlockFace.Up
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Down,  yaw90) == BlockFace.Down;
+                            && GridFaceUtil.rotateBlockFace(BlockFace.East, yaw90) == BlockFace.North
+                            && GridFaceUtil.rotateBlockFace(BlockFace.South, yaw90) == BlockFace.East
+                            && GridFaceUtil.rotateBlockFace(BlockFace.West, yaw90) == BlockFace.South
+                            && GridFaceUtil.rotateBlockFace(BlockFace.Up, yaw90) == BlockFace.Up
+                            && GridFaceUtil.rotateBlockFace(BlockFace.Down, yaw90) == BlockFace.Down;
                 }, "rotateBlockFace with yaw=90\u00b0: N\u2192W, E\u2192N, S\u2192E, W\u2192S, Up and Down unchanged"));
     }
 
@@ -210,11 +214,11 @@ public final class GridFaceUtilTests {
                 .step(Steps.assertThat(ctx -> {
                     RotationTuple yaw180 = RotationTuple.of(Rotation.OneEighty, Rotation.None, Rotation.None);
                     return GridFaceUtil.rotateBlockFace(BlockFace.North, yaw180) == BlockFace.South
-                        && GridFaceUtil.rotateBlockFace(BlockFace.South, yaw180) == BlockFace.North
-                        && GridFaceUtil.rotateBlockFace(BlockFace.East,  yaw180) == BlockFace.West
-                        && GridFaceUtil.rotateBlockFace(BlockFace.West,  yaw180) == BlockFace.East
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Up,    yaw180) == BlockFace.Up
-                        && GridFaceUtil.rotateBlockFace(BlockFace.Down,  yaw180) == BlockFace.Down;
+                            && GridFaceUtil.rotateBlockFace(BlockFace.South, yaw180) == BlockFace.North
+                            && GridFaceUtil.rotateBlockFace(BlockFace.East, yaw180) == BlockFace.West
+                            && GridFaceUtil.rotateBlockFace(BlockFace.West, yaw180) == BlockFace.East
+                            && GridFaceUtil.rotateBlockFace(BlockFace.Up, yaw180) == BlockFace.Up
+                            && GridFaceUtil.rotateBlockFace(BlockFace.Down, yaw180) == BlockFace.Down;
                 }, "rotateBlockFace with yaw=180\u00b0: N\u2192S, S\u2192N, E\u2192W, W\u2192E, Up and Down unchanged"));
     }
 
@@ -243,7 +247,8 @@ public final class GridFaceUtilTests {
                     // (1,0,0) -> (0,0,-1)
                     // (0,0,1) -> (1,0,0)
                     return GridFaceUtil.rotateFacePosition(new Vector3i(1, 0, 0), yaw90).equals(new Vector3i(0, 0, -1))
-                        && GridFaceUtil.rotateFacePosition(new Vector3i(0, 0, 1), yaw90).equals(new Vector3i(1, 0, 0));
+                            && GridFaceUtil.rotateFacePosition(new Vector3i(0, 0, 1), yaw90)
+                                    .equals(new Vector3i(1, 0, 0));
                 }, "rotateFacePosition with yaw=90\u00b0: (1,0,0)\u2192(0,0,-1), (0,0,1)\u2192(1,0,0)"));
     }
 
@@ -290,7 +295,8 @@ public final class GridFaceUtilTests {
     }
 
     // -------------------------------------------------------------------------
-    // findMatchingFace — returns null when normal matches but world position does not
+    // findMatchingFace — returns null when normal matches but world position does
+    // not
     // -------------------------------------------------------------------------
 
     private static TestCase findMatchingFaceWrongPosition() {

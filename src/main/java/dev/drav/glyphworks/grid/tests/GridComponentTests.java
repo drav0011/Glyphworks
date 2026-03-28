@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.grid.tests;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
@@ -17,11 +18,14 @@ import dev.drav.glyphworks.test.TestRegistry;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * Suite {@code "grid_component"} — tests {@link GridComponent} state correctness.
+ * Suite {@code "grid_component"} — tests {@link GridComponent} state
+ * correctness.
  *
- * <p>Connection-related tests place pipe blocks and verify that the component's
+ * <p>
+ * Connection-related tests place pipe blocks and verify that the component's
  * persisted state (origin position, neighbor set) is updated correctly by the
- * connect/disconnect pipeline. Accumulator tests instantiate {@link GridComponent}
+ * connect/disconnect pipeline. Accumulator tests instantiate
+ * {@link GridComponent}
  * directly to avoid ECS interaction.
  */
 public final class GridComponentTests {
@@ -29,7 +33,8 @@ public final class GridComponentTests {
     private static final String PIPE_ID = "Pipe";
     private static final int WAIT_TICKS = 2 * TickingThread.TPS;
 
-    private GridComponentTests() {}
+    private GridComponentTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());
@@ -51,7 +56,9 @@ public final class GridComponentTests {
     // Helpers
     // -------------------------------------------------------------------------
 
-    private static Vector3i v(int x, int y, int z) { return new Vector3i(x, y, z); }
+    private static Vector3i v(int x, int y, int z) {
+        return new Vector3i(x, y, z);
+    }
 
     private static void place(World world, Vector3i pos) {
         world.setBlock(pos.x, pos.y, pos.z, PIPE_ID);
@@ -109,13 +116,15 @@ public final class GridComponentTests {
                     Vector3i pb = v(ox + 1, oy, oz);
                     GridComponent compA = component(w, pa);
                     GridComponent compB = component(w, pb);
-                    if (compA == null || compB == null) return false;
+                    if (compA == null || compB == null)
+                        return false;
                     return compA.getNeighbors().contains(pb) && compB.getNeighbors().contains(pa);
                 }, "each pipe's component.neighbors contains the other pipe's position"));
     }
 
     // -------------------------------------------------------------------------
-    // Test 3: breaking one pipe removes it from the surviving neighbor's neighbor set
+    // Test 3: breaking one pipe removes it from the surviving neighbor's neighbor
+    // set
     // -------------------------------------------------------------------------
 
     private static TestCase breakRemovesFromNeighborSet() {
@@ -240,4 +249,5 @@ public final class GridComponentTests {
                             && withKeyA.hashCode() == withKeyB.hashCode()
                             && withKeyA.hashCode() == withNull.hashCode();
                 }, "FacePlane.equals and hashCode ignore containerKey — only position, normal, and mode matter"));
-    }}
+    }
+}

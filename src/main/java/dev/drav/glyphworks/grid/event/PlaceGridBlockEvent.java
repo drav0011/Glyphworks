@@ -2,12 +2,13 @@ package dev.drav.glyphworks.grid.event;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.event.events.ecs.PlaceBlockEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -52,12 +53,14 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
      * Establishes grid connections for the block at {@code pos} and updates the
      * runtime {@link GridGraph}.
      *
-     * <p>Safe to call directly (e.g. from tests) when {@code world.setBlock()} is
+     * <p>
+     * Safe to call directly (e.g. from tests) when {@code world.setBlock()} is
      * used instead of a player placement event, which may not dispatch
      * {@link PlaceBlockEvent}. Idempotent — calling it more than once for the same
      * position is harmless.
      *
-     * <p>The ordering fix here — {@code graph.addNode(n)} before
+     * <p>
+     * The ordering fix here — {@code graph.addNode(n)} before
      * {@code graph.addEdge(pos, n)} — ensures that edges are registered on both
      * sides even when several adjacent blocks are connected in the same tick.
      */
@@ -85,7 +88,8 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
             if (worldNormal == BlockFace.None)
                 continue;
 
-            // The world cell this face touches: origin + rotated(face.position) + normal.offset.
+            // The world cell this face touches: origin + rotated(face.position) +
+            // normal.offset.
             // For a 1x1 block, face.position is (0,0,0) so this reduces to pos + normal.
             // For a multi-block, face.position offsets to the correct filler cell first.
             Vector3i worldFacePos = GridFaceUtil.rotateFacePosition(face.getPosition(), lookup.rotation());

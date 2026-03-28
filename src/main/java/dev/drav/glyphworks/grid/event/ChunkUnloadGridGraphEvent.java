@@ -2,6 +2,8 @@ package dev.drav.glyphworks.grid.event;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Holder;
@@ -9,7 +11,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.events.ecs.ChunkUnloadEvent;
@@ -25,10 +26,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * Removes all {@link GridComponent} nodes from their per-type {@link GridGraph}
  * when a chunk unloads.
  *
- * <p>Persisted neighbor data in {@link GridComponent#getNeighbors()} is left intact
+ * <p>
+ * Persisted neighbor data in {@link GridComponent#getNeighbors()} is left
+ * intact
  * so the graph can be fully reconstructed when the chunk loads again.
  *
- * <p>Registered on the chunk store registry in {@link dev.drav.glyphworks.GlyphworksPlugin#start()}.
+ * <p>
+ * Registered on the chunk store registry in
+ * {@link dev.drav.glyphworks.GlyphworksPlugin#start()}.
  */
 public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStore, ChunkUnloadEvent> {
 
@@ -51,10 +56,12 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
             @Nonnull ChunkUnloadEvent event) {
 
         BlockChunk blockChunk = event.getChunk().getBlockChunk();
-        if (blockChunk == null) return;
+        if (blockChunk == null)
+            return;
 
         BlockComponentChunk bcc = archetypeChunk.getComponent(index, BlockComponentChunk.getComponentType());
-        if (bcc == null || bcc.getEntityHolders().isEmpty()) return;
+        if (bcc == null || bcc.getEntityHolders().isEmpty())
+            return;
 
         int chunkOriginX = blockChunk.getX() << 5;
         int chunkOriginZ = blockChunk.getZ() << 5;
@@ -63,10 +70,12 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
             int blockIndex = entry.getIntKey();
             GridComponent component = (GridComponent) entry.getValue().getComponent(
                     GridComponent.getComponentType());
-            if (component == null) continue;
+            if (component == null)
+                continue;
 
             GridType type = component.getGridType();
-            if (type == null) continue;
+            if (type == null)
+                continue;
 
             Vector3i pos = new Vector3i(
                     chunkOriginX + ChunkUtil.xFromBlockInColumn(blockIndex),

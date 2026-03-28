@@ -2,11 +2,13 @@ package dev.drav.glyphworks.grid.component;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
-import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3iUtil;
 import com.hypixel.hytale.protocol.BlockFace;
 
 /**
@@ -16,7 +18,7 @@ public class FacePlane {
     public static final BuilderCodec<FacePlane> CODEC = BuilderCodec
             .builder(FacePlane.class, FacePlane::new)
             .append(
-                    new KeyedCodec<>("FacePlane_Position", Vector3i.CODEC),
+                    new KeyedCodec<>("FacePlane_Position", Vector3iUtil.CODEC),
                     (c, v) -> c.position = v,
                     c -> c.position)
             .add()
@@ -117,7 +119,8 @@ public class FacePlane {
 
     @Override
     public String toString() {
-        return String.format("FacePlane{position=%s, normal=%s, mode=%s, containerKey=%s}", position, normal, mode, containerKey);
+        return String.format("FacePlane{position=%s, normal=%s, mode=%s, containerKey=%s}", position, normal, mode,
+                containerKey);
     }
 
     @Override

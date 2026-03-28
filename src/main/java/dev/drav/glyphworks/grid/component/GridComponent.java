@@ -6,13 +6,15 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3iUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
@@ -36,7 +38,8 @@ public class GridComponent implements Component<ChunkStore> {
                     c -> c.faces)
             .add()
             .append(
-                    new KeyedCodec<>("GridComponent_Neighbors", new SetCodec<>(Vector3i.CODEC, HashSet::new, false)),
+                    new KeyedCodec<>("GridComponent_Neighbors",
+                            new SetCodec<>(Vector3iUtil.CODEC, HashSet::new, false)),
                     (c, v) -> c.neighbors = v,
                     c -> c.neighbors)
             .add()
@@ -117,7 +120,8 @@ public class GridComponent implements Component<ChunkStore> {
         }
         this.neighbors = new HashSet<>(other.neighbors);
         this.transferRate = other.transferRate;
-        // transferAccumulator intentionally not copied — fresh placement starts at zero.
+        // transferAccumulator intentionally not copied — fresh placement starts at
+        // zero.
     }
 
     public GridType getGridType() {
@@ -182,7 +186,8 @@ public class GridComponent implements Component<ChunkStore> {
      * that have accumulated (floored). The fractional remainder is kept for the
      * next tick.
      *
-     * @param amount the per-tick contribution (typically {@code effectiveRate * dt * TPS})
+     * @param amount the per-tick contribution (typically
+     *               {@code effectiveRate * dt * TPS})
      * @return how many whole items (or other units) to transfer this tick; 0 if
      *         the threshold has not been reached yet
      */

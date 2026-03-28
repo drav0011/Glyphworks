@@ -10,6 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.joml.Vector3d;
+
 import com.hypixel.hytale.builtin.crafting.component.CraftingManager;
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
@@ -22,8 +24,7 @@ import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.asset.type.blockhitbox.BlockBoundingBoxes;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
@@ -50,14 +51,17 @@ import dev.drav.glyphworks.crafting.window.AutoCraftingBenchMonitorWindow;
 /**
  * Block state component for automated crafting benches.
  *
- * <p>A single {@link CraftingRecipe} can be locked into this block by a player.
+ * <p>
+ * A single {@link CraftingRecipe} can be locked into this block by a player.
  * Once locked, the {@link #inputContainer} is dynamically sized to match the
- * recipe's ingredient list and each slot is filtered to accept only the matching
+ * recipe's ingredient list and each slot is filtered to accept only the
+ * matching
  * item or resource-type. Pipes may therefore only insert the correct items.
  * When no recipe is locked the input container has 0 slots, blocking all
  * pipe insertion.
  *
- * <p>Crafting progress is advanced each server tick by
+ * <p>
+ * Crafting progress is advanced each server tick by
  * {@link dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem}. When all
  * ingredients are present and the output has space, one craft cycle completes
  * automatically. If the output is full, progress is held at the recipe time
@@ -112,26 +116,38 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
      */
     private ItemContainer inputContainer;
 
-    /** Fixed 4-slot output-only container. Always present after {@link #setupContainers}. */
+    /**
+     * Fixed 4-slot output-only container. Always present after
+     * {@link #setupContainers}.
+     */
     private ItemContainer outputContainer;
 
-    /** Progress toward the next completed craft, in seconds of recipe time elapsed. */
+    /**
+     * Progress toward the next completed craft, in seconds of recipe time elapsed.
+     */
     private float craftingProgress = 0.0f;
 
     // ── Transient / runtime ────────────────────────────────────────────────────
 
-    /** Resolved recipe object; derived from {@link #lockedRecipeId} at load time. */
+    /**
+     * Resolved recipe object; derived from {@link #lockedRecipeId} at load time.
+     */
     @Nullable
     private transient CraftingRecipe lockedRecipe;
 
-    /** Combined input+output view; rebuilt whenever the input container is rebuilt. */
+    /**
+     * Combined input+output view; rebuilt whenever the input container is rebuilt.
+     */
     @Nullable
     private transient CombinedItemContainer itemContainer;
 
     /** {@code true} while the bench is actively counting down to the next craft. */
     private transient boolean isCrafting = false;
 
-    /** All monitor windows currently open for this bench, keyed by the viewer's UUID. */
+    /**
+     * All monitor windows currently open for this bench, keyed by the viewer's
+     * UUID.
+     */
     @Nonnull
     private transient Map<UUID, AutoCraftingBenchMonitorWindow> windows = new ConcurrentHashMap<>();
 
@@ -146,7 +162,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     /**
      * Initialises (or re-initialises) the input and output containers.
      *
-     * <p>Called once from
+     * <p>
+     * Called once from
      * {@link dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem}
      * when the block entity is first loaded or placed. Uses
      * {@link ItemContainer#ensureContainerCapacity} so that items already
@@ -205,11 +222,13 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
                 inputContainer, slotCount, SimpleItemContainer::getNewContainer, ejected);
         inputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
 
-        // Apply per-slot ingredient filters so only the correct item can enter each slot.
+        // Apply per-slot ingredient filters so only the correct item can enter each
+        // slot.
         for (short i = 0; i < inputs.size(); i++) {
             MaterialQuantity mat = inputs.get(i);
             inputContainer.setSlotFilter(FilterActionType.ADD, i, (actionType, container, slotIndex, itemStack) -> {
-                if (itemStack == null) return true;
+                if (itemStack == null)
+                    return true;
                 return CraftingManager.matches(mat, itemStack);
             });
         }
@@ -220,7 +239,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     /**
      * Locks a new recipe into this bench, rebuilding the input container to match.
      *
-     * <p>All items currently in the input container are ejected as item entities
+     * <p>
+     * All items currently in the input container are ejected as item entities
      * since they may not match the new recipe. Pass {@code null} to unlock,
      * which collapses the input container to 0 slots.
      */
@@ -273,7 +293,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
             return false;
         }
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(lockedRecipe);
-        if (inputs.isEmpty()) return false;
+        if (inputs.isEmpty())
+            return false;
         return !inputContainer.getSlotMaterialsToRemove(inputs, true, true).isEmpty();
     }
 
@@ -281,11 +302,13 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
      * Returns {@code true} if the output container has enough space to accept
      * the full output of one craft cycle.
      *
-     * <p>When {@code false}, the tick system holds {@link #craftingProgress} at
+     * <p>
+     * When {@code false}, the tick system holds {@link #craftingProgress} at
      * the recipe time without consuming any inputs.
      */
     public boolean canFitOutput() {
-        if (lockedRecipe == null || outputContainer == null) return false;
+        if (lockedRecipe == null || outputContainer == null)
+            return false;
         List<ItemStack> outputs = CraftingManager.getOutputItemStacks(lockedRecipe);
         return outputContainer.canAddItemStacks(outputs, false, false);
     }
@@ -294,7 +317,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
      * Consumes one set of recipe inputs and adds the outputs to the output
      * container. Any output that cannot fit is ejected as item entities.
      *
-     * <p>Should only be called when both {@link #isReadyToCraft()} and
+     * <p>
+     * Should only be called when both {@link #isReadyToCraft()} and
      * {@link #canFitOutput()} return {@code true}.
      *
      * @throws MatchException if the internal remove-materials transaction fails
@@ -305,25 +329,26 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
             @Nonnull BlockType blockType,
             int rotationIndex) throws MatchException {
 
-        if (lockedRecipe == null) return;
+        if (lockedRecipe == null)
+            return;
 
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(lockedRecipe);
         List<ItemStack> outputs = CraftingManager.getOutputItemStacks(lockedRecipe);
 
-        ListTransaction<MaterialTransaction> removeTx =
-                inputContainer.removeMaterials(inputs, true, true, true);
-        if (!removeTx.succeeded()) return;
+        ListTransaction<MaterialTransaction> removeTx = inputContainer.removeMaterials(inputs, true, true, true);
+        if (!removeTx.succeeded())
+            return;
 
         craftingProgress = 0.0f;
         isCrafting = false;
 
         // Add outputs; eject any remainder that did not fit.
-        ListTransaction<ItemStackTransaction> addTx =
-                outputContainer.addItemStacks(outputs, false, false, false);
+        ListTransaction<ItemStackTransaction> addTx = outputContainer.addItemStacks(outputs, false, false, false);
         List<ItemStack> remainder = new ArrayList<>();
         for (ItemStackTransaction tx : addTx.getList()) {
             ItemStack rem = tx.getRemainder();
-            if (rem != null && !rem.isEmpty()) remainder.add(rem);
+            if (rem != null && !rem.isEmpty())
+                remainder.add(rem);
         }
         if (!remainder.isEmpty()) {
             Holder<EntityStore>[] holders = ejectItems(
@@ -335,30 +360,50 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     // ── Getters / setters ──────────────────────────────────────────────────────
 
     @Nullable
-    public String getLockedRecipeId() { return lockedRecipeId; }
+    public String getLockedRecipeId() {
+        return lockedRecipeId;
+    }
 
     @Nullable
-    public CraftingRecipe getLockedRecipe() { return lockedRecipe; }
+    public CraftingRecipe getLockedRecipe() {
+        return lockedRecipe;
+    }
 
-    public float getCraftingProgress() { return craftingProgress; }
+    public float getCraftingProgress() {
+        return craftingProgress;
+    }
 
-    public void setCraftingProgress(float progress) { craftingProgress = progress; }
+    public void setCraftingProgress(float progress) {
+        craftingProgress = progress;
+    }
 
-    public boolean isCrafting() { return isCrafting; }
+    public boolean isCrafting() {
+        return isCrafting;
+    }
 
-    public void setCrafting(boolean crafting) { isCrafting = crafting; }
+    public void setCrafting(boolean crafting) {
+        isCrafting = crafting;
+    }
 
     @Nullable
-    public ItemContainer getInputContainer() { return inputContainer; }
+    public ItemContainer getInputContainer() {
+        return inputContainer;
+    }
 
     @Nullable
-    public ItemContainer getOutputContainer() { return outputContainer; }
+    public ItemContainer getOutputContainer() {
+        return outputContainer;
+    }
 
     @Nullable
-    public CombinedItemContainer getItemContainer() { return itemContainer; }
+    public CombinedItemContainer getItemContainer() {
+        return itemContainer;
+    }
 
     @Nonnull
-    public Map<UUID, AutoCraftingBenchMonitorWindow> getWindows() { return windows; }
+    public Map<UUID, AutoCraftingBenchMonitorWindow> getWindows() {
+        return windows;
+    }
 
     /** Pushes a normalised progress value (0–1) to all open monitor windows. */
     public void sendProgress(float progress) {
@@ -377,7 +422,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
             @Nullable BlockType blockType,
             int blockX, int blockY, int blockZ) {
 
-        if (items.isEmpty()) return Holder.emptyArray();
+        if (items.isEmpty())
+            return Holder.emptyArray();
 
         RotationTuple rotation = RotationTuple.get(rotationIndex);
         Vector3d frontDir = new Vector3d(0.0d, 0.0d, 1.0d);
@@ -387,8 +433,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
         if (blockType == null) {
             dropPos = new Vector3d(blockX + 0.5d, blockY, blockZ + 0.5d);
         } else {
-            BlockBoundingBoxes hitbox = (BlockBoundingBoxes)
-                    BlockBoundingBoxes.getAssetMap().getAsset(blockType.getHitboxTypeIndex());
+            BlockBoundingBoxes hitbox = (BlockBoundingBoxes) BlockBoundingBoxes.getAssetMap()
+                    .getAsset(blockType.getHitboxTypeIndex());
             if (hitbox == null) {
                 dropPos = new Vector3d(blockX + 0.5d, blockY, blockZ + 0.5d);
             } else {
@@ -407,8 +453,9 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
             float vz = (float) ((frontDir.z * EJECT_VELOCITY)
                     + (EJECT_SPREAD_VELOCITY * (rng.nextDouble() - 0.5d)));
             Holder<EntityStore> h = ItemComponent.generateItemDrop(
-                    accessor, item, dropPos, Vector3f.ZERO, vx, EJECT_VERTICAL_VELOCITY, vz);
-            if (h != null) result.add(h);
+                    accessor, item, dropPos, Rotation3f.ZERO, vx, EJECT_VERTICAL_VELOCITY, vz);
+            if (h != null)
+                result.add(h);
         }
         return result.toArray(Holder[]::new);
     }

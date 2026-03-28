@@ -18,12 +18,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.grid.tests.GridBlockChangeTests;
-import dev.drav.glyphworks.grid.tests.GridComponentTests;
-import dev.drav.glyphworks.grid.tests.GridConnectionTests;
-import dev.drav.glyphworks.grid.tests.GridFaceUtilTests;
-import dev.drav.glyphworks.grid.tests.GridGraphTests;
-import dev.drav.glyphworks.grid.tests.PipeConnectionTests;
 import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.connectedblocks.PipeConnectedBlockRuleSet;
@@ -33,6 +27,12 @@ import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.system.BlockChangeGridSystem;
 import dev.drav.glyphworks.grid.system.GridSystem;
+import dev.drav.glyphworks.grid.tests.GridBlockChangeTests;
+import dev.drav.glyphworks.grid.tests.GridComponentTests;
+import dev.drav.glyphworks.grid.tests.GridConnectionTests;
+import dev.drav.glyphworks.grid.tests.GridFaceUtilTests;
+import dev.drav.glyphworks.grid.tests.GridGraphTests;
+import dev.drav.glyphworks.grid.tests.PipeConnectionTests;
 import dev.drav.glyphworks.grid.type.GridType;
 
 /**

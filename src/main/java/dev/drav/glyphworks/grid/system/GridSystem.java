@@ -20,7 +20,8 @@ import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 /**
  * Per-tick system for grid nodes.
  *
- * <p>Reads each node's {@link GridType} and delegates to the matching
+ * <p>
+ * Reads each node's {@link GridType} and delegates to the matching
  * {@link GridTypeHandler} registered in {@link GridTypeHandlerRegistry}.
  * Nodes whose type has no registered handler are skipped with a warning.
  */
@@ -60,4 +61,3 @@ public final class GridSystem extends EntityTickingSystem<ChunkStore> {
         handler.tick(dt, index, archetypeChunk, store, commandBuffer, chunkStore, component, blockRef);
     }
 }
-

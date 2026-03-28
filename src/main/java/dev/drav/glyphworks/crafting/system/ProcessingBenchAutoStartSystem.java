@@ -6,12 +6,9 @@ import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
 import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
-import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -19,7 +16,7 @@ import dev.drav.glyphworks.grid.component.GridComponent;
 
 /**
  * Automatically activates a {@link ProcessingBenchBlock} each tick when it has
- * a
+ * a<
  * {@link GridComponent} and the necessary items to begin processing:
  *
  * <ul>

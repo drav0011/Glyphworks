@@ -2,10 +2,11 @@ package dev.drav.glyphworks.fluid.tests;
 
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -24,9 +25,11 @@ import dev.drav.glyphworks.test.TestRegistry;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * Suite {@code "fluid_remover_component"} — pure unit tests for {@link FluidRemoverComponent}.
+ * Suite {@code "fluid_remover_component"} — pure unit tests for
+ * {@link FluidRemoverComponent}.
  *
- * <p>Verifies that {@link FluidRemoverComponent#clone()} deep-copies the position
+ * <p>
+ * Verifies that {@link FluidRemoverComponent#clone()} deep-copies the position
  * vector and preserves the normal direction.
  */
 public final class FluidRemoverComponentTests {
@@ -35,7 +38,8 @@ public final class FluidRemoverComponentTests {
     private static final String BLOCK_ID = "Fluid_Remover";
     private static final int WAIT_TICKS = 2 * TickingThread.TPS;
 
-    private FluidRemoverComponentTests() {}
+    private FluidRemoverComponentTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());
@@ -111,7 +115,8 @@ public final class FluidRemoverComponentTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     // World cell must be empty.
-                    if (getFluidId(w, ox, oy, oz) != 0) return false;
+                    if (getFluidId(w, ox, oy, oz) != 0)
+                        return false;
                     // Container must hold exactly 1 000 L of Water_Source.
                     FluidContainerComponent fcc = getContainer(w, new Vector3i(ox, oy + 1, oz));
                     return fcc != null && fcc.getAmount() == 1_000
@@ -147,15 +152,22 @@ public final class FluidRemoverComponentTests {
     // Helpers
     // -------------------------------------------------------------------------
 
-    /** Returns the {@link FluidContainerComponent} for the block at {@code pos}, or {@code null}. */
+    /**
+     * Returns the {@link FluidContainerComponent} for the block at {@code pos}, or
+     * {@code null}.
+     */
     @Nullable
     private static FluidContainerComponent getContainer(World world, Vector3i pos) {
         GridLookup lu = GridLookup.resolve(world.getChunkStore(), pos);
-        if (lu == null) return null;
+        if (lu == null)
+            return null;
         return world.getChunkStore().getStore().getComponent(lu.blockRef(), FluidContainerComponent.getComponentType());
     }
 
-    /** Returns the fluid ID at the given world position, or {@code 0} if none / cell unloaded. */
+    /**
+     * Returns the fluid ID at the given world position, or {@code 0} if none / cell
+     * unloaded.
+     */
     private static int getFluidId(World world, int x, int y, int z) {
         long chunkIdx = ChunkUtil.indexChunkFromBlock(x, z);
         WorldChunk chunk = world.getChunkIfLoaded(chunkIdx);
@@ -165,27 +177,36 @@ public final class FluidRemoverComponentTests {
     /** Places {@code fluidId} as a source block at the given world position. */
     private static void placeFluid(World world, int x, int y, int z, String fluidId) {
         FluidSection fs = ensureFluidSection(world, x, y, z);
-        if (fs == null) return;
+        if (fs == null)
+            return;
         int indexedId = Fluid.getAssetMap().getIndex(fluidId);
         Fluid fluid = Fluid.getAssetMap().getAsset(indexedId);
-        if (fluid == null) return;
+        if (fluid == null)
+            return;
         fs.setFluid(x, y, z, indexedId, (byte) fluid.getMaxFluidLevel());
     }
 
-    /** Retrieves the {@link FluidSection} that covers {@code (x, y, z)}, creating it if absent. */
+    /**
+     * Retrieves the {@link FluidSection} that covers {@code (x, y, z)}, creating it
+     * if absent.
+     */
     @Nullable
     private static FluidSection ensureFluidSection(World world, int x, int y, int z) {
         ChunkStore chunkStore = world.getChunkStore();
         Store<ChunkStore> store = chunkStore.getStore();
         long chunkIdx = ChunkUtil.indexChunkFromBlock(x, z);
         Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(chunkIdx);
-        if (chunkRef == null || !chunkRef.isValid()) return null;
+        if (chunkRef == null || !chunkRef.isValid())
+            return null;
         ChunkColumn column = store.getComponent(chunkRef, ChunkColumn.getComponentType());
-        if (column == null) return null;
+        if (column == null)
+            return null;
         Ref<ChunkStore> sectionRef = column.getSection(ChunkUtil.chunkCoordinate(y));
-        if (sectionRef == null) return null;
+        if (sectionRef == null)
+            return null;
         FluidSection fs = store.getComponent(sectionRef, FluidSection.getComponentType());
-        if (fs == null) fs = store.addComponent(sectionRef, FluidSection.getComponentType());
+        if (fs == null)
+            fs = store.addComponent(sectionRef, FluidSection.getComponentType());
         return fs;
     }
 }

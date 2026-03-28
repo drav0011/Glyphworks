@@ -5,12 +5,13 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.EntityEventSystem;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.event.events.ecs.BreakBlockEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -51,12 +52,14 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
         disconnectBlock(world, pos);
         // Deferred rebuild: by the time commandBuffer.run() fires the broken block's
         // entity is gone. Clearing each survivor's stale neighbor set then re-running
-        // connectBlock rebuilds it correctly from the live world without entity replacement.
+        // connectBlock rebuilds it correctly from the live world without entity
+        // replacement.
         if (!survivors.isEmpty()) {
             commandBuffer.run(_ -> {
                 for (Vector3i n : survivors) {
                     GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
-                    if (nl == null) continue;
+                    if (nl == null)
+                        continue;
                     nl.component().setNeighbors(new HashSet<>());
                     PlaceGridBlockEvent.connectBlock(world, n);
                 }
@@ -68,9 +71,11 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
      * Removes all grid connections for the block at {@code pos} and updates the
      * runtime {@link GridGraph}.
      *
-     * <p>Safe to call directly (e.g. from the block-change polling system) when
+     * <p>
+     * Safe to call directly (e.g. from the block-change polling system) when
      * {@code world.setBlock(x, y, z, "Empty")} is used instead of a player breaking
-     * event, which may not dispatch {@link BreakBlockEvent}. Idempotent — calling it
+     * event, which may not dispatch {@link BreakBlockEvent}. Idempotent — calling
+     * it
      * for a position that has no grid block is a no-op.
      */
     public static void disconnectBlock(@Nonnull World world, @Nonnull Vector3i pos) {

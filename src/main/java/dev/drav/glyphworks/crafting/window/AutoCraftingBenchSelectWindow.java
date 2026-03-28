@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.crafting.window;
 
+import java.util.logging.Logger;
+
 import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
@@ -18,8 +20,6 @@ import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-
-import java.util.logging.Logger;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 

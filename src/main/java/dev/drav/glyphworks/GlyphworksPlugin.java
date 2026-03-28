@@ -25,8 +25,8 @@ import dev.drav.glyphworks.grid.GridModule;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
-import dev.drav.glyphworks.test.TestRunnerComponent;
 import dev.drav.glyphworks.test.TestModule;
+import dev.drav.glyphworks.test.TestRunnerComponent;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -52,10 +52,10 @@ public class GlyphworksPlugin extends JavaPlugin {
         LOGGER.info("[Glyphworks] setup()...");
         instance = this;
 
-        gridModule    = new GridModule();
-        fluidModule   = new FluidModule();
+        gridModule = new GridModule();
+        fluidModule = new FluidModule();
         craftingModule = new CraftingModule();
-        testModule    = new TestModule();
+        testModule = new TestModule();
         modules = List.of(gridModule, fluidModule, craftingModule, testModule);
 
         for (GlyphworksModule module : modules) {
@@ -77,7 +77,10 @@ public class GlyphworksPlugin extends JavaPlugin {
     // Grid graph state — delegated to GridModule
     // -------------------------------------------------------------------------
 
-    /** Returns all registered modules. Used by {@link dev.drav.glyphworks.test.TestModule} to call setupTests(). */
+    /**
+     * Returns all registered modules. Used by
+     * {@link dev.drav.glyphworks.test.TestModule} to call setupTests().
+     */
     public List<GlyphworksModule> getModules() {
         return modules;
     }

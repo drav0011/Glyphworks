@@ -12,11 +12,12 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
@@ -35,21 +36,23 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
 /**
  * Per-tick handler for the {@code "Fluid"} grid type.
  *
- * <p>Two kinds of nodes are recognised:
+ * <p>
+ * Two kinds of nodes are recognised:
  * <ul>
- *   <li><b>Tank</b>: OUTPUT/BIDIRECTIONAL face with a non-null
- *       {@code containerKey}, paired with a {@link FluidContainerComponent}.
- *       Sources the BFS when it has fluid; acts as a sink when it has
- *       space.</li>
- *   <li><b>Pipe</b>: BIDIRECTIONAL face with {@code containerKey = null}.
- *       Transparent relay.  An optional {@link FluidPipeComponent} tracks
- *       which fluid currently occupies the pipe; incompatible fluids are
- *       blocked.  Traversed pipes are locked to the flowing fluid after a
- *       successful transfer.</li>
+ * <li><b>Tank</b>: OUTPUT/BIDIRECTIONAL face with a non-null
+ * {@code containerKey}, paired with a {@link FluidContainerComponent}.
+ * Sources the BFS when it has fluid; acts as a sink when it has
+ * space.</li>
+ * <li><b>Pipe</b>: BIDIRECTIONAL face with {@code containerKey = null}.
+ * Transparent relay. An optional {@link FluidPipeComponent} tracks
+ * which fluid currently occupies the pipe; incompatible fluids are
+ * blocked. Traversed pipes are locked to the flowing fluid after a
+ * successful transfer.</li>
  * </ul>
  *
- * <p>Fluid amounts are tracked in <b>liters</b>.  Transfer rate is expressed
- * in liters per tick.  World-fluid interaction (Remover / Placer) is handled
+ * <p>
+ * Fluid amounts are tracked in <b>liters</b>. Transfer rate is expressed
+ * in liters per tick. World-fluid interaction (Remover / Placer) is handled
  * by a separate system outside the grid.
  */
 public final class FluidGridTypeHandler implements GridTypeHandler {
@@ -96,43 +99,53 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
         // ---- Step 2: collect sources ------------------------------------
         // A source is either:
-        //   (a) a tank face (OUTPUT / BIDIR + non-null containerKey + FluidContainerComponent with fluid), or
-        //   (b) a Remover face (OUTPUT + null containerKey + adjacent world fluid block).
+        // (a) a tank face (OUTPUT / BIDIR + non-null containerKey +
+        // FluidContainerComponent with fluid), or
+        // (b) a Remover face (OUTPUT + null containerKey + adjacent world fluid block).
         //
         // Multiple faces of different fluid types are grouped separately and each
         // gets its own BFS pass.
 
-        record FluidSource(String fluidId, int maxAvailable, FluidContainerComponent fcc) {}
+        record FluidSource(String fluidId, int maxAvailable, FluidContainerComponent fcc) {
+        }
 
         GridLookup selfLookup = (originPos != null) ? GridLookup.resolve(chunkStore, originPos) : null;
 
         List<FluidSource> sources = new ArrayList<>();
         for (FacePlane face : component.getFaces()) {
             FaceMode mode = face.getMode();
-            if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL) continue;
+            if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
+                continue;
 
             String key = face.getContainerKey();
             if (key != null) {
                 // Tank: fluid is stored in FluidContainerComponent on this block.
                 FluidContainerComponent fcc = store.getComponent(blockRef, FluidContainerComponent.getComponentType());
-                if (fcc == null || fcc.isEmpty() || fcc.getLockedFluidId() == null) continue;
+                if (fcc == null || fcc.isEmpty() || fcc.getLockedFluidId() == null)
+                    continue;
                 sources.add(new FluidSource(fcc.getLockedFluidId(), fcc.getAmount(), fcc));
             }
-            // BIDIRECTIONAL/OUTPUT + null containerKey → pipe face or world-IO block, not a grid source.
+            // BIDIRECTIONAL/OUTPUT + null containerKey → pipe face or world-IO block, not a
+            // grid source.
         }
         boolean log = System.currentTimeMillis() - lastLogTime >= LOG_INTERVAL_MS;
-        if (log) lastLogTime = System.currentTimeMillis();
+        if (log)
+            lastLogTime = System.currentTimeMillis();
 
         if (sources.isEmpty()) {
-            if (log) LOGGER.info("[FluidGrid] block at " + originPos + " — no sources (faces=" + component.getFaces().size() + ")");
+            if (log)
+                LOGGER.info("[FluidGrid] block at " + originPos + " — no sources (faces=" + component.getFaces().size()
+                        + ")");
             return;
         }
 
-        if (log) LOGGER.info("[FluidGrid] block at " + originPos + " — " + sources.size() + " source(s)");
+        if (log)
+            LOGGER.info("[FluidGrid] block at " + originPos + " — " + sources.size() + " source(s)");
 
         // ---- Step 3 & 4: BFS + transfer (once per source) ---------------
 
-        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {}
+        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
+        }
 
         record SinkEntry(
                 Ref<ChunkStore> ref,
@@ -141,14 +154,18 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 float rate,
                 int distance,
                 Vector3i originPos,
-                FluidContainerComponent fcc) {}
+                FluidContainerComponent fcc) {
+        }
 
         for (FluidSource source : sources) {
             // Accumulator-based budget (liters this tick).
             int toTransfer = component.drainAccumulator(component.getTransferRate() * dt * TickingThread.TPS);
-            if (log) LOGGER.info("[FluidGrid]   source fluid='" + source.fluidId() + "' toTransfer=" + toTransfer + " available=" + source.maxAvailable());
+            if (log)
+                LOGGER.info("[FluidGrid]   source fluid='" + source.fluidId() + "' toTransfer=" + toTransfer
+                        + " available=" + source.maxAvailable());
             if (toTransfer < 1) {
-                if (log) LOGGER.info("[FluidGrid]   accumulator not yet ready — skipping");
+                if (log)
+                    LOGGER.info("[FluidGrid]   accumulator not yet ready — skipping");
                 continue;
             }
 
@@ -169,11 +186,14 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 // Skip seeds reachable only through INPUT faces (same logic as item handler).
                 if (selfLookup != null) {
                     FacePlane connectingFace = findEntryFace(chunkStore, selfLookup, neighborPos);
-                    if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT) continue;
+                    if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
+                        continue;
                 }
                 GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
-                if (lookup == null) continue;
-                if (!visited.add(lookup.blockRef())) continue;
+                if (lookup == null)
+                    continue;
+                if (!visited.add(lookup.blockRef()))
+                    continue;
                 float rate = Math.min(component.getTransferRate(), lookup.component().getTransferRate());
                 queue.add(new BFSEntry(lookup, rate, finalOriginPos, 1));
             }
@@ -222,8 +242,10 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 }
 
                 // Pure-pipe relay: check FluidPipeComponent compatibility.
-                FluidPipeComponent fpc = store.getComponent(entry.lookup().blockRef(), FluidPipeComponent.getComponentType());
-                if (fpc != null && !fpc.accepts(source.fluidId())) continue; // incompatible pipe
+                FluidPipeComponent fpc = store.getComponent(entry.lookup().blockRef(),
+                        FluidPipeComponent.getComponentType());
+                if (fpc != null && !fpc.accepts(source.fluidId()))
+                    continue; // incompatible pipe
 
                 traversedPipes.add(entry.lookup().blockRef());
 
@@ -232,19 +254,23 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                         : entryComp.getNeighbors();
                 for (Vector3i neighborPos : relayNeighbors) {
                     GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
-                    if (lookup == null) continue;
-                    if (!visited.add(lookup.blockRef())) continue;
+                    if (lookup == null)
+                        continue;
+                    if (!visited.add(lookup.blockRef()))
+                        continue;
                     float rate = Math.min(entry.rate(), lookup.component().getTransferRate());
                     queue.add(new BFSEntry(lookup, rate, entryPos, entry.distance() + 1));
                 }
             }
 
             if (sinks.isEmpty()) {
-                if (log) LOGGER.info("[FluidGrid]   no sinks found (traversedPipes=" + traversedPipes.size() + ")");
+                if (log)
+                    LOGGER.info("[FluidGrid]   no sinks found (traversedPipes=" + traversedPipes.size() + ")");
                 continue;
             }
 
-            if (log) LOGGER.info("[FluidGrid]   " + sinks.size() + " sink(s) found");
+            if (log)
+                LOGGER.info("[FluidGrid]   " + sinks.size() + " sink(s) found");
 
             // -- Transfer --------------------------------------------------
             sinks.sort(Comparator.comparingInt(SinkEntry::distance));
@@ -253,7 +279,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             int totalMoved = 0;
 
             for (SinkEntry sink : sinks) {
-                if (remaining <= 0) break;
+                if (remaining <= 0)
+                    break;
 
                 int canAccept = Math.min(remaining, sink.fcc().availableSpace());
                 int moved = sink.fcc().fill(source.fluidId(), canAccept);
@@ -262,8 +289,10 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 totalMoved += moved;
             }
 
-            if (log) LOGGER.info("[FluidGrid]   totalMoved=" + totalMoved + "L");
-            if (totalMoved <= 0) continue;
+            if (log)
+                LOGGER.info("[FluidGrid]   totalMoved=" + totalMoved + "L");
+            if (totalMoved <= 0)
+                continue;
 
             // -- Drain source ----------------------------------------------
             source.fcc().drain(totalMoved);
@@ -294,13 +323,16 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         Vector3i originPos = terminal.originPos();
         for (FacePlane face : terminal.component().getFaces()) {
             BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), terminal.rotation());
-            if (worldNormal == BlockFace.None) continue;
+            if (worldNormal == BlockFace.None)
+                continue;
             Vector3i worldFaceCell = GridFaceUtil.addOffset(
                     originPos, GridFaceUtil.rotateFacePosition(face.getPosition(), terminal.rotation()));
             Vector3i outsidePos = GridFaceUtil.addOffset(worldFaceCell, worldNormal);
-            if (outsidePos.equals(arrivedFromOriginPos)) return face;
+            if (outsidePos.equals(arrivedFromOriginPos))
+                return face;
             GridLookup outsideLookup = GridLookup.resolve(chunkStore, outsidePos);
-            if (outsideLookup != null && outsideLookup.originPos().equals(arrivedFromOriginPos)) return face;
+            if (outsideLookup != null && outsideLookup.originPos().equals(arrivedFromOriginPos))
+                return face;
         }
         return null;
     }

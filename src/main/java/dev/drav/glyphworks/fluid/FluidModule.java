@@ -34,10 +34,21 @@ public final class FluidModule extends GlyphworksModule {
     private ComponentType<ChunkStore, FluidRemoverComponent> fluidRemoverComponentType;
     private ComponentType<ChunkStore, FluidPlacerComponent> fluidPlacerComponentType;
 
-    public ComponentType<ChunkStore, FluidContainerComponent> getFluidContainerComponentType() { return fluidContainerComponentType; }
-    public ComponentType<ChunkStore, FluidPipeComponent> getFluidPipeComponentType() { return fluidPipeComponentType; }
-    public ComponentType<ChunkStore, FluidRemoverComponent> getFluidRemoverComponentType() { return fluidRemoverComponentType; }
-    public ComponentType<ChunkStore, FluidPlacerComponent> getFluidPlacerComponentType() { return fluidPlacerComponentType; }
+    public ComponentType<ChunkStore, FluidContainerComponent> getFluidContainerComponentType() {
+        return fluidContainerComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidPipeComponent> getFluidPipeComponentType() {
+        return fluidPipeComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidRemoverComponent> getFluidRemoverComponentType() {
+        return fluidRemoverComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidPlacerComponent> getFluidPlacerComponentType() {
+        return fluidPlacerComponentType;
+    }
 
     @Override
     public void setup(@Nonnull GlyphworksPlugin plugin) {

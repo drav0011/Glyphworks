@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
 
 /**
  * Runtime position-keyed graph of
@@ -78,7 +78,8 @@ public final class GridGraph {
 
     /**
      * Returns the number of unique undirected edges in this graph.
-     * Each edge is stored in both directions, so the total neighbor count is halved.
+     * Each edge is stored in both directions, so the total neighbor count is
+     * halved.
      */
     public int getEdgeCount() {
         int total = 0;

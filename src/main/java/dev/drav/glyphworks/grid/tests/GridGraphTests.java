@@ -2,7 +2,8 @@ package dev.drav.glyphworks.grid.tests;
 
 import java.util.Set;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
@@ -14,21 +15,28 @@ import dev.drav.glyphworks.test.TestRegistry;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * Suite {@code "grid_graph"} — tests the {@link GridGraph} data structure directly.
+ * Suite {@code "grid_graph"} — tests the {@link GridGraph} data structure
+ * directly.
  *
- * <p>No blocks are placed. Tests manipulate the graph object via
+ * <p>
+ * No blocks are placed. Tests manipulate the graph object via
  * {@link GlyphworksPlugin#getOrCreateGridGraph} using a test-only grid type
  * ({@code "__grid_test__"}) that never interferes with the live Item grid.
  *
- * <p>Each test cleans up its positions at the start so re-running the suite
+ * <p>
+ * Each test cleans up its positions at the start so re-running the suite
  * is idempotent regardless of previous state.
  */
 public final class GridGraphTests {
 
-    /** Isolated test-only grid type — never registered in GridTypeRegistry, never touched by systems. */
+    /**
+     * Isolated test-only grid type — never registered in GridTypeRegistry, never
+     * touched by systems.
+     */
     private static final GridType TEST_TYPE = GridType.of("__grid_test__");
 
-    private GridGraphTests() {}
+    private GridGraphTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());
@@ -61,9 +69,17 @@ public final class GridGraphTests {
         return new Vector3i(x, y, z);
     }
 
-    private static Vector3i a(int ox, int oy, int oz) { return v(ox,     oy, oz); }
-    private static Vector3i b(int ox, int oy, int oz) { return v(ox + 1, oy, oz); }
-    private static Vector3i c(int ox, int oy, int oz) { return v(ox + 2, oy, oz); }
+    private static Vector3i a(int ox, int oy, int oz) {
+        return v(ox, oy, oz);
+    }
+
+    private static Vector3i b(int ox, int oy, int oz) {
+        return v(ox + 1, oy, oz);
+    }
+
+    private static Vector3i c(int ox, int oy, int oz) {
+        return v(ox + 2, oy, oz);
+    }
 
     // -------------------------------------------------------------------------
     // Test 1: addNode → contains; before add → not contains
@@ -78,8 +94,8 @@ public final class GridGraphTests {
                     Vector3i pos = a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     return !graph(ctx.getWorld()).contains(pos);
                 }, "graph does not contain node before addNode"))
-                .step(Steps.run(ctx ->
-                        graph(ctx.getWorld()).addNode(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))))
+                .step(Steps.run(
+                        ctx -> graph(ctx.getWorld()).addNode(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))))
                 .step(Steps.assertThat(ctx -> {
                     Vector3i pos = a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     return graph(ctx.getWorld()).contains(pos);
@@ -101,13 +117,13 @@ public final class GridGraphTests {
                     g.removeNode(pos); // cleanup
                     g.addNode(pos);
                 }))
-                .step(Steps.assertThat(ctx ->
-                        graph(ctx.getWorld()).contains(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
+                .step(Steps.assertThat(
+                        ctx -> graph(ctx.getWorld()).contains(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
                         "addNode registers node in graph"))
-                .step(Steps.run(ctx ->
-                        graph(ctx.getWorld()).removeNode(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))))
-                .step(Steps.assertThat(ctx ->
-                        !graph(ctx.getWorld()).contains(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
+                .step(Steps.run(ctx -> graph(ctx.getWorld())
+                        .removeNode(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))))
+                .step(Steps.assertThat(
+                        ctx -> !graph(ctx.getWorld()).contains(a(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
                         "removeNode unregisters node from graph"));
     }
 
@@ -201,8 +217,8 @@ public final class GridGraphTests {
                     Vector3i pb = b(ox, oy, oz);
                     return !g.contains(pa) && !g.getNeighbors(pb).contains(pa);
                 }, "removeNode removes node from its neighbors' edge sets"))
-                .step(Steps.run(ctx ->
-                        graph(ctx.getWorld()).removeNode(b(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))));
+                .step(Steps.run(ctx -> graph(ctx.getWorld())
+                        .removeNode(b(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()))));
     }
 
     // -------------------------------------------------------------------------
@@ -217,18 +233,23 @@ public final class GridGraphTests {
                     Vector3i pa = a(ox, oy, oz);
                     Vector3i pb = b(ox, oy, oz);
                     Vector3i pc = c(ox, oy, oz);
-                    g.removeNode(pa); g.removeNode(pb); g.removeNode(pc);
-                    g.addNode(pa);    g.addNode(pb);    g.addNode(pc);
+                    g.removeNode(pa);
+                    g.removeNode(pb);
+                    g.removeNode(pc);
+                    g.addNode(pa);
+                    g.addNode(pb);
+                    g.addNode(pc);
                     g.addEdge(pa, pb);
                     g.addEdge(pb, pc);
                 }))
-                .step(Steps.assertThat(ctx ->
-                        graph(ctx.getWorld()).getEdgeCount() == 2,
+                .step(Steps.assertThat(ctx -> graph(ctx.getWorld()).getEdgeCount() == 2,
                         "chain of 3 nodes A-B-C has exactly 2 edges"))
                 .step(Steps.run(ctx -> {
                     GridGraph g = graph(ctx.getWorld());
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    g.removeNode(a(ox, oy, oz)); g.removeNode(b(ox, oy, oz)); g.removeNode(c(ox, oy, oz));
+                    g.removeNode(a(ox, oy, oz));
+                    g.removeNode(b(ox, oy, oz));
+                    g.removeNode(c(ox, oy, oz));
                 }));
     }
 
@@ -244,8 +265,12 @@ public final class GridGraphTests {
                     Vector3i pa = a(ox, oy, oz);
                     Vector3i pb = b(ox, oy, oz);
                     Vector3i pc = c(ox, oy, oz);
-                    g.removeNode(pa); g.removeNode(pb); g.removeNode(pc);
-                    g.addNode(pa);    g.addNode(pb);    g.addNode(pc);
+                    g.removeNode(pa);
+                    g.removeNode(pb);
+                    g.removeNode(pc);
+                    g.addNode(pa);
+                    g.addNode(pb);
+                    g.addNode(pc);
                     g.addEdge(pa, pb);
                     g.addEdge(pb, pc);
                 }))
@@ -261,7 +286,9 @@ public final class GridGraphTests {
                 .step(Steps.run(ctx -> {
                     GridGraph g = graph(ctx.getWorld());
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    g.removeNode(a(ox, oy, oz)); g.removeNode(b(ox, oy, oz)); g.removeNode(c(ox, oy, oz));
+                    g.removeNode(a(ox, oy, oz));
+                    g.removeNode(b(ox, oy, oz));
+                    g.removeNode(c(ox, oy, oz));
                 }));
     }
 
@@ -276,7 +303,8 @@ public final class GridGraphTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     Vector3i pa = a(ox, oy, oz);
                     Vector3i pb = b(ox, oy, oz);
-                    g.removeNode(pa); g.removeNode(pb);
+                    g.removeNode(pa);
+                    g.removeNode(pb);
                     g.addNode(pa);
                     g.addNode(pb);
                     // No edge added — A and B are isolated from each other.
@@ -292,7 +320,8 @@ public final class GridGraphTests {
                 .step(Steps.run(ctx -> {
                     GridGraph g = graph(ctx.getWorld());
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    g.removeNode(a(ox, oy, oz)); g.removeNode(b(ox, oy, oz));
+                    g.removeNode(a(ox, oy, oz));
+                    g.removeNode(b(ox, oy, oz));
                 }));
     }
 

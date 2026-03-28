@@ -14,10 +14,12 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 /**
  * Stores fluid inside a grid-connected block (tank, buffer, etc.).
  *
- * <p>Fields use <b>liters</b> as their unit.  One block/bucket occupies 1 000 L.
+ * <p>
+ * Fields use <b>liters</b> as their unit. One block/bucket occupies 1 000 L.
  *
- * <p>A container is considered <em>empty</em> when {@code amount == 0} and
- * {@code lockedFluidId == null}.  On the first fill, {@code lockedFluidId} is
+ * <p>
+ * A container is considered <em>empty</em> when {@code amount == 0} and
+ * {@code lockedFluidId == null}. On the first fill, {@code lockedFluidId} is
  * set to the incoming fluid's asset ID and the container can only accept that
  * fluid until it is fully drained (at which point both fields reset to 0 /
  * {@code null}).
@@ -55,14 +57,15 @@ public class FluidContainerComponent implements Component<ChunkStore> {
 
     /**
      * Asset ID of the fluid currently filling this container, or {@code null}
-     * when the container is empty.  Once set, only this fluid type is accepted
+     * when the container is empty. Once set, only this fluid type is accepted
      * until the container is fully drained.
      */
     @Nullable
     private String lockedFluidId;
 
     /** No-arg constructor required by {@link #CODEC}. */
-    public FluidContainerComponent() {}
+    public FluidContainerComponent() {
+    }
 
     public FluidContainerComponent(int capacity) {
         this.capacity = capacity;
@@ -105,18 +108,22 @@ public class FluidContainerComponent implements Component<ChunkStore> {
     /**
      * Attempts to add {@code liters} of {@code fluidId} to this container.
      *
-     * <p>The operation is rejected (returns 0) if the container is locked to a
-     * different fluid type.  Otherwise up to {@code liters} are accepted
+     * <p>
+     * The operation is rejected (returns 0) if the container is locked to a
+     * different fluid type. Otherwise up to {@code liters} are accepted
      * (capped by available space), {@code lockedFluidId} is set if it was
      * {@code null}, and the number actually accepted is returned.
      *
      * @return liters actually added (0 – liters)
      */
     public int fill(String fluidId, int liters) {
-        if (lockedFluidId != null && !lockedFluidId.equals(fluidId)) return 0;
+        if (lockedFluidId != null && !lockedFluidId.equals(fluidId))
+            return 0;
         int accepted = Math.min(liters, availableSpace());
-        if (accepted <= 0) return 0;
-        if (lockedFluidId == null) lockedFluidId = fluidId;
+        if (accepted <= 0)
+            return 0;
+        if (lockedFluidId == null)
+            lockedFluidId = fluidId;
         amount += accepted;
         return accepted;
     }
@@ -124,18 +131,22 @@ public class FluidContainerComponent implements Component<ChunkStore> {
     /**
      * Drains up to {@code liters} from this container.
      *
-     * <p>If the container becomes empty after draining, {@code lockedFluidId}
+     * <p>
+     * If the container becomes empty after draining, {@code lockedFluidId}
      * is cleared automatically.
      *
      * @return liters actually drained (0 – liters)
      */
     public int drain(int liters) {
         int removed = Math.min(liters, amount);
-        if (removed <= 0) return 0;
+        if (removed <= 0)
+            return 0;
         amount -= removed;
-        if (amount == 0) lockedFluidId = null;
+        if (amount == 0)
+            lockedFluidId = null;
         return removed;
     }
+
     @Override
     @Nullable
     public Component<ChunkStore> clone() {
@@ -143,4 +154,5 @@ public class FluidContainerComponent implements Component<ChunkStore> {
         copy.amount = 0;
         copy.lockedFluidId = null;
         return copy;
-    }}
+    }
+}

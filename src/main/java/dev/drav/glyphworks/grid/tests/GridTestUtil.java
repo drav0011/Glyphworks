@@ -2,7 +2,8 @@ package dev.drav.glyphworks.grid.tests;
 
 import javax.annotation.Nullable;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
@@ -26,7 +27,7 @@ public final class GridTestUtil {
         if (graph == null) {
             return false;
         }
-        
+
         return graph.getNeighbors(a).contains(b);
     }
 

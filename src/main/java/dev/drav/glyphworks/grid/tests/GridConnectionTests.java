@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.grid.tests;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
@@ -16,11 +17,15 @@ import dev.drav.glyphworks.test.TestRegistry;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * Suite {@code "grid_connections"} — tests the event-driven block place/break pipeline.
+ * Suite {@code "grid_connections"} — tests the event-driven block place/break
+ * pipeline.
  *
- * <p>Each test uses {@code world.setBlock()} to place the block in the chunk store,
+ * <p>
+ * Each test uses {@code world.setBlock()} to place the block in the chunk
+ * store,
  * then calls {@link PlaceGridBlockEvent#connectBlock} or
- * {@link BreakGridBlockEvent#disconnectBlock} explicitly (the same path taken by
+ * {@link BreakGridBlockEvent#disconnectBlock} explicitly (the same path taken
+ * by
  * {@link dev.drav.glyphworks.grid.system.BlockChangeGridSystem} for
  * {@code world.setBlock()} calls). Tests then wait {@link #WAIT_TICKS} for any
  * deferred processing before asserting graph state.
@@ -33,7 +38,8 @@ public final class GridConnectionTests {
     /** 2 seconds — enough for place/break events to propagate through the ECS. */
     private static final int WAIT_TICKS = 2 * TickingThread.TPS;
 
-    private GridConnectionTests() {}
+    private GridConnectionTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());
@@ -55,7 +61,9 @@ public final class GridConnectionTests {
     // Helpers
     // -------------------------------------------------------------------------
 
-    private static Vector3i v(int x, int y, int z) { return new Vector3i(x, y, z); }
+    private static Vector3i v(int x, int y, int z) {
+        return new Vector3i(x, y, z);
+    }
 
     /** Place a pipe and register its grid connections. */
     private static void place(World world, Vector3i pos) {
@@ -88,8 +96,8 @@ public final class GridConnectionTests {
                     place(w, v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                 }))
                 .step(Steps.wait(WAIT_TICKS))
-                .step(Steps.assertThat(ctx ->
-                        graph(ctx.getWorld()).contains(v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
+                .step(Steps.assertThat(
+                        ctx -> graph(ctx.getWorld()).contains(v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
                         "placing a pipe registers it as a node in the Item grid graph"));
     }
 
@@ -119,7 +127,7 @@ public final class GridConnectionTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, v(ox,     oy, oz));
+                    place(w, v(ox, oy, oz));
                     place(w, v(ox + 1, oy, oz));
                 }))
                 .step(Steps.wait(WAIT_TICKS))
@@ -148,13 +156,14 @@ public final class GridConnectionTests {
                     breakAt(w, v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                 }))
                 .step(Steps.wait(WAIT_TICKS))
-                .step(Steps.assertThat(ctx ->
-                        !graph(ctx.getWorld()).contains(v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
+                .step(Steps.assertThat(
+                        ctx -> !graph(ctx.getWorld()).contains(v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ())),
                         "breaking a pipe removes it from the grid graph"));
     }
 
     // -------------------------------------------------------------------------
-    // Test 5: breaking one of two connected pipes empties the survivor's neighbor set
+    // Test 5: breaking one of two connected pipes empties the survivor's neighbor
+    // set
     // -------------------------------------------------------------------------
 
     private static TestCase breakUpdatesNeighbor() {
@@ -162,7 +171,7 @@ public final class GridConnectionTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, v(ox,     oy, oz));
+                    place(w, v(ox, oy, oz));
                     place(w, v(ox + 1, oy, oz));
                 }))
                 .step(Steps.wait(WAIT_TICKS))
@@ -189,7 +198,7 @@ public final class GridConnectionTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, v(ox,     oy, oz)); // A
+                    place(w, v(ox, oy, oz)); // A
                     place(w, v(ox + 1, oy, oz)); // B (middle)
                     place(w, v(ox + 2, oy, oz)); // C
                 }))
@@ -220,7 +229,7 @@ public final class GridConnectionTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, v(ox,     oy, oz));
+                    place(w, v(ox, oy, oz));
                     place(w, v(ox + 1, oy, oz));
                 }))
                 .step(Steps.wait(WAIT_TICKS))

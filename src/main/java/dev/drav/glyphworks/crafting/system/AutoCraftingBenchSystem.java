@@ -23,18 +23,21 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 /**
  * Per-tick crafting system for {@link AutoCraftingBenchBlock}.
  *
- * <p>Each tick, if a recipe is locked and the required ingredients are present:
+ * <p>
+ * Each tick, if a recipe is locked and the required ingredients are present:
  * <ol>
- *   <li>Progress is advanced by {@code dt} seconds.</li>
- *   <li>When progress reaches the recipe's time, one craft cycle completes:
- *       inputs are consumed and outputs are placed in the output container.</li>
- *   <li>If the output container is full when the cycle would complete, progress
- *       is clamped at the recipe time and inputs are <em>not</em> consumed until
- *       space becomes available.</li>
- *   <li>If ingredients are removed mid-cycle, progress resets to 0.</li>
+ * <li>Progress is advanced by {@code dt} seconds.</li>
+ * <li>When progress reaches the recipe's time, one craft cycle completes:
+ * inputs are consumed and outputs are placed in the output container.</li>
+ * <li>If the output container is full when the cycle would complete, progress
+ * is clamped at the recipe time and inputs are <em>not</em> consumed until
+ * space becomes available.</li>
+ * <li>If ingredients are removed mid-cycle, progress resets to 0.</li>
  * </ol>
  *
- * <p>Standard workbench-type {@link com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe}s
+ * <p>
+ * Standard workbench-type
+ * {@link com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe}s
  * report {@code getTimeSeconds() == 0} (instant craft). For auto-processing
  * we assign them {@link #DEFAULT_RECIPE_TIME} so the bench has a measurable
  * cycle instead of exiting immediately.
@@ -57,29 +60,35 @@ public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStor
             @Nonnull Store<ChunkStore> store,
             @Nonnull CommandBuffer<ChunkStore> commandBuffer) throws MatchException {
 
-        AutoCraftingBenchBlock acbb =
-                archetypeChunk.getComponent(index, AutoCraftingBenchBlock.getComponentType());
-        if (acbb == null) return;
+        AutoCraftingBenchBlock acbb = archetypeChunk.getComponent(index, AutoCraftingBenchBlock.getComponentType());
+        if (acbb == null)
+            return;
 
         CraftingRecipe recipe = acbb.getLockedRecipe();
-        if (recipe == null) return;
+        if (recipe == null)
+            return;
 
         // Standard crafting recipes (workbench type) declare timeSeconds == 0 because
         // they are supposed to be instant. We convert them to processing recipes, so we
         // substitute a sensible default cycle time instead of exiting early.
         float recipeTime = recipe.getTimeSeconds();
-        if (recipeTime <= 0.0f) recipeTime = DEFAULT_RECIPE_TIME;
+        if (recipeTime <= 0.0f)
+            recipeTime = DEFAULT_RECIPE_TIME;
 
-        // Resolve block coordinates and context — required for completeCraft's item ejection.
+        // Resolve block coordinates and context — required for completeCraft's item
+        // ejection.
         BlockModule.BlockStateInfo blockStateInfo = archetypeChunk.getComponent(
                 index, BlockModule.BlockStateInfo.getComponentType());
-        if (blockStateInfo == null) return;
+        if (blockStateInfo == null)
+            return;
 
         Ref<ChunkStore> chunkRef = blockStateInfo.getChunkRef();
-        if (!chunkRef.isValid()) return;
+        if (!chunkRef.isValid())
+            return;
 
         BlockChunk blockChunk = store.getComponent(chunkRef, BlockChunk.getComponentType());
-        if (blockChunk == null) return;
+        if (blockChunk == null)
+            return;
 
         int blockIndex = blockStateInfo.getIndex();
         int localX = ChunkUtil.xFromBlockInColumn(blockIndex);
@@ -91,14 +100,15 @@ public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStor
         BlockSection blockSection = blockChunk.getSectionAtBlockY(localY);
         int blockId = blockSection.get(localX, localY, localZ);
         BlockType blockType = (BlockType) BlockType.getAssetMap().getAsset(blockId);
-        if (blockType == null) return;
+        if (blockType == null)
+            return;
 
         int rotationIndex = blockSection.getRotationIndex(localX, localY, localZ);
         World world = store.getExternalData().getWorld();
         Store<EntityStore> entityStore = world.getEntityStore().getStore();
 
         // ── Step 1: if progress is already at the recipe time (held because output
-        //            was full), try to complete now that space may have freed up.
+        // was full), try to complete now that space may have freed up.
         if (acbb.getCraftingProgress() >= recipeTime) {
             if (acbb.isReadyToCraft() && acbb.canFitOutput()) {
                 acbb.completeCraft(entityStore, blockX, localY, blockZ, blockType, rotationIndex);

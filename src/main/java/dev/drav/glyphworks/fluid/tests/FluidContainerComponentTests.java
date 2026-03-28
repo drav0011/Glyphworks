@@ -7,14 +7,17 @@ import dev.drav.glyphworks.test.TestRegistry;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * Suite {@code "fluid_container"} — pure unit tests for {@link FluidContainerComponent}.
+ * Suite {@code "fluid_container"} — pure unit tests for
+ * {@link FluidContainerComponent}.
  *
- * <p>All tests instantiate the component directly (no ECS, no world) and verify
+ * <p>
+ * All tests instantiate the component directly (no ECS, no world) and verify
  * the fill/drain state machine, clamping, and clone behaviour.
  */
 public final class FluidContainerComponentTests {
 
-    private FluidContainerComponentTests() {}
+    private FluidContainerComponentTests() {
+    }
 
     public static void register(String moduleId) {
         TestRegistry.register(moduleId, buildSuite());

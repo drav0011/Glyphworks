@@ -1,9 +1,9 @@
 package dev.drav.glyphworks.crafting.window;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -77,8 +77,10 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
         this.acbb = acbb;
         this.blockStateInfo = blockStateInfo;
 
-        // Build a slot layout that matches the client's expectation: fuel | input | output.
-        // The dummy 1-slot fuel container is output-only so nothing can be inserted into it.
+        // Build a slot layout that matches the client's expectation: fuel | input |
+        // output.
+        // The dummy 1-slot fuel container is output-only so nothing can be inserted
+        // into it.
         ItemContainer dummyFuel = SimpleItemContainer.getNewContainer((short) 1);
         dummyFuel.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
         ItemContainer input = acbb.getInputContainer();
@@ -125,7 +127,7 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
         windowData.add("input", inputArr);
         windowData.addProperty("outputSlotsCount", Integer.valueOf(4)); // matches AutoCraftingBenchBlock.OUTPUT_SLOTS
     }
- 
+
     // ── Lifecycle ──────────────────────────────────────────────────────────────
 
     @Override

@@ -8,8 +8,9 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
@@ -27,11 +28,12 @@ import dev.drav.glyphworks.grid.type.GridTypeRegistry;
 /**
  * /glyphgraph [--type <id>] [--verbose]
  *
- * <p>Prints the in-memory grid graph for the current world.
+ * <p>
+ * Prints the in-memory grid graph for the current world.
  * <ul>
- *   <li>Without flags: one summary line per registered type.</li>
- *   <li>{@code --type <id>}: restrict output to that type.</li>
- *   <li>{@code --verbose}: also list every node and its neighbour positions.</li>
+ * <li>Without flags: one summary line per registered type.</li>
+ * <li>{@code --type <id>}: restrict output to that type.</li>
+ * <li>{@code --verbose}: also list every node and its neighbour positions.</li>
  * </ul>
  */
 public final class GridGraphCommand extends AbstractWorldCommand {
@@ -88,16 +90,16 @@ public final class GridGraphCommand extends AbstractWorldCommand {
 
             context.sendMessage(Message.raw(
                     "  [" + type.id() + "] nodes=" + nodeCount
-                    + "  edges=" + edgeCount
-                    + "  components=" + componentCount));
+                            + "  edges=" + edgeCount
+                            + "  components=" + componentCount));
 
             if (verbose && nodeCount > 0) {
                 // Sort for stable, readable output.
                 List<Vector3i> sorted = new ArrayList<>(nodes);
                 sorted.sort(Comparator
-                        .comparingInt(Vector3i::getY)
-                        .thenComparingInt(Vector3i::getX)
-                        .thenComparingInt(Vector3i::getZ));
+                        .<Vector3i>comparingInt(v -> v.y)
+                        .thenComparingInt(v -> v.x)
+                        .thenComparingInt(v -> v.z));
 
                 for (Vector3i pos : sorted) {
                     Set<Vector3i> neighbours = graph.getNeighbors(pos);
@@ -107,7 +109,8 @@ public final class GridGraphCommand extends AbstractWorldCommand {
                         StringBuilder sb = new StringBuilder("    ").append(fmtPos(pos)).append("  → ");
                         boolean first = true;
                         for (Vector3i n : neighbours) {
-                            if (!first) sb.append(", ");
+                            if (!first)
+                                sb.append(", ");
                             sb.append(fmtPos(n));
                             first = false;
                         }
@@ -133,6 +136,6 @@ public final class GridGraphCommand extends AbstractWorldCommand {
     }
 
     private static String fmtPos(Vector3i pos) {
-        return "(" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")";
+        return "(" + pos.x + ", " + pos.y + ", " + pos.z + ")";
     }
 }

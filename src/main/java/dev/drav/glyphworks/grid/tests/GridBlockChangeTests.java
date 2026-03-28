@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.grid.tests;
 
-import com.hypixel.hytale.math.vector.Vector3i;
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
@@ -142,7 +143,7 @@ public final class GridBlockChangeTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    w.setBlock(ox,     oy, oz, PIPE_ID);
+                    w.setBlock(ox, oy, oz, PIPE_ID);
                     w.setBlock(ox + 1, oy, oz, PIPE_ID);
                 }))
                 .step(Steps.waitUntil(ctx -> {
@@ -173,7 +174,8 @@ public final class GridBlockChangeTests {
                     Vector3i pa = v(ox, oy, oz);
                     Vector3i pb = v(ox + 1, oy, oz);
                     return connected(w, pa, pb) && connected(w, pb, pa);
-                }, TIMEOUT_TICKS, "BlockChangeGridSystem reconnects two pipes after a full break-and-replace cycle via setBlock only"));
+                }, TIMEOUT_TICKS,
+                        "BlockChangeGridSystem reconnects two pipes after a full break-and-replace cycle via setBlock only"));
     }
 
     // -------------------------------------------------------------------------
@@ -190,9 +192,9 @@ public final class GridBlockChangeTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    w.setBlock(ox,     oy, oz, PIPE_ID);
+                    w.setBlock(ox, oy, oz, PIPE_ID);
                     w.setBlock(ox + 1, oy, oz, PIPE_ID);
-                    PlaceGridBlockEvent.connectBlock(w, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(w, v(ox, oy, oz));
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
                 }))
                 .step(Steps.waitUntil(ctx -> {
@@ -224,10 +226,10 @@ public final class GridBlockChangeTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    w.setBlock(ox,     oy, oz, PIPE_ID); // A
+                    w.setBlock(ox, oy, oz, PIPE_ID); // A
                     w.setBlock(ox + 1, oy, oz, PIPE_ID); // B (middle)
                     w.setBlock(ox + 2, oy, oz, PIPE_ID); // C
-                    PlaceGridBlockEvent.connectBlock(w, v(ox,     oy, oz));
+                    PlaceGridBlockEvent.connectBlock(w, v(ox, oy, oz));
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 2, oy, oz));
                 }))
@@ -247,7 +249,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridGraph g = graph(w);
-                    Vector3i pa = v(ox,     oy, oz);
+                    Vector3i pa = v(ox, oy, oz);
                     Vector3i pc = v(ox + 2, oy, oz);
                     return g.contains(pa) && g.contains(pc)
                             && !g.contains(v(ox + 1, oy, oz))
