@@ -65,6 +65,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     // Tick
     // -------------------------------------------------------------------------
 
+
+    // TODO CHECK DRAINING, CLEARS PIPE, UPDATES NEIGHBOURS
     @Override
     public void tick(
             float dt,
@@ -116,9 +118,9 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             if (key != null) {
                 // Tank: fluid is stored in FluidContainerComponent on this block.
                 FluidContainerComponent fcc = store.getComponent(blockRef, FluidContainerComponent.getComponentType());
-                if (fcc == null || fcc.isEmpty() || fcc.getLockedFluidId() == null)
+                if (fcc == null || fcc.isEmpty() || fcc.getFluidId() == null)
                     continue;
-                sources.add(new FluidSource(fcc.getLockedFluidId(), fcc.getAmount(), fcc));
+                sources.add(new FluidSource(fcc.getFluidId(), fcc.getAmount(), fcc));
             }
             // BIDIRECTIONAL/OUTPUT + null containerKey → pipe face or world-IO block, not a
             // grid source.
@@ -207,8 +209,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                                             entry.lookup().blockRef(), FluidContainerComponent.getComponentType());
                                     if (fcc != null
                                             && fcc.availableSpace() > 0
-                                            && (fcc.getLockedFluidId() == null
-                                                    || fcc.getLockedFluidId().equals(source.fluidId()))) {
+                                            && (fcc.getFluidId() == null
+                                                    || fcc.getFluidId().equals(source.fluidId()))) {
                                         sinks.add(new SinkEntry(
                                                 entry.lookup().blockRef(), entryComp, entryFace,
                                                 entry.rate(), entry.distance(),
@@ -273,8 +275,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             // -- Lock traversed pipes to this fluid -----------------------
             for (Ref<ChunkStore> pipeRef : traversedPipes) {
                 FluidPipeComponent fpc = store.getComponent(pipeRef, FluidPipeComponent.getComponentType());
-                if (fpc != null && fpc.getLockedFluidId() == null) {
-                    fpc.setLockedFluidId(source.fluidId());
+                if (fpc != null && fpc.getFluidId() == null) {
+                    fpc.setFluidId(source.fluidId());
                 }
             }
         }

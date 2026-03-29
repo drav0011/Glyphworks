@@ -1,0 +1,45 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Fluid_Tank.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Transparent",
+    "VariantRotation": "DoublePipe",
+    "HitboxType": "Tank",
+    "CustomModel": "Blocks/Glyphworks/Fluid/Tank/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Fluid/Tank/Default.png",
+        "Weight": 1
+      }
+    ],
+    "BlockEntity": {
+      "Components": {
+        "GridComponent": {
+          "GridComponent_Type": "Fluid",
+          "GridComponent_TransferRate": 25,
+          "GridComponent_Faces": [
+            {
+              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+              "FacePlane_Normal": "Up",
+              "FacePlane_Mode": "Bidirectional",
+              "FacePlane_ContainerKey": "tank"
+            }
+          ]
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 16000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
+        }
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block"
+}

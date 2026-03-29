@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.FluidPlacer.name"
+    "Name": "server.items.Glyphworks_Fluid_Remover.name"
   },
   "Categories": [
     "Blocks.Deco"
@@ -11,11 +11,11 @@
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
-    "HitboxType": "Inserter",
-    "CustomModel": "Blocks/Glyphworks/IO/Inserter/Inserter.blockymodel",
+    "HitboxType": "Extractor",
+    "CustomModel": "Blocks/Glyphworks/Fluid/Remover/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/IO/Inserter/Inserter.png",
+        "Texture": "Blocks/Glyphworks/Fluid/Remover/Default.png",
         "Weight": 1
       }
     ],
@@ -28,19 +28,19 @@
             {
               "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
               "FacePlane_Normal": "Up",
-              "FacePlane_Mode": "Input",
+              "FacePlane_Mode": "Output",
               "FacePlane_ContainerKey": "container"
             }
           ]
         },
-        "FluidContainerComponent": {
-          "FluidContainer_Capacity": 2000,
-          "FluidContainer_Amount": 0,
-          "FluidContainer_LockedFluidId": null
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 2000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
         },
-        "FluidPlacerComponent": {
-            "FluidPlacer_TargetNormal": "Down",
-            "FluidPlacer_TargetPosition": { "X": 0, "Y": 0, "Z": 0 }
+        "Glyphworks_FluidRemoverComponent": {
+            "Glyphworks_FluidRemoverComponent_TargetNormal": "Down",
+            "Glyphworks_FluidRemoverComponent_TargetPosition": { "X": 0, "Y": 0, "Z": 0 }
         }
       }
     }

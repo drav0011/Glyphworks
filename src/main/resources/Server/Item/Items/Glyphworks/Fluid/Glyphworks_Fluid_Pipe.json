@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.FluidPipe.name"
+    "Name": "server.items.Glyphworks_Fluid_Pipe.name"
   },
   "Categories": [
     "Blocks.Deco"
@@ -82,8 +82,8 @@
             }
           ]
         },
-        "FluidPipeComponent": {
-          "FluidPipe_LockedFluidId": null
+        "Glyphworks_FluidPipeComponent": {
+          "Glyphworks_FluidPipeComponent_FluidId": null
         }
       }                                    
     },

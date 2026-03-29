@@ -35,10 +35,12 @@ import dev.drav.glyphworks.test.TestSuite;
  */
 public final class FluidGridTransferTests {
 
+    // TODO CHECK
+
     private static final String FLUID_ID = "Water_Source";
-    private static final String SOURCE_ID = "Test_Fluid_Source";
-    private static final String SINK_ID = "Test_Fluid_Sink";
-    private static final String PIPE_ID = "Fluid_Pipe";
+    private static final String SOURCE_ID = "Glyphworks_Fluid_Source";
+    private static final String SINK_ID = "Glyphworks_Fluid_Sink";
+    private static final String PIPE_ID = "Glyphworks_Fluid_Pipe";
 
     /** Used to pre-lock a pipe to an incompatible fluid type in test 3. */
     private static final String OTHER_FLUID_ID = "Lava_Source";
@@ -159,7 +161,7 @@ public final class FluidGridTransferTests {
                     FluidContainerComponent fccSink = getContainer(w, new Vector3i(ox + 3, oy, oz));
                     return fccSrc != null && fccSrc.getAmount() == 0
                             && fccSink != null && fccSink.getAmount() == FILL_AMOUNT
-                            && FLUID_ID.equals(fccSink.getLockedFluidId());
+                            && FLUID_ID.equals(fccSink.getFluidId());
                 }, "fluid transfers from source through pipes to sink"));
     }
 
@@ -169,7 +171,7 @@ public final class FluidGridTransferTests {
      *
      * <p>
      * Same layout as test 1. After the full transfer the inner relay pipe
-     * (at {@code ox+2}) must have its {@link FluidPipeComponent#getLockedFluidId()}
+     * (at {@code ox+2}) must have its {@link FluidPipeComponent#getFluidId()}
      * set to {@link #FLUID_ID}.
      */
     private static TestCase pipeLocksTsFluidAfterTransfer() {
@@ -192,7 +194,7 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidPipeComponent fpc = getPipe(w, new Vector3i(ox + 2, oy, oz));
-                    return fpc != null && FLUID_ID.equals(fpc.getLockedFluidId());
+                    return fpc != null && FLUID_ID.equals(fpc.getFluidId());
                 }, "the traversed pipe is locked to the fluid ID after a successful transfer"));
     }
 
@@ -220,7 +222,7 @@ public final class FluidGridTransferTests {
                     // Pre-lock the inner relay pipe to a different fluid type.
                     FluidPipeComponent fpc = getPipe(w, new Vector3i(ox + 2, oy, oz));
                     if (fpc != null)
-                        fpc.setLockedFluidId(OTHER_FLUID_ID);
+                        fpc.setFluidId(OTHER_FLUID_ID);
                     // Fill the source with water.
                     FluidContainerComponent fcc = getContainer(w, new Vector3i(ox, oy, oz));
                     if (fcc != null)

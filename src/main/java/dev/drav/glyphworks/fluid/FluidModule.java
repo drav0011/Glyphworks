@@ -7,17 +7,21 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
+import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
+import dev.drav.glyphworks.fluid.system.FluidSinkSystem;
+import dev.drav.glyphworks.fluid.system.FluidSourceSystem;
 import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
-import dev.drav.glyphworks.fluid.tests.FluidContainerComponentTests;
 import dev.drav.glyphworks.fluid.tests.FluidGridTransferTests;
-import dev.drav.glyphworks.fluid.tests.FluidPipeComponentTests;
-import dev.drav.glyphworks.fluid.tests.FluidPlacerComponentTests;
-import dev.drav.glyphworks.fluid.tests.FluidRemoverComponentTests;
+import dev.drav.glyphworks.fluid.tests.FluidPlacerSystemTests;
+import dev.drav.glyphworks.fluid.tests.FluidRemoverSystemTests;
+import dev.drav.glyphworks.fluid.tests.FluidSinkSystemTests;
+import dev.drav.glyphworks.fluid.tests.FluidSourceSystemTests;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
@@ -33,6 +37,8 @@ public final class FluidModule extends GlyphworksModule {
     private ComponentType<ChunkStore, FluidPipeComponent> fluidPipeComponentType;
     private ComponentType<ChunkStore, FluidRemoverComponent> fluidRemoverComponentType;
     private ComponentType<ChunkStore, FluidPlacerComponent> fluidPlacerComponentType;
+    private ComponentType<ChunkStore, FluidSourceComponent> fluidSourceComponentType;
+    private ComponentType<ChunkStore, FluidSinkComponent> fluidSinkComponentType;
 
     public ComponentType<ChunkStore, FluidContainerComponent> getFluidContainerComponentType() {
         return fluidContainerComponentType;
@@ -50,36 +56,52 @@ public final class FluidModule extends GlyphworksModule {
         return fluidPlacerComponentType;
     }
 
+    public ComponentType<ChunkStore, FluidSourceComponent> getFluidSourceComponentType() {
+        return fluidSourceComponentType;
+    }
+
+    public ComponentType<ChunkStore, FluidSinkComponent> getFluidSinkComponentType() {
+        return fluidSinkComponentType;
+    }
+
     @Override
     public void setup(@Nonnull GlyphworksPlugin plugin) {
         GridTypeRegistry.register(GridType.of("Fluid"));
         GridTypeHandlerRegistry.register(new FluidGridTypeHandler());
 
         this.fluidContainerComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                FluidContainerComponent.class, "FluidContainerComponent", FluidContainerComponent.CODEC);
+                FluidContainerComponent.class, "Glyphworks_FluidContainerComponent", FluidContainerComponent.CODEC);
 
         this.fluidPipeComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                FluidPipeComponent.class, "FluidPipeComponent", FluidPipeComponent.CODEC);
+                FluidPipeComponent.class, "Glyphworks_FluidPipeComponent", FluidPipeComponent.CODEC);
 
         this.fluidRemoverComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                FluidRemoverComponent.class, "FluidRemoverComponent", FluidRemoverComponent.CODEC);
+                FluidRemoverComponent.class, "Glyphworks_FluidRemoverComponent", FluidRemoverComponent.CODEC);
 
         this.fluidPlacerComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                FluidPlacerComponent.class, "FluidPlacerComponent", FluidPlacerComponent.CODEC);
+                FluidPlacerComponent.class, "Glyphworks_FluidPlacerComponent", FluidPlacerComponent.CODEC);
+
+        this.fluidSourceComponentType = plugin.getChunkStoreRegistry().registerComponent(
+                FluidSourceComponent.class, "Glyphworks_FluidSourceComponent", FluidSourceComponent.CODEC);
+
+        this.fluidSinkComponentType = plugin.getChunkStoreRegistry().registerComponent(
+                FluidSinkComponent.class, "Glyphworks_FluidSinkComponent", FluidSinkComponent.CODEC);
     }
 
     @Override
     public void start(@Nonnull GlyphworksPlugin plugin) {
         plugin.getChunkStoreRegistry().registerSystem(new FluidRemoverSystem());
         plugin.getChunkStoreRegistry().registerSystem(new FluidPlacerSystem());
+        plugin.getChunkStoreRegistry().registerSystem(new FluidSourceSystem());
+        plugin.getChunkStoreRegistry().registerSystem(new FluidSinkSystem());
     }
 
     @Override
     public void setupTests() {
-        FluidContainerComponentTests.register("fluid");
         FluidGridTransferTests.register("fluid");
-        FluidPipeComponentTests.register("fluid");
-        FluidPlacerComponentTests.register("fluid");
-        FluidRemoverComponentTests.register("fluid");
+        FluidSourceSystemTests.register("fluid");
+        FluidSinkSystemTests.register("fluid");
+        FluidPlacerSystemTests.register("fluid");
+        FluidRemoverSystemTests.register("fluid");
     }
 }

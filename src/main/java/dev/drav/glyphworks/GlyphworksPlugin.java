@@ -18,6 +18,8 @@ import dev.drav.glyphworks.crafting.CraftingModule;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.fluid.FluidModule;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
+import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
@@ -125,6 +127,14 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, FluidPlacerComponent> getFluidPlacerComponentType() {
         return fluidModule.getFluidPlacerComponentType();
+    }
+
+    public ComponentType<ChunkStore, FluidSourceComponent> getFluidSourceComponentType() {
+        return fluidModule.getFluidSourceComponentType();
+    }
+
+    public ComponentType<ChunkStore, FluidSinkComponent> getFluidSinkComponentType() {
+        return fluidModule.getFluidSinkComponentType();
     }
 
     public ComponentType<EntityStore, TestRunnerComponent> getTestRunnerComponentType() {

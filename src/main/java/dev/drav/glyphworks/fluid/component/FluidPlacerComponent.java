@@ -30,12 +30,12 @@ public final class FluidPlacerComponent implements Component<ChunkStore> {
     public static final BuilderCodec<FluidPlacerComponent> CODEC = BuilderCodec
             .builder(FluidPlacerComponent.class, FluidPlacerComponent::new)
             .append(
-                    new KeyedCodec<>("FluidPlacer_TargetPosition", Vector3iUtil.CODEC),
+                    new KeyedCodec<>("Glyphworks_FluidPlacerComponent_TargetPosition", Vector3iUtil.CODEC),
                     (c, v) -> c.targetPosition = v,
                     c -> c.targetPosition)
             .add()
             .append(
-                    new KeyedCodec<>("FluidPlacer_TargetNormal", new EnumCodec<>(BlockFace.class)),
+                    new KeyedCodec<>("Glyphworks_FluidPlacerComponent_TargetNormal", new EnumCodec<>(BlockFace.class)),
                     (c, v) -> c.targetNormal = v,
                     c -> c.targetNormal)
             .add()

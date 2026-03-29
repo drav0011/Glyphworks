@@ -30,12 +30,12 @@ public final class FluidRemoverComponent implements Component<ChunkStore> {
     public static final BuilderCodec<FluidRemoverComponent> CODEC = BuilderCodec
             .builder(FluidRemoverComponent.class, FluidRemoverComponent::new)
             .append(
-                    new KeyedCodec<>("FluidRemover_TargetPosition", Vector3iUtil.CODEC),
+                    new KeyedCodec<>("Glyphworks_FluidRemoverComponent_TargetPosition", Vector3iUtil.CODEC),
                     (c, v) -> c.targetPosition = v,
                     c -> c.targetPosition)
             .add()
             .append(
-                    new KeyedCodec<>("FluidRemover_TargetNormal", new EnumCodec<>(BlockFace.class)),
+                    new KeyedCodec<>("Glyphworks_FluidRemoverComponent_TargetNormal", new EnumCodec<>(BlockFace.class)),
                     (c, v) -> c.targetNormal = v,
                     c -> c.targetNormal)
             .add()

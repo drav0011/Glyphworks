@@ -15,7 +15,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
  * Tracks which fluid type is currently occupying a grid pipe block.
  *
  * <p>
- * When {@code lockedFluidId} is {@code null} the pipe is uncontaminated and
+ * When {@code fluidId} is {@code null} the pipe is uncontaminated and
  * accepts any fluid. Once fluid flows through it the ID is locked so that a
  * second, incompatible fluid cannot mix inside the same pipe segment. The lock
  * is cleared when the pipe is drained (handled by
@@ -26,9 +26,9 @@ public class FluidPipeComponent implements Component<ChunkStore> {
     public static final BuilderCodec<FluidPipeComponent> CODEC = BuilderCodec
             .builder(FluidPipeComponent.class, FluidPipeComponent::new)
             .append(
-                    new KeyedCodec<>("FluidPipe_LockedFluidId", Codec.STRING),
-                    (c, v) -> c.lockedFluidId = v,
-                    c -> c.lockedFluidId)
+                    new KeyedCodec<>("Glyphworks_FluidPipeComponent_FluidId", Codec.STRING),
+                    (c, v) -> c.fluidId = v,
+                    c -> c.fluidId)
             .add()
             .build();
 
@@ -41,27 +41,27 @@ public class FluidPipeComponent implements Component<ChunkStore> {
      * when the pipe is clean and accepts any fluid.
      */
     @Nullable
-    private String lockedFluidId;
+    private String fluidId;
 
     /** No-arg constructor required by {@link #CODEC}. */
     public FluidPipeComponent() {
     }
 
     @Nullable
-    public String getLockedFluidId() {
-        return lockedFluidId;
+    public String getFluidId() {
+        return fluidId;
     }
 
-    public void setLockedFluidId(@Nullable String lockedFluidId) {
-        this.lockedFluidId = lockedFluidId;
+    public void setFluidId(@Nullable String fluidId) {
+        this.fluidId = fluidId;
     }
 
     /**
      * Returns {@code true} if this pipe can carry {@code fluidId}.
-     * An uncontaminated pipe ({@code lockedFluidId == null}) accepts anything.
+     * An uncontaminated pipe ({@code fluidId == null}) accepts anything.
      */
     public boolean accepts(String fluidId) {
-        return lockedFluidId == null || lockedFluidId.equals(fluidId);
+        return this.fluidId == null || this.fluidId.equals(fluidId);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package dev.drav.glyphworks.fluid.system;
 
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -19,11 +17,11 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.ChunkColumn;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
@@ -46,8 +44,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  * The fluid grid fills the container from connected tanks.
  */
 public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
-
-    private static final Logger LOGGER = Logger.getLogger(FluidPlacerSystem.class.getName());
 
     /** Liters per world source-fluid block (one bucket). */
     private static final int LITERS_PER_BLOCK = 1_000;
@@ -76,7 +72,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc.getAmount() < LITERS_PER_BLOCK) {
             return;
         }
-        if (fcc.getLockedFluidId() == null) {
+        if (fcc.getFluidId() == null) {
             return;
         }
 
@@ -108,7 +104,10 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
                 localY,
                 ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ));
 
-        BlockSection blockSection = blockChunk.getSectionAtBlockY(localY);
+        BlockSection blockSection = FluidUtil.getBlockSection(chunkStore, store, originPos.x, originPos.y, originPos.z);
+        if (blockSection == null) {
+            return;
+        }
         RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
 
         Vector3i adjacent = resolveTargetCell(originPos, placer, rotation);
@@ -116,7 +115,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        FluidSection fs = getFluidSection(chunkStore, store, adjacent);
+        FluidSection fs = FluidUtil.getFluidSection(chunkStore, store, adjacent);
         if (fs == null) {
             return;
         }
@@ -126,7 +125,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int indexedId = Fluid.getAssetMap().getIndex(fcc.getLockedFluidId());
+        int indexedId = Fluid.getAssetMap().getIndex(fcc.getFluidId());
         if (indexedId <= EMPTY_FLUID_ID) {
             return;
         }
@@ -177,21 +176,4 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         return GridFaceUtil.addOffset(worldFaceCell, worldNormal);
     }
 
-    @Nullable
-    private static FluidSection getFluidSection(
-            @Nonnull ChunkStore chunkStore,
-            @Nonnull Store<ChunkStore> store,
-            @Nonnull Vector3i pos) {
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(chunkIndex);
-        if (chunkRef == null || !chunkRef.isValid())
-            return null;
-        ChunkColumn column = store.getComponent(chunkRef, ChunkColumn.getComponentType());
-        if (column == null)
-            return null;
-        Ref<ChunkStore> section = column.getSection(ChunkUtil.chunkCoordinate(pos.y));
-        if (section == null)
-            return null;
-        return store.getComponent(section, FluidSection.getComponentType());
-    }
 }
