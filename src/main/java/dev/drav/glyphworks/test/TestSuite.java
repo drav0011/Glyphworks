@@ -10,11 +10,11 @@ import javax.annotation.Nonnull;
 /**
  * A named collection of {@link TestCase}s.
  *
- * <p>Register suites once at plugin setup time via {@link TestRegistry#register(TestSuite)}.
- * Run via {@code /gtest <suiteId>} or {@code /gtest <suiteId>.<testName>}.
+ * <p>Register suites once at plugin setup time via {@link TestRegistry#register(String, TestSuite)}.
+ * Suites are run via {@link dev.drav.glyphworks.test.command.GlyphTestCommand}.
  *
  * <pre>{@code
- * TestRegistry.register(
+ * TestRegistry.register(moduleId,
  *     new TestSuite("fluid")
  *         .test(new TestCase("placer_places_fluid")
  *             .step(...)

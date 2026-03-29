@@ -17,6 +17,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.crafting.CraftingModule;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.fluid.FluidModule;
+import dev.drav.glyphworks.item.ItemModule;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
@@ -36,6 +37,7 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     private GridModule gridModule;
     private FluidModule fluidModule;
+    private ItemModule itemModule;
     private CraftingModule craftingModule;
     private TestModule testModule;
 
@@ -56,9 +58,10 @@ public class GlyphworksPlugin extends JavaPlugin {
 
         gridModule = new GridModule();
         fluidModule = new FluidModule();
+        itemModule = new ItemModule();
         craftingModule = new CraftingModule();
         testModule = new TestModule();
-        modules = List.of(gridModule, fluidModule, craftingModule, testModule);
+        modules = List.of(gridModule, fluidModule, itemModule, craftingModule, testModule);
 
         for (GlyphworksModule module : modules) {
             module.setup(this);

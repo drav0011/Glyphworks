@@ -10,8 +10,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.test.command.GlyphTestCommand;
-import dev.drav.glyphworks.test.tests.BasicBlockTests;
-import dev.drav.glyphworks.test.tests.FluidTests;
+import dev.drav.glyphworks.test.tests.TestFrameworkTests;
 
 /**
  * Sub-plugin that owns the in-game test framework: the runner component,
@@ -49,7 +48,6 @@ public final class TestModule extends GlyphworksModule {
 
     @Override
     public void setupTests() {
-        BasicBlockTests.register("smoke");
-        FluidTests.register("smoke");
+        TestFrameworkTests.register("smoke");
     }
 }

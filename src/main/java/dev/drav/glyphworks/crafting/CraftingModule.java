@@ -15,15 +15,14 @@ import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem;
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem;
 import dev.drav.glyphworks.crafting.system.ProcessingBenchAutoStartSystem;
-import dev.drav.glyphworks.grid.type.GridType;
-import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
-import dev.drav.glyphworks.grid.type.GridTypeRegistry;
-import dev.drav.glyphworks.transfer.item.ItemGridTypeHandler;
-import dev.drav.glyphworks.transfer.item.tests.ItemGridTransferTests;
+
 
 /**
- * Sub-plugin that owns the Item grid type, the auto-crafting bench component,
+ * Sub-plugin that owns the auto-crafting bench component,
  * its interaction codec, and the three crafting/bench systems.
+ *
+ * <p>The Item grid type itself is registered by
+ * {@link dev.drav.glyphworks.item.ItemModule}.
  */
 public final class CraftingModule extends GlyphworksModule {
 
@@ -35,9 +34,6 @@ public final class CraftingModule extends GlyphworksModule {
 
     @Override
     public void setup(@Nonnull GlyphworksPlugin plugin) {
-        GridTypeRegistry.register(GridType.of("Item"));
-        GridTypeHandlerRegistry.register(new ItemGridTypeHandler());
-
         this.autoCraftingBenchBlockComponentType = plugin.getChunkStoreRegistry().registerComponent(
                 AutoCraftingBenchBlock.class, "AutoCraftingBenchBlock", AutoCraftingBenchBlock.CODEC);
 
@@ -55,6 +51,5 @@ public final class CraftingModule extends GlyphworksModule {
 
     @Override
     public void setupTests() {
-        ItemGridTransferTests.register("crafting");
     }
 }

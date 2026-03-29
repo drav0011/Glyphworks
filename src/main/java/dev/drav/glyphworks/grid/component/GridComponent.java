@@ -91,7 +91,7 @@ public class GridComponent implements Component<ChunkStore> {
     /**
      * Runtime-only world origin position. Set at block load/place time by event
      * handlers; not serialised, not present in the codec.
-     * Used by {@link dev.drav.glyphworks.transfer.item.ItemGridTypeHandler} to
+     * Used by {@link dev.drav.glyphworks.item.handlers.ItemGridTypeHandler} to
      * locate the external inventory adjacent to extractor / inserter faces.
      */
     @Nullable

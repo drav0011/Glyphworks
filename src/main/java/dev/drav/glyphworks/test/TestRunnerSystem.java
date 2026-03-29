@@ -5,28 +5,31 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.ChunkColumn;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
+import dev.drav.glyphworks.fluid.util.FluidUtil;
+import dev.drav.glyphworks.test.command.GlyphTestCommand;
 
 /**
  * Advances in-flight test runs every server tick.
  *
  * <p>Queries any entity that has a {@link TestRunnerComponent} and a {@link PlayerRef}
- * (i.e. the player that ran {@code /gtest}).  Each tick it executes the current
- * {@link TestStep}, interprets the {@link StepResult}, and either stays on the step,
- * moves to the next one, or finalises the test run and removes the component.
+ * (i.e. the player that triggered {@link GlyphTestCommand}).  Each tick it executes the
+ * current {@link TestStep}, interprets the {@link StepResult}, and either stays on the
+ * step, moves to the next one, or finalises the test run and removes the component.
  */
 public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
 
@@ -153,14 +156,7 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
 
     private static void clearFluid(@Nonnull World world, int x, int y, int z) {
         ChunkStore chunkStore = world.getChunkStore();
-        Store<ChunkStore> store = chunkStore.getStore();
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(x, z));
-        if (chunkRef == null || !chunkRef.isValid()) return;
-        ChunkColumn column = store.getComponent(chunkRef, ChunkColumn.getComponentType());
-        if (column == null) return;
-        Ref<ChunkStore> sectionRef = column.getSection(ChunkUtil.chunkCoordinate(y));
-        if (sectionRef == null) return;
-        FluidSection fs = store.getComponent(sectionRef, FluidSection.getComponentType());
+        FluidSection fs = FluidUtil.getFluidSection(chunkStore, chunkStore.getStore(), new Vector3i(x, y, z));
         if (fs == null) return;
         fs.setFluid(x, y, z, 0, (byte) 0);
     }

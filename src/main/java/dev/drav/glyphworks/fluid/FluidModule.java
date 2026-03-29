@@ -9,6 +9,7 @@ import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
@@ -25,7 +26,6 @@ import dev.drav.glyphworks.fluid.tests.FluidSourceSystemTests;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
-import dev.drav.glyphworks.transfer.fluid.FluidGridTypeHandler;
 
 /**
  * Sub-plugin that owns the Fluid grid type, all four fluid component types,

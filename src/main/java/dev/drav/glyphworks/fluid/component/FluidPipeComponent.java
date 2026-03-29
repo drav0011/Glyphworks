@@ -19,7 +19,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
  * accepts any fluid. Once fluid flows through it the ID is locked so that a
  * second, incompatible fluid cannot mix inside the same pipe segment. The lock
  * is cleared when the pipe is drained (handled by
- * {@link dev.drav.glyphworks.transfer.fluid.FluidGridTypeHandler}).
+ * {@link dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler}).
  */
 public class FluidPipeComponent implements Component<ChunkStore> {
 

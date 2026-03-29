@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer.item.tests;
+package dev.drav.glyphworks.item.tests;
 
 import javax.annotation.Nullable;
 
@@ -19,7 +19,7 @@ import dev.drav.glyphworks.test.TestSuite;
 
 /**
  * Suite {@code "item_grid_transfer"} — integration tests for
- * {@link dev.drav.glyphworks.transfer.item.ItemGridTypeHandler}.
+ * {@link dev.drav.glyphworks.item.handlers.ItemGridTypeHandler}.
  *
  * <p>
  * Tests use two purpose-built test blocks defined in {@code IO/}:

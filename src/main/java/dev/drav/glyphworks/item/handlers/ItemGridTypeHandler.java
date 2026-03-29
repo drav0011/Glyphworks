@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.transfer.item;
+package dev.drav.glyphworks.item.handlers;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
