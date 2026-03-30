@@ -43,11 +43,6 @@ public final class HeadlessTestLauncher {
     /** System property key for the specific test to run within the suite. */
     public static final String PROP_TEST_NAME = "glyphworks.test.name";
 
-    // TODO NUKE, in headless we should never keep the test worlds if the user wants
-    // to debug it they join the server and run the command
-    /** System property flag — when present the test world is kept after the run. */
-    public static final String PROP_NO_CLEANUP = "glyphworks.test.no-cleanup";
-
     private HeadlessTestLauncher() {
     }
 
@@ -78,7 +73,7 @@ public final class HeadlessTestLauncher {
         String suiteName = System.getProperty(PROP_SUITE);
         @Nullable
         String testName = System.getProperty(PROP_TEST_NAME);
-        boolean cleanupAfterRun = System.getProperty(PROP_NO_CLEANUP) == null;
+        boolean cleanupAfterRun = true;
 
         List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
                 msg -> LOGGER.severe("[GlyphTest] Headless: " + msg));

@@ -112,6 +112,26 @@ There is **no JUnit**. All tests are in-game under `src/main/java/.../tests/` an
 `/glyphworks:test` (alias `gw:test`) — see `TestCommand` for the full arg list.
 `TestRunnerSystem` ticks test steps one per tick. Steps can use `Steps.wait(n)` or `Steps.waitUntil(predicate, max, desc)`. Each `TestCase` declares a bounding box that is cleared to `Empty` before the test runs. Register new suites in the module's `setupTests()` method.
 
+### Running tests
+
+After writing or modifying tests, always verify them by running headless. Compile first, then launch:
+
+```powershell
+.\gradlew compileJava
+$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=<module>" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
+```
+
+Use `glyphworks.test.all=true` to run every registered module. The server exits automatically — exit `0` = all passed, exit `1` = any failure. Check the latest file in `devserver/logs/` for output.
+
+Other available properties:
+
+| Property | Effect |
+|---|---|
+| `glyphworks.test.all=true` | Run all registered modules |
+| `glyphworks.test.module=<name>` | Restrict to one module |
+| `glyphworks.test.suite=<name>` | Restrict to one suite within the module |
+| `glyphworks.test.name=<name>` | Run a single test within the suite |
+
 ## Commands
 
 **Naming convention** — primary name is always `glyphworks:<name>`; a short alias `gw:<name>` is

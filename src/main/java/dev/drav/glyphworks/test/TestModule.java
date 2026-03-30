@@ -5,8 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.server.core.HytaleServer;
-import com.hypixel.hytale.server.core.universe.world.events.AllWorldsLoadedEvent;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
@@ -50,11 +49,8 @@ public final class TestModule extends GlyphworksModule {
     public void start(@Nonnull GlyphworksPlugin plugin) {
         plugin.getEntityStoreRegistry().registerSystem(new TestRunnerSystem());
 
-        // If headless test properties are set, fire the launcher once all worlds are ready.
         if (HeadlessTestLauncher.isEnabled()) {
-            HytaleServer.get().getEventBus().register(AllWorldsLoadedEvent.class, event -> {
-                HeadlessTestLauncher.launch();
-            });
+            Universe.get().getUniverseReady().thenRun(HeadlessTestLauncher::launch);
         }
     }
 
