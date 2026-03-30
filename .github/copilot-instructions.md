@@ -22,7 +22,7 @@ src/main/java/dev/drav/glyphworks/
   fluid/    — FluidGridTypeHandler + FluidContainerComponent / FluidPipeComponent + systems
   crafting/ — AutoCraftingBench + ItemContainerBlock ECS components + systems
   transfer/ — GridTypeHandler implementations (ItemGridTypeHandler, FluidGridTypeHandler)
-  test/     — in-game test framework; /gtest command; no JUnit
+  test/     — in-game test framework; /glyphworks:test command; no JUnit
 src/main/resources/   — Hytale asset pack (manifest.json, Common/, Server/)
 generate-pipe-template.js  — pre-generates the 63 pipe .blockymodel files; re-run when adding pipe states
 ```
@@ -76,7 +76,7 @@ This applies to item JSON filenames, block type keys, and display names. Existin
 
 ## Resource JSON Schema
 
-Block entity JSON structure (see [src/main/resources/Server/Item/Items/Glyphworks/Fluid/Tank.json](../src/main/resources/Server/Item/Items/Glyphworks/Fluid/Tank.json) as a reference):
+Block entity JSON structure (see [src/main/resources/Server/Item/Items/Glyphworks/Fluid/Tank.json](../src/main/resources/Server/Item/Items/Glyphworks/Fluid/Glyphworks_Fluid_Tank.json) as a reference):
 ```json
 {
   "BlockType": {
@@ -108,11 +108,39 @@ Block entity JSON structure (see [src/main/resources/Server/Item/Items/Glyphwork
 
 ## Testing
 
-There is **no JUnit**. All tests are in-game under `src/main/java/.../tests/` and run via:
-```
-/gtest <module> [suite] [test]
-```
+There is **no JUnit**. All tests are in-game under `src/main/java/.../tests/` and run via
+`/glyphworks:test` (alias `gw:test`) — see `TestCommand` for the full arg list.
 `TestRunnerSystem` ticks test steps one per tick. Steps can use `Steps.wait(n)` or `Steps.waitUntil(predicate, max, desc)`. Each `TestCase` declares a bounding box that is cleared to `Empty` before the test runs. Register new suites in the module's `setupTests()` method.
+
+## Commands
+
+**Naming convention** — primary name is always `glyphworks:<name>`; a short alias `gw:<name>` is
+registered via `addAliases()` in the constructor.
+
+**Arg types** (Hytale command framework):
+
+| Factory | Java type | In-game syntax | Use for |
+|---|---|---|---|
+| `withRequiredArg(name, ...)` | `RequiredArg<T>` | `<name>` | Mandatory positional args |
+| `withOptionalArg(name, ...)` | `OptionalArg<T>` | `--name <value>` | Optional named args with a value |
+| `withFlagArg(name, ...)` | `FlagArg` | `--name` | Boolean toggles |
+
+Declare args in **most-specific → most-general** order so usage text reads naturally.
+Example for a command with no positional args:
+
+```java
+public MyCommand() {
+    super("glyphworks:foo", "Description");
+    addAliases("gw:foo");
+    // most-specific first
+    this.itemArg    = withOptionalArg("item",   "Item ID to target", ArgTypes.STRING);
+    this.suiteArg   = withOptionalArg("suite",  "Suite to run",      ArgTypes.STRING);
+    this.moduleArg  = withOptionalArg("module", "Module to run",     ArgTypes.STRING);
+    this.verboseArg = withFlagArg("verbose",    "Enable verbose output");
+}
+```
+
+Registered in the owning module's `setup()` via `plugin.getCommandRegistry().registerCommand(new MyCommand())`.
 
 ## Known Pitfalls
 

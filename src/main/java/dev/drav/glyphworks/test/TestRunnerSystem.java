@@ -21,13 +21,13 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.fluid.util.FluidUtil;
-import dev.drav.glyphworks.test.command.GlyphTestCommand;
+import dev.drav.glyphworks.test.command.TestCommand;
 
 /**
  * Advances in-flight test runs every server tick.
  *
  * <p>Queries any entity that has a {@link TestRunnerComponent} and a {@link PlayerRef}
- * (i.e. the player that triggered {@link GlyphTestCommand}).  Each tick it executes the
+ * (i.e. the player that triggered {@link TestCommand}).  Each tick it executes the
  * current {@link TestStep}, interprets the {@link StepResult}, and either stays on the
  * step, moves to the next one, or finalises the test run and removes the component.
  */

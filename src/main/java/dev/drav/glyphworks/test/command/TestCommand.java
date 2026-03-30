@@ -7,14 +7,14 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import org.joml.Vector3d;
+
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import org.joml.Vector3d;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
-import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -28,30 +28,25 @@ import dev.drav.glyphworks.test.TestRunnerComponent;
 import dev.drav.glyphworks.test.TestSuite;
 
 /**
- * {@code /gtest <module> [suite] [test]}
- *
- * <ul>
- *   <li>{@code /gtest <module>} — run all suites in the module</li>
- *   <li>{@code /gtest <module> <suite>} — run all tests in one suite</li>
- *   <li>{@code /gtest <module> <suite> <test>} — run a single test</li>
- * </ul>
- *
- * <p>Resolves the target from the {@link TestRegistry}, builds the test queue,
- * and attaches a {@link TestRunnerComponent} to the executing player so that
- * {@code TestRunnerSystem} picks it up on the next tick.
+ * The most-specific argument wins: if all three are provided only that test
+ * runs. Resolves the target from the {@link TestRegistry}, builds the test
+ * queue, and attaches a {@link TestRunnerComponent} to the executing player so
+ * that {@link dev.drav.glyphworks.test.TestRunnerSystem} picks it up on the
+ * next tick.
  */
-public final class GlyphTestCommand extends AbstractPlayerCommand {
+public final class TestCommand extends AbstractPlayerCommand {
 
-    private final RequiredArg<String> moduleArg;
-    private final OptionalArg<String> suiteArg;
     private final OptionalArg<String> testArg;
+    private final OptionalArg<String> suiteArg;
+    private final OptionalArg<String> moduleArg;
     private final FlagArg noCleanupArg;
 
-    public GlyphTestCommand() {
-        super("gw:test", "Run a Glyphworks test module, suite, or single test");
-        this.moduleArg    = withRequiredArg("module", "Module ID", ArgTypes.STRING);
-        this.suiteArg     = withOptionalArg("suite",  "Suite ID within the module", ArgTypes.STRING);
-        this.testArg      = withOptionalArg("test",   "Test name within the suite", ArgTypes.STRING);
+    public TestCommand() {
+        super("glyphworks:test", "Run a Glyphworks test module, suite, or single test. (no args) - run every test across all modules");
+        addAliases("gw:test");
+        this.testArg = withOptionalArg("test", "Test name within the suite", ArgTypes.STRING);
+        this.suiteArg = withOptionalArg("suite", "Suite ID within the module", ArgTypes.STRING);
+        this.moduleArg = withOptionalArg("module", "Module ID (omit to run all modules)", ArgTypes.STRING);
         this.noCleanupArg = withFlagArg("no-cleanup", "Keep test area blocks after the run (default: clean up)");
     }
 
@@ -63,44 +58,50 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
             @Nonnull PlayerRef playerRef,
             @Nonnull World world) {
 
-        String moduleName = moduleArg.get(context);
-        String suiteName  = suiteArg.get(context); // null when not provided
-        String testName   = testArg.get(context);  // null when not provided
+        String moduleName = moduleArg.get(context); // null when not provided
+        String suiteName = suiteArg.get(context); // null when not provided
+        String testName = testArg.get(context); // null when not provided
         boolean cleanupAfterRun = !noCleanupArg.get(context);
 
-        Map<String, TestSuite> moduleSuites = TestRegistry.getModule(moduleName);
-        if (moduleSuites == null) {
-            context.sendMessage(Message.raw("[GlyphTest] Unknown module: \"" + moduleName
-                    + "\". Available: " + String.join(", ", TestRegistry.moduleIds())));
-            return;
-        }
-
         List<TestCase> queue = new ArrayList<>();
-        if (suiteName == null) {
-            // Run everything in the module.
-            for (TestSuite suite : moduleSuites.values()) {
+        if (moduleName == null) {
+            // No args — run everything.
+            for (TestSuite suite : TestRegistry.all()) {
                 queue.addAll(suite.getTests());
             }
         } else {
-            TestSuite suite = moduleSuites.get(suiteName);
-            if (suite == null) {
-                context.sendMessage(Message.raw("[GlyphTest] Unknown suite: \"" + suiteName
-                        + "\" in module \"" + moduleName + "\". Available: "
-                        + String.join(", ", moduleSuites.keySet())));
+            Map<String, TestSuite> moduleSuites = TestRegistry.getModule(moduleName);
+            if (moduleSuites == null) {
+                context.sendMessage(Message.raw("[GlyphTest] Unknown module: \"" + moduleName
+                        + "\". Available: " + String.join(", ", TestRegistry.moduleIds())));
                 return;
             }
-            if (testName == null) {
-                queue.addAll(suite.getTests());
+            if (suiteName == null) {
+                // Module only — run everything in it.
+                for (TestSuite suite : moduleSuites.values()) {
+                    queue.addAll(suite.getTests());
+                }
             } else {
-                Optional<TestCase> found = suite.findTest(testName);
-                if (found.isEmpty()) {
-                    context.sendMessage(Message.raw("[GlyphTest] Unknown test \"" + testName
-                            + "\" in suite \"" + moduleName + "." + suiteName + "\". Available: "
-                            + suite.getTests().stream().map(TestCase::getName)
-                                    .reduce((a, b) -> a + ", " + b).orElse("<none>")));
+                TestSuite suite = moduleSuites.get(suiteName);
+                if (suite == null) {
+                    context.sendMessage(Message.raw("[GlyphTest] Unknown suite: \"" + suiteName
+                            + "\" in module \"" + moduleName + "\". Available: "
+                            + String.join(", ", moduleSuites.keySet())));
                     return;
                 }
-                queue.add(found.get());
+                if (testName == null) {
+                    queue.addAll(suite.getTests());
+                } else {
+                    Optional<TestCase> found = suite.findTest(testName);
+                    if (found.isEmpty()) {
+                        context.sendMessage(Message.raw("[GlyphTest] Unknown test \"" + testName
+                                + "\" in suite \"" + moduleName + "." + suiteName + "\". Available: "
+                                + suite.getTests().stream().map(TestCase::getName)
+                                        .reduce((a, b) -> a + ", " + b).orElse("<none>")));
+                        return;
+                    }
+                    queue.add(found.get());
+                }
             }
         }
 
@@ -117,7 +118,8 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
 
         // ── Grid layout ──
         // Origin: player feet position, 2 blocks south (+Z).
-        TransformComponent transform = (TransformComponent) store.getComponent(ref, TransformComponent.getComponentType());
+        TransformComponent transform = (TransformComponent) store.getComponent(ref,
+                TransformComponent.getComponentType());
         int baseX = 0, baseY = 64, baseZ = 2;
         if (transform != null) {
             Vector3d pos = transform.getPosition();
@@ -126,10 +128,11 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
             baseZ = (int) Math.floor(pos.z) + 2;
         }
 
-        int n    = queue.size();
+        int n = queue.size();
         int cols = (int) Math.ceil(Math.sqrt(n));
 
-        // Use the largest declared area as the uniform cell size so no test overflows into another.
+        // Use the largest declared area as the uniform cell size so no test overflows
+        // into another.
         int maxWidth = queue.stream().mapToInt(TestCase::getAreaWidth).max().orElse(1);
         int maxDepth = queue.stream().mapToInt(TestCase::getAreaDepth).max().orElse(1);
         int gap = 2;
@@ -148,9 +151,16 @@ public final class GlyphTestCommand extends AbstractPlayerCommand {
         TestRunnerComponent runner = store.addComponent(ref, TestRunnerComponent.getComponentType());
         runner.init(queue, originXs, originYs, originZs, cleanupAfterRun);
 
-        String target = "module \"" + moduleName + "\"";
-        if (suiteName != null) target += ", suite \"" + suiteName + "\"";
-        if (testName  != null) target += ", test \""  + testName  + "\"";
+        String target;
+        if (moduleName == null) {
+            target = "all modules";
+        } else if (suiteName == null) {
+            target = "module \"" + moduleName + "\"";
+        } else if (testName == null) {
+            target = "suite \"" + moduleName + "." + suiteName + "\"";
+        } else {
+            target = "test \"" + moduleName + "." + suiteName + "." + testName + "\"";
+        }
         String cleanupNote = cleanupAfterRun ? "" : " [no-cleanup]";
         context.sendMessage(Message.raw("[GlyphTest] Started " + n + " test(s) — " + target + cleanupNote + "."));
     }

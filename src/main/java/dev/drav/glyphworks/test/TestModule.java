@@ -9,7 +9,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.test.command.GlyphTestCommand;
+import dev.drav.glyphworks.test.command.TestCommand;
 import dev.drav.glyphworks.test.tests.TestFrameworkTests;
 
 /**
@@ -38,7 +38,7 @@ public final class TestModule extends GlyphworksModule {
             module.setupTests();
         }
 
-        plugin.getCommandRegistry().registerCommand(new GlyphTestCommand());
+        plugin.getCommandRegistry().registerCommand(new TestCommand());
     }
 
     @Override

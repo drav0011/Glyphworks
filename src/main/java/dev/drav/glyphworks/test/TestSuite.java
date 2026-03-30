@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * A named collection of {@link TestCase}s.
  *
  * <p>Register suites once at plugin setup time via {@link TestRegistry#register(String, TestSuite)}.
- * Suites are run via {@link dev.drav.glyphworks.test.command.GlyphTestCommand}.
+ * Suites are run via {@link dev.drav.glyphworks.test.command.TestCommand}.
  *
  * <pre>{@code
  * TestRegistry.register(moduleId,

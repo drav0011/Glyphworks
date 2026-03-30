@@ -26,14 +26,12 @@ import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
 
 /**
- * /glyphgraph [--type <id>] [--verbose]
+ * {@code /glyphworks:graph} (alias: {@code gw:graph})
  *
- * <p>
- * Prints the in-memory grid graph for the current world.
  * <ul>
- * <li>Without flags: one summary line per registered type.</li>
- * <li>{@code --type <id>}: restrict output to that type.</li>
- * <li>{@code --verbose}: also list every node and its neighbour positions.</li>
+ * <li>(no args) — one summary line per registered grid type</li>
+ * <li>{@code --type <id>} — restrict output to that grid type</li>
+ * <li>{@code --verbose} — also list every node and its neighbour positions</li>
  * </ul>
  */
 public final class GridGraphCommand extends AbstractWorldCommand {
@@ -42,7 +40,8 @@ public final class GridGraphCommand extends AbstractWorldCommand {
     private final FlagArg verboseArg;
 
     public GridGraphCommand() {
-        super("gw:graph", "Print the Glyphworks grid graph for this world");
+        super("glyphworks:graph", "Print the Glyphworks grid graph for this world");
+        addAliases("gw:graph");
         this.typeArg = withOptionalArg("type", "Grid type ID to inspect (e.g. Item)", ArgTypes.STRING);
         this.verboseArg = withFlagArg("verbose", "Also list individual node positions and their neighbours");
     }
