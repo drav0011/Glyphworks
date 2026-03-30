@@ -166,6 +166,15 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 // not a grid source.
             }
         }
+
+        // Sort sources by world position (X → Y → Z) so that the source iteration
+        // order is deterministic regardless of HashSet bucket layout. This ensures
+        // that when two sources with incompatible fluids share a merged network, the
+        // source at the lower coordinate always wins the bridge lock.
+        sources.sort(Comparator.comparingInt((FluidSource s) -> s.sourceLookup().originPos().x)
+                .thenComparingInt(s -> s.sourceLookup().originPos().y)
+                .thenComparingInt(s -> s.sourceLookup().originPos().z));
+
         if (sources.isEmpty()) {
             return;
         }
@@ -296,7 +305,9 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             // -- Transfer (two-pass atomic: plan → drain → fill) ----------
             sinks.sort(Comparator.comparingInt(SinkEntry::distance));
 
-            record PlannedTransfer(FluidContainerComponent fcc, int amount) {}
+            record PlannedTransfer(FluidContainerComponent fcc, int amount) {
+            }
+
             List<PlannedTransfer> transfers = new ArrayList<>();
             int budget = Math.min(toTransfer, source.maxAvailable());
             int remaining = budget;
