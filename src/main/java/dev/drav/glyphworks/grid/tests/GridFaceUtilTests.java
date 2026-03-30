@@ -10,10 +10,10 @@ import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
-import dev.drav.glyphworks.test.Steps;
-import dev.drav.glyphworks.test.TestCase;
-import dev.drav.glyphworks.test.TestRegistry;
-import dev.drav.glyphworks.test.TestSuite;
+import dev.drav.glyphworks.test.framework.Steps;
+import dev.drav.glyphworks.test.framework.TestCase;
+import dev.drav.glyphworks.test.framework.TestRegistry;
+import dev.drav.glyphworks.test.framework.TestSuite;
 
 /**
  * Suite {@code "grid_face_util"} — tests {@link GridFaceUtil} static helpers.

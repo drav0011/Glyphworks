@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.test;
+package dev.drav.glyphworks.test.framework;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,19 +8,10 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 /**
- * A named collection of {@link TestCase}s.
+ * A named, ordered collection of {@link TestCase}s belonging to one module.
  *
- * <p>Register suites once at plugin setup time via {@link TestRegistry#register(String, TestSuite)}.
- * Suites are run via {@link dev.drav.glyphworks.test.command.TestCommand}.
- *
- * <pre>{@code
- * TestRegistry.register(moduleId,
- *     new TestSuite("fluid")
- *         .test(new TestCase("placer_places_fluid")
- *             .step(...)
- *         )
- * );
- * }</pre>
+ * <p>
+ * Suites are registered via {@link TestRegistry#register(String, TestSuite)}.
  */
 public final class TestSuite {
 
@@ -37,8 +28,15 @@ public final class TestSuite {
         return this;
     }
 
-    @Nonnull public String getId()            { return id; }
-    @Nonnull public List<TestCase> getTests() { return Collections.unmodifiableList(tests); }
+    @Nonnull
+    public String getId() {
+        return id;
+    }
+
+    @Nonnull
+    public List<TestCase> getTests() {
+        return Collections.unmodifiableList(tests);
+    }
 
     @Nonnull
     public Optional<TestCase> findTest(@Nonnull String name) {

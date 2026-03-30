@@ -9,10 +9,10 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
-import dev.drav.glyphworks.test.Steps;
-import dev.drav.glyphworks.test.TestCase;
-import dev.drav.glyphworks.test.TestRegistry;
-import dev.drav.glyphworks.test.TestSuite;
+import dev.drav.glyphworks.test.framework.Steps;
+import dev.drav.glyphworks.test.framework.TestCase;
+import dev.drav.glyphworks.test.framework.TestRegistry;
+import dev.drav.glyphworks.test.framework.TestSuite;
 
 /**
  * Suite {@code "grid_graph"} — tests the {@link GridGraph} data structure

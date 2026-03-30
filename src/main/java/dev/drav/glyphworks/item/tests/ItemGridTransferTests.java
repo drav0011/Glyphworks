@@ -12,10 +12,10 @@ import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
-import dev.drav.glyphworks.test.Steps;
-import dev.drav.glyphworks.test.TestCase;
-import dev.drav.glyphworks.test.TestRegistry;
-import dev.drav.glyphworks.test.TestSuite;
+import dev.drav.glyphworks.test.framework.Steps;
+import dev.drav.glyphworks.test.framework.TestCase;
+import dev.drav.glyphworks.test.framework.TestRegistry;
+import dev.drav.glyphworks.test.framework.TestSuite;
 
 /**
  * Suite {@code "item_grid_transfer"} — integration tests for

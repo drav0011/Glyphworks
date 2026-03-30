@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.test;
+package dev.drav.glyphworks.test.framework;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,8 @@ import javax.annotation.Nonnull;
 /**
  * A named sequence of {@link TestStep}s.
  *
- * <p>All steps are executed in order. If any step fails the test stops and
+ * <p>
+ * All steps are executed in order. If any step fails the test stops and
  * records a failure; all remaining steps in that test are skipped.
  *
  * <pre>{@code
@@ -24,7 +25,7 @@ public final class TestCase {
 
     private final String name;
 
-    /** World-space bounding box the test needs — cleared to Empty before the test starts. */
+    /** World-space bounding box the test needs */
     private final int areaWidth;
     private final int areaDepth;
     private final int areaHeight;
@@ -38,9 +39,9 @@ public final class TestCase {
      * @param areaHeight Y extent (blocks, starting at the assigned origin Y)
      */
     public TestCase(@Nonnull String name, int areaWidth, int areaDepth, int areaHeight) {
-        this.name       = name;
-        this.areaWidth  = areaWidth;
-        this.areaDepth  = areaDepth;
+        this.name = name;
+        this.areaWidth = areaWidth;
+        this.areaDepth = areaDepth;
         this.areaHeight = areaHeight;
     }
 
@@ -50,9 +51,25 @@ public final class TestCase {
         return this;
     }
 
-    @Nonnull public String getName()          { return name; }
-    public int getAreaWidth()                 { return areaWidth; }
-    public int getAreaDepth()                 { return areaDepth; }
-    public int getAreaHeight()                { return areaHeight; }
-    @Nonnull public List<TestStep> getSteps() { return Collections.unmodifiableList(steps); }
+    @Nonnull
+    public String getName() {
+        return name;
+    }
+
+    public int getAreaWidth() {
+        return areaWidth;
+    }
+
+    public int getAreaDepth() {
+        return areaDepth;
+    }
+
+    public int getAreaHeight() {
+        return areaHeight;
+    }
+
+    @Nonnull
+    public List<TestStep> getSteps() {
+        return Collections.unmodifiableList(steps);
+    }
 }

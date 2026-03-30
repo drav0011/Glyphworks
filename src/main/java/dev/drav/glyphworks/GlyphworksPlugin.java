@@ -29,7 +29,7 @@ import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.TestModule;
-import dev.drav.glyphworks.test.TestRunnerComponent;
+import dev.drav.glyphworks.test.runner.TestRunnerComponent;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());

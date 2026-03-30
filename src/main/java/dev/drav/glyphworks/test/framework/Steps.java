@@ -1,0 +1,77 @@
+package dev.drav.glyphworks.test.framework;
+
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import dev.drav.glyphworks.test.runner.TestRunnerContext;
+
+/**
+ * Built-in {@link TestStep} factories — runner primitives only.
+ *
+ * <p>
+ * Block placement, world queries, and other Hytale-native operations are
+ * done inline by test authors via the
+ * {@link dev.drav.glyphworks.test.runner.TestRunnerContext}
+ * passed to each step.
+ */
+public final class Steps {
+
+    private Steps() {
+    }
+
+    /**
+     * Waits for the given number of ticks before advancing.
+     *
+     * <p>
+     * The counter is initialised on the first call and reset automatically
+     * by the runner when transitioning to the next step or test.
+     */
+    public static TestStep wait(int ticks) {
+        return ctx -> {
+            if (ctx.getTicksRemaining() < 0) {
+                ctx.setTicksRemaining(ticks);
+            }
+            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
+            return ctx.getTicksRemaining() <= 0 ? StepResult.DONE : StepResult.PENDING;
+        };
+    }
+
+    /**
+     * Polls {@code predicate} every tick until it returns {@code true} or
+     * {@code maxTicks}
+     * ticks have elapsed, then fails with {@code description}.
+     */
+    public static TestStep waitUntil(Predicate<TestRunnerContext> predicate, int maxTicks, String description) {
+        return ctx -> {
+            if (predicate.test(ctx))
+                return StepResult.DONE;
+            if (ctx.getTicksRemaining() < 0) {
+                ctx.setTicksRemaining(maxTicks);
+            }
+            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
+            return ctx.getTicksRemaining() > 0
+                    ? StepResult.PENDING
+                    : StepResult.failed("Timed out after " + maxTicks + " ticks waiting for: " + description);
+        };
+    }
+
+    /**
+     * Executes {@code action} as an immediate single-tick side-effect.
+     */
+    public static TestStep run(Consumer<TestRunnerContext> action) {
+        return ctx -> {
+            action.accept(ctx);
+            return StepResult.DONE;
+        };
+    }
+
+    /**
+     * Asserts that {@code predicate} is true, otherwise fails with
+     * {@code description}.
+     */
+    public static TestStep assertThat(Predicate<TestRunnerContext> predicate, String description) {
+        return ctx -> predicate.test(ctx)
+                ? StepResult.DONE
+                : StepResult.failed("Assert failed: " + description);
+    }
+}
