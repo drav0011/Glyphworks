@@ -3,7 +3,6 @@ package dev.drav.glyphworks.grid.tests;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -31,13 +30,6 @@ public final class PipeConnectionTests {
 
     /** Grid type used by item pipes (matches GridComponent_Type in Pipe.json). */
     private static final GridType ITEM_GRID = GridType.of("Item");
-
-    /**
-     * 2 seconds — enough for {@code PlaceBlockEvent} and
-     * {@code PlaceGridBlockEvent}
-     * to be dispatched and the GridGraph to be updated.
-     */
-    private static final int WAIT_TICKS = 2 * TickingThread.TPS;
 
     private PipeConnectionTests() {
     }
@@ -95,7 +87,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();
@@ -120,7 +112,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(ox, oy + 1, oz));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();
@@ -145,7 +137,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(ox, oy, oz + 1));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();
@@ -176,7 +168,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(ox + 2, oy, oz));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();
@@ -214,7 +206,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(ox + 1, oy, oz + 1));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();
@@ -260,7 +252,7 @@ public final class PipeConnectionTests {
                     PlaceGridBlockEvent.connectBlock(world, v(cx, cy, cz - 1));
                 }))
 
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
 
                 .step(Steps.assertThat(ctx -> {
                     World world = ctx.getWorld();

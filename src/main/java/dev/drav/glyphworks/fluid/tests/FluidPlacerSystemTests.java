@@ -3,7 +3,6 @@ package dev.drav.glyphworks.fluid.tests;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 import com.hypixel.hytale.protocol.BlockFace;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -30,7 +29,7 @@ public final class FluidPlacerSystemTests {
     private static final String FLUID_ID = "Water_Source";
     private static final String BLOCK_ID = "Glyphworks_Fluid_Placer";
     private static final int LITERS_PER_BLOCK = 1_000;
-    private static final int WAIT_TICKS = 2 * TickingThread.TPS;
+    
 
     private FluidPlacerSystemTests() {
     }
@@ -69,7 +68,7 @@ public final class FluidPlacerSystemTests {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID, rotationIndex);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
@@ -77,7 +76,7 @@ public final class FluidPlacerSystemTests {
                     if (fcc != null)
                         fcc.fill(FLUID_ID, LITERS_PER_BLOCK);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     int tx = bx + faceOffset.x, ty = by + faceOffset.y, tz = bz + faceOffset.z;
@@ -102,7 +101,7 @@ public final class FluidPlacerSystemTests {
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
                             FluidTestUtil.ROTATION_DOWN);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int tx = ctx.getOriginX() + 1, ty = ctx.getOriginY(), tz = ctx.getOriginZ() + 1;
                     return FluidTestUtil.getFluidId(ctx.getWorld(), tx, ty, tz) == 0;
@@ -116,7 +115,7 @@ public final class FluidPlacerSystemTests {
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
                             FluidTestUtil.ROTATION_DOWN);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     // Pre-occupy the Down target cell.
@@ -126,7 +125,7 @@ public final class FluidPlacerSystemTests {
                     if (fcc != null)
                         fcc.fill(FLUID_ID, LITERS_PER_BLOCK);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
@@ -142,7 +141,7 @@ public final class FluidPlacerSystemTests {
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
                             FluidTestUtil.ROTATION_DOWN);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     // Set amount without locking a fluid type — fluidId stays null.
@@ -151,7 +150,7 @@ public final class FluidPlacerSystemTests {
                     if (fcc != null)
                         fcc.setAmount(LITERS_PER_BLOCK);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int tx = ctx.getOriginX() + 1, ty = ctx.getOriginY(), tz = ctx.getOriginZ() + 1;
                     return FluidTestUtil.getFluidId(ctx.getWorld(), tx, ty, tz) == 0;

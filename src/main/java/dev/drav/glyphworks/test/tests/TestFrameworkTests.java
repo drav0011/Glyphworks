@@ -1,7 +1,5 @@
 package dev.drav.glyphworks.test.tests;
 
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
-
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;
@@ -19,8 +17,6 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  * No Hytale world API is exercised here — all tests use a 1×1×1 area.
  */
 public final class TestFrameworkTests {
-
-    private static final int WAIT_TICKS = TickingThread.TPS;
 
     private TestFrameworkTests() {
     }
@@ -82,13 +78,15 @@ public final class TestFrameworkTests {
 
         return new TestCase("wait_step_delays", 1, 1, 1)
                 .step(Steps.run(ctx -> startMs[0] = System.currentTimeMillis()))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     long elapsed = System.currentTimeMillis() - startMs[0];
                     // Expect at least 90% of the nominal wall-clock time to have passed.
-                    long expected = (long) WAIT_TICKS * (1000L / TickingThread.TPS);
+                    // wait(getTps()) should hold for roughly 1 second.
+                    long msPerTick = 1000L / ctx.getWorld().getTps();
+                    long expected = ctx.getWorld().getTps() * msPerTick;
                     return elapsed >= expected * 9 / 10;
-                }, "Steps.wait(" + WAIT_TICKS + ") delayed at least 90% of the expected wall-clock time"));
+                }, "Steps.wait(ctx -> getTps()) delayed at least 90% of the expected wall-clock time"));
     }
 
     // -------------------------------------------------------------------------
@@ -99,7 +97,7 @@ public final class TestFrameworkTests {
         int[] count = { 0 };
 
         return new TestCase("wait_until_resolves", 1, 1, 1)
-                .step(Steps.waitUntil(ctx -> ++count[0] >= 5, WAIT_TICKS, "counted 5 ticks"))
+                .step(Steps.waitUntil(ctx -> ++count[0] >= 5, ctx -> ctx.getWorld().getTps(), "counted 5 ticks"))
                 .step(Steps.assertThat(ctx -> count[0] >= 5,
                         "waitUntil predicate was polled at least 5 times"));
     }

@@ -4,7 +4,6 @@ import org.joml.Vector3i;
 
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -31,7 +30,6 @@ import dev.drav.glyphworks.test.framework.TestSuite;
 public final class GridComponentTests {
 
     private static final String PIPE_ID = "Pipe";
-    private static final int WAIT_TICKS = 2 * TickingThread.TPS;
 
     private GridComponentTests() {
     }
@@ -86,7 +84,7 @@ public final class GridComponentTests {
                     Vector3i pos = v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     place(ctx.getWorld(), pos);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     Vector3i pos = v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     GridComponent comp = component(ctx.getWorld(), pos);
@@ -108,7 +106,7 @@ public final class GridComponentTests {
                     place(w, pa);
                     place(w, pb);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -135,13 +133,13 @@ public final class GridComponentTests {
                     place(w, v(ox, oy, oz));
                     place(w, v(ox + 1, oy, oz));
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     breakAt(w, v(ox + 1, oy, oz));
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     Vector3i remaining = v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());

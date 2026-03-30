@@ -3,7 +3,6 @@ package dev.drav.glyphworks.grid.tests;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -36,10 +35,6 @@ public final class GridBlockChangeTests {
     private static final String PIPE_ID = "Pipe";
     private static final GridType ITEM_GRID = GridType.of("Item");
 
-    /**
-     * Maximum ticks to wait for the block-change system to process a single change.
-     */
-    private static final int TIMEOUT_TICKS = 5 * TickingThread.TPS;
 
     private GridBlockChangeTests() {
     }
@@ -94,7 +89,7 @@ public final class GridBlockChangeTests {
                     Vector3i pa = v(ox, oy, oz);
                     Vector3i pb = v(ox + 1, oy, oz);
                     return connected(w, pa, pb) && connected(w, pb, pa);
-                }, TIMEOUT_TICKS, "BlockChangeGridSystem auto-connects two adjacent pipes placed via setBlock"));
+                }, ctx -> 5 * ctx.getWorld().getTps(), "BlockChangeGridSystem auto-connects two adjacent pipes placed via setBlock"));
     }
 
     // -------------------------------------------------------------------------
@@ -118,7 +113,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
-                }, TIMEOUT_TICKS, "pipes are connected before testing disconnect"))
+                }, ctx -> 5 * ctx.getWorld().getTps(), "pipes are connected before testing disconnect"))
                 // Remove one pipe using only world.setBlock — no manual disconnectBlock.
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
@@ -130,7 +125,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return !graph(w).contains(v(ox + 1, oy, oz));
-                }, TIMEOUT_TICKS, "BlockChangeGridSystem auto-removes a pipe replaced with Empty"));
+                }, ctx -> 5 * ctx.getWorld().getTps(), "BlockChangeGridSystem auto-removes a pipe replaced with Empty"));
     }
 
     // -------------------------------------------------------------------------
@@ -150,7 +145,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
-                }, TIMEOUT_TICKS, "pipes auto-connected before cycle test"))
+                }, ctx -> 5 * ctx.getWorld().getTps(), "pipes auto-connected before cycle test"))
                 // Phase 2: auto-remove B.
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
@@ -161,7 +156,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return !graph(w).contains(v(ox + 1, oy, oz));
-                }, TIMEOUT_TICKS, "B auto-removed before re-placement"))
+                }, ctx -> 5 * ctx.getWorld().getTps(), "B auto-removed before re-placement"))
                 // Phase 3: re-place B via setBlock and verify reconnect.
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
@@ -174,7 +169,7 @@ public final class GridBlockChangeTests {
                     Vector3i pa = v(ox, oy, oz);
                     Vector3i pb = v(ox + 1, oy, oz);
                     return connected(w, pa, pb) && connected(w, pb, pa);
-                }, TIMEOUT_TICKS,
+                }, ctx -> 5 * ctx.getWorld().getTps(),
                         "BlockChangeGridSystem reconnects two pipes after a full break-and-replace cycle via setBlock only"));
     }
 
@@ -201,7 +196,7 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
-                }, TIMEOUT_TICKS, "pipes connected before testing auto-disconnect survivor state"))
+                }, ctx -> 5 * ctx.getWorld().getTps(), "pipes connected before testing auto-disconnect survivor state"))
                 // Auto-remove the second pipe via setBlock.
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
@@ -214,7 +209,7 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridLookup lu = GridLookup.resolve(w.getChunkStore(), v(ox, oy, oz));
                     return lu != null && lu.component().getNeighbors().isEmpty();
-                }, TIMEOUT_TICKS, "surviving pipe's component.neighbors is empty after auto-disconnect via setBlock"));
+                }, ctx -> 5 * ctx.getWorld().getTps(), "surviving pipe's component.neighbors is empty after auto-disconnect via setBlock"));
     }
 
     // -------------------------------------------------------------------------
@@ -238,7 +233,7 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz))
                             && connected(w, v(ox + 1, oy, oz), v(ox + 2, oy, oz));
-                }, TIMEOUT_TICKS, "chain A-B-C connected before testing split"))
+                }, ctx -> 5 * ctx.getWorld().getTps(), "chain A-B-C connected before testing split"))
                 // Remove B via setBlock only.
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
@@ -254,6 +249,6 @@ public final class GridBlockChangeTests {
                     return g.contains(pa) && g.contains(pc)
                             && !g.contains(v(ox + 1, oy, oz))
                             && !g.getComponent(pa).contains(pc);
-                }, TIMEOUT_TICKS, "auto-removing the middle pipe splits A and C into separate components"));
+                }, ctx -> 5 * ctx.getWorld().getTps(), "auto-removing the middle pipe splits A and C into separate components"));
     }
 }

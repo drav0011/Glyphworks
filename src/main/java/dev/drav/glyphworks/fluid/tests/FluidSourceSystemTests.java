@@ -2,7 +2,6 @@ package dev.drav.glyphworks.fluid.tests;
 
 import org.joml.Vector3i;
 
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -24,7 +23,7 @@ public final class FluidSourceSystemTests {
 
     private static final String SOURCE_ID = "Glyphworks_Fluid_Source";
     private static final String FLUID_ID = "Water_Source";
-    private static final int WAIT_TICKS = 2 * TickingThread.TPS;
+    
 
     private FluidSourceSystemTests() {
     }
@@ -48,7 +47,7 @@ public final class FluidSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
@@ -67,7 +66,7 @@ public final class FluidSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     // Corrupt the container — wrong fluid, partial amount.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
@@ -77,7 +76,7 @@ public final class FluidSourceSystemTests {
                         fcc.setAmount(1);
                     }
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));

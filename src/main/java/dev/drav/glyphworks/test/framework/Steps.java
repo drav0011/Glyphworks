@@ -2,6 +2,7 @@ package dev.drav.glyphworks.test.framework;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 import dev.drav.glyphworks.test.runner.TestRunnerContext;
 
@@ -24,12 +25,36 @@ public final class Steps {
      *
      * <p>
      * The counter is initialised on the first call and reset automatically
-     * by the runner when transitioning to the next step or test.
+     * by the runner when transitioning to the next step or test. 
      */
     public static TestStep wait(int ticks) {
         return ctx -> {
             if (ctx.getTicksRemaining() < 0) {
                 ctx.setTicksRemaining(ticks);
+            }
+            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
+            return ctx.getTicksRemaining() <= 0 ? StepResult.DONE : StepResult.PENDING;
+        };
+    }
+
+    /**
+     * Waits for a number of ticks computed at runtime from the context.
+     *
+     * <p>
+     * {@code ticksSupplier} is called exactly once on the first tick of this
+     * step, so the count can safely reference live world state such as
+     * {@code ctx.getWorld().getTps()}.
+     * <p>
+     * Example:
+     * 
+     * <pre>
+     * Steps.wait(ctx -&gt; 3 * ctx.getWorld().getTps())
+     * </pre>
+     */
+    public static TestStep wait(ToIntFunction<TestRunnerContext> ticksSupplier) {
+        return ctx -> {
+            if (ctx.getTicksRemaining() < 0) {
+                ctx.setTicksRemaining(ticksSupplier.applyAsInt(ctx));
             }
             ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
             return ctx.getTicksRemaining() <= 0 ? StepResult.DONE : StepResult.PENDING;
@@ -52,6 +77,36 @@ public final class Steps {
             return ctx.getTicksRemaining() > 0
                     ? StepResult.PENDING
                     : StepResult.failed("Timed out after " + maxTicks + " ticks waiting for: " + description);
+        };
+    }
+
+    /**
+     * Polls {@code predicate} every tick until it returns {@code true} or the
+     * runtime-computed tick limit has elapsed, then fails with {@code description}.
+     *
+     * <p>
+     * {@code maxTicksSupplier} is called exactly once on the first tick of this
+     * step, so the limit can safely reference live world state such as
+     * {@code ctx.getWorld().getTps()}.
+     * <p>
+     * Example:
+     *
+     * <pre>
+     * Steps.waitUntil(pred, ctx -&gt; 5 * ctx.getWorld().getTps(), "description")
+     * </pre>
+     */
+    public static TestStep waitUntil(Predicate<TestRunnerContext> predicate,
+            ToIntFunction<TestRunnerContext> maxTicksSupplier, String description) {
+        return ctx -> {
+            if (predicate.test(ctx))
+                return StepResult.DONE;
+            if (ctx.getTicksRemaining() < 0) {
+                ctx.setTicksRemaining(maxTicksSupplier.applyAsInt(ctx));
+            }
+            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
+            return ctx.getTicksRemaining() > 0
+                    ? StepResult.PENDING
+                    : StepResult.failed("Timed out waiting for: " + description);
         };
     }
 

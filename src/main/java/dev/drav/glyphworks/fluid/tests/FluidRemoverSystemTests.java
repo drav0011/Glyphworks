@@ -4,7 +4,6 @@ import org.joml.Vector3i;
 
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 import com.hypixel.hytale.protocol.BlockFace;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -28,7 +27,7 @@ public final class FluidRemoverSystemTests {
     private static final String FLUID_ID = "Water_Source";
     private static final String BLOCK_ID = "Glyphworks_Fluid_Remover";
     private static final int LITERS_PER_BLOCK = 1_000;
-    private static final int WAIT_TICKS = 2 * TickingThread.TPS;
+    
 
     private FluidRemoverSystemTests() {
     }
@@ -66,13 +65,13 @@ public final class FluidRemoverSystemTests {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID, rotationIndex);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     int tx = bx + faceOffset.x, ty = by + faceOffset.y, tz = bz + faceOffset.z;
                     FluidTestUtil.placeFluid(ctx.getWorld(), tx, ty, tz, FLUID_ID);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
@@ -100,7 +99,7 @@ public final class FluidRemoverSystemTests {
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
                             FluidTestUtil.ROTATION_DOWN);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
@@ -116,7 +115,7 @@ public final class FluidRemoverSystemTests {
                     FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
                             FluidTestUtil.ROTATION_DOWN);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     // Fill the container to capacity — system must skip.
@@ -127,7 +126,7 @@ public final class FluidRemoverSystemTests {
                     // Place fluid at the Down target cell.
                     FluidTestUtil.placeFluid(ctx.getWorld(), bx, by - 1, bz, FLUID_ID);
                 }))
-                .step(Steps.wait(WAIT_TICKS))
+                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     // World fluid must still be present — system did not consume it.

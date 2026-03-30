@@ -29,7 +29,6 @@ import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.FaceMode;
@@ -254,7 +253,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         sinks.sort(Comparator.comparingInt(SinkEntry::distance));
 
         for (ItemContainer srcContainer : sourceContainers) {
-            int toTransfer = component.drainAccumulator(component.getTransferRate() * dt * TickingThread.TPS);
+            int toTransfer = component.drainAccumulator(component.getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1)
                 continue;
 

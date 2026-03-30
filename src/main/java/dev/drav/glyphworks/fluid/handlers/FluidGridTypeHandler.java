@@ -19,7 +19,6 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import com.hypixel.hytale.server.core.util.thread.TickingThread;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -202,7 +201,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             // Drain accumulator from the source node's own component (not the root's),
             // so the per-node transfer-rate budget is correctly maintained even though
             // this node's own tick() returned early.
-            int toTransfer = sourceComp.drainAccumulator(sourceComp.getTransferRate() * dt * TickingThread.TPS);
+            int toTransfer = sourceComp.drainAccumulator(sourceComp.getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1) {
                 continue;
             }
