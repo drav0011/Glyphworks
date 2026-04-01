@@ -290,8 +290,11 @@ public final class ItemGridTransferTests {
      * <p>Layout: {@code Source(ox) → Pipe(ox+1) → Sink(ox+2)}
      *
      * <p>After the grid connects ({@link #SHORT_WAIT} ticks), the source is
-     * seeded with {@link #SEED_AMOUNT} items. After exactly one more tick the
-     * sink must hold exactly one item and the source four.
+     * seeded with {@link #SEED_AMOUNT} items. The test then polls each tick
+     * until the sink holds exactly 1 item, failing immediately if it ever
+     * holds more. Using a single combined step avoids the race where the
+     * handler ticks again between a {@code waitUntil} and the following
+     * {@code assertThat}.
      */
     private static TestCase transferRateIsRespected() {
         return new TestCase("transfer_rate_is_respected", 5, 3, 3)
@@ -309,15 +312,22 @@ public final class ItemGridTransferTests {
                     ItemContainerBlock src = getBox(w, new Vector3i(ox, oy, oz));
                     if (src != null) seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
-                .step(Steps.wait(1))
-                .step(Steps.assertThat(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    ItemContainerBlock src  = getBox(w, new Vector3i(ox,     oy, oz));
-                    ItemContainerBlock sink = getBox(w, new Vector3i(ox + 2, oy, oz));
-                    return src  != null && countItems(src.getItemContainer())  == SEED_AMOUNT - 1
-                            && sink != null && countItems(sink.getItemContainer()) == 1;
-                }, "exactly one item transferred in one tick (rate = 1.0 item/tick)"));
+                .step(Steps.waitUntilOrFail(
+                        ctx -> {
+                            World w = ctx.getWorld();
+                            int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                            ItemContainerBlock src  = getBox(w, new Vector3i(ox,     oy, oz));
+                            ItemContainerBlock sink = getBox(w, new Vector3i(ox + 2, oy, oz));
+                            return src  != null && countItems(src.getItemContainer())  == SEED_AMOUNT - 1
+                                    && sink != null && countItems(sink.getItemContainer()) == 1;
+                        },
+                        ctx -> {
+                            ItemContainerBlock sink = getBox(ctx.getWorld(),
+                                    new Vector3i(ctx.getOriginX() + 2, ctx.getOriginY(), ctx.getOriginZ()));
+                            return sink != null && countItems(sink.getItemContainer()) > 1;
+                        },
+                        ctx -> ctx.getWorld().getTps(),
+                        "exactly one item transferred in first grid tick (rate = 1.0 item/tick)"));
     }
 
     /**

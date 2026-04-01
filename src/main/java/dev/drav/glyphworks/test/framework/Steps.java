@@ -25,7 +25,7 @@ public final class Steps {
      *
      * <p>
      * The counter is initialised on the first call and reset automatically
-     * by the runner when transitioning to the next step or test. 
+     * by the runner when transitioning to the next step or test.
      */
     public static TestStep wait(int ticks) {
         return ctx -> {
@@ -103,6 +103,44 @@ public final class Steps {
             if (ctx.getTicksRemaining() < 0) {
                 ctx.setTicksRemaining(maxTicksSupplier.applyAsInt(ctx));
             }
+            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
+            return ctx.getTicksRemaining() > 0
+                    ? StepResult.PENDING
+                    : StepResult.failed("Timed out waiting for: " + description);
+        };
+    }
+
+    /**
+     * Polls each tick, checking both a success and a fail predicate atomically.
+     *
+     * <ul>
+     * <li>If {@code failPredicate} is true the step immediately returns a failure
+     * result (the expected value was overshot).</li>
+     * <li>If {@code successPredicate} is true the step returns DONE.</li>
+     * <li>Otherwise the step returns PENDING and tries again next tick.</li>
+     * </ul>
+     *
+     * Example usage:
+     *
+     * <pre>
+     * Steps.waitUntilOrFail(
+     *         ctx -&gt; getSink(ctx).getAmount() == RATE, // success
+     *         ctx -&gt; getSink(ctx).getAmount() &gt; RATE, // overshot → immediate fail
+     *         ctx -&gt; ctx.getWorld().getTps(),
+     *         "exactly RATE litres transferred in first grid tick")
+     * </pre>
+     */
+    public static TestStep waitUntilOrFail(Predicate<TestRunnerContext> successPredicate,
+            Predicate<TestRunnerContext> failPredicate,
+            ToIntFunction<TestRunnerContext> maxTicksSupplier,
+            String description) {
+        return ctx -> {
+            if (failPredicate.test(ctx))
+                return StepResult.failed("Transfer exceeded expected amount waiting for: " + description);
+            if (successPredicate.test(ctx))
+                return StepResult.DONE;
+            if (ctx.getTicksRemaining() < 0)
+                ctx.setTicksRemaining(maxTicksSupplier.applyAsInt(ctx));
             ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
             return ctx.getTicksRemaining() > 0
                     ? StepResult.PENDING
