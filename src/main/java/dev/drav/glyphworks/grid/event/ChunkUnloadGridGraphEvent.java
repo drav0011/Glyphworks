@@ -18,6 +18,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -73,18 +74,20 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
             if (component == null)
                 continue;
 
-            GridType type = component.getGridType();
-            if (type == null)
-                continue;
-
             Vector3i pos = new Vector3i(
                     chunkOriginX + ChunkUtil.xFromBlockInColumn(blockIndex),
                     ChunkUtil.yFromBlockInColumn(blockIndex),
                     chunkOriginZ + ChunkUtil.zFromBlockInColumn(blockIndex));
 
-            GridGraph graph = GlyphworksPlugin.get().getGridGraph(event.getChunk().getWorld(), type);
-            if (graph != null) {
-                graph.removeNode(pos);
+            for (GridTypeEntry gteEntry : component.getEntries()) {
+                GridType type = gteEntry.getGridType();
+                if (type == null)
+                    continue;
+
+                GridGraph graph = GlyphworksPlugin.get().getGridGraph(event.getChunk().getWorld(), type);
+                if (graph != null) {
+                    graph.removeNode(pos);
+                }
             }
         }
     }

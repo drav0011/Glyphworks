@@ -23,6 +23,7 @@ import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBl
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
@@ -126,60 +127,64 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
         }
 
         GridComponent self = selfLookup.component();
-        if (self.getGridType() == null) {
-            LOGGER.warning("[PipeRuleSet] self GridComponent has null GridType at " + coordinate);
+        if (self.getEntries().isEmpty()) {
+            LOGGER.warning("[PipeRuleSet] self GridComponent has no entries at " + coordinate);
             return Optional.empty();
         }
 
         Set<Dir> active = EnumSet.noneOf(Dir.class);
 
-        for (FacePlane face : self.getFaces()) {
-            if (face.getMode() == FaceMode.CLOSED) {
+        for (GridTypeEntry selfEntry : self.getEntries()) {
+            if (selfEntry.getGridType() == null)
                 continue;
-            }
+            String selfTypeId = selfEntry.getGridType().id();
 
-            // Rotate the face normal from local/JSON space to world space.
-            BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), selfLookup.rotation());
-            Dir dir = normalToDir(worldNormal);
-            if (dir == null) {
-                continue;
-            }
+            for (FacePlane face : selfEntry.getFaces()) {
+                if (face.getMode() == FaceMode.CLOSED) {
+                    continue;
+                }
 
-            // World position of the cell this face touches (filler offset also rotated).
-            Vector3i worldFacePos = GridFaceUtil.rotateFacePosition(face.getPosition(), selfLookup.rotation());
-            Vector3i adjacentPos = GridFaceUtil.addOffset(
-                    GridFaceUtil.addOffset(selfLookup.originPos(), worldFacePos),
-                    worldNormal);
+                // Rotate the face normal from local/JSON space to world space.
+                BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), selfLookup.rotation());
+                Dir dir = normalToDir(worldNormal);
+                if (dir == null) {
+                    continue;
+                }
 
-            GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), adjacentPos);
-            if (neighborLookup == null) {
-                continue;
-            }
+                // World position of the cell this face touches (filler offset also rotated).
+                Vector3i worldFacePos = GridFaceUtil.rotateFacePosition(face.getPosition(), selfLookup.rotation());
+                Vector3i adjacentPos = GridFaceUtil.addOffset(
+                        GridFaceUtil.addOffset(selfLookup.originPos(), worldFacePos),
+                        worldNormal);
 
-            GridComponent neighbor = neighborLookup.component();
-            if (neighbor.getGridType() == null) {
-                continue;
-            }
-            if (!neighbor.getGridType().id().equals(self.getGridType().id())) {
-                continue;
-            }
+                GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), adjacentPos);
+                if (neighborLookup == null) {
+                    continue;
+                }
 
-            // The neighbour must expose a compatible face pointing back at us.
-            FacePlane neighborFace = GridFaceUtil.findMatchingFace(
-                    neighbor, neighborLookup.originPos(),
-                    neighborLookup.rotation(),
-                    GridFaceUtil.opposite(worldNormal), adjacentPos);
-            if (neighborFace == null) {
-                continue;
-            }
-            if (neighborFace.getMode() == FaceMode.CLOSED) {
-                continue;
-            }
-            if (!GridFaceUtil.areLinkable(face.getMode(), neighborFace.getMode())) {
-                continue;
-            }
+                GridComponent neighbor = neighborLookup.component();
+                GridTypeEntry neighborEntry = neighbor.getEntry(selfTypeId);
+                if (neighborEntry == null || neighborEntry.getGridType() == null) {
+                    continue;
+                }
 
-            active.add(dir);
+                // The neighbour must expose a compatible face pointing back at us.
+                FacePlane neighborFace = GridFaceUtil.findMatchingFace(
+                        neighborEntry, neighborLookup.originPos(),
+                        neighborLookup.rotation(),
+                        GridFaceUtil.opposite(worldNormal), adjacentPos);
+                if (neighborFace == null) {
+                    continue;
+                }
+                if (neighborFace.getMode() == FaceMode.CLOSED) {
+                    continue;
+                }
+                if (!GridFaceUtil.areLinkable(face.getMode(), neighborFace.getMode())) {
+                    continue;
+                }
+
+                active.add(dir);
+            }
         }
 
         String stateName = active.isEmpty() ? "Single" : buildStateName(active);

@@ -4,49 +4,37 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
-import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.math.vector.Vector3iUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.grid.type.GridType;
-import dev.drav.glyphworks.grid.type.GridTypeRegistry;
 
 /**
  * Turns any block into a node in the Glyphworks grid.
+ *
+ * <p>
+ * A block may participate in multiple independent grid types simultaneously.
+ * Each {@link GridTypeEntry} within {@link #entries} holds the type identifier,
+ * face configurations, neighbor set, and transfer rate for one grid type.
  */
 public class GridComponent implements Component<ChunkStore> {
+
     public static final BuilderCodec<GridComponent> CODEC = BuilderCodec
             .builder(GridComponent.class, GridComponent::new)
             .append(
-                    new KeyedCodec<>("GridComponent_Type", Codec.STRING),
-                    (c, v) -> c.gridType = GridTypeRegistry.get(v),
-                    c -> c.gridType != null ? c.gridType.id() : null)
-            .add()
-            .append(
-                    new KeyedCodec<>("GridComponent_Faces", new SetCodec<>(FacePlane.CODEC, HashSet::new, false)),
-                    (c, v) -> c.faces = v,
-                    c -> c.faces)
-            .add()
-            .append(
-                    new KeyedCodec<>("GridComponent_Neighbors",
-                            new SetCodec<>(Vector3iUtil.CODEC, HashSet::new, false)),
-                    (c, v) -> c.neighbors = v,
-                    c -> c.neighbors)
-            .add()
-            .append(
-                    new KeyedCodec<>("GridComponent_TransferRate", Codec.FLOAT),
-                    (c, v) -> c.transferRate = v,
-                    c -> c.transferRate)
+                    new KeyedCodec<>("GridComponent_Entries",
+                            new SetCodec<>(GridTypeEntry.CODEC, HashSet::new, false)),
+                    (c, v) -> c.entries = v,
+                    c -> c.entries)
             .add()
             .build();
 
@@ -55,44 +43,15 @@ public class GridComponent implements Component<ChunkStore> {
     }
 
     /**
-     * The type of grid network this block belongs to.
-     * Determines which grid this node is added to and what kind of data flows
-     * through it.
+     * One entry per grid type this block participates in.
      */
-    private GridType gridType;
-
-    /**
-     * Configured face regions for this block.
-     */
-    private Set<FacePlane> faces;
-
-    /**
-     * World-relative positions of all neighboring blocks linked to this block via a
-     * face connection.
-     */
-    private Set<Vector3i> neighbors;
-
-    /**
-     * Maximum throughput of this node per tick, expressed in the native unit of the
-     * grid type (items, energy units, millibuckets, etc.).
-     * Values ≥ 1 transfer that many items per tick; values < 1 transfer one item
-     * every {@code 1/rate} ticks (e.g. {@code 0.2} = 1 item every 5 ticks).
-     * On a grid path, the effective rate is min(rate of all nodes on the path).
-     */
-    private float transferRate = 1.0f;
-
-    /**
-     * Runtime-only fractional carry-over for sub-tick transfer rates.
-     * Accumulates {@code effectiveRate} each tick; an integer batch is transferred
-     * and consumed whenever the accumulator reaches 1.0.
-     */
-    private transient float transferAccumulator = 0.0f;
+    private Set<GridTypeEntry> entries;
 
     /**
      * Runtime-only world origin position. Set at block load/place time by event
-     * handlers; not serialised, not present in the codec.
-     * Used by {@link dev.drav.glyphworks.item.handlers.ItemGridTypeHandler} to
-     * locate the external inventory adjacent to extractor / inserter faces.
+     * handlers; not serialised.
+     * Used by handlers to locate the external inventory adjacent to extractor /
+     * inserter faces.
      */
     @Nullable
     private transient Vector3i originPosition;
@@ -101,75 +60,60 @@ public class GridComponent implements Component<ChunkStore> {
      * No-arg constructor required by {@link #CODEC}.
      */
     public GridComponent() {
-        this.gridType = null;
-        this.faces = new HashSet<>();
-        this.neighbors = new HashSet<>();
-        this.transferRate = 1.0f;
+        this.entries = new HashSet<>();
     }
 
     /**
      * Copy constructor used by {@link #clone()}.
-     * Each {@link FacePlane} is deep-copied so blocks don't share mutable face
-     * state.
+     * Each {@link GridTypeEntry} is deep-copied via its own copy constructor.
      */
-    public GridComponent(GridComponent other) {
-        this.gridType = other.gridType;
-        this.faces = new HashSet<>(other.faces.size());
-        for (FacePlane f : other.faces) {
-            this.faces.add(f.clone());
+    public GridComponent(@Nonnull GridComponent other) {
+        this.entries = new HashSet<>(other.entries.size());
+        for (GridTypeEntry e : other.entries) {
+            this.entries.add(new GridTypeEntry(e));
         }
-        this.neighbors = new HashSet<>(other.neighbors);
-        this.transferRate = other.transferRate;
-        // transferAccumulator intentionally not copied — fresh placement starts at
-        // zero.
+        // originPosition intentionally not copied — fresh placement starts without it.
     }
 
-    public GridType getGridType() {
-        return gridType;
+    /**
+     * Returns an unmodifiable view of all grid type entries on this block.
+     */
+    @Nonnull
+    public Set<GridTypeEntry> getEntries() {
+        return Collections.unmodifiableSet(entries);
     }
 
-    public void setGridType(GridType gridType) {
-        this.gridType = gridType;
+    /**
+     * Returns the entry for the given grid type ID, or {@code null} if this block
+     * does not participate in that type.
+     */
+    @Nullable
+    public GridTypeEntry getEntry(@Nonnull String typeId) {
+        for (GridTypeEntry entry : entries) {
+            if (entry.getGridType() != null && entry.getGridType().id().equals(typeId)) {
+                return entry;
+            }
+        }
+        return null;
     }
 
-    public Set<FacePlane> getFaces() {
-        return Collections.unmodifiableSet(faces);
+    /**
+     * Adds a grid type entry. If an entry with the same type ID already exists it
+     * is replaced.
+     */
+    public void addEntry(@Nonnull GridTypeEntry entry) {
+        if (entry.getGridType() != null) {
+            entries.removeIf(
+                    e -> e.getGridType() != null && e.getGridType().id().equals(entry.getGridType().id()));
+        }
+        entries.add(entry);
     }
 
-    public void setFaces(Set<FacePlane> faces) {
-        this.faces = new HashSet<>(faces);
-    }
-
-    public void addFace(FacePlane face) {
-        faces.add(face);
-    }
-
-    public void removeFace(FacePlane face) {
-        faces.remove(face);
-    }
-
-    public Set<Vector3i> getNeighbors() {
-        return Collections.unmodifiableSet(neighbors);
-    }
-
-    public void setNeighbors(Set<Vector3i> neighbors) {
-        this.neighbors = new HashSet<>(neighbors);
-    }
-
-    public void addNeighbor(Vector3i neighbor) {
-        neighbors.add(neighbor);
-    }
-
-    public void removeNeighbor(Vector3i neighbor) {
-        neighbors.remove(neighbor);
-    }
-
-    public float getTransferRate() {
-        return transferRate;
-    }
-
-    public void setTransferRate(float transferRate) {
-        this.transferRate = transferRate;
+    /**
+     * Removes the entry for the given grid type ID. No-op if not present.
+     */
+    public void removeEntry(@Nonnull String typeId) {
+        entries.removeIf(e -> e.getGridType() != null && e.getGridType().id().equals(typeId));
     }
 
     @Nullable
@@ -182,25 +126,8 @@ public class GridComponent implements Component<ChunkStore> {
     }
 
     /**
-     * Adds {@code amount} to the accumulator and returns the number of whole units
-     * that have accumulated (floored). The fractional remainder is kept for the
-     * next tick.
-     *
-     * @param amount the per-tick contribution (typically
-     *               {@code effectiveRate * dt * TPS})
-     * @return how many whole items (or other units) to transfer this tick; 0 if
-     *         the threshold has not been reached yet
-     */
-    public int drainAccumulator(float amount) {
-        transferAccumulator += amount;
-        int whole = (int) transferAccumulator;
-        transferAccumulator -= whole;
-        return whole;
-    }
-
-    /**
-     * Placement copy: generates a fresh node UUID and strips all neighbour linkage.
-     * Used by the engine when a player places a block from a prototype.
+     * Placement copy: generates a fresh node and strips all neighbour linkage
+     * (entries are deep-copied via {@link GridTypeEntry#GridTypeEntry(GridTypeEntry)}).
      */
     @Nullable
     @Override
@@ -208,3 +135,4 @@ public class GridComponent implements Component<ChunkStore> {
         return new GridComponent(this);
     }
 }
+

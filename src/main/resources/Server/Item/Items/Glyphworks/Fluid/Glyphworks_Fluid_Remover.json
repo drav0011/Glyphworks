@@ -22,14 +22,22 @@
     "BlockEntity": {
       "Components": {
         "GridComponent": {
-          "GridComponent_Type": "Fluid",
-          "GridComponent_TransferRate": 25,
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "Up",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "container"
+              "GridTypeEntry_Type": "Fluid",
+              "GridTypeEntry_TransferRate": 25,
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "Up",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "container"
+                }
+              ]
             }
           ]
         },
@@ -39,8 +47,12 @@
           "Glyphworks_FluidContainerComponent_FluidId": null
         },
         "Glyphworks_FluidRemoverComponent": {
-            "Glyphworks_FluidRemoverComponent_TargetNormal": "Down",
-            "Glyphworks_FluidRemoverComponent_TargetPosition": { "X": 0, "Y": 0, "Z": 0 }
+          "Glyphworks_FluidRemoverComponent_TargetNormal": "Down",
+          "Glyphworks_FluidRemoverComponent_TargetPosition": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
         }
       }
     }

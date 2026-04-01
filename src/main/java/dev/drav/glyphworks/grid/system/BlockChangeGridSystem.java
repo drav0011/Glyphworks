@@ -25,6 +25,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -110,41 +111,44 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
 
             if (lookup != null) {
                 // A grid block now exists here — connect it.
-                // The engine's ±1 block-change notification already updates the visual
-                // connected-block state for adjacent pipes; no forceConnectedBlockUpdate
-                // needed.
                 PlaceGridBlockEvent.connectBlock(world, pos);
             } else {
-                // No grid block here — check if one was just removed from the graph.
-                // The block entity is already gone so GridLookup.resolve returns null and
-                // disconnectBlock() would be a no-op. Use the graph's adjacency instead.
+                // No grid block here — check if one was just removed from any graph.
+                Set<Vector3i> allSurvivors = new HashSet<>();
                 for (GridGraph graph : GlyphworksPlugin.get().getAllGridGraphs(world)) {
                     if (!graph.contains(pos))
                         continue;
                     Set<Vector3i> graphNeighbors = new HashSet<>(graph.getNeighbors(pos));
                     graph.removeNode(pos);
-                    // Remove this position from each surviving neighbour's component set.
+                    String typeId = graph.getGridType() != null ? graph.getGridType().id() : null;
+                    // Remove this position from each surviving neighbour's entry.
                     for (Vector3i neighborPos : graphNeighbors) {
                         GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), neighborPos);
                         if (neighborLookup != null) {
-                            neighborLookup.component().removeNeighbor(pos);
+                            if (typeId != null) {
+                                GridTypeEntry neighborEntry = neighborLookup.component().getEntry(typeId);
+                                if (neighborEntry != null) {
+                                    neighborEntry.removeNeighbor(pos);
+                                }
+                            }
+                            allSurvivors.add(neighborPos);
                         }
                     }
-                    // Deferred rebuild: by the time commandBuffer.run() fires the broken
-                    // block's entity is gone. Clearing stale neighbor sets then re-running
-                    // connectBlock rebuilds them correctly from the live world.
-                    if (!graphNeighbors.isEmpty()) {
-                        commandBuffer.run(_ -> {
-                            for (Vector3i n : graphNeighbors) {
-                                GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
-                                if (nl == null)
-                                    continue;
-                                nl.component().setNeighbors(new HashSet<>());
-                                PlaceGridBlockEvent.connectBlock(world, n);
+                    // Do NOT break — a position may belong to multiple grid types.
+                }
+                // Deferred rebuild: clear all entries' neighbors on each survivor and reconnect.
+                if (!allSurvivors.isEmpty()) {
+                    commandBuffer.run(_ -> {
+                        for (Vector3i n : allSurvivors) {
+                            GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
+                            if (nl == null)
+                                continue;
+                            for (GridTypeEntry e : nl.component().getEntries()) {
+                                e.setNeighbors(new HashSet<>());
                             }
-                        });
-                    }
-                    break; // a position belongs to at most one grid type
+                            PlaceGridBlockEvent.connectBlock(world, n);
+                        }
+                    });
                 }
             }
 

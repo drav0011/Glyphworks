@@ -104,37 +104,41 @@ const item = {
     BlockEntity: {
       Components: {
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "East",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "West",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "Up",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "Down",
-              "FacePlane_Mode": "Bidirectional"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "East",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "West",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "Up",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+                  "FacePlane_Normal": "Down",
+                  "FacePlane_Mode": "Bidirectional"
+                }
+              ]
             }
           ]
         }

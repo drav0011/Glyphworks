@@ -23,69 +23,73 @@
     "BlockEntity": {
       "Components": {
         "GridComponent": {
-          "GridComponent_Type": "Fluid",
-          "GridComponent_TransferRate": 25,
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "East",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "West",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "Up",
-              "FacePlane_Mode": "Bidirectional"
-            },
-            {
-              "FacePlane_Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
-              "FacePlane_Normal": "Down",
-              "FacePlane_Mode": "Bidirectional"
+              "GridTypeEntry_Type": "Fluid",
+              "GridTypeEntry_TransferRate": 25,
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "East",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "West",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "Up",
+                  "FacePlane_Mode": "Bidirectional"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "Down",
+                  "FacePlane_Mode": "Bidirectional"
+                }
+              ]
             }
           ]
         },
         "Glyphworks_FluidPipeComponent": {
           "Glyphworks_FluidPipeComponent_FluidId": null
         }
-      }                                    
+      }
     },
     "CustomModelScale": 1,
     "HitboxType": "Pipe",

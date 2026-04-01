@@ -26,6 +26,7 @@ import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridTypeHandler;
@@ -92,15 +93,18 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             @Nonnull CommandBuffer<ChunkStore> commandBuffer,
             @Nonnull ChunkStore chunkStore,
             @Nonnull GridComponent component,
+            @Nonnull GridTypeEntry entry,
             @Nonnull Ref<ChunkStore> blockRef) {
+
+        String typeId = entry.getGridType().id();
 
         // ---- Step 1: recover originPos -----------------------------------
         Vector3i originPos = component.getOriginPosition();
         GridGraph gridGraph = GlyphworksPlugin.get()
-                .getGridGraph(chunkStore.getWorld(), component.getGridType());
+                .getGridGraph(chunkStore.getWorld(), entry.getGridType());
 
-        if (originPos == null && gridGraph != null && !component.getNeighbors().isEmpty()) {
-            Vector3i firstNeighbor = component.getNeighbors().iterator().next();
+        if (originPos == null && gridGraph != null && !entry.getNeighbors().isEmpty()) {
+            Vector3i firstNeighbor = entry.getNeighbors().iterator().next();
             for (Vector3i candidate : gridGraph.getNeighbors(firstNeighbor)) {
                 GridLookup cand = GridLookup.resolve(chunkStore, candidate);
                 if (cand != null && blockRef.equals(cand.blockRef())) {
@@ -148,7 +152,10 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             if (memberLookup == null)
                 continue;
             GridComponent memberComp = memberLookup.component();
-            for (FacePlane face : memberComp.getFaces()) {
+            GridTypeEntry memberEntry = memberComp.getEntry(typeId);
+            if (memberEntry == null)
+                continue;
+            for (FacePlane face : memberEntry.getFaces()) {
                 FaceMode mode = face.getMode();
                 if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
                     continue;
@@ -198,10 +205,14 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             Vector3i sourcePos = sourceLookup.originPos();
             GridComponent sourceComp = sourceLookup.component();
 
-            // Drain accumulator from the source node's own component (not the root's),
+            GridTypeEntry sourceEntry = sourceComp.getEntry(typeId);
+            if (sourceEntry == null)
+                continue;
+
+            // Drain accumulator from the source node's own entry (not the root's),
             // so the per-node transfer-rate budget is correctly maintained even though
             // this node's own tick() returned early.
-            int toTransfer = sourceComp.drainAccumulator(sourceComp.getTransferRate() * dt * chunkStore.getWorld().getTps());
+            int toTransfer = sourceEntry.drainAccumulator(sourceEntry.getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1) {
                 continue;
             }
@@ -216,11 +227,11 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
             Set<Vector3i> seedNeighbors = (gridGraph != null)
                     ? gridGraph.getNeighbors(sourcePos)
-                    : sourceComp.getNeighbors();
+                    : sourceEntry.getNeighbors();
 
             for (Vector3i neighborPos : seedNeighbors) {
                 // Skip seeds reachable only through INPUT faces on the source node.
-                FacePlane connectingFace = findEntryFace(chunkStore, sourceLookup, neighborPos);
+                FacePlane connectingFace = findEntryFace(chunkStore, sourceLookup, neighborPos, typeId);
                 if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
                     continue;
                 GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
@@ -228,18 +239,24 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                     continue;
                 if (!visited.add(lookup.blockRef()))
                     continue;
-                float rate = Math.min(sourceComp.getTransferRate(), lookup.component().getTransferRate());
+                GridTypeEntry seedNeighborEntry = lookup.component().getEntry(typeId);
+                if (seedNeighborEntry == null)
+                    continue;
+                float rate = Math.min(sourceEntry.getTransferRate(), seedNeighborEntry.getTransferRate());
                 queue.add(new BFSEntry(lookup, rate, sourcePos, 1));
             }
 
             while (!queue.isEmpty()) {
-                BFSEntry entry = queue.poll();
-                GridComponent entryComp = entry.lookup().component();
-                Vector3i entryPos = entry.lookup().originPos();
+                BFSEntry bfsNode = queue.poll();
+                GridComponent entryComp = bfsNode.lookup().component();
+                Vector3i entryPos = bfsNode.lookup().originPos();
+                GridTypeEntry entryCompEntry = entryComp.getEntry(typeId);
+                if (entryCompEntry == null)
+                    continue;
 
                 // Determine if this is a terminal (any non-pure-pipe face).
                 boolean isTerminal = false;
-                for (FacePlane face : entryComp.getFaces()) {
+                for (FacePlane face : entryCompEntry.getFaces()) {
                     if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null) {
                         isTerminal = true;
                         break;
@@ -248,8 +265,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
                 if (isTerminal) {
                     // Classify as a sink if reached through an INPUT or BIDIRECTIONAL face.
-                    if (entry.arrivedFrom() != null) {
-                        FacePlane entryFace = findEntryFace(chunkStore, entry.lookup(), entry.arrivedFrom());
+                    if (bfsNode.arrivedFrom() != null) {
+                        FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
                         if (entryFace != null) {
                             FaceMode mode = entryFace.getMode();
                             String key = entryFace.getContainerKey();
@@ -258,15 +275,15 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                                 if (key != null) {
                                     // Tank sink: check FluidContainerComponent compatibility.
                                     FluidContainerComponent fcc = store.getComponent(
-                                            entry.lookup().blockRef(), FluidContainerComponent.getComponentType());
+                                            bfsNode.lookup().blockRef(), FluidContainerComponent.getComponentType());
                                     if (fcc != null
                                             && fcc.availableSpace() > 0
                                             && (fcc.getFluidId() == null
                                                     || fcc.getFluidId().equals(source.fluidId()))) {
                                         sinks.add(new SinkEntry(
-                                                entry.lookup().blockRef(), entryComp, entryFace,
-                                                entry.rate(), entry.distance(),
-                                                entry.lookup().originPos(), fcc));
+                                                bfsNode.lookup().blockRef(), entryComp, entryFace,
+                                                bfsNode.rate(), bfsNode.distance(),
+                                                bfsNode.lookup().originPos(), fcc));
                                     }
                                 }
                             }
@@ -276,24 +293,27 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 }
 
                 // Pure-pipe relay: check FluidPipeComponent compatibility.
-                FluidPipeComponent fpc = store.getComponent(entry.lookup().blockRef(),
+                FluidPipeComponent fpc = store.getComponent(bfsNode.lookup().blockRef(),
                         FluidPipeComponent.getComponentType());
                 if (fpc != null && !fpc.accepts(source.fluidId()))
                     continue; // incompatible pipe
 
-                traversedPipes.add(entry.lookup().blockRef());
+                traversedPipes.add(bfsNode.lookup().blockRef());
 
                 Set<Vector3i> relayNeighbors = (gridGraph != null)
                         ? gridGraph.getNeighbors(entryPos)
-                        : entryComp.getNeighbors();
+                        : entryCompEntry.getNeighbors();
                 for (Vector3i neighborPos : relayNeighbors) {
                     GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
                     if (lookup == null)
                         continue;
                     if (!visited.add(lookup.blockRef()))
                         continue;
-                    float rate = Math.min(entry.rate(), lookup.component().getTransferRate());
-                    queue.add(new BFSEntry(lookup, rate, entryPos, entry.distance() + 1));
+                    GridTypeEntry relayNeighborEntry = lookup.component().getEntry(typeId);
+                    if (relayNeighborEntry == null)
+                        continue;
+                    float rate = Math.min(bfsNode.rate(), relayNeighborEntry.getTransferRate());
+                    queue.add(new BFSEntry(lookup, rate, entryPos, bfsNode.distance() + 1));
                 }
             }
 
@@ -355,9 +375,13 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     private static FacePlane findEntryFace(
             @Nonnull ChunkStore chunkStore,
             @Nonnull GridLookup terminal,
-            @Nonnull Vector3i arrivedFromOriginPos) {
+            @Nonnull Vector3i arrivedFromOriginPos,
+            @Nonnull String typeId) {
         Vector3i originPos = terminal.originPos();
-        for (FacePlane face : terminal.component().getFaces()) {
+        GridTypeEntry terminalEntry = terminal.component().getEntry(typeId);
+        if (terminalEntry == null)
+            return null;
+        for (FacePlane face : terminalEntry.getFaces()) {
             BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), terminal.rotation());
             if (worldNormal == BlockFace.None)
                 continue;

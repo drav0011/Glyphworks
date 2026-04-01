@@ -8,6 +8,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -116,7 +117,11 @@ public final class GridComponentTests {
                     GridComponent compB = component(w, pb);
                     if (compA == null || compB == null)
                         return false;
-                    return compA.getNeighbors().contains(pb) && compB.getNeighbors().contains(pa);
+                    GridTypeEntry entryA = compA.getEntry("Item");
+                    GridTypeEntry entryB = compB.getEntry("Item");
+                    if (entryA == null || entryB == null)
+                        return false;
+                    return entryA.getNeighbors().contains(pb) && entryB.getNeighbors().contains(pa);
                 }, "each pipe's component.neighbors contains the other pipe's position"));
     }
 
@@ -144,7 +149,10 @@ public final class GridComponentTests {
                     World w = ctx.getWorld();
                     Vector3i remaining = v(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     GridComponent comp = component(w, remaining);
-                    return comp != null && comp.getNeighbors().isEmpty();
+                    if (comp == null)
+                        return false;
+                    GridTypeEntry entry = comp.getEntry("Item");
+                    return entry != null && entry.getNeighbors().isEmpty();
                 }, "surviving pipe's component.neighbors is empty after its partner is broken"));
     }
 
@@ -158,13 +166,13 @@ public final class GridComponentTests {
     private static TestCase transferAccumulatorWhole() {
         return new TestCase("transfer_accumulator_whole", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent comp = new GridComponent();
+                    GridTypeEntry gte = new GridTypeEntry();
                     // 1.5 added → whole=1, remainder=0.5
-                    int r1 = comp.drainAccumulator(1.5f);
+                    int r1 = gte.drainAccumulator(1.5f);
                     // 0.0 added → whole=0, remainder=0.5
-                    int r2 = comp.drainAccumulator(0.0f);
+                    int r2 = gte.drainAccumulator(0.0f);
                     // 0.5 added → total=1.0, whole=1, remainder=0.0
-                    int r3 = comp.drainAccumulator(0.5f);
+                    int r3 = gte.drainAccumulator(0.5f);
                     return r1 == 1 && r2 == 0 && r3 == 1;
                 }, "drainAccumulator(1.5) → 1; drainAccumulator(0.0) → 0; drainAccumulator(0.5) → 1"));
     }
@@ -176,13 +184,13 @@ public final class GridComponentTests {
     private static TestCase transferAccumulatorSubTick() {
         return new TestCase("transfer_accumulator_sub_tick", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent comp = new GridComponent();
+                    GridTypeEntry gte = new GridTypeEntry();
                     // Each call adds 0.3; after 3 calls accumulator=0.9 (< 1.0 → 0 each time).
-                    int r1 = comp.drainAccumulator(0.3f);
-                    int r2 = comp.drainAccumulator(0.3f);
-                    int r3 = comp.drainAccumulator(0.3f);
+                    int r1 = gte.drainAccumulator(0.3f);
+                    int r2 = gte.drainAccumulator(0.3f);
+                    int r3 = gte.drainAccumulator(0.3f);
                     // 4th call: 0.9 + 0.3 = 1.2 → whole=1, remainder=0.2
-                    int r4 = comp.drainAccumulator(0.3f);
+                    int r4 = gte.drainAccumulator(0.3f);
                     return r1 == 0 && r2 == 0 && r3 == 0 && r4 == 1;
                 }, "drainAccumulator(0.3) x 3 → 0 each; 4th call crosses 1.0 and returns 1"));
     }
@@ -196,9 +204,9 @@ public final class GridComponentTests {
     private static TestCase cloneDeepCopyFaces() {
         return new TestCase("clone_deep_copy_faces", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent original = new GridComponent();
+                    GridTypeEntry original = new GridTypeEntry();
                     original.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
-                    GridComponent clone = (GridComponent) original.clone();
+                    GridTypeEntry clone = new GridTypeEntry(original);
                     // Mutate the face in the clone — should not affect the original.
                     for (FacePlane f : clone.getFaces()) {
                         f.setMode(FaceMode.CLOSED);
@@ -218,9 +226,9 @@ public final class GridComponentTests {
     private static TestCase cloneDeepCopyNeighbors() {
         return new TestCase("clone_deep_copy_neighbors", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent original = new GridComponent();
+                    GridTypeEntry original = new GridTypeEntry();
                     original.addNeighbor(new Vector3i(1, 0, 0));
-                    GridComponent clone = (GridComponent) original.clone();
+                    GridTypeEntry clone = new GridTypeEntry(original);
                     clone.addNeighbor(new Vector3i(2, 0, 0));
                     return original.getNeighbors().size() == 1 && clone.getNeighbors().size() == 2;
                 }, "clone() creates an independent neighbor set: adding to clone does not affect the original"));

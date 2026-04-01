@@ -20,14 +20,22 @@
           "Capacity": 20
         },
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_TransferRate": 1.0,
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "East",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "items"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_TransferRate": 1,
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "East",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "items"
+                }
+              ]
             }
           ]
         }

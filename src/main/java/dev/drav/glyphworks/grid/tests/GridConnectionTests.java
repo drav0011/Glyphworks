@@ -8,6 +8,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -267,7 +268,10 @@ public final class GridConnectionTests {
                     // Change B's grid type to a different type before connecting.
                     GridLookup luB = GridLookup.resolve(w.getChunkStore(), pb);
                     if (luB != null) {
-                        luB.component().setGridType(GridType.of("__other_type__"));
+                        GridTypeEntry entryB = luB.component().getEntry("Item");
+                        if (entryB != null) {
+                            entryB.setGridType(GridType.of("__other_type__"));
+                        }
                     }
                     // Connect both: A is \"Item\", B is now \"__other_type__\".
                     PlaceGridBlockEvent.connectBlock(w, pa);

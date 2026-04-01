@@ -13,6 +13,7 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandler;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
@@ -46,18 +47,24 @@ public final class GridSystem extends EntityTickingSystem<ChunkStore> {
         if (component == null)
             return;
 
-        GridType gridType = component.getGridType();
-        if (gridType == null)
+        if (component.getEntries().isEmpty())
             return;
-
-        GridTypeHandler handler = GridTypeHandlerRegistry.get(gridType.id());
-        if (handler == null) {
-            LOGGER.warning("[GridSystem] No handler registered for grid type: \"" + gridType.id() + "\"");
-            return;
-        }
 
         Ref<ChunkStore> blockRef = archetypeChunk.getReferenceTo(index);
         ChunkStore chunkStore = commandBuffer.getExternalData();
-        handler.tick(dt, index, archetypeChunk, store, commandBuffer, chunkStore, component, blockRef);
+
+        for (GridTypeEntry entry : component.getEntries()) {
+            GridType gridType = entry.getGridType();
+            if (gridType == null)
+                continue;
+
+            GridTypeHandler handler = GridTypeHandlerRegistry.get(gridType.id());
+            if (handler == null) {
+                LOGGER.warning("[GridSystem] No handler registered for grid type: \"" + gridType.id() + "\"");
+                continue;
+            }
+
+            handler.tick(dt, index, archetypeChunk, store, commandBuffer, chunkStore, component, entry, blockRef);
+        }
     }
 }

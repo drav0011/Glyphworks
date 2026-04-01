@@ -9,6 +9,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 
 /**
  * Handles per-tick behaviour for a specific {@link GridType}.
@@ -42,6 +43,8 @@ public interface GridTypeHandler {
      *                       lookups via
      *                       {@link dev.drav.glyphworks.grid.lookup.GridLookup}
      * @param component      the {@link GridComponent} attached to this block
+     * @param entry          the {@link GridTypeEntry} for {@link #typeId()} on this
+     *                       block
      * @param blockRef       entity reference for this block
      */
     void tick(
@@ -52,5 +55,6 @@ public interface GridTypeHandler {
             @Nonnull CommandBuffer<ChunkStore> commandBuffer,
             @Nonnull ChunkStore chunkStore,
             @Nonnull GridComponent component,
+            @Nonnull GridTypeEntry entry,
             @Nonnull Ref<ChunkStore> blockRef);
 }

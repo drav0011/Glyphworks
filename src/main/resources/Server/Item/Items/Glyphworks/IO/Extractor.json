@@ -22,12 +22,20 @@
     "BlockEntity": {
       "Components": {
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-              "FacePlane_Normal": "Up",
-              "FacePlane_Mode": "Output"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "FacePlane_Normal": "Up",
+                  "FacePlane_Mode": "Output"
+                }
+              ]
             }
           ]
         }

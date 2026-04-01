@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -47,15 +48,11 @@ public final class ChunkLoadGridGraphEvent {
         int chunkOriginX = blockChunk.getX() << 5;
         int chunkOriginZ = blockChunk.getZ() << 5;
 
-        for (Int2ObjectMap.Entry<Holder<ChunkStore>> entry : bcc.getEntityHolders().int2ObjectEntrySet()) {
-            int blockIndex = entry.getIntKey();
-            GridComponent component = (GridComponent) entry.getValue().getComponent(
+        for (Int2ObjectMap.Entry<Holder<ChunkStore>> bccEntry : bcc.getEntityHolders().int2ObjectEntrySet()) {
+            int blockIndex = bccEntry.getIntKey();
+            GridComponent component = (GridComponent) bccEntry.getValue().getComponent(
                     GridComponent.getComponentType());
             if (component == null)
-                continue;
-
-            GridType type = component.getGridType();
-            if (type == null)
                 continue;
 
             Vector3i pos = new Vector3i(
@@ -65,15 +62,18 @@ public final class ChunkLoadGridGraphEvent {
 
             component.setOriginPosition(pos);
 
-            GridGraph graph = GlyphworksPlugin.get().getOrCreateGridGraph(event.getChunk().getWorld(), type);
-            graph.addNode(pos);
+            for (GridTypeEntry entry : component.getEntries()) {
+                GridType type = entry.getGridType();
+                if (type == null)
+                    continue;
 
-            for (Vector3i neighborPos : component.getNeighbors()) {
-                // Ensure the neighbor node exists before adding the edge so that
-                // addEdge can populate both sides immediately, regardless of the
-                // order in which blocks are iterated within (or across) chunks.
-                graph.addNode(neighborPos);
-                graph.addEdge(pos, neighborPos);
+                GridGraph graph = GlyphworksPlugin.get().getOrCreateGridGraph(event.getChunk().getWorld(), type);
+                graph.addNode(pos);
+
+                for (Vector3i neighborPos : entry.getNeighbors()) {
+                    graph.addNode(neighborPos);
+                    graph.addEdge(pos, neighborPos);
+                }
             }
         }
     }

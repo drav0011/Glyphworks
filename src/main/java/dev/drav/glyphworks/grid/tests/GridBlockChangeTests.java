@@ -7,6 +7,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -208,7 +209,9 @@ public final class GridBlockChangeTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridLookup lu = GridLookup.resolve(w.getChunkStore(), v(ox, oy, oz));
-                    return lu != null && lu.component().getNeighbors().isEmpty();
+                    if (lu == null) return false;
+                    GridTypeEntry gte = lu.component().getEntry("Item");
+                    return gte != null && gte.getNeighbors().isEmpty();
                 }, ctx -> 5 * ctx.getWorld().getTps(), "surviving pipe's component.neighbors is empty after auto-disconnect via setBlock"));
     }
 

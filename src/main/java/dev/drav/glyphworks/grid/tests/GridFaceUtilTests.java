@@ -8,7 +8,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
-import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
@@ -271,10 +271,10 @@ public final class GridFaceUtilTests {
     private static TestCase findMatchingFaceFound() {
         return new TestCase("find_matching_face_found", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent comp = new GridComponent();
-                    comp.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    GridTypeEntry entry = new GridTypeEntry();
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
                     return GridFaceUtil.findMatchingFace(
-                            comp, new Vector3i(0, 0, 0), RotationTuple.NONE,
+                            entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.East, new Vector3i(0, 0, 0)) != null;
                 }, "findMatchingFace returns the face when normal and world position both match"));
     }
@@ -286,10 +286,10 @@ public final class GridFaceUtilTests {
     private static TestCase findMatchingFaceWrongNormal() {
         return new TestCase("find_matching_face_wrong_normal", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent comp = new GridComponent();
-                    comp.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    GridTypeEntry entry = new GridTypeEntry();
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
                     return GridFaceUtil.findMatchingFace(
-                            comp, new Vector3i(0, 0, 0), RotationTuple.NONE,
+                            entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.North, new Vector3i(0, 0, 0)) == null;
                 }, "findMatchingFace returns null when the required normal does not match any face"));
     }
@@ -302,10 +302,10 @@ public final class GridFaceUtilTests {
     private static TestCase findMatchingFaceWrongPosition() {
         return new TestCase("find_matching_face_wrong_position", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridComponent comp = new GridComponent();
-                    comp.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    GridTypeEntry entry = new GridTypeEntry();
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
                     return GridFaceUtil.findMatchingFace(
-                            comp, new Vector3i(0, 0, 0), RotationTuple.NONE,
+                            entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.East, new Vector3i(5, 5, 5)) == null;
                 }, "findMatchingFace returns null when the normal matches but the world position does not"));
     }

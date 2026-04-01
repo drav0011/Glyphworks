@@ -102,19 +102,31 @@
         "BenchBlock": {},
         "AutoCraftingBenchBlock": {},
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "output"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "input"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "output"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "input"
+                }
+              ]
             }
           ]
         }
@@ -150,8 +162,15 @@
   "PlayerAnimationsId": "Block",
   "IconProperties": {
     "Scale": 0.42,
-    "Rotation": [22.5, 45.0, 22.5],
-    "Translation": [13.0, -13.2]
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      13,
+      -13.2
+    ]
   },
   "Tags": {
     "Type": [

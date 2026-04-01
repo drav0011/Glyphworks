@@ -101,25 +101,41 @@
         "BenchBlock": {},
         "ProcessingBenchBlock": {},
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "output"
-            },
-            {
-              "FacePlane_Position": { "X": -1, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "input"
-            },
-            {
-              "FacePlane_Position": { "X": 1, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "fuel"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "output"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": -1,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "input"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 1,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "fuel"
+                }
+              ]
             }
           ]
         }

@@ -19,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 
@@ -43,24 +44,28 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             @Nonnull BreakBlockEvent event) {
         Vector3i pos = event.getTargetBlock();
         World world = commandBuffer.getExternalData().getWorld();
-        // Snapshot neighbours before disconnectBlock wipes the component.
+        // Snapshot neighbours (union across all entries) before disconnectBlock wipes.
         ChunkStore chunkStore = world.getChunkStore();
         GridLookup lookup = GridLookup.resolve(chunkStore, pos);
-        Set<Vector3i> survivors = lookup != null
-                ? new HashSet<>(lookup.component().getNeighbors())
-                : Set.of();
+        Set<Vector3i> survivors = new HashSet<>();
+        if (lookup != null) {
+            for (GridTypeEntry entry : lookup.component().getEntries()) {
+                survivors.addAll(entry.getNeighbors());
+            }
+        }
         disconnectBlock(world, pos);
         // Deferred rebuild: by the time commandBuffer.run() fires the broken block's
-        // entity is gone. Clearing each survivor's stale neighbor set then re-running
-        // connectBlock rebuilds it correctly from the live world without entity
-        // replacement.
+        // entity is gone. Clearing each survivor's stale neighbor sets then re-running
+        // connectBlock rebuilds them correctly from the live world.
         if (!survivors.isEmpty()) {
             commandBuffer.run(_ -> {
                 for (Vector3i n : survivors) {
                     GridLookup nl = GridLookup.resolve(world.getChunkStore(), n);
                     if (nl == null)
                         continue;
-                    nl.component().setNeighbors(new HashSet<>());
+                    for (GridTypeEntry e : nl.component().getEntries()) {
+                        e.setNeighbors(new HashSet<>());
+                    }
                     PlaceGridBlockEvent.connectBlock(world, n);
                 }
             });
@@ -86,25 +91,33 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             return;
 
         GridComponent component = lookup.component();
-        if (component.getGridType() == null)
+        if (component.getEntries().isEmpty())
             return;
 
-        // Snapshot neighbors before removing node (removeNode wipes edges).
-        Set<Vector3i> neighbors = new HashSet<>(component.getNeighbors());
-
-        GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, component.getGridType());
-        if (graph != null) {
-            graph.removeNode(pos);
-        }
-
-        // Remove this position from each surviving neighbor's persisted neighbor set.
-        // The deferred rebuild in handle() will re-run connectBlock on each survivor
-        // once the broken block's entity is truly gone.
-        for (Vector3i neighborPos : neighbors) {
-            GridLookup neighborLookup = GridLookup.resolve(chunkStore, neighborPos);
-            if (neighborLookup == null)
+        // For each grid type entry, remove this node from its graph and clean neighbors.
+        for (GridTypeEntry entry : component.getEntries()) {
+            if (entry.getGridType() == null)
                 continue;
-            neighborLookup.component().removeNeighbor(pos);
+
+            // Snapshot neighbors before removing node (removeNode wipes edges).
+            Set<Vector3i> neighbors = new HashSet<>(entry.getNeighbors());
+
+            GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, entry.getGridType());
+            if (graph != null) {
+                graph.removeNode(pos);
+            }
+
+            String typeId = entry.getGridType().id();
+            // Remove this position from each surviving neighbor's persisted neighbor set.
+            for (Vector3i neighborPos : neighbors) {
+                GridLookup neighborLookup = GridLookup.resolve(chunkStore, neighborPos);
+                if (neighborLookup == null)
+                    continue;
+                GridTypeEntry neighborEntry = neighborLookup.component().getEntry(typeId);
+                if (neighborEntry != null) {
+                    neighborEntry.removeNeighbor(pos);
+                }
+            }
         }
     }
 }

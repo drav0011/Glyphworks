@@ -90,13 +90,25 @@
       "Id": "Farmingbench",
       "TierLevels": [
         {
-          "CraftingTimeReductionModifier": 0.0,
+          "CraftingTimeReductionModifier": 0,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence", "Quantity": 50 },
-              { "ItemId": "Plant_Crop_Wheat_Item", "Quantity": 5 },
-              { "ItemId": "Plant_Crop_Lettuce_Item", "Quantity": 5 },
-              { "ResourceTypeId": "Wood_Softwood_Trunk", "Quantity": 5 }
+              {
+                "ItemId": "Ingredient_Life_Essence",
+                "Quantity": 50
+              },
+              {
+                "ItemId": "Plant_Crop_Wheat_Item",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Plant_Crop_Lettuce_Item",
+                "Quantity": 5
+              },
+              {
+                "ResourceTypeId": "Wood_Softwood_Trunk",
+                "Quantity": 5
+              }
             ],
             "TimeSeconds": 3
           }
@@ -105,10 +117,22 @@
           "CraftingTimeReductionModifier": 0.15,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 1 },
-              { "ItemId": "Plant_Crop_Carrot_Item", "Quantity": 10 },
-              { "ItemId": "Plant_Crop_Corn_Item", "Quantity": 10 },
-              { "ResourceTypeId": "Wood_Lightwood_Trunk", "Quantity": 10 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 1
+              },
+              {
+                "ItemId": "Plant_Crop_Carrot_Item",
+                "Quantity": 10
+              },
+              {
+                "ItemId": "Plant_Crop_Corn_Item",
+                "Quantity": 10
+              },
+              {
+                "ResourceTypeId": "Wood_Lightwood_Trunk",
+                "Quantity": 10
+              }
             ],
             "TimeSeconds": 3
           }
@@ -117,10 +141,22 @@
           "CraftingTimeReductionModifier": 0.3,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 2 },
-              { "ItemId": "Plant_Crop_Cauliflower_Item", "Quantity": 20 },
-              { "ItemId": "Plant_Crop_Turnip_Item", "Quantity": 20 },
-              { "ResourceTypeId": "Wood_Hardwood_Trunk", "Quantity": 20 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 2
+              },
+              {
+                "ItemId": "Plant_Crop_Cauliflower_Item",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Plant_Crop_Turnip_Item",
+                "Quantity": 20
+              },
+              {
+                "ResourceTypeId": "Wood_Hardwood_Trunk",
+                "Quantity": 20
+              }
             ],
             "TimeSeconds": 3
           }
@@ -128,10 +164,22 @@
         {
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 3 },
-              { "ItemId": "Plant_Crop_Aubergine_Item", "Quantity": 30 },
-              { "ItemId": "Plant_Crop_Pumpkin_Item", "Quantity": 30 },
-              { "ResourceTypeId": "Wood_Drywood_Trunk", "Quantity": 30 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 3
+              },
+              {
+                "ItemId": "Plant_Crop_Aubergine_Item",
+                "Quantity": 30
+              },
+              {
+                "ItemId": "Plant_Crop_Pumpkin_Item",
+                "Quantity": 30
+              },
+              {
+                "ResourceTypeId": "Wood_Drywood_Trunk",
+                "Quantity": 30
+              }
             ],
             "TimeSeconds": 3
           }
@@ -139,10 +187,22 @@
         {
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 4 },
-              { "ItemId": "Plant_Crop_Tomato_Item", "Quantity": 40 },
-              { "ItemId": "Plant_Crop_Chilli_Item", "Quantity": 40 },
-              { "ResourceTypeId": "Wood_Darkwood_Trunk", "Quantity": 40 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 4
+              },
+              {
+                "ItemId": "Plant_Crop_Tomato_Item",
+                "Quantity": 40
+              },
+              {
+                "ItemId": "Plant_Crop_Chilli_Item",
+                "Quantity": 40
+              },
+              {
+                "ResourceTypeId": "Wood_Darkwood_Trunk",
+                "Quantity": 40
+              }
             ],
             "TimeSeconds": 3
           }
@@ -150,10 +210,22 @@
         {
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 5 },
-              { "ItemId": "Plant_Crop_Cotton_Item", "Quantity": 50 },
-              { "ItemId": "Plant_Crop_Rice_Item", "Quantity": 50 },
-              { "ResourceTypeId": "Wood_Redwood_Trunk", "Quantity": 50 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Plant_Crop_Cotton_Item",
+                "Quantity": 50
+              },
+              {
+                "ItemId": "Plant_Crop_Rice_Item",
+                "Quantity": 50
+              },
+              {
+                "ResourceTypeId": "Wood_Redwood_Trunk",
+                "Quantity": 50
+              }
             ],
             "TimeSeconds": 3
           }
@@ -161,10 +233,22 @@
         {
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Life_Essence_Concentrated", "Quantity": 6 },
-              { "ItemId": "Plant_Crop_Potato_Item", "Quantity": 60 },
-              { "ItemId": "Plant_Crop_Onion_Item", "Quantity": 60 },
-              { "ResourceTypeId": "Wood_Goldenwood_Trunk", "Quantity": 60 }
+              {
+                "ItemId": "Ingredient_Life_Essence_Concentrated",
+                "Quantity": 6
+              },
+              {
+                "ItemId": "Plant_Crop_Potato_Item",
+                "Quantity": 60
+              },
+              {
+                "ItemId": "Plant_Crop_Onion_Item",
+                "Quantity": 60
+              },
+              {
+                "ResourceTypeId": "Wood_Goldenwood_Trunk",
+                "Quantity": 60
+              }
             ],
             "TimeSeconds": 3
           }
@@ -176,19 +260,31 @@
         "BenchBlock": {},
         "AutoCraftingBenchBlock": {},
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "output"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "input"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "output"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "input"
+                }
+              ]
             }
           ]
         }
@@ -223,7 +319,7 @@
     "Scale": 0.42,
     "Rotation": [
       22.5,
-      45.0,
+      45,
       22.5
     ],
     "Translation": [

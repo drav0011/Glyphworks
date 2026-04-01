@@ -115,7 +115,7 @@
             ],
             "TimeSeconds": 3
           },
-          "CraftingTimeReductionModifier": 0.0
+          "CraftingTimeReductionModifier": 0
         },
         {
           "CraftingTimeReductionModifier": 0.3,
@@ -128,25 +128,41 @@
         "BenchBlock": {},
         "ProcessingBenchBlock": {},
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "output"
-            },
-            {
-              "FacePlane_Position": { "X": -1, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "input"
-            },
-            {
-              "FacePlane_Position": { "X": 1, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "fuel"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "output"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": -1,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "input"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 1,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "fuel"
+                }
+              ]
             }
           ]
         }
@@ -253,7 +269,6 @@
         "GatherType": "Benches"
       }
     },
-    "HitboxType": "Auto_Bench_Furnace",
     "BlockParticleSetId": "Stone",
     "ParticleColor": "#5C583E",
     "Support": {

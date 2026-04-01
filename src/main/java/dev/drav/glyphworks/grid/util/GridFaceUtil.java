@@ -10,7 +10,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
-import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.grid.component.GridTypeEntry;
 
 /** Shared spatial helpers for grid face calculations. */
 public final class GridFaceUtil {
@@ -100,7 +100,7 @@ public final class GridFaceUtil {
     }
 
     /**
-     * Finds the face on {@code component} whose world-space normal (after applying
+     * Finds the face on {@code entry} whose world-space normal (after applying
      * {@code componentRotation}) matches {@code requiredNormal} AND whose world
      * position ({@code originPos + face.getPosition()}) equals {@code requiredWorldPos}.
      *
@@ -110,12 +110,12 @@ public final class GridFaceUtil {
      */
     @Nullable
     public static FacePlane findMatchingFace(
-            GridComponent component,
+            GridTypeEntry entry,
             Vector3i originPos,
             RotationTuple componentRotation,
             BlockFace requiredNormal,
             Vector3i requiredWorldPos) {
-        for (FacePlane face : component.getFaces()) {
+        for (FacePlane face : entry.getFaces()) {
             if (rotateBlockFace(face.getNormal(), componentRotation) != requiredNormal)
                 continue;
             Vector3i worldFacePos = rotateFacePosition(face.getPosition(), componentRotation);

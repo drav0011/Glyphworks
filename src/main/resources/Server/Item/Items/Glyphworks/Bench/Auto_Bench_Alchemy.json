@@ -88,13 +88,25 @@
       "Id": "Alchemybench",
       "TierLevels": [
         {
-          "CraftingTimeReductionModifier": 0.0,
+          "CraftingTimeReductionModifier": 0,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 5 },
-              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 10 },
-              { "ItemId": "Ingredient_Sac_Venom", "Quantity": 10 },
-              { "ItemId": "Rock_Gem_Emerald", "Quantity": 1 }
+              {
+                "ItemId": "Ingredient_Bar_Silver",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Ingredient_Bar_Gold",
+                "Quantity": 10
+              },
+              {
+                "ItemId": "Ingredient_Sac_Venom",
+                "Quantity": 10
+              },
+              {
+                "ItemId": "Rock_Gem_Emerald",
+                "Quantity": 1
+              }
             ],
             "TimeSeconds": 3
           }
@@ -103,10 +115,22 @@
           "CraftingTimeReductionModifier": 0.2,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 10 },
-              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 20 },
-              { "ItemId": "Ingredient_Chitin_Sturdy", "Quantity": 20 },
-              { "ItemId": "Rock_Gem_Zephyr", "Quantity": 1 }
+              {
+                "ItemId": "Ingredient_Bar_Silver",
+                "Quantity": 10
+              },
+              {
+                "ItemId": "Ingredient_Bar_Gold",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Ingredient_Chitin_Sturdy",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Rock_Gem_Zephyr",
+                "Quantity": 1
+              }
             ],
             "TimeSeconds": 6
           }
@@ -115,10 +139,22 @@
           "CraftingTimeReductionModifier": 0.4,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 20 },
-              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 40 },
-              { "ItemId": "Ingredient_Fabric_Scrap_Shadoweave", "Quantity": 30 },
-              { "ItemId": "Rock_Gem_Sapphire", "Quantity": 1 }
+              {
+                "ItemId": "Ingredient_Bar_Silver",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Ingredient_Bar_Gold",
+                "Quantity": 40
+              },
+              {
+                "ItemId": "Ingredient_Fabric_Scrap_Shadoweave",
+                "Quantity": 30
+              },
+              {
+                "ItemId": "Rock_Gem_Sapphire",
+                "Quantity": 1
+              }
             ],
             "TimeSeconds": 9
           }
@@ -127,10 +163,22 @@
           "CraftingTimeReductionModifier": 0.6,
           "UpgradeRequirement": {
             "Material": [
-              { "ItemId": "Ingredient_Bar_Silver", "Quantity": 40 },
-              { "ItemId": "Ingredient_Bar_Gold", "Quantity": 80 },
-              { "ItemId": "Ingredient_Fabric_Scrap_Cindercloth", "Quantity": 120 },
-              { "ItemId": "Rock_Gem_Ruby", "Quantity": 1 }
+              {
+                "ItemId": "Ingredient_Bar_Silver",
+                "Quantity": 40
+              },
+              {
+                "ItemId": "Ingredient_Bar_Gold",
+                "Quantity": 80
+              },
+              {
+                "ItemId": "Ingredient_Fabric_Scrap_Cindercloth",
+                "Quantity": 120
+              },
+              {
+                "ItemId": "Rock_Gem_Ruby",
+                "Quantity": 1
+              }
             ],
             "TimeSeconds": 9
           }
@@ -142,19 +190,31 @@
         "BenchBlock": {},
         "AutoCraftingBenchBlock": {},
         "GridComponent": {
-          "GridComponent_Type": "Item",
-          "GridComponent_Faces": [
+          "GridComponent_Entries": [
             {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": -2 },
-              "FacePlane_Normal": "North",
-              "FacePlane_Mode": "Output",
-              "FacePlane_ContainerKey": "output"
-            },
-            {
-              "FacePlane_Position": { "X": 0, "Y": 0, "Z": 1 },
-              "FacePlane_Normal": "South",
-              "FacePlane_Mode": "Input",
-              "FacePlane_ContainerKey": "input"
+              "GridTypeEntry_Type": "Item",
+              "GridTypeEntry_Faces": [
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "FacePlane_Normal": "North",
+                  "FacePlane_Mode": "Output",
+                  "FacePlane_ContainerKey": "output"
+                },
+                {
+                  "FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "FacePlane_Normal": "South",
+                  "FacePlane_Mode": "Input",
+                  "FacePlane_ContainerKey": "input"
+                }
+              ]
             }
           ]
         }
@@ -193,8 +253,15 @@
   "PlayerAnimationsId": "Block",
   "IconProperties": {
     "Scale": 0.435,
-    "Translation": [11.4, -18.6],
-    "Rotation": [22.5, 45, 22.5]
+    "Translation": [
+      11.4,
+      -18.6
+    ],
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ]
   },
   "Tags": {
     "Type": [

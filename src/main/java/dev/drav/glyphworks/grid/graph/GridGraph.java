@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
+import dev.drav.glyphworks.grid.type.GridType;
+
 /**
  * Runtime position-keyed graph of
  * {@link dev.drav.glyphworks.grid.component.GridComponent}
@@ -42,6 +44,14 @@ import org.joml.Vector3i;
 public final class GridGraph {
 
     /**
+     * The grid type this graph tracks. Used by systems that need to look up the
+     * matching {@link dev.drav.glyphworks.grid.component.GridTypeEntry} on a
+     * {@link dev.drav.glyphworks.grid.component.GridComponent}.
+     */
+    @Nullable
+    private final GridType gridType;
+
+    /**
      * pos → set of directly connected positions (undirected, both sides stored).
      */
     private final Map<Vector3i, Set<Vector3i>> adjacency  = new HashMap<>();
@@ -51,6 +61,22 @@ public final class GridGraph {
 
     /** root → all member positions of that connected component. */
     private final Map<Vector3i, Set<Vector3i>>  components = new HashMap<>();
+
+    /**
+     * Creates a graph for the given grid type.
+     */
+    public GridGraph(@Nullable GridType gridType) {
+        this.gridType = gridType;
+    }
+
+    /**
+     * Returns the {@link GridType} this graph belongs to, or {@code null} if
+     * unspecified.
+     */
+    @Nullable
+    public GridType getGridType() {
+        return gridType;
+    }
 
     // -------------------------------------------------------------------------
     // Mutation

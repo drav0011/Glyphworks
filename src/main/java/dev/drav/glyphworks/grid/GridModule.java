@@ -60,7 +60,7 @@ public final class GridModule extends GlyphworksModule {
     public GridGraph getOrCreateGridGraph(World world, GridType type) {
         return gridGraphs
                 .computeIfAbsent(world.getWorldConfig().getUuid(), id -> new ConcurrentHashMap<>())
-                .computeIfAbsent(type.id(), id -> new GridGraph());
+                .computeIfAbsent(type.id(), id -> new GridGraph(type));
     }
 
     @Nonnull
