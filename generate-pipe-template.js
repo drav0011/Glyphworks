@@ -8,7 +8,8 @@ const path = require('path');
 
 const BASE = __dirname;
 const MODELS_DIR = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
-const ITEM_PATH = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Pipe/Pipe.json');
+const FLUID_PIPE_PATH = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Fluid/Glyphworks_Fluid_Pipe.json');
+const ITEM_PIPE_PATH  = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Item/Glyphworks_Item_Pipe.json');
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks/Pipe');
 
 const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
@@ -89,70 +90,52 @@ for (let mask = 0; mask < 64; mask++) {
 
 console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
 
-// ─── Write Pipe.json from scratch ───────────────────────────────────────────
-const item = {
-  TranslationProperties: { Name: 'server.items.Pipe.name' },
-  Categories: ['Blocks.Deco'],
-  BlockType: {
-    Material: 'Solid',
-    DrawType: 'Model',
-    BlockSoundSetId: 'Stone',
-    Opacity: 'Transparent',
-    ConnectedBlockRuleSet: { Type: 'Pipe' },
-    CustomModel: 'Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel',
-    CustomModelTexture: MODEL_TEXTURE,
-    BlockEntity: {
-      Components: {
-        "GridComponent": {
-          "GridComponent_Entries": [
-            {
-              "GridTypeEntry_Type": "Item",
-              "GridTypeEntry_Faces": [
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "South",
-                  "FacePlane_Mode": "Bidirectional"
-                },
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "North",
-                  "FacePlane_Mode": "Bidirectional"
-                },
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "East",
-                  "FacePlane_Mode": "Bidirectional"
-                },
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "West",
-                  "FacePlane_Mode": "Bidirectional"
-                },
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "Up",
-                  "FacePlane_Mode": "Bidirectional"
-                },
-                {
-                  "FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
-                  "FacePlane_Normal": "Down",
-                  "FacePlane_Mode": "Bidirectional"
-                }
-              ]
-            }
-          ]
-        }
+// ─── Build pipe JSON for a given grid type ───────────────────────────────────
+function buildPipeItem(gridType, transferRate, translationName) {
+  return {
+    TranslationProperties: { Name: translationName },
+    Categories: ['Blocks.Deco'],
+    BlockType: {
+      Material: 'Solid',
+      DrawType: 'Model',
+      BlockSoundSetId: 'Stone',
+      Opacity: 'Transparent',
+      ConnectedBlockRuleSet: { Type: 'Pipe' },
+      CustomModel: 'Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel',
+      CustomModelTexture: MODEL_TEXTURE,
+      BlockEntity: {
+        Components: {
+          "Glyphworks_GridComponent": {
+            "Glyphworks_GridComponent_Entries": [
+              {
+                "Glyphworks_GridTypeEntry_Type": gridType,
+                "Glyphworks_GridTypeEntry_TransferRate": transferRate,
+                "Glyphworks_GridTypeEntry_Faces": [
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "South", "Glyphworks_FacePlane_Mode": "Bidirectional" },
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "North", "Glyphworks_FacePlane_Mode": "Bidirectional" },
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "East",  "Glyphworks_FacePlane_Mode": "Bidirectional" },
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "West",  "Glyphworks_FacePlane_Mode": "Bidirectional" },
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "Up",    "Glyphworks_FacePlane_Mode": "Bidirectional" },
+                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "Down",  "Glyphworks_FacePlane_Mode": "Bidirectional" }
+                ]
+              }
+            ]
+          }
+        },
       },
+      CustomModelScale: 1,
+      HitboxType: 'Pipe',
+      Flags: {},
+      State: { Definitions: stateDefs },
     },
-    CustomModelScale: 1,
-    HitboxType: 'Pipe',
-    Flags: {},
-    State: { Definitions: stateDefs },
-  },
-  PlayerAnimationsId: 'Block',
-  Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',
-  Scale: 1,
-};
+    PlayerAnimationsId: 'Block',
+    Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',
+    Scale: 1,
+  };
+}
 
-fs.writeFileSync(ITEM_PATH, JSON.stringify(item, null, 2), 'utf8');
-console.log(`Wrote Pipe.json with ${Object.keys(stateDefs).length} state definitions`);
+fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem('Fluid', 25,  'server.items.Glyphworks_Fluid_Pipe.name'), null, 2), 'utf8');
+console.log(`Wrote Glyphworks_Fluid_Pipe.json`);
+
+fs.writeFileSync(ITEM_PIPE_PATH,  JSON.stringify(buildPipeItem('Item',  0.2, 'server.items.Glyphworks_Item_Pipe.name'),  null, 2), 'utf8');
+console.log(`Wrote Glyphworks_Item_Pipe.json with ${Object.keys(stateDefs).length} state definitions`);

@@ -22,65 +22,65 @@
     ],
     "BlockEntity": {
       "Components": {
-        "GridComponent": {
-          "GridComponent_Entries": [
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
             {
-              "GridTypeEntry_Type": "Fluid",
-              "GridTypeEntry_TransferRate": 25,
-              "GridTypeEntry_Faces": [
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "South",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "North",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "East",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "East",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "West",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "West",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "Up",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "Down",
-                  "FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Normal": "Down",
+                  "Glyphworks_FacePlane_Mode": "Bidirectional"
                 }
               ]
             }

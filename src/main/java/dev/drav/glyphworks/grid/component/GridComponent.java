@@ -31,7 +31,7 @@ public class GridComponent implements Component<ChunkStore> {
     public static final BuilderCodec<GridComponent> CODEC = BuilderCodec
             .builder(GridComponent.class, GridComponent::new)
             .append(
-                    new KeyedCodec<>("GridComponent_Entries",
+                    new KeyedCodec<>("Glyphworks_GridComponent_Entries",
                             new SetCodec<>(GridTypeEntry.CODEC, HashSet::new, false)),
                     (c, v) -> c.entries = v,
                     c -> c.entries)

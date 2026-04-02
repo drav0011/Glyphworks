@@ -24,6 +24,8 @@ import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
+import dev.drav.glyphworks.item.component.ItemSinkComponent;
+import dev.drav.glyphworks.item.component.ItemSourceComponent;
 import dev.drav.glyphworks.grid.GridModule;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
@@ -138,6 +140,14 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, FluidSinkComponent> getFluidSinkComponentType() {
         return fluidModule.getFluidSinkComponentType();
+    }
+
+    public ComponentType<ChunkStore, ItemSourceComponent> getItemSourceComponentType() {
+        return itemModule.getItemSourceComponentType();
+    }
+
+    public ComponentType<ChunkStore, ItemSinkComponent> getItemSinkComponentType() {
+        return itemModule.getItemSinkComponentType();
     }
 
     public ComponentType<EntityStore, TestRunnerComponent> getTestRunnerComponentType() {

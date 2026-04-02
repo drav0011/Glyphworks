@@ -96,7 +96,7 @@ public final class GridModule extends GlyphworksModule {
                 ChunkPreLoadProcessEvent.class, ChunkLoadGridGraphEvent::handle);
 
         this.gridComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                GridComponent.class, "GridComponent", GridComponent.CODEC);
+                GridComponent.class, "Glyphworks_GridComponent", GridComponent.CODEC);
 
         plugin.getEntityStoreRegistry().registerSystem(new PlaceGridBlockEvent());
         plugin.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());

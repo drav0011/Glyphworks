@@ -1,0 +1,48 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Item_Sink.name"
+  },
+  "Categories": [
+    "Blocks.Deco"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "BlockSoundSetId": "Stone",
+    "Opacity": "Solid",
+    "VariantRotation": "DoublePipe",
+    "BlockEntity": {
+      "Components": {
+        "ItemContainerBlock": {
+          "ItemContainer": {
+            "Capacity": 1,
+            "Items": {}
+          },
+          "Capacity": 1
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 1,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "items"
+                }
+              ]
+            }
+          ]
+        },
+        "Glyphworks_ItemSinkComponent": {}
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block"
+}

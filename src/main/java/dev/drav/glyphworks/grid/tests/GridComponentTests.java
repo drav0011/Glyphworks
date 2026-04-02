@@ -30,7 +30,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class GridComponentTests {
 
-    private static final String PIPE_ID = "Pipe";
+    private static final String PIPE_ID = "Glyphworks_Item_Pipe";
 
     private GridComponentTests() {
     }

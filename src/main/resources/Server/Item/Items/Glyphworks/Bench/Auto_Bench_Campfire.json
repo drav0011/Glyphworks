@@ -100,40 +100,40 @@
       "Components": {
         "BenchBlock": {},
         "ProcessingBenchBlock": {},
-        "GridComponent": {
-          "GridComponent_Entries": [
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
             {
-              "GridTypeEntry_Type": "Item",
-              "GridTypeEntry_Faces": [
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_Faces": [
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": -2
                   },
-                  "FacePlane_Normal": "North",
-                  "FacePlane_Mode": "Output",
-                  "FacePlane_ContainerKey": "output"
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": -1,
                     "Y": 0,
                     "Z": 1
                   },
-                  "FacePlane_Normal": "South",
-                  "FacePlane_Mode": "Input",
-                  "FacePlane_ContainerKey": "input"
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
                 },
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 1,
                     "Y": 0,
                     "Z": 1
                   },
-                  "FacePlane_Normal": "South",
-                  "FacePlane_Mode": "Input",
-                  "FacePlane_ContainerKey": "fuel"
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             }

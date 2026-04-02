@@ -33,7 +33,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class GridBlockChangeTests {
 
-    private static final String PIPE_ID = "Pipe";
+    private static final String PIPE_ID = "Glyphworks_Item_Pipe";
     private static final GridType ITEM_GRID = GridType.of("Item");
 
 

@@ -18,22 +18,22 @@ public class FacePlane {
     public static final BuilderCodec<FacePlane> CODEC = BuilderCodec
             .builder(FacePlane.class, FacePlane::new)
             .append(
-                    new KeyedCodec<>("FacePlane_Position", Vector3iUtil.CODEC),
+                    new KeyedCodec<>("Glyphworks_FacePlane_Position", Vector3iUtil.CODEC),
                     (c, v) -> c.position = v,
                     c -> c.position)
             .add()
             .append(
-                    new KeyedCodec<>("FacePlane_Normal", new EnumCodec<>(BlockFace.class)),
+                    new KeyedCodec<>("Glyphworks_FacePlane_Normal", new EnumCodec<>(BlockFace.class)),
                     (c, v) -> c.normal = v,
                     c -> c.normal)
             .add()
             .append(
-                    new KeyedCodec<>("FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
+                    new KeyedCodec<>("Glyphworks_FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
                     (c, v) -> c.mode = v,
                     c -> c.mode)
             .add()
             .append(
-                    new KeyedCodec<>("FacePlane_ContainerKey", Codec.STRING),
+                    new KeyedCodec<>("Glyphworks_FacePlane_ContainerKey", Codec.STRING),
                     (c, v) -> c.containerKey = v,
                     c -> c.containerKey)
             .add()

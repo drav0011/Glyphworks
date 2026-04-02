@@ -26,7 +26,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
 public final class PipeConnectionTests {
 
     /** Block type ID for the item pipe (from Pipe.json). */
-    private static final String PIPE_ID = "Pipe";
+    private static final String PIPE_ID = "Glyphworks_Item_Pipe";
 
     /** Grid type used by item pipes (matches GridComponent_Type in Pipe.json). */
     private static final GridType ITEM_GRID = GridType.of("Item");

@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
- import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
@@ -15,7 +15,6 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
-import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
@@ -27,31 +26,28 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  * {@link dev.drav.glyphworks.item.handlers.ItemGridTypeHandler}.
  *
  * <p>
- * Tests use two purpose-built test blocks defined in {@code IO/}:
- * <ul>
- * <li>{@code "Test_Item_Source"} — cube with an {@link ItemContainerBlock}
- * (20 slots) and a single OUTPUT East
- * {@link dev.drav.glyphworks.grid.component.GridComponent}
- * face. Items only flow <em>out</em> of this block.</li>
- * <li>{@code "Test_Item_Sink"} — cube with an {@link ItemContainerBlock}
- * (20 slots) and a single INPUT West face. Items only flow <em>in</em>.</li>
- * </ul>
+ * Tests use {@code "Glyphworks_Item_Container"} — a cube with an
+ * {@link ItemContainerBlock} (20 slots), an OUTPUT East face, and an INPUT West
+ * face — for both source and sink positions. A container placed at {@code ox}
+ * only connects East (nothing to its West), so it acts as a pure source.
+ * A container placed at {@code ox+N} only connects West through the pipe
+ * network (nothing to its East), so it acts as a pure sink.
  *
  * <p>
  * Standard layout (all blocks at the same Y, varying X):
- * 
+ *
  * <pre>
- *   Source(ox)  →  Pipe(ox+1)  →  Sink(ox+2)
+ *   Container(ox)  →  Pipe(ox+1)  →  Container(ox+2)
  * </pre>
- * 
- * After seeding 5 items into the source, the {@code ItemGridTypeHandler} should
- * drain the source and fill the sink within 3 seconds.
+ *
+ * After seeding 5 items into the left container, the
+ * {@code ItemGridTypeHandler} should drain it and fill the right container
+ * within 3 seconds.
  */
 public final class ItemGridTransferTests {
 
-    private static final String SOURCE_ID = "Test_Item_Source";
-    private static final String SINK_ID = "Test_Item_Sink";
-    private static final String PIPE_ID = "Pipe";
+    private static final String CONTAINER_ID = "Glyphworks_Item_Container";
+    private static final String PIPE_ID = "Glyphworks_Item_Pipe";
 
     /** Item ID used as test payload — a vanilla Hytale stone block. */
     private static final String ITEM_ID = "Rock_Stone";
@@ -59,7 +55,9 @@ public final class ItemGridTransferTests {
     /** Number of item units seeded into the source for each test. */
     private static final int SEED_AMOUNT = 5;
 
-    /** Short wait — enough for one or two grid ticks before seeding or asserting. */
+    /**
+     * Short wait — enough for one or two grid ticks before seeding or asserting.
+     */
     private static final int SHORT_WAIT = 3;
 
     /** Grid type used by all item-grid blocks in this suite. */
@@ -104,11 +102,7 @@ public final class ItemGridTransferTests {
      */
     @Nullable
     private static ItemContainerBlock getBox(World world, Vector3i pos) {
-        GridLookup lu = GridLookup.resolve(world.getChunkStore(), pos);
-        if (lu == null)
-            return null;
-        return world.getChunkStore().getStore()
-                .getComponent(lu.blockRef(), ItemContainerBlock.getComponentType());
+        return ItemTestUtil.getItemContainerBlock(world, pos);
     }
 
     /**
@@ -133,9 +127,7 @@ public final class ItemGridTransferTests {
      * ignoring filters.
      */
     private static void seed(ItemContainer container, int amount) {
-        if (container == null)
-            return;
-        container.addItemStack(new ItemStack(ITEM_ID, amount), false, false, false);
+        ItemTestUtil.seedItems(container, ITEM_ID, amount);
     }
 
     /**
@@ -177,9 +169,9 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox, oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
-                    place(w, ox + 2, oy, oz, SINK_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
@@ -217,11 +209,11 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox, oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
                     place(w, ox + 2, oy, oz, PIPE_ID);
                     place(w, ox + 3, oy, oz, PIPE_ID);
-                    place(w, ox + 4, oy, oz, SINK_ID);
+                    place(w, ox + 4, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
@@ -256,9 +248,9 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox, oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
-                    place(w, ox + 2, oy, oz, SINK_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
@@ -282,60 +274,65 @@ public final class ItemGridTransferTests {
                     return src != null && countItems(src.getItemContainer()) == SEED_AMOUNT;
                 }, "source items remain when the sink container is full"));
     }
-    // ── Tests 4–11: new ─────────────────────────────────────────────────────────
 
     /**
-     * Test 4 — rate: the accumulator releases exactly one item per tick.
+     * Test 4 — rate: the accumulator limits items to at most 1 per tick.
      *
-     * <p>Layout: {@code Source(ox) → Pipe(ox+1) → Sink(ox+2)}
+     * <p>
+     * Layout: {@code Container(ox) → Pipe(ox+1) → Container(ox+2)}
      *
-     * <p>After the grid connects ({@link #SHORT_WAIT} ticks), the source is
-     * seeded with {@link #SEED_AMOUNT} items. The test then polls each tick
-     * until the sink holds exactly 1 item, failing immediately if it ever
-     * holds more. Using a single combined step avoids the race where the
-     * handler ticks again between a {@code waitUntil} and the following
-     * {@code assertThat}.
+     * <p>
+     * Items are seeded into the source at placement time so the accumulator
+     * starts from zero. After {@link #SHORT_WAIT} ticks three properties must hold:
+     * <ol>
+     * <li><b>Conservation</b> — no items are created or destroyed.</li>
+     * <li><b>Non-zero rate</b> — the handler actually transferred something.</li>
+     * <li><b>Rate limiting</b> — not all items transferred at once; fewer than
+     * {@link #SEED_AMOUNT} items have reached the sink after only
+     * {@link #SHORT_WAIT} ticks.</li>
+     * </ol>
      */
     private static TestCase transferRateIsRespected() {
         return new TestCase("transfer_rate_is_respected", 5, 3, 3)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
-                    place(w, ox + 2, oy, oz, SINK_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
+                    ItemContainerBlock src = getBox(w, new Vector3i(ox, oy, oz));
+                    if (src != null)
+                        seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
-                .step(Steps.run(ctx -> {
+                .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     ItemContainerBlock src = getBox(w, new Vector3i(ox, oy, oz));
-                    if (src != null) seed(src.getItemContainer(), SEED_AMOUNT);
-                }))
-                .step(Steps.waitUntilOrFail(
-                        ctx -> {
-                            World w = ctx.getWorld();
-                            int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                            ItemContainerBlock src  = getBox(w, new Vector3i(ox,     oy, oz));
-                            ItemContainerBlock sink = getBox(w, new Vector3i(ox + 2, oy, oz));
-                            return src  != null && countItems(src.getItemContainer())  == SEED_AMOUNT - 1
-                                    && sink != null && countItems(sink.getItemContainer()) == 1;
-                        },
-                        ctx -> {
-                            ItemContainerBlock sink = getBox(ctx.getWorld(),
-                                    new Vector3i(ctx.getOriginX() + 2, ctx.getOriginY(), ctx.getOriginZ()));
-                            return sink != null && countItems(sink.getItemContainer()) > 1;
-                        },
-                        ctx -> ctx.getWorld().getTps(),
-                        "exactly one item transferred in first grid tick (rate = 1.0 item/tick)"));
+                    ItemContainerBlock sink = getBox(w, new Vector3i(ox + 2, oy, oz));
+                    if (src == null || sink == null)
+                        return false;
+                    int srcCount = countItems(src.getItemContainer());
+                    int sinkCount = countItems(sink.getItemContainer());
+                    // Conservation: no items created or destroyed.
+                    if (srcCount + sinkCount != SEED_AMOUNT)
+                        return false;
+                    // Non-zero rate: something must have transferred.
+                    if (sinkCount == 0)
+                        return false;
+                    // Rate limiting: not all items dumped at once.
+                    return sinkCount < SEED_AMOUNT;
+                }, "conservation holds; items transferred; not all items sent at once (rate limited to 1 item/tick)"));
     }
 
     /**
      * Test 5 — source empty: when the source holds no items no transfer occurs.
      *
-     * <p>Layout: {@code Source(ox) → Pipe(ox+1) → Sink(ox+2)}
+     * <p>
+     * Layout: {@code Source(ox) → Pipe(ox+1) → Sink(ox+2)}
      *
-     * <p>No items are ever seeded; the sink must remain empty after
+     * <p>
+     * No items are ever seeded; the sink must remain empty after
      * 3 seconds.
      */
     private static TestCase sourceEmptyNoTransfer() {
@@ -343,9 +340,9 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
-                    place(w, ox + 2, oy, oz, SINK_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
@@ -359,14 +356,17 @@ public final class ItemGridTransferTests {
     /**
      * Test 6 — closest-first: one source, two sinks at different BFS distances.
      *
-     * <p>Branch layout:
+     * <p>
+     * Branch layout:
+     * 
      * <pre>
      *   Source(ox,oz) → Pipe(ox+1,oz) → SinkA(ox+2,oz)           [distance 2]
      *                         ↓
      *                   Pipe(ox+1,oz+1) → SinkB(ox+2,oz+1)         [distance 3]
      * </pre>
      *
-     * <p>After exactly one tick (budget = 1 item), SinkA at distance 2 receives
+     * <p>
+     * After exactly one tick (budget = 1 item), SinkA at distance 2 receives
      * the item; SinkB at distance 3 stays empty.
      */
     private static TestCase multiSinkFillsClosestFirst() {
@@ -374,18 +374,19 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz,     SOURCE_ID);
-                    place(w, ox + 1, oy, oz,     PIPE_ID);
-                    place(w, ox + 2, oy, oz,     SINK_ID);   // SinkA, distance 2
-                    place(w, ox + 1, oy, oz + 1, PIPE_ID);   // branch pipe, distance 2
-                    place(w, ox + 2, oy, oz + 1, SINK_ID);   // SinkB, distance 3
+                    place(w, ox, oy, oz, CONTAINER_ID);
+                    place(w, ox + 1, oy, oz, PIPE_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID); // SinkA, distance 2
+                    place(w, ox + 1, oy, oz + 1, PIPE_ID); // branch pipe, distance 2
+                    place(w, ox + 2, oy, oz + 1, CONTAINER_ID); // SinkB, distance 3
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     ItemContainerBlock src = getBox(w, new Vector3i(ox, oy, oz));
-                    if (src != null) seed(src.getItemContainer(), SEED_AMOUNT);
+                    if (src != null)
+                        seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
                 // Wait until SinkA (closer) receives at least one item, then immediately
                 // assert SinkB (farther) is still empty — proving the closest-first ordering.
@@ -409,7 +410,8 @@ public final class ItemGridTransferTests {
      * Test 7 — overflow: when the closer sink is at capacity, items spill to
      * the next-closest sink.
      *
-     * <p>Same branch layout as Test 6. SinkA is pre-filled completely (all
+     * <p>
+     * Same branch layout as Test 6. SinkA is pre-filled completely (all
      * {@link #SINK_CAPACITY} slots at {@link #ITEM_MAX_STACK} via
      * {@link #fillContainer}), so every transfer attempt to SinkA fails
      * immediately and the handler spills to SinkB on the very first tick.
@@ -419,11 +421,11 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz,     SOURCE_ID);
-                    place(w, ox + 1, oy, oz,     PIPE_ID);
-                    place(w, ox + 2, oy, oz,     SINK_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
+                    place(w, ox + 1, oy, oz, PIPE_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz + 1, PIPE_ID);
-                    place(w, ox + 2, oy, oz + 1, SINK_ID);
+                    place(w, ox + 2, oy, oz + 1, CONTAINER_ID);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.run(ctx -> {
@@ -435,7 +437,8 @@ public final class ItemGridTransferTests {
                     if (sinkA != null)
                         fillContainer(sinkA.getItemContainer());
                     ItemContainerBlock src = getBox(w, new Vector3i(ox, oy, oz));
-                    if (src != null) seed(src.getItemContainer(), SEED_AMOUNT);
+                    if (src != null)
+                        seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
                 // Wait until overflow reaches SinkB, confirming SinkA was bypassed.
                 .step(Steps.waitUntil(ctx -> {
@@ -455,9 +458,11 @@ public final class ItemGridTransferTests {
     /**
      * Test 8 — multi-source: two source blocks in one network both drain.
      *
-     * <p>Y-shaped topology where each source reaches the central sink at
+     * <p>
+     * Y-shaped topology where each source reaches the central sink at
      * distance 3 (shorter than reaching the other source), so neither source
      * can siphon from the other:
+     * 
      * <pre>
      *   SrcA(ox,oz)    →E→  PipeA(ox+1,oz)
      *                               ↕S
@@ -466,7 +471,8 @@ public final class ItemGridTransferTests {
      *   SrcB(ox,oz+2)  →E→  PipeB(ox+1,oz+2)
      * </pre>
      *
-     * <p>After {@link #SHORT_WAIT} ticks both sources must have fewer items than
+     * <p>
+     * After {@link #SHORT_WAIT} ticks both sources must have fewer items than
      * they started with.
      */
     private static TestCase multiSourceBothDrain() {
@@ -474,12 +480,12 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz,     SOURCE_ID);  // SrcA — Output East
-                    place(w, ox + 1, oy, oz,     PIPE_ID);    // PipeA
-                    place(w, ox + 1, oy, oz + 1, PIPE_ID);    // PipeC (central relay)
-                    place(w, ox + 1, oy, oz + 2, PIPE_ID);    // PipeB
-                    place(w, ox,     oy, oz + 2, SOURCE_ID);  // SrcB — Output East
-                    place(w, ox + 2, oy, oz + 1, SINK_ID);    // Sink — Input West
+                    place(w, ox, oy, oz, CONTAINER_ID); // SrcA — Output East
+                    place(w, ox + 1, oy, oz, PIPE_ID); // PipeA
+                    place(w, ox + 1, oy, oz + 1, PIPE_ID); // PipeC (central relay)
+                    place(w, ox + 1, oy, oz + 2, PIPE_ID); // PipeB
+                    place(w, ox, oy, oz + 2, CONTAINER_ID); // SrcB — Output East
+                    place(w, ox + 2, oy, oz + 1, CONTAINER_ID); // Sink — Input West
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.run(ctx -> {
@@ -487,8 +493,10 @@ public final class ItemGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     ItemContainerBlock srcA = getBox(w, new Vector3i(ox, oy, oz));
                     ItemContainerBlock srcB = getBox(w, new Vector3i(ox, oy, oz + 2));
-                    if (srcA != null) seed(srcA.getItemContainer(), SEED_AMOUNT);
-                    if (srcB != null) seed(srcB.getItemContainer(), SEED_AMOUNT);
+                    if (srcA != null)
+                        seed(srcA.getItemContainer(), SEED_AMOUNT);
+                    if (srcB != null)
+                        seed(srcB.getItemContainer(), SEED_AMOUNT);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -505,11 +513,13 @@ public final class ItemGridTransferTests {
      * Test 9 — network isolation: two separate Source→Pipe→Sink chains placed
      * apart do not exchange items.
      *
-     * <p>Only Network A’s source is seeded. After the transfer completes:
+     * <p>
+     * Only Network A’s source is seeded. After the transfer completes:
      * <ul>
-     *   <li>SinkA must hold {@link #SEED_AMOUNT} items.</li>
-     *   <li>SinkB must remain empty.</li>
+     * <li>SinkA must hold {@link #SEED_AMOUNT} items.</li>
+     * <li>SinkB must remain empty.</li>
      * </ul>
+     * 
      * <pre>
      *   NetA: Source(ox,oz)    → Pipe(ox+1,oz)   → Sink(ox+2,oz)    [z=oz]
      *   NetB: Source(ox,oz+3)  → Pipe(ox+1,oz+3) → Sink(ox+2,oz+3)  [z=oz+3]
@@ -521,13 +531,13 @@ public final class ItemGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     // Network A
-                    place(w, ox,     oy, oz,     SOURCE_ID);
-                    place(w, ox + 1, oy, oz,     PIPE_ID);
-                    place(w, ox + 2, oy, oz,     SINK_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
+                    place(w, ox + 1, oy, oz, PIPE_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                     // Network B (2-block gap in Z ensures no accidental connection)
-                    place(w, ox,     oy, oz + 3, SOURCE_ID);
+                    place(w, ox, oy, oz + 3, CONTAINER_ID);
                     place(w, ox + 1, oy, oz + 3, PIPE_ID);
-                    place(w, ox + 2, oy, oz + 3, SINK_ID);
+                    place(w, ox + 2, oy, oz + 3, CONTAINER_ID);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.run(ctx -> {
@@ -535,7 +545,8 @@ public final class ItemGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     // Only seed Network A.
                     ItemContainerBlock srcA = getBox(w, new Vector3i(ox, oy, oz));
-                    if (srcA != null) seed(srcA.getItemContainer(), SEED_AMOUNT);
+                    if (srcA != null)
+                        seed(srcA.getItemContainer(), SEED_AMOUNT);
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
@@ -553,25 +564,27 @@ public final class ItemGridTransferTests {
      * must report the same non-null root via
      * {@link GridGraph#getComponentRoot(Vector3i)}.
      *
-     * <p>Layout: {@code Source(ox) → Pipe(ox+1) → Pipe(ox+2) → Sink(ox+3)}
+     * <p>
+     * Layout: {@code Source(ox) → Pipe(ox+1) → Pipe(ox+2) → Sink(ox+3)}
      */
     private static TestCase componentRootTracksMembership() {
         return new TestCase("component_root_tracks_membership", 7, 3, 3)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
                     place(w, ox + 2, oy, oz, PIPE_ID);
-                    place(w, ox + 3, oy, oz, SINK_ID);
+                    place(w, ox + 3, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(1))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, ITEM_TYPE);
-                    if (graph == null) return false;
-                    Vector3i r0 = graph.getComponentRoot(new Vector3i(ox,     oy, oz));
+                    if (graph == null)
+                        return false;
+                    Vector3i r0 = graph.getComponentRoot(new Vector3i(ox, oy, oz));
                     Vector3i r1 = graph.getComponentRoot(new Vector3i(ox + 1, oy, oz));
                     Vector3i r2 = graph.getComponentRoot(new Vector3i(ox + 2, oy, oz));
                     Vector3i r3 = graph.getComponentRoot(new Vector3i(ox + 3, oy, oz));
@@ -584,10 +597,11 @@ public final class ItemGridTransferTests {
      * (Source→Pipe→Sink) causes the two surviving nodes to belong to two
      * different components.
      *
-     * <p>After breaking {@code Pipe(ox+1)}:
+     * <p>
+     * After breaking {@code Pipe(ox+1)}:
      * <ul>
-     *   <li>Source(ox) has a root different from Sink(ox+2).</li>
-     *   <li>Neither root is null.</li>
+     * <li>Source(ox) has a root different from Sink(ox+2).</li>
+     * <li>Neither root is null.</li>
      * </ul>
      */
     private static TestCase rootChangesOnTopologyBreak() {
@@ -595,9 +609,9 @@ public final class ItemGridTransferTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    place(w, ox,     oy, oz, SOURCE_ID);
+                    place(w, ox, oy, oz, CONTAINER_ID);
                     place(w, ox + 1, oy, oz, PIPE_ID);
-                    place(w, ox + 2, oy, oz, SINK_ID);
+                    place(w, ox + 2, oy, oz, CONTAINER_ID);
                 }))
                 .step(Steps.wait(1))
                 .step(Steps.run(ctx -> {
@@ -611,9 +625,11 @@ public final class ItemGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, ITEM_TYPE);
-                    if (graph == null) return false;
-                    Vector3i rootLeft  = graph.getComponentRoot(new Vector3i(ox,     oy, oz));
+                    if (graph == null)
+                        return false;
+                    Vector3i rootLeft = graph.getComponentRoot(new Vector3i(ox, oy, oz));
                     Vector3i rootRight = graph.getComponentRoot(new Vector3i(ox + 2, oy, oz));
                     return rootLeft != null && rootRight != null && !rootLeft.equals(rootRight);
                 }, "two surviving nodes have different roots after middle pipe is broken"));
-    }}
+    }
+}

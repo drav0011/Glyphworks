@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Inserter.name"
+    "Name": "server.items.Glyphworks_Item_Extractor.name"
   },
   "Categories": [
     "Blocks.Deco"
@@ -11,29 +11,29 @@
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
-    "HitboxType": "Inserter",
-    "CustomModel": "Blocks/Glyphworks/IO/Inserter/Inserter.blockymodel",
+    "HitboxType": "Extractor",
+    "CustomModel": "Blocks/Glyphworks/IO/Extractor/Extractor.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/IO/Inserter/Inserter.png",
+        "Texture": "Blocks/Glyphworks/IO/Extractor/Extractor.png",
         "Weight": 1
       }
     ],
     "BlockEntity": {
       "Components": {
-        "GridComponent": {
-          "GridComponent_Entries": [
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
             {
-              "GridTypeEntry_Type": "Item",
-              "GridTypeEntry_Faces": [
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_Faces": [
                 {
-                  "FacePlane_Position": {
+                  "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
                     "Z": 0
                   },
-                  "FacePlane_Normal": "Up",
-                  "FacePlane_Mode": "Input"
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Output"
                 }
               ]
             }

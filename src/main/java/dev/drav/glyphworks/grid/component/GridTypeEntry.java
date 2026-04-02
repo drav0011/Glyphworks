@@ -32,23 +32,23 @@ public class GridTypeEntry {
     public static final BuilderCodec<GridTypeEntry> CODEC = BuilderCodec
             .builder(GridTypeEntry.class, GridTypeEntry::new)
             .append(
-                    new KeyedCodec<>("GridTypeEntry_Type", Codec.STRING),
+                    new KeyedCodec<>("Glyphworks_GridTypeEntry_Type", Codec.STRING),
                     (c, v) -> c.gridType = GridTypeRegistry.get(v),
                     c -> c.gridType != null ? c.gridType.id() : null)
             .add()
             .append(
-                    new KeyedCodec<>("GridTypeEntry_Faces", new SetCodec<>(FacePlane.CODEC, HashSet::new, false)),
+                    new KeyedCodec<>("Glyphworks_GridTypeEntry_Faces", new SetCodec<>(FacePlane.CODEC, HashSet::new, false)),
                     (c, v) -> c.faces = v,
                     c -> c.faces)
             .add()
             .append(
-                    new KeyedCodec<>("GridTypeEntry_Neighbors",
+                    new KeyedCodec<>("Glyphworks_GridTypeEntry_Neighbors",
                             new SetCodec<>(Vector3iUtil.CODEC, HashSet::new, false)),
                     (c, v) -> c.neighbors = v,
                     c -> c.neighbors)
             .add()
             .append(
-                    new KeyedCodec<>("GridTypeEntry_TransferRate", Codec.FLOAT),
+                    new KeyedCodec<>("Glyphworks_GridTypeEntry_TransferRate", Codec.FLOAT),
                     (c, v) -> c.transferRate = v,
                     c -> c.transferRate)
             .add()
