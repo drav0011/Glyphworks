@@ -12,6 +12,7 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.grid.component.GridComponent;
 
 /**
@@ -37,6 +38,9 @@ import dev.drav.glyphworks.grid.component.GridComponent;
  * {@code setActive(false)} here.
  */
 public final class ProcessingBenchAutoStartSystem extends EntityTickingSystem<ChunkStore> {
+
+    /** Required fluid ID for mana consumption. */
+    private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
 
     public ProcessingBenchAutoStartSystem() {
     }
@@ -70,6 +74,14 @@ public final class ProcessingBenchAutoStartSystem extends EntityTickingSystem<Ch
         // When the bench has fuel slots, require at least one fuel item too.
         if (pbb.getProcessingBench().getFuel() != null) {
             if (pbb.getFuelContainer().isEmpty())
+                return;
+        }
+
+        // Require mana in the fluid container if one is present.
+        FluidContainerComponent fluidContainer = archetypeChunk.getComponent(
+                index, FluidContainerComponent.getComponentType());
+        if (fluidContainer != null) {
+            if (fluidContainer.isEmpty() || !MANA_FLUID_ID.equals(fluidContainer.getFluidId()))
                 return;
         }
 

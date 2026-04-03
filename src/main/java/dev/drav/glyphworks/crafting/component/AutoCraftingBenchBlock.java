@@ -82,24 +82,29 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     public static final BuilderCodec<AutoCraftingBenchBlock> CODEC = BuilderCodec
             .builder(AutoCraftingBenchBlock.class, AutoCraftingBenchBlock::new)
             .append(
-                    new KeyedCodec<>("LockedRecipeId", Codec.STRING),
+                    new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_LockedRecipeId", Codec.STRING),
                     (b, v) -> b.lockedRecipeId = v,
                     b -> b.lockedRecipeId)
             .add()
             .append(
-                    new KeyedCodec<>("InputContainer", ItemContainer.CODEC),
+                    new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_InputContainer", ItemContainer.CODEC),
                     (b, v) -> b.inputContainer = v,
                     b -> b.inputContainer)
             .add()
             .append(
-                    new KeyedCodec<>("OutputContainer", ItemContainer.CODEC),
+                    new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_OutputContainer", ItemContainer.CODEC),
                     (b, v) -> b.outputContainer = v,
                     b -> b.outputContainer)
             .add()
             .append(
-                    new KeyedCodec<>("Progress", Codec.DOUBLE),
+                    new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_Progress", Codec.DOUBLE),
                     (b, v) -> b.craftingProgress = v.floatValue(),
                     b -> Double.valueOf(b.craftingProgress))
+            .add()
+            .append(
+                    new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate", Codec.FLOAT),
+                    (b, v) -> b.manaConsumptionRate = v,
+                    b -> b.manaConsumptionRate)
             .add()
             .build();
 
@@ -126,6 +131,12 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
      * Progress toward the next completed craft, in seconds of recipe time elapsed.
      */
     private float craftingProgress = 0.0f;
+
+    /**
+     * Mana consumption rate in liters per tick while actively crafting.
+     * Set per bench in JSON; defaults to 0 (no mana required).
+     */
+    private float manaConsumptionRate = 0.0f;
 
     // ── Transient / runtime ────────────────────────────────────────────────────
 
@@ -385,6 +396,10 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
         isCrafting = crafting;
     }
 
+    public float getManaConsumptionRate() {
+        return manaConsumptionRate;
+    }
+
     @Nullable
     public ItemContainer getInputContainer() {
         return inputContainer;
@@ -477,6 +492,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
         c.inputContainer = this.inputContainer;
         c.outputContainer = this.outputContainer;
         c.craftingProgress = this.craftingProgress;
+        c.manaConsumptionRate = this.manaConsumptionRate;
         return c;
     }
 }

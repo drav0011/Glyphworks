@@ -1,0 +1,206 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Bench_Furniture.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Furniture.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Bench_Furniture.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "TimeSeconds": 3,
+    "Input": [
+      {
+        "Quantity": 6,
+        "ResourceTypeId": "Wood_Trunk"
+      },
+      {
+        "Quantity": 4,
+        "ResourceTypeId": "Rock"
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Bench_Furniture"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Crafting"
+        ],
+        "Id": "Workbench"
+      }
+    ]
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Semitransparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Furniture/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/Furniture/Default.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Bench_Furniture",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "Furniture_Storage",
+          "Icon": "Icons/CraftingCategories/Furniture/Storage.png",
+          "Name": "server.benchCategories.furniture.storage"
+        },
+        {
+          "Id": "Furniture_Beds",
+          "Icon": "Icons/CraftingCategories/Furniture/Beds.png",
+          "Name": "server.benchCategories.furniture.beds"
+        },
+        {
+          "Id": "Furniture_Lighting",
+          "Icon": "Icons/CraftingCategories/Furniture/Lighting.png",
+          "Name": "server.benchCategories.furniture.lighting"
+        },
+        {
+          "Id": "Furniture_Pottery",
+          "Icon": "Icons/CraftingCategories/Furniture/Pottery.png",
+          "Name": "server.benchCategories.furniture.pottery"
+        },
+        {
+          "Id": "Furniture_Textiles",
+          "Icon": "Icons/CraftingCategories/Furniture/Textiles.png",
+          "Name": "server.benchCategories.furniture.textiles"
+        },
+        {
+          "Id": "Furniture_Village_Walls",
+          "Icon": "Icons/CraftingCategories/Furniture/Village_Walls.png",
+          "Name": "server.benchCategories.furniture.village_walls"
+        },
+        {
+          "Id": "Furniture_Misc",
+          "Icon": "Icons/CraftingCategories/Furniture/Misc.png",
+          "Name": "server.benchCategories.furniture.misc"
+        },
+        {
+          "Id": "Furniture_Seasonal",
+          "Icon": "Icons/CraftingCategories/Furniture/Seasonal.png",
+          "Name": "server.benchCategories.furniture.seasonal"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "Id": "Furniture_Bench"
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoCraftingBenchBlock": {
+          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 4000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
+                }
+              ]
+            },
+            {
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "State": {
+      "Definitions": {
+        "CraftCompleted": {
+          "Looping": true
+        },
+        "CraftCompletedInstant": {}
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "ParticleColor": "#6b472f",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Wood",
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.42,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      13,
+      -13.2
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 7,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

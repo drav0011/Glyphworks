@@ -35,7 +35,7 @@ public final class CraftingModule extends GlyphworksModule {
     @Override
     public void setup(@Nonnull GlyphworksPlugin plugin) {
         this.autoCraftingBenchBlockComponentType = plugin.getChunkStoreRegistry().registerComponent(
-                AutoCraftingBenchBlock.class, "AutoCraftingBenchBlock", AutoCraftingBenchBlock.CODEC);
+                AutoCraftingBenchBlock.class, "Glyphworks_AutoCraftingBenchBlock", AutoCraftingBenchBlock.CODEC);
 
         plugin.getCodecRegistry((AssetCodecMapCodec) Interaction.CODEC).register(
                 "OpenAutoCraftingBench", OpenAutoCraftingBenchInteraction.class,

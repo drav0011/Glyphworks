@@ -1,7 +1,7 @@
-items.Bench_AutoFurnace.name=Automated Furnace
-items.Bench_AutoFurnace.description=A furnace that automatically pulls input and pushes output.
-items.Auto_Bench_Farming.name=Automated Farming Bench
-items.Auto_Bench_Farming.description=A farming bench that automatically pulls input and pushes output.
+items.Glyphworks_Crafting_Bench_Furnace.name=Automated Furnace
+items.Glyphworks_Crafting_Bench_Furnace.description=A furnace that automatically pulls input and pushes output.
+items.Glyphworks_Crafting_Bench_Farming.name=Automated Farming Bench
+items.Glyphworks_Crafting_Bench_Farming.description=A farming bench that automatically pulls input and pushes output.
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
 items.Glyphworks_Fluid_Pipe.name=Fluid Pipe
 items.Glyphworks_Fluid_Placer.name=Fluid Placer

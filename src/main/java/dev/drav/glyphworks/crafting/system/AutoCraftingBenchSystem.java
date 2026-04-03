@@ -19,6 +19,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
  * Per-tick crafting system for {@link AutoCraftingBenchBlock}.
@@ -46,6 +47,9 @@ public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStor
 
     /** Processing time used for crafting recipes that declare 0 (instant) time. */
     private static final float DEFAULT_RECIPE_TIME = 1.0f;
+
+    /** Required fluid ID for mana consumption. */
+    private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
 
     @Override
     public Query<ChunkStore> getQuery() {
@@ -120,6 +124,24 @@ public final class AutoCraftingBenchSystem extends EntityTickingSystem<ChunkStor
 
         // ── Step 2: advance progress when all ingredients are present.
         if (acbb.isReadyToCraft()) {
+            // ── Step 2a: drain mana if required.
+            float manaRate = acbb.getManaConsumptionRate();
+            if (manaRate > 0.0f) {
+                FluidContainerComponent fluidContainer = archetypeChunk.getComponent(
+                        index, FluidContainerComponent.getComponentType());
+                if (fluidContainer == null || fluidContainer.isEmpty()
+                        || !MANA_FLUID_ID.equals(fluidContainer.getFluidId())) {
+                    // No mana available — pause without resetting progress.
+                    return;
+                }
+                int manaCost = Math.max(1, Math.round(manaRate));
+                if (fluidContainer.getAmount() < manaCost) {
+                    // Insufficient mana this tick — pause without resetting.
+                    return;
+                }
+                fluidContainer.drain(manaCost);
+            }
+
             acbb.setCrafting(true);
             float newProgress = Math.min(acbb.getCraftingProgress() + dt, recipeTime);
             acbb.setCraftingProgress(newProgress);

@@ -1,0 +1,278 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Bench_WorkBench.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_WorkBench.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Bench_WorkBench.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 6
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Bench_WorkBench"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Workbench_Crafting"
+        ],
+        "Id": "Workbench"
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Workbench/Tier_1.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/Workbench/Tier_1.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "Workbench_Survival",
+          "Icon": "Icons/CraftingCategories/Workbench/WeaponsCrude.png",
+          "Name": "server.benchCategories.workbench.survival"
+        },
+        {
+          "Id": "Workbench_Tools",
+          "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
+          "Name": "server.benchCategories.workbench.tools"
+        },
+        {
+          "Id": "Workbench_Crafting",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.workbench.crafting"
+        },
+        {
+          "Id": "Workbench_Tinkering",
+          "Icon": "Icons/CraftingCategories/Workbench/Deco_Target.png",
+          "Name": "server.benchCategories.workbench.tinkering"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Id": "Workbench",
+      "TierLevels": [
+        {
+          "CraftingTimeReductionModifier": 0,
+          "UpgradeRequirement": {
+            "Material": [
+              {
+                "ItemId": "Ingredient_Bar_Copper",
+                "Quantity": 30
+              },
+              {
+                "ItemId": "Ingredient_Bar_Iron",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Ingredient_Fabric_Scrap_Linen",
+                "Quantity": 20
+              }
+            ],
+            "TimeSeconds": 5
+          }
+        },
+        {
+          "CraftingTimeReductionModifier": 0.15,
+          "UpgradeRequirement": {
+            "Material": [
+              {
+                "ItemId": "Ingredient_Bar_Thorium",
+                "Quantity": 30
+              },
+              {
+                "ItemId": "Ingredient_Bar_Cobalt",
+                "Quantity": 20
+              },
+              {
+                "ItemId": "Ingredient_Leather_Heavy",
+                "Quantity": 30
+              },
+              {
+                "ItemId": "Ingredient_Fabric_Scrap_Shadoweave",
+                "Quantity": 50
+              },
+              {
+                "ItemId": "Ingredient_Fire_Essence",
+                "Quantity": 25
+              }
+            ],
+            "TimeSeconds": 10
+          }
+        },
+        {
+          "CraftingTimeReductionModifier": 0.3
+        }
+      ]
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoCraftingBenchBlock": {
+          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 4000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
+                }
+              ]
+            },
+            {
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "State": {
+      "Definitions": {
+        "CraftCompleted": {
+          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_1_Crafting.blockyanim",
+          "Looping": true
+        },
+        "CraftCompletedInstant": {
+          "CustomModelAnimation": "Blocks/Benches/Workbench_Crafting.blockyanim"
+        },
+        "Tier2": {
+          "CustomModel": "Blocks/Glyphworks/Crafting/Workbench/Tier_2.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/Workbench/Tier_2.png",
+              "Weight": 1
+            }
+          ],
+          "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+          "State": {
+            "Definitions": {
+              "CraftCompleted": {
+                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_2_Crafting.blockyanim"
+              }
+            }
+          }
+        },
+        "Tier3": {
+          "CustomModel": "Blocks/Glyphworks/Crafting/Workbench/Tier_3.blockymodel",
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/Workbench/Tier_3.png",
+              "Weight": 1
+            }
+          ],
+          "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+          "State": {
+            "Definitions": {
+              "CraftCompleted": {
+                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_3_Crafting.blockyanim"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "ParticleColor": "#6e4a2f",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Wood",
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.42,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      12.9,
+      -11.7
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}
