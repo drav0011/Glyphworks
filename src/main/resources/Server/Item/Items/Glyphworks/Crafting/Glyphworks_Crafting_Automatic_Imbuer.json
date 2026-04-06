@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Crafting_Automatic_Imbuer.name",
     "Description": "server.items.Glyphworks_Crafting_Automatic_Imbuer.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks/Automatic_Imbuer.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Automatic_Imbuer.png",
   "Categories": [
     "Furniture.Benches"
   ],
@@ -49,7 +49,7 @@
     "CustomModel": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Off.png",
+        "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Default.png",
         "Weight": 1
       }
     ],
@@ -124,27 +124,6 @@
                   "Glyphworks_FacePlane_ContainerKey": "mana"
                 }
               ]
-            }
-          ]
-        }
-      }
-    },
-    "State": {
-      "Definitions": {
-        "CraftCompleted": {
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/On.png",
-              "Weight": 1
-            }
-          ],
-          "Looping": true
-        },
-        "CraftCompletedInstant": {
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/On.png",
-              "Weight": 1
             }
           ]
         }

@@ -79,3 +79,5 @@ benchCategories.runepress.crafting=Rune Crafting
 benchCategories.glyphimprinter.machines=Machines
 benchCategories.glyphimprinter.components=Components
 benchCategories.glyphimbuer.runes=Rune Imbuing
+resourceType.Glyphworks_Empty_Rune.name=Empty Rune
+resourceType.Glyphworks_Filled_Rune.name=Filled Rune

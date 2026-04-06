@@ -3,7 +3,6 @@
     "Name": "server.items.Glyphworks_Crafting_Glyph_Imprinter.name",
     "Description": "server.items.Glyphworks_Crafting_Glyph_Imprinter.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks/Glyph_Imprinter.png",
   "Categories": [
     "Furniture.Benches"
   ],
@@ -110,5 +109,6 @@
     ]
   },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood"
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Glyph_Imprinter.png"
 }

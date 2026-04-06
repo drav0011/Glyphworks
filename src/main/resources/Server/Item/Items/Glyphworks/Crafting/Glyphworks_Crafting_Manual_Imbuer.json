@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Crafting_Manual_Imbuer.name",
     "Description": "server.items.Glyphworks_Crafting_Manual_Imbuer.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks/Manual_Imbuer.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Manual_Imbuer.png",
   "Categories": [
     "Furniture.Benches"
   ],

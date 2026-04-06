@@ -3,7 +3,6 @@
     "Name": "server.items.Glyphworks_Crafting_Mana_Liquifier.name",
     "Description": "server.items.Glyphworks_Crafting_Mana_Liquifier.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks/Mana_Liquifier.png",
   "Categories": [
     "Furniture.Benches"
   ],
@@ -76,9 +75,9 @@
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": 0,
+                    "X": -1,
                     "Y": 0,
-                    "Z": 0
+                    "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "Input",
@@ -86,11 +85,11 @@
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": 0,
+                    "X": 1,
                     "Y": 0,
-                    "Z": -2
+                    "Z": 1
                   },
-                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "Input",
                   "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
@@ -103,10 +102,10 @@
                 {
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
-                    "Y": 3,
+                    "Y": 0,
                     "Z": -1
                   },
-                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Normal": "North",
                   "Glyphworks_FacePlane_Mode": "Output",
                   "Glyphworks_FacePlane_ContainerKey": "mana"
                 }
@@ -133,17 +132,18 @@
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
-    "Scale": 0.35,
+    "Scale": 0.2,
     "Rotation": [
       22.5,
       45,
       22.5
     ],
     "Translation": [
-      11.4,
-      -18.6
+      0,
+      -56
     ]
   },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood"
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Mana_Liquifier.png"
 }
