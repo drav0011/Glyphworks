@@ -13,6 +13,8 @@ import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem;
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem;
 import dev.drav.glyphworks.crafting.system.ProcessingBenchAutoStartSystem;
+import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchFlowTests;
+import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchGridTests;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchTests;
 
 /**
@@ -54,5 +56,7 @@ public final class CraftingModule extends GlyphworksModule {
     @Override
     public void setupTests() {
         AutoCraftingBenchTests.register("crafting");
+        AutoCraftingBenchFlowTests.register("crafting");
+        AutoCraftingBenchGridTests.register("crafting");
     }
 }

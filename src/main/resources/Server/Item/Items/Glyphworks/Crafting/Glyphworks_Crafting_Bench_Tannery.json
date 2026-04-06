@@ -112,6 +112,7 @@
           "Glyphworks_GridComponent_Entries": [
             {
               "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 1,
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -142,8 +143,8 @@
                 {
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
-                    "Y": 0,
-                    "Z": 1
+                    "Y": 2,
+                    "Z": -1
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
                   "Glyphworks_FacePlane_Mode": "Input",
