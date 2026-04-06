@@ -357,5 +357,29 @@
   },
   "PlayerAnimationsId": "Block",
   "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
-  "Scale": 1
+  "Scale": 1,
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 6
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Fluid_Pipe",
+        "Quantity": 10
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Components"
+        ]
+      }
+    ],
+    "TimeSeconds": 1
+  }
 }

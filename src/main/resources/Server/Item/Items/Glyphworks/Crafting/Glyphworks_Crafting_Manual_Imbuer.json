@@ -1,0 +1,109 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Manual_Imbuer.name",
+    "Description": "server.items.Glyphworks_Crafting_Manual_Imbuer.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks/Manual_Imbuer.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 2
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 10
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Manual_Imbuer"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Machines"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/ManualImbuer/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/ManualImbuer/Default.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Manual_Imbuer",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "GlyphImbuer_Runes",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.glyphimbuer.runes"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "Id": "GlyphImbuer"
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {}
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Stone"
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.35,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      11.4,
+      -18.6
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

@@ -11,26 +11,28 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
+
 import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import org.joml.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
-import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
@@ -192,7 +194,6 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         while (!queue.isEmpty()) {
             BFSEntry bfsNode = queue.poll();
             GridComponent nodeComp = bfsNode.lookup().component();
-            Vector3i nodePos = bfsNode.lookup().originPos();
             GridTypeEntry nodeEntry = nodeComp.getEntry(typeId);
             if (nodeEntry == null)
                 continue;
@@ -419,6 +420,10 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (acbb != null)
             return acbb.getItemContainer();
 
+        ManaLiquifierBlock mlb = worldStore.getComponent(blockRef, ManaLiquifierBlock.getComponentType());
+        if (mlb != null)
+            return mlb.getInputContainer();
+
         ItemContainerBlock icb = worldStore.getComponent(blockRef, ItemContainerBlock.getComponentType());
         if (icb != null)
             return icb.getItemContainer();
@@ -432,6 +437,8 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
      * Maps {@code "input"}/{@code "output"}/{@code "fuel"} for
      * {@link ProcessingBenchBlock}; returns the single container for
      * {@link ItemContainerBlock}.
+     * 
+     * TODO: better expansible resolution for containers, cannot be adding component types to this class every time we add a new block with a container.
      */
     @Nullable
     private static ItemContainer resolveContainer(
@@ -452,6 +459,14 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             return switch (key) {
                 case "input" -> acbb.getInputContainer();
                 case "output" -> acbb.getOutputContainer();
+                default -> null;
+            };
+        }
+        ManaLiquifierBlock mlb = store.getComponent(ref, ManaLiquifierBlock.getComponentType());
+        if (mlb != null) {
+            return switch (key) {
+                case "input" -> mlb.getInputContainer();
+                case "fuel" -> mlb.getFuelContainer();
                 default -> null;
             };
         }

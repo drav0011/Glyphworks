@@ -1,0 +1,191 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Automatic_Imbuer.name",
+    "Description": "server.items.Glyphworks_Crafting_Automatic_Imbuer.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks/Automatic_Imbuer.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 2
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 10
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Filled_Rune",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Automatic_Imbuer"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Machines"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Off.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Automatic_Imbuer",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "GlyphImbuer_Runes",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.glyphimbuer.runes"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "Id": "GlyphImbuer"
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoCraftingBenchBlock": {
+          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 4000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 1,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
+                }
+              ]
+            },
+            {
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 2,
+                    "Z": -1
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "State": {
+      "Definitions": {
+        "CraftCompleted": {
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/On.png",
+              "Weight": 1
+            }
+          ],
+          "Looping": true
+        },
+        "CraftCompletedInstant": {
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/On.png",
+              "Weight": 1
+            }
+          ]
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Stone",
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.35,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      11.4,
+      -18.6
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

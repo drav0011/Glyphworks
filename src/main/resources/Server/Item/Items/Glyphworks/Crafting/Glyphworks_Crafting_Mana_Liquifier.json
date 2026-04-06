@@ -1,0 +1,149 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Mana_Liquifier.name",
+    "Description": "server.items.Glyphworks_Crafting_Mana_Liquifier.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks/Mana_Liquifier.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 20
+      },
+      {
+        "ItemId": "Ingredient_Bar_Copper",
+        "Quantity": 8
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Mana_Liquifier"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Machines"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/ManaLiquifier/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/ManaLiquifier/Default.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Mana_Liquifier",
+    "VariantRotation": "NESW",
+    "BlockEntity": {
+      "Components": {
+        "Glyphworks_ManaLiquifierBlock": {
+          "Glyphworks_ManaLiquifierBlock_InputContainer": null,
+          "Glyphworks_ManaLiquifierBlock_FuelContainer": null,
+          "Glyphworks_ManaLiquifierBlock_Progress": 0.0,
+          "Glyphworks_ManaLiquifierBlock_FuelEnergy": 0.0
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Capacity": 10000,
+          "Glyphworks_FluidContainerComponent_Amount": 0,
+          "Glyphworks_FluidContainerComponent_FluidId": null
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 1,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_ContainerKey": "fuel"
+                }
+              ]
+            },
+            {
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 3,
+                    "Z": -1
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Stone"
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.35,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      11.4,
+      -18.6
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

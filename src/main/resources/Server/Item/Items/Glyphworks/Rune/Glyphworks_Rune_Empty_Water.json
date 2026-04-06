@@ -1,0 +1,62 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Rune_Empty_Water.name",
+    "Description": "server.items.Glyphworks_Rune_Empty_Water.description"
+  },
+  "Model": "Resources/Glyphworks/Rune/Rune.blockymodel",
+  "Texture": "Resources/Glyphworks/Rune/Textures/Rune_Empty_Water.png",
+  "MaxStack": 100,
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "ResourceTypes": [
+    {
+      "Id": "Glyphworks_Empty_Rune"
+    }
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 1
+      },
+      {
+        "ResourceTypeId": "Rubble",
+        "Quantity": 4
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Rune_Empty_Water"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "RunePress",
+        "Type": "Crafting",
+        "Categories": [
+          "RunePress_Crafting"
+        ]
+      }
+    ],
+    "TimeSeconds": 2
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Rune_Empty_Water.png",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
+}

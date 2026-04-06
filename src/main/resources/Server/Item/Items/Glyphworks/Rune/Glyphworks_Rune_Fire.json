@@ -1,0 +1,62 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Rune_Fire.name",
+    "Description": "server.items.Glyphworks_Rune_Fire.description"
+  },
+  "Model": "Resources/Glyphworks/Rune/Rune.blockymodel",
+  "Texture": "Resources/Glyphworks/Rune/Textures/Rune_Fire.png",
+  "MaxStack": 100,
+  "Categories": [
+    "Items.Ingredients"
+  ],
+  "Tags": {
+    "Type": [
+      "Ingredient"
+    ]
+  },
+  "ResourceTypes": [
+    {
+      "Id": "Glyphworks_Filled_Rune"
+    }
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Glyphworks_Rune_Empty_Fire",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fire_Essence",
+        "Quantity": 1
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Rune_Fire"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImbuer",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImbuer_Runes"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Rune_Fire.png",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
+}

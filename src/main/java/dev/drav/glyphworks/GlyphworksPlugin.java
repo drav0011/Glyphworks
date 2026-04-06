@@ -16,6 +16,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.CraftingModule;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.fluid.FluidModule;
 import dev.drav.glyphworks.item.ItemModule;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -116,6 +117,10 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, AutoCraftingBenchBlock> getAutoCraftingBenchBlockComponentType() {
         return craftingModule.getAutoCraftingBenchBlockComponentType();
+    }
+
+    public ComponentType<ChunkStore, ManaLiquifierBlock> getManaLiquifierBlockComponentType() {
+        return craftingModule.getManaLiquifierBlockComponentType();
     }
 
     public ComponentType<ChunkStore, FluidContainerComponent> getFluidContainerComponentType() {
