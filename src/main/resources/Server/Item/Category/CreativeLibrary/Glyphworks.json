@@ -1,0 +1,26 @@
+{
+  "Icon": "Icons/ItemCategories/Items.png",
+  "Order": 10,
+  "Children": [
+    {
+      "Id": "Benches",
+      "Name": "server.ui.itemcategory.glyphworks.benches",
+      "Icon": "Icons/ItemCategories/Bench.png"
+    },
+    {
+      "Id": "Fluid",
+      "Name": "server.ui.itemcategory.glyphworks.fluid",
+      "Icon": "Icons/ItemCategories/Container.png"
+    },
+    {
+      "Id": "Items",
+      "Name": "server.ui.itemcategory.glyphworks.items",
+      "Icon": "Icons/ItemCategories/Container.png"
+    },
+    {
+      "Id": "Runes",
+      "Name": "server.ui.itemcategory.glyphworks.runes",
+      "Icon": "Icons/ItemCategories/Items-Ingredients.png"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
     "Description": "server.items.Glyphworks_Crafting_Automatic_Press.description"
   },
   "Categories": [
-    "Furniture.Benches"
+    "Glyphworks.Benches"
   ],
   "Recipe": {
     "Input": [

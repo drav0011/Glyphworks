@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Item_Sink.name"
   },
   "Categories": [
-    "Blocks.Deco"
+    "Glyphworks.Items"
   ],
   "BlockType": {
     "Material": "Solid",

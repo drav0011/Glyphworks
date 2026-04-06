@@ -7,7 +7,7 @@
   "Texture": "Resources/Glyphworks/Rune/Textures/Rune_Empty_Void.png",
   "MaxStack": 100,
   "Categories": [
-    "Items.Ingredients"
+    "Glyphworks.Runes"
   ],
   "Tags": {
     "Type": [

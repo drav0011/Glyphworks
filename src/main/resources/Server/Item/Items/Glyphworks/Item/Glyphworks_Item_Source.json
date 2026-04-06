@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Item_Source.name"
   },
   "Categories": [
-    "Blocks.Deco"
+    "Glyphworks.Items"
   ],
   "BlockType": {
     "Material": "Solid",
