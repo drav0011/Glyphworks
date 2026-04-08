@@ -5,6 +5,41 @@
   "Categories": [
     "Glyphworks.Items"
   ],
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 4
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Void",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
+        "Quantity": 1
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Item_Picker"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Machines"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",

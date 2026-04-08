@@ -8,7 +8,6 @@
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
         "ItemId": "Ingredient_Bar_Copper",
@@ -21,6 +20,10 @@
       {
         "ResourceTypeId": "Rock",
         "Quantity": 5
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Fire",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -30,13 +33,14 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "Id": "Workbench"
+          "GlyphImprinter_Machines"
+        ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

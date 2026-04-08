@@ -16,6 +16,10 @@
       {
         "ItemId": "Ingredient_Fabric_Scrap_Cotton",
         "Quantity": 3
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -25,13 +29,14 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "Id": "Workbench"
+          "GlyphImprinter_Machines"
+        ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

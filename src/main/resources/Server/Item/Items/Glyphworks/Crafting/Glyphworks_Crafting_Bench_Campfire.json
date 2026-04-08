@@ -16,6 +16,10 @@
       {
         "ResourceTypeId": "Rubble",
         "Quantity": 2
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Fire",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -25,20 +29,14 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Tools"
-        ],
-        "Id": "Fieldcraft"
-      },
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Survival"
+          "GlyphImprinter_Machines"
         ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

@@ -8,7 +8,6 @@
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
         "ResourceTypeId": "Rock",
@@ -25,6 +24,10 @@
       {
         "ItemId": "Ingredient_Bone_Fragment",
         "Quantity": 10
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -34,14 +37,14 @@
     ],
     "BenchRequirement": [
       {
-        "Id": "Workbench",
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "RequiredTierLevel": 2
+          "GlyphImprinter_Machines"
+        ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

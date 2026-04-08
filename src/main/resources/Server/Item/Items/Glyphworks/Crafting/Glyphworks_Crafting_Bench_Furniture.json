@@ -8,7 +8,6 @@
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
         "Quantity": 6,
@@ -17,6 +16,10 @@
       {
         "Quantity": 4,
         "ResourceTypeId": "Rock"
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Life",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -26,13 +29,14 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "Id": "Workbench"
+          "GlyphImprinter_Machines"
+        ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

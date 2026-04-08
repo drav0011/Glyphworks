@@ -8,7 +8,6 @@
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
         "Quantity": 6,
@@ -21,6 +20,10 @@
       {
         "ItemId": "Ingredient_Hide_Light",
         "Quantity": 3
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -30,13 +33,14 @@
     ],
     "BenchRequirement": [
       {
-        "Id": "Workbench",
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
+          "GlyphImprinter_Machines"
         ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

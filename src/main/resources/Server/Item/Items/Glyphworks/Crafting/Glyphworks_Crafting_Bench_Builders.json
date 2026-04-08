@@ -16,6 +16,10 @@
       {
         "ResourceTypeId": "Rock",
         "Quantity": 3
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Light",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -25,20 +29,14 @@
     ],
     "BenchRequirement": [
       {
-        "Id": "Fieldcraft",
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Tools"
-        ]
-      },
-      {
-        "Id": "Workbench",
-        "Type": "Crafting",
-        "Categories": [
-          "Workbench_Crafting"
+          "GlyphImprinter_Machines"
         ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",

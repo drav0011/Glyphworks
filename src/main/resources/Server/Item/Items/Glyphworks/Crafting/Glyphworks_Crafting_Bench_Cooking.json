@@ -21,6 +21,10 @@
       {
         "ResourceTypeId": "Rock",
         "Quantity": 5
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Fire",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -30,10 +34,10 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
-        "Id": "Workbench",
         "Categories": [
-          "Workbench_Crafting"
+          "GlyphImprinter_Machines"
         ]
       }
     ]

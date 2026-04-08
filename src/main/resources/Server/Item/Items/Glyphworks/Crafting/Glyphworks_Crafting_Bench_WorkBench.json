@@ -16,6 +16,10 @@
       {
         "ResourceTypeId": "Rock",
         "Quantity": 4
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Light",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -25,11 +29,11 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "Id": "Workbench"
+          "GlyphImprinter_Machines"
+        ]
       }
     ],
     "TimeSeconds": 3

@@ -20,6 +20,10 @@
       {
         "ResourceTypeId": "Rock",
         "Quantity": 5
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Void",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -29,12 +33,11 @@
     ],
     "BenchRequirement": [
       {
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "Id": "Workbench",
-        "RequiredTierLevel": 2
+          "GlyphImprinter_Machines"
+        ]
       }
     ],
     "TimeSeconds": 3

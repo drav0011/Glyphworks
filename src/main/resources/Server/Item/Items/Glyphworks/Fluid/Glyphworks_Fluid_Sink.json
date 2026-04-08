@@ -5,6 +5,37 @@
   "Categories": [
     "Glyphworks.Fluid"
   ],
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 4
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
+        "Quantity": 1
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Fluid_Sink"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Components"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",

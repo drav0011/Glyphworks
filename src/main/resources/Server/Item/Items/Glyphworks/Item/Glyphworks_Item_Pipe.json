@@ -5,6 +5,30 @@
   "Categories": [
     "Blocks.Deco"
   ],
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 6
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Item_Pipe"
+      }
+    ],
+    "OutputQuantity": 10,
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Components"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",

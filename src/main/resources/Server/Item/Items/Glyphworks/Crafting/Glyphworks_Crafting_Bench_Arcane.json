@@ -8,7 +8,6 @@
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
         "ItemId": "Ingredient_Bar_Thorium",
@@ -21,6 +20,10 @@
       {
         "ItemId": "Ingredient_Void_Essence",
         "Quantity": 20
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Void",
+        "Quantity": 2
       }
     ],
     "Output": [
@@ -30,14 +33,14 @@
     ],
     "BenchRequirement": [
       {
-        "Id": "Workbench",
+        "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "Workbench_Crafting"
-        ],
-        "RequiredTierLevel": 2
+          "GlyphImprinter_Machines"
+        ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",
