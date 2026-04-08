@@ -19,6 +19,7 @@ import dev.drav.glyphworks.crafting.system.ProcessingBenchAutoStartSystem;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchFlowTests;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchGridTests;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchTests;
+import dev.drav.glyphworks.crafting.tests.ManaLiquifierSystemTests;
 
 /**
  * Sub-plugin that owns the auto-crafting bench component,
@@ -73,5 +74,6 @@ public final class CraftingModule extends GlyphworksModule {
         AutoCraftingBenchTests.register("crafting");
         AutoCraftingBenchFlowTests.register("crafting");
         AutoCraftingBenchGridTests.register("crafting");
+        ManaLiquifierSystemTests.register("crafting");
     }
 }
