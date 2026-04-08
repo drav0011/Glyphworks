@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Item_Sink.name"
+    "Name": "server.items.Glyphworks_Item_Picker.name"
   },
   "Categories": [
     "Glyphworks.Items"
@@ -12,10 +12,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Tank",
-    "CustomModel": "Blocks/Glyphworks/Item/Sink/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Picker/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Item/Sink/Default.png",
+        "Texture": "Blocks/Glyphworks/Item/Picker/Default.png",
         "Weight": 1
       }
     ],
@@ -23,10 +23,10 @@
       "Components": {
         "ItemContainerBlock": {
           "ItemContainer": {
-            "Capacity": 1,
+            "Capacity": 9,
             "Items": {}
           },
-          "Capacity": 1
+          "Capacity": 9
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -41,14 +41,16 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_Mode": "Output",
                   "Glyphworks_FacePlane_ContainerKey": "items"
                 }
               ]
             }
           ]
         },
-        "Glyphworks_ItemSinkComponent": {}
+        "Glyphworks_ItemPickerComponent": {
+          "Glyphworks_ItemPickerComponent_Radius": 3
+        }
       }
     }
   },

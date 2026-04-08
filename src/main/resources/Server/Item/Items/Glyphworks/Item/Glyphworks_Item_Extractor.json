@@ -12,10 +12,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Extractor",
-    "CustomModel": "Blocks/Glyphworks/IO/Extractor/Extractor.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Extractor/Extractor.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/IO/Extractor/Extractor.png",
+        "Texture": "Blocks/Glyphworks/Item/Extractor/Extractor.png",
         "Weight": 1
       }
     ],

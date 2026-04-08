@@ -12,10 +12,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Inserter",
-    "CustomModel": "Blocks/Glyphworks/IO/Inserter/Inserter.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Inserter/Inserter.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/IO/Inserter/Inserter.png",
+        "Texture": "Blocks/Glyphworks/Item/Inserter/Inserter.png",
         "Weight": 1
       }
     ],

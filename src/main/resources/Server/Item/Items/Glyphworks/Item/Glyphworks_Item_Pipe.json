@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Item_Pipe.name"
   },
   "Categories": [
-    "Glyphworks.Items"
+    "Blocks.Deco"
   ],
   "BlockType": {
     "Material": "Solid",
@@ -13,10 +13,10 @@
     "ConnectedBlockRuleSet": {
       "Type": "Pipe"
     },
-    "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_Single.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Pipe/Pipe.png",
+        "Texture": "Blocks/Glyphworks/Item/Pipe/Pipe.png",
         "Weight": 1
       }
     ],
@@ -95,288 +95,264 @@
       "Definitions": {
         "Single": {
           "HitboxType": "Pipe_Single",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_Single.blockymodel"
         },
         "D": {
           "HitboxType": "Pipe_D",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_D.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_D.blockymodel"
         },
         "U": {
           "HitboxType": "Pipe_U",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_U.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_U.blockymodel"
         },
         "UD": {
           "HitboxType": "Pipe_UD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_UD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_UD.blockymodel"
         },
         "W": {
           "HitboxType": "Pipe_W",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_W.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_W.blockymodel"
         },
         "WD": {
           "HitboxType": "Pipe_WD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_WD.blockymodel"
         },
         "WU": {
           "HitboxType": "Pipe_WU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_WU.blockymodel"
         },
         "WUD": {
           "HitboxType": "Pipe_WUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_WUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_WUD.blockymodel"
         },
         "E": {
           "HitboxType": "Pipe_E",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_E.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_E.blockymodel"
         },
         "ED": {
           "HitboxType": "Pipe_ED",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ED.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_ED.blockymodel"
         },
         "EU": {
           "HitboxType": "Pipe_EU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EU.blockymodel"
         },
         "EUD": {
           "HitboxType": "Pipe_EUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EUD.blockymodel"
         },
         "EW": {
           "HitboxType": "Pipe_EW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EW.blockymodel"
         },
         "EWD": {
           "HitboxType": "Pipe_EWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EWD.blockymodel"
         },
         "EWU": {
           "HitboxType": "Pipe_EWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EWU.blockymodel"
         },
         "EWUD": {
           "HitboxType": "Pipe_EWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_EWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_EWUD.blockymodel"
         },
         "S": {
           "HitboxType": "Pipe_S",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_S.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_S.blockymodel"
         },
         "SD": {
           "HitboxType": "Pipe_SD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SD.blockymodel"
         },
         "SU": {
           "HitboxType": "Pipe_SU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SU.blockymodel"
         },
         "SUD": {
           "HitboxType": "Pipe_SUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SUD.blockymodel"
         },
         "SW": {
           "HitboxType": "Pipe_SW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SW.blockymodel"
         },
         "SWD": {
           "HitboxType": "Pipe_SWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SWD.blockymodel"
         },
         "SWU": {
           "HitboxType": "Pipe_SWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SWU.blockymodel"
         },
         "SWUD": {
           "HitboxType": "Pipe_SWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SWUD.blockymodel"
         },
         "SE": {
           "HitboxType": "Pipe_SE",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SE.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SE.blockymodel"
         },
         "SED": {
           "HitboxType": "Pipe_SED",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SED.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SED.blockymodel"
         },
         "SEU": {
           "HitboxType": "Pipe_SEU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEU.blockymodel"
         },
         "SEUD": {
           "HitboxType": "Pipe_SEUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEUD.blockymodel"
         },
         "SEW": {
           "HitboxType": "Pipe_SEW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEW.blockymodel"
         },
         "SEWD": {
           "HitboxType": "Pipe_SEWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEWD.blockymodel"
         },
         "SEWU": {
           "HitboxType": "Pipe_SEWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEWU.blockymodel"
         },
         "SEWUD": {
           "HitboxType": "Pipe_SEWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_SEWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_SEWUD.blockymodel"
         },
         "N": {
           "HitboxType": "Pipe_N",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_N.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_N.blockymodel"
         },
         "ND": {
           "HitboxType": "Pipe_ND",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_ND.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_ND.blockymodel"
         },
         "NU": {
           "HitboxType": "Pipe_NU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NU.blockymodel"
         },
         "NUD": {
           "HitboxType": "Pipe_NUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NUD.blockymodel"
         },
         "NW": {
           "HitboxType": "Pipe_NW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NW.blockymodel"
         },
         "NWD": {
           "HitboxType": "Pipe_NWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NWD.blockymodel"
         },
         "NWU": {
           "HitboxType": "Pipe_NWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NWU.blockymodel"
         },
         "NWUD": {
           "HitboxType": "Pipe_NWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NWUD.blockymodel"
         },
         "NE": {
           "HitboxType": "Pipe_NE",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NE.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NE.blockymodel"
         },
         "NED": {
           "HitboxType": "Pipe_NED",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NED.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NED.blockymodel"
         },
         "NEU": {
           "HitboxType": "Pipe_NEU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEU.blockymodel"
         },
         "NEUD": {
           "HitboxType": "Pipe_NEUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEUD.blockymodel"
         },
         "NEW": {
           "HitboxType": "Pipe_NEW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEW.blockymodel"
         },
         "NEWD": {
           "HitboxType": "Pipe_NEWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEWD.blockymodel"
         },
         "NEWU": {
           "HitboxType": "Pipe_NEWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEWU.blockymodel"
         },
         "NEWUD": {
           "HitboxType": "Pipe_NEWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NEWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NEWUD.blockymodel"
         },
         "NS": {
           "HitboxType": "Pipe_NS",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NS.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NS.blockymodel"
         },
         "NSD": {
           "HitboxType": "Pipe_NSD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSD.blockymodel"
         },
         "NSU": {
           "HitboxType": "Pipe_NSU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSU.blockymodel"
         },
         "NSUD": {
           "HitboxType": "Pipe_NSUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSUD.blockymodel"
         },
         "NSW": {
           "HitboxType": "Pipe_NSW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSW.blockymodel"
         },
         "NSWD": {
           "HitboxType": "Pipe_NSWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSWD.blockymodel"
         },
         "NSWU": {
           "HitboxType": "Pipe_NSWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSWU.blockymodel"
         },
         "NSWUD": {
           "HitboxType": "Pipe_NSWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSWUD.blockymodel"
         },
         "NSE": {
           "HitboxType": "Pipe_NSE",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSE.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSE.blockymodel"
         },
         "NSED": {
           "HitboxType": "Pipe_NSED",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSED.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSED.blockymodel"
         },
         "NSEU": {
           "HitboxType": "Pipe_NSEU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEU.blockymodel"
         },
         "NSEUD": {
           "HitboxType": "Pipe_NSEUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEUD.blockymodel"
         },
         "NSEW": {
           "HitboxType": "Pipe_NSEW",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEW.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEW.blockymodel"
         },
         "NSEWD": {
           "HitboxType": "Pipe_NSEWD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEWD.blockymodel"
         },
         "NSEWU": {
           "HitboxType": "Pipe_NSEWU",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWU.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEWU.blockymodel"
         },
         "NSEWUD": {
           "HitboxType": "Pipe_NSEWUD",
-          "CustomModel": "Blocks/Glyphworks/Pipe/Pipe_NSEWUD.blockymodel"
+          "CustomModel": "Blocks/Glyphworks/Item/Pipe/Pipe_NSEWUD.blockymodel"
         }
       }
     }
   },
   "PlayerAnimationsId": "Block",
   "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
-  "Scale": 1,
-  "Recipe": {
-    "Input": [
-      {
-        "ResourceTypeId": "Glyphworks_Empty_Rune",
-        "Quantity": 6
-      }
-    ],
-    "Output": [
-      {
-        "ItemId": "Glyphworks_Item_Pipe",
-        "Quantity": 10
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "GlyphImprinter",
-        "Type": "Crafting",
-        "Categories": [
-          "GlyphImprinter_Components"
-        ]
-      }
-    ],
-    "TimeSeconds": 1
-  }
+  "Scale": 1
 }

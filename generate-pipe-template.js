@@ -7,17 +7,22 @@ const fs = require('fs');
 const path = require('path');
 
 const BASE = __dirname;
-const MODELS_DIR = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Pipe');
+const ITEM_MODELS_DIR  = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Item/Pipe');
+const FLUID_MODELS_DIR = path.join(BASE, 'src/main/resources/Common/Blocks/Glyphworks/Fluid/Pipe');
 const FLUID_PIPE_PATH = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Fluid/Glyphworks_Fluid_Pipe.json');
 const ITEM_PIPE_PATH  = path.join(BASE, 'src/main/resources/Server/Item/Items/Glyphworks/Item/Glyphworks_Item_Pipe.json');
 const HITBOXES_DIR = path.join(BASE, 'src/main/resources/Server/Item/Block/Hitboxes/Glyphworks/Pipe');
 
-const TEMPLATE_MODEL = path.join(MODELS_DIR, 'Pipe_Template.blockymodel');
+const TEMPLATE_MODEL = path.join(BASE, 'Pipe_Template.blockymodel');
 
-// ─── Delete all existing models except the template ──────────────────────────
-const oldFiles = fs.readdirSync(MODELS_DIR).filter(f => f !== 'Pipe_Template.blockymodel' && f !== 'Pipe.png');
-for (const f of oldFiles) fs.unlinkSync(path.join(MODELS_DIR, f));
-if (oldFiles.length) console.log(`Deleted ${oldFiles.length} old generated model files`);
+// ─── Delete all existing models except the template and texture ───────────────
+function cleanModelsDir(dir) {
+  const old = fs.readdirSync(dir).filter(f => f !== 'Pipe.png');
+  for (const f of old) fs.unlinkSync(path.join(dir, f));
+  if (old.length) console.log(`Deleted ${old.length} old generated model files from ${path.basename(dir)}`);
+}
+cleanModelsDir(ITEM_MODELS_DIR);
+cleanModelsDir(FLUID_MODELS_DIR);
 
 // ─── Hitbox box definitions (block-local 0-1 coords derived from model nodes) ─
 // Model space: X/Z ∈ [-16, +16], Y ∈ [0, 32]; pivot = box center + offset.
@@ -51,8 +56,6 @@ const DIRECTIONS = [
   { name: 'D', bit: 0, position: { X: 0, Y: -1, Z: 0 }, nodeIdx: 6 },
 ];
 
-const MODEL_TEXTURE = [{ Texture: 'Blocks/Glyphworks/Pipe/Pipe.png', Weight: 1 }];
-
 const templateModel = JSON.parse(fs.readFileSync(TEMPLATE_MODEL, 'utf8'));
 
 function shapeNameFor(mask) {
@@ -60,8 +63,9 @@ function shapeNameFor(mask) {
   return DIRECTIONS.filter(d => (mask >> d.bit) & 1).map(d => d.name).join('');
 }
 
-// ─── Generate all 64 combinations ────────────────────────────────────────────
-const stateDefs = {};
+// ─── Generate all 64 combinations into both module dirs ───────────────────────
+const itemStateDefs  = {};
+const fluidStateDefs = {};
 
 for (let mask = 0; mask < 64; mask++) {
   const name = shapeNameFor(mask);
@@ -74,7 +78,9 @@ for (let mask = 0; mask < 64; mask++) {
   }
 
   const modelFileName = `Pipe_${name}.blockymodel`;
-  fs.writeFileSync(path.join(MODELS_DIR, modelFileName), JSON.stringify(model, null, 2), 'utf8');
+  const modelJson = JSON.stringify(model, null, 2);
+  fs.writeFileSync(path.join(ITEM_MODELS_DIR,  modelFileName), modelJson, 'utf8');
+  fs.writeFileSync(path.join(FLUID_MODELS_DIR, modelFileName), modelJson, 'utf8');
 
   const hitboxBoxes = [CENTER_BOX];
   for (const dir of DIRECTIONS) {
@@ -82,16 +88,15 @@ for (let mask = 0; mask < 64; mask++) {
   }
   fs.writeFileSync(path.join(HITBOXES_DIR, `Pipe_${name}.json`), JSON.stringify({ Boxes: hitboxBoxes }, null, 2), 'utf8');
 
-  stateDefs[name] = {
-    HitboxType: `Pipe_${name}`,
-    CustomModel: `Blocks/Glyphworks/Pipe/${modelFileName}`,
-  };
+  itemStateDefs[name]  = { HitboxType: `Pipe_${name}`, CustomModel: `Blocks/Glyphworks/Item/Pipe/${modelFileName}` };
+  fluidStateDefs[name] = { HitboxType: `Pipe_${name}`, CustomModel: `Blocks/Glyphworks/Fluid/Pipe/${modelFileName}` };
 }
 
-console.log(`Generated ${Object.keys(stateDefs).length} .blockymodel files and hitboxes`);
+console.log(`Generated ${Object.keys(itemStateDefs).length} .blockymodel files in Item/Pipe and Fluid/Pipe`);
 
 // ─── Build pipe JSON for a given grid type ───────────────────────────────────
-function buildPipeItem(gridType, transferRate, translationName) {
+function buildPipeItem(gridType, transferRate, translationName, modelBasePath, stateDefs) {
+  const modelTexture = [{ Texture: `${modelBasePath}/Pipe.png`, Weight: 1 }];
   return {
     TranslationProperties: { Name: translationName },
     Categories: ['Blocks.Deco'],
@@ -101,8 +106,8 @@ function buildPipeItem(gridType, transferRate, translationName) {
       BlockSoundSetId: 'Stone',
       Opacity: 'Transparent',
       ConnectedBlockRuleSet: { Type: 'Pipe' },
-      CustomModel: 'Blocks/Glyphworks/Pipe/Pipe_Single.blockymodel',
-      CustomModelTexture: MODEL_TEXTURE,
+      CustomModel: `${modelBasePath}/Pipe_Single.blockymodel`,
+      CustomModelTexture: modelTexture,
       BlockEntity: {
         Components: {
           "Glyphworks_GridComponent": {
@@ -134,8 +139,8 @@ function buildPipeItem(gridType, transferRate, translationName) {
   };
 }
 
-fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem('Fluid', 25,  'server.items.Glyphworks_Fluid_Pipe.name'), null, 2), 'utf8');
+fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem('Fluid', 25,  'server.items.Glyphworks_Fluid_Pipe.name', 'Blocks/Glyphworks/Fluid/Pipe', fluidStateDefs), null, 2), 'utf8');
 console.log(`Wrote Glyphworks_Fluid_Pipe.json`);
 
-fs.writeFileSync(ITEM_PIPE_PATH,  JSON.stringify(buildPipeItem('Item',  0.2, 'server.items.Glyphworks_Item_Pipe.name'),  null, 2), 'utf8');
-console.log(`Wrote Glyphworks_Item_Pipe.json with ${Object.keys(stateDefs).length} state definitions`);
+fs.writeFileSync(ITEM_PIPE_PATH,  JSON.stringify(buildPipeItem('Item',  0.2, 'server.items.Glyphworks_Item_Pipe.name',  'Blocks/Glyphworks/Item/Pipe',  itemStateDefs),  null, 2), 'utf8');
+console.log(`Wrote Glyphworks_Item_Pipe.json with ${Object.keys(itemStateDefs).length} state definitions`);

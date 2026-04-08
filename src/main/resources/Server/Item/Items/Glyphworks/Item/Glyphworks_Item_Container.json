@@ -7,9 +7,17 @@
   ],
   "BlockType": {
     "Material": "Solid",
-    "DrawType": "Cube",
+    "DrawType": "Model",
     "BlockSoundSetId": "Stone",
-    "Opacity": "Solid",
+    "Opacity": "Transparent",
+    "HitboxType": "Tank",
+    "CustomModel": "Blocks/Glyphworks/Item/Container/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Item/Container/Default.png",
+        "Weight": 1
+      }
+    ],
     "BlockEntity": {
       "Components": {
         "ItemContainerBlock": {

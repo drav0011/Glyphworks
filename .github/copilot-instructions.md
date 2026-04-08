@@ -21,11 +21,41 @@ src/main/java/dev/drav/glyphworks/
   grid/     — core grid infrastructure (component, graph, events, lookup, systems, type registry)
   fluid/    — FluidGridTypeHandler + FluidContainerComponent / FluidPipeComponent + systems
   crafting/ — AutoCraftingBench + ItemContainerBlock ECS components + systems
+  item/     — Item grid type, source/sink/pipe/miner/placer/picker/dropper components + systems
   transfer/ — GridTypeHandler implementations (ItemGridTypeHandler, FluidGridTypeHandler)
   test/     — in-game test framework; /glyphworks:test command; no JUnit
 src/main/resources/   — Hytale asset pack (manifest.json, Common/, Server/)
 generate-pipe-template.js  — pre-generates the 63 pipe .blockymodel files; re-run when adding pipe states
 ```
+
+## Asset Layout
+
+All assets are **namespaced by module** — every path under `Common/Blocks/Glyphworks/` and
+`Server/Item/Items/Glyphworks/` must sit inside its module's subfolder.
+
+```
+Common/Blocks/Glyphworks/
+  Crafting/<BlockName>/   — one subfolder per crafting block, each contains Default.blockymodel + Default.png
+  Fluid/<BlockName>/      — idem for fluid blocks (Pipe/, Placer/, Remover/, Sink/, Source/, Tank/)
+  Item/<BlockName>/       — idem for item blocks (BlockMiner/, BlockPlacer/, Container/, Dropper/,
+                            Extractor/, Inserter/, Picker/, Pipe/, Sink/, Source/)
+
+Server/Item/Items/Glyphworks/
+  Crafting/   — item JSONs for all crafting-module blocks
+  Fluid/      — item JSONs for all fluid-module blocks
+  Item/       — item JSONs for all item-module blocks
+  Rune/       — item JSONs for rune items (no BlockType)
+```
+
+**Rules:**
+- Every block must have its **own** model folder — never share a folder between two blocks.
+  The old `IO/` shared folder (Extractor + Inserter) was removed; each now lives under `Item/`.
+- Fluid and Item pipes each have **independent** model sets (`Fluid/Pipe/` and `Item/Pipe/`).
+  The root-level `Pipe/` folder no longer exists.
+- When creating a new block, create `Common/Blocks/Glyphworks/<Module>/<BlockName>/Default.blockymodel`
+  and `Default.png` as placeholders, then reference them in the item JSON with
+  `DrawType: "Model"`, `Opacity: "Transparent"`, `HitboxType: "Tank"`,
+  `CustomModel` and `CustomModelTexture`.
 
 ## Architecture
 

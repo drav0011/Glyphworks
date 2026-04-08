@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Item_Sink.name"
+    "Name": "server.items.Glyphworks_Item_Dropper.name"
   },
   "Categories": [
     "Glyphworks.Items"
@@ -12,10 +12,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Tank",
-    "CustomModel": "Blocks/Glyphworks/Item/Sink/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Dropper/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Item/Sink/Default.png",
+        "Texture": "Blocks/Glyphworks/Item/Dropper/Default.png",
         "Weight": 1
       }
     ],
@@ -23,10 +23,10 @@
       "Components": {
         "ItemContainerBlock": {
           "ItemContainer": {
-            "Capacity": 1,
+            "Capacity": 9,
             "Items": {}
           },
-          "Capacity": 1
+          "Capacity": 9
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -48,7 +48,7 @@
             }
           ]
         },
-        "Glyphworks_ItemSinkComponent": {}
+        "Glyphworks_ItemDropperComponent": {}
       }
     }
   },
