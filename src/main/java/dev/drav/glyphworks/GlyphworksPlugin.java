@@ -27,6 +27,10 @@ import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.item.component.ItemSinkComponent;
 import dev.drav.glyphworks.item.component.ItemSourceComponent;
+import dev.drav.glyphworks.item.component.BlockMinerComponent;
+import dev.drav.glyphworks.item.component.BlockPlacerComponent;
+import dev.drav.glyphworks.item.component.ItemPickerComponent;
+import dev.drav.glyphworks.item.component.ItemDropperComponent;
 import dev.drav.glyphworks.grid.GridModule;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
@@ -153,6 +157,22 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public ComponentType<ChunkStore, ItemSinkComponent> getItemSinkComponentType() {
         return itemModule.getItemSinkComponentType();
+    }
+
+    public ComponentType<ChunkStore, BlockMinerComponent> getBlockMinerComponentType() {
+        return itemModule.getBlockMinerComponentType();
+    }
+
+    public ComponentType<ChunkStore, BlockPlacerComponent> getBlockPlacerComponentType() {
+        return itemModule.getBlockPlacerComponentType();
+    }
+
+    public ComponentType<ChunkStore, ItemPickerComponent> getItemPickerComponentType() {
+        return itemModule.getItemPickerComponentType();
+    }
+
+    public ComponentType<ChunkStore, ItemDropperComponent> getItemDropperComponentType() {
+        return itemModule.getItemDropperComponentType();
     }
 
     public ComponentType<EntityStore, TestRunnerComponent> getTestRunnerComponentType() {
