@@ -14,53 +14,30 @@ Glyphworks is a **Hytale server plugin** that implements a typed, extensible gri
 
 ## Source Layout
 
-```
-src/main/java/dev/drav/glyphworks/
-  GlyphworksPlugin.java          — entry point; owns module lifecycle, exposes stable public API
-  GlyphworksModule.java          — base class for all domain modules (setup / start / setupTests)
-  grid/     — core grid infrastructure (component, graph, events, lookup, systems, type registry)
-  fluid/    — FluidGridTypeHandler + FluidContainerComponent / FluidPipeComponent + systems
-  crafting/ — AutoCraftingBench + ItemContainerBlock ECS components + systems
-  item/     — Item grid type, source/sink/pipe/miner/placer/picker/dropper components + systems
-  transfer/ — GridTypeHandler implementations (ItemGridTypeHandler, FluidGridTypeHandler)
-  test/     — in-game test framework; /glyphworks:test command; no JUnit
-src/main/resources/   — Hytale asset pack (manifest.json, Common/, Server/)
-generate-pipe-template.js  — pre-generates the 63 pipe .blockymodel files; re-run when adding pipe states
-```
+- **Plugin root** — `src/main/java/dev/drav/glyphworks/` contains `GlyphworksPlugin.java` (entry point) and `GlyphworksModule.java` (base class for all domain modules).
+- **One package per domain** — each module gets its own package (e.g., `grid/`, `fluid/`, `item/`, `crafting/`). Components, systems, events, and tests for that domain all live inside its package.
+- **`test/`** — in-game test framework and runner. No JUnit.
+- **`src/main/resources/`** — Hytale asset pack (`manifest.json`, `Common/`, `Server/`).
+- **`generate-pipe-template.js`** — pre-generates pipe `.blockymodel` files. Re-run when adding pipe states.
 
 ## Asset Layout
 
-All assets are **namespaced by module** — every path under `Common/Blocks/Glyphworks/` and
-`Server/Item/Items/Glyphworks/` must sit inside its module's subfolder.
+All assets are **namespaced by module**. The two asset roots follow the same `Glyphworks/<Module>/<BlockName>/` convention:
 
-```
-Common/Blocks/Glyphworks/
-  Crafting/<BlockName>/   — one subfolder per crafting block, each contains Default.blockymodel + Default.png
-  Fluid/<BlockName>/      — idem for fluid blocks (Pipe/, Placer/, Remover/, Sink/, Source/, Tank/)
-  Item/<BlockName>/       — idem for item blocks (BlockMiner/, BlockPlacer/, Container/, Dropper/,
-                            Extractor/, Inserter/, Picker/, Pipe/, Sink/, Source/)
-
-Server/Item/Items/Glyphworks/
-  Crafting/   — item JSONs for all crafting-module blocks
-  Fluid/      — item JSONs for all fluid-module blocks
-  Item/       — item JSONs for all item-module blocks
-  Rune/       — item JSONs for rune items (no BlockType)
-```
+- **Block models** — `Common/Blocks/Glyphworks/<Module>/<BlockName>/` containing `Default.blockymodel` and `Default.png`.
+- **Item JSONs** — `Server/Item/Items/Glyphworks/<Module>/` containing one `.json` per block or item.
 
 **Rules:**
 - Every block must have its **own** model folder — never share a folder between two blocks.
-  The old `IO/` shared folder (Extractor + Inserter) was removed; each now lives under `Item/`.
-- Fluid and Item pipes each have **independent** model sets (`Fluid/Pipe/` and `Item/Pipe/`).
-  The root-level `Pipe/` folder no longer exists.
-- When creating a new block, create `Common/Blocks/Glyphworks/<Module>/<BlockName>/Default.blockymodel`
-  and `Default.png` as placeholders, then reference them in the item JSON with
-  `DrawType: "Model"`, `Opacity: "Transparent"`, `HitboxType: "Tank"`,
-  `CustomModel` and `CustomModelTexture`.
+- When creating a new block, create the model folder with placeholder `Default.blockymodel` + `Default.png`, then reference them in the item JSON.
 
 ## Architecture
 
 ### ECS + Module pattern
-All block/entity state lives in `Component<ChunkStore>` or `Component<EntityStore>` — never in plain maps or singletons. Each domain (`grid`, `fluid`, `crafting`, `transfer`, `test`) is a `GlyphworksModule` subclass that registers its own component types, systems, and event handlers. `GlyphworksPlugin` delegates to modules and re-exposes a stable public API.
+All block/entity state lives in `Component<ChunkStore>` or `Component<EntityStore>` — never in plain maps or singletons. Each domain (`grid`, `fluid`, `crafting`, `transfer`, `test`) is a `GlyphworksModule` subclass that registers its own component types, systems, and event handlers. `GlyphworksPlugin` delegates to modules and exposes module accessors — component types are accessed through their owning module, not the plugin root:
+```java
+GlyphworksPlugin.get().getFluidModule().getFluidContainerComponentType();
+```
 
 ### Grid network pipeline
 ```
@@ -79,19 +56,6 @@ Every tick: GridSystem (EntityTickingSystem)
 2. Implement `GridTypeHandler` → register in `GridTypeHandlerRegistry`
 3. Add block JSONs with `"GridComponent_Type": "Energy"` and configure `FacePlane`s
 
-## Serialization Convention: `BuilderCodec`
-
-Every serializable component defines:
-```java
-public static final BuilderCodec<MyComponent> CODEC = BuilderCodec
-    .append("Glyphworks_MyComponent_Field1", Codec.STRING, MyComponent::getField1)
-    .add("Glyphworks_MyComponent_Field2", Codec.INTEGER, MyComponent::getField2)
-    .build(...);
-```
-**JSON key format is always `Glyphworks_ClassName_FieldName`** — no camelCase, no abbreviations. Follow this exact pattern for any new component.
-
-> **Warning — `KeyedCodec` identifier uniqueness**: Every identifier string passed to `BuilderCodec` must start with an **uppercase letter** and be **globally unique across the entire mod** — not just within the component. Identifiers from different components must never clash. Collisions cause silent serialization corruption. Always use the full `Glyphworks_ClassName_FieldName` pattern to stay safe. Existing identifiers use the bare `ClassName_FieldName` form and are being migrated incrementally — do not rename them unless explicitly asked.
-
 ## Block & Item Naming
 
 All **new** blocks and items must be namespaced with the prefix `Glyphworks_<Module>` to avoid collisions with other mods. Use `PascalCase` for each segment:
@@ -104,94 +68,6 @@ Glyphworks_Grid_Inserter
 
 This applies to item JSON filenames, block type keys, and display names. Existing blocks are being migrated incrementally — do not rename them unless explicitly asked.
 
-## Resource JSON Schema
-
-Block entity JSON structure (see [src/main/resources/Server/Item/Items/Glyphworks/Fluid/Tank.json](../src/main/resources/Server/Item/Items/Glyphworks/Fluid/Glyphworks_Fluid_Tank.json) as a reference):
-```json
-{
-  "BlockType": {
-    "Material": "Solid",
-    "DrawType": "Model",
-    "VariantRotation": "...",
-    "HitboxType": "...",
-    "CustomModel": "...",
-    "BlockEntity": {
-      "Components": {
-        "GridComponent": {
-          "GridComponent_Type": "Fluid",
-          "GridComponent_TransferRate": 25,
-          "GridComponent_Faces": [{
-            "FacePlane_Position": {"X":0,"Y":0,"Z":0},
-            "FacePlane_Normal": "Up",
-            "FacePlane_Mode": "Bidirectional",
-            "FacePlane_ContainerKey": "tank"
-          }]
-        }
-      }
-    }
-  }
-}
-```
-- All component keys: `Glyphworks_ClassName_FieldName`
-- `FacePlane_ContainerKey`: `null` for Extractor/Inserter (external-block reference); a named container key for storage blocks
-- Face modes: `Input`, `Output`, `Bidirectional`, `Closed`
-
-## Testing
-
-There is **no JUnit**. All tests are in-game under `src/main/java/.../tests/` and run via
-`/glyphworks:test` (alias `gw:test`) — see `TestCommand` for the full arg list.
-`TestRunnerSystem` ticks test steps one per tick. Steps can use `Steps.wait(n)` or `Steps.waitUntil(predicate, max, desc)`. Each `TestCase` declares a bounding box that is cleared to `Empty` before the test runs. Register new suites in the module's `setupTests()` method.
-
-### Running tests
-
-After writing or modifying tests, always verify them by running headless. Compile first, then launch:
-
-```powershell
-.\gradlew compileJava
-$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=<module>" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
-```
-
-Use `glyphworks.test.all=true` to run every registered module. The server exits automatically — exit `0` = all passed, exit `1` = any failure. Check the latest file in `devserver/logs/` for output.
-
-Other available properties:
-
-| Property | Effect |
-|---|---|
-| `glyphworks.test.all=true` | Run all registered modules |
-| `glyphworks.test.module=<name>` | Restrict to one module |
-| `glyphworks.test.suite=<name>` | Restrict to one suite within the module |
-| `glyphworks.test.name=<name>` | Run a single test within the suite |
-
-## Commands
-
-**Naming convention** — primary name is always `glyphworks:<name>`; a short alias `gw:<name>` is
-registered via `addAliases()` in the constructor.
-
-**Arg types** (Hytale command framework):
-
-| Factory | Java type | In-game syntax | Use for |
-|---|---|---|---|
-| `withRequiredArg(name, ...)` | `RequiredArg<T>` | `<name>` | Mandatory positional args |
-| `withOptionalArg(name, ...)` | `OptionalArg<T>` | `--name <value>` | Optional named args with a value |
-| `withFlagArg(name, ...)` | `FlagArg` | `--name` | Boolean toggles |
-
-Declare args in **most-specific → most-general** order so usage text reads naturally.
-Example for a command with no positional args:
-
-```java
-public MyCommand() {
-    super("glyphworks:foo", "Description");
-    addAliases("gw:foo");
-    // most-specific first
-    this.itemArg    = withOptionalArg("item",   "Item ID to target", ArgTypes.STRING);
-    this.suiteArg   = withOptionalArg("suite",  "Suite to run",      ArgTypes.STRING);
-    this.moduleArg  = withOptionalArg("module", "Module to run",     ArgTypes.STRING);
-    this.verboseArg = withFlagArg("verbose",    "Enable verbose output");
-}
-```
-
-Registered in the owning module's `setup()` via `plugin.getCommandRegistry().registerCommand(new MyCommand())`.
-
 ## Known Pitfalls
 
 - **`originPosition` is transient** — lost on restart, repopulated by `ChunkLoadGridGraphEvent`. A bug in that handler causes extractors/inserters to silently skip their tick.
@@ -203,10 +79,3 @@ Registered in the owning module's `setup()` via `plugin.getCommandRegistry().reg
 ## Logging
 
 Use `java.util.logging` throughout — `Logger.getLogger(Foo.class.getName())`. No SLF4J.
-
-## Other Conventions
-
-- Return defensive views from collections: `Collections.unmodifiableSet(...)`.
-- Use copy constructors instead of `clone()`.
-- Mark runtime-only fields `transient` and exclude them from the codec.
-- Annotate all public API with `@Nonnull` / `@Nullable` (`javax.annotation`).
