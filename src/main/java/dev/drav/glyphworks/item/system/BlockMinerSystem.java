@@ -28,7 +28,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import dev.drav.glyphworks.item.component.BlockMinerComponent;
-
 /**
  * Ticking system for block miner machines.
  *
@@ -140,13 +139,14 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
         if (gathering == null) {
             // Unbreakable block — reset so stale progress does not carry forward.
             miner.setMiningProgress(0);
-            miner.setLastSeenBlockId(-1);
+            miner.setLastSeenBlockId(targetBlockId);
             return;
         }
 
         // Reset progress when the target block type changes (e.g. a player placed
         // a different block in the target cell while we were mining).
-        if (targetBlockId != miner.getLastSeenBlockId()) {
+        boolean freshTarget = targetBlockId != miner.getLastSeenBlockId();
+        if (freshTarget) {
             miner.setMiningProgress(0);
             miner.setLastSeenBlockId(targetBlockId);
         }
@@ -175,7 +175,8 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
         // Mining complete — add item to container and remove the block.
         ItemStackTransaction tx = container.addItemStack(new ItemStack(dropItemId, dropQty));
         if (tx.succeeded()) {
-            store.getExternalData().getWorld().setBlock(adjacent.x, adjacent.y, adjacent.z, "Empty");
+            final int ax = adjacent.x, ay = adjacent.y, az = adjacent.z;
+            commandBuffer.run(_ -> commandBuffer.getExternalData().getWorld().setBlock(ax, ay, az, "Empty"));
         }
         miner.setMiningProgress(0);
         miner.setLastSeenBlockId(-1);
@@ -190,22 +191,22 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
      * it with this machine.
      *
      * <ul>
-     * <li>Soft block (no {@link BlockBreakingDropType}) → 1 tick</li>
-     * <li>Quality 0 → 1 tick (instant)</li>
-     * <li>Quality 1 → 40 ticks (~2 s at 20 TPS)</li>
-     * <li>Quality 2 → 100 ticks (~5 s)</li>
-     * <li>Quality 3+ → 200 ticks (~10 s)</li>
+     * <li>Soft block (no {@link BlockBreakingDropType}) → 10 ticks</li>
+     * <li>Quality 0 → 10 ticks (~0.5 s at 20 TPS)</li>
+     * <li>Quality 1 → 400 ticks (~20 s)</li>
+     * <li>Quality 2 → 1000 ticks (~50 s)</li>
+     * <li>Quality 3+ → 2000 ticks (~100 s)</li>
      * </ul>
      */
     private static int computeTicksRequired(@Nullable BlockBreakingDropType breaking) {
         if (breaking == null) {
-            return 1;
+            return 10;
         }
         int quality = breaking.getQuality();
-        if (quality <= 0) return 1;
-        if (quality == 1) return 40;
-        if (quality == 2) return 100;
-        return 200;
+        if (quality <= 0) return 10;
+        if (quality == 1) return 400;
+        if (quality == 2) return 1000;
+        return 2000;
     }
 
     /**

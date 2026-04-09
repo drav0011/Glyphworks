@@ -21,6 +21,12 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  * <p>
  * {@code Rock_Stone} has a quality-0 {@link com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockBreakingDropType},
  * so the miner completes in a single tick and drops {@code Rock_Stone_Cobble}.
+ *
+ * <p>
+ * {@code Rock_Basalt} has quality-1 (40 ticks).
+ * {@code Rock_Basalt_Stalactite_Large} has quality-2 (100 ticks).
+ * The timing tests verify that these blocks are NOT mined prematurely and ARE
+ * mined after the correct number of ticks has elapsed.
  */
 public final class BlockMinerSystemTests {
 
@@ -28,6 +34,17 @@ public final class BlockMinerSystemTests {
     private static final String TARGET_BLOCK_ID = "Rock_Stone";
     /** Drop item for Rock_Stone — quality 0, mines in one tick. */
     private static final String DROP_ITEM_ID = "Rock_Stone_Cobble";
+    /** Quality 1 block — requires 40 ticks to mine. */
+    private static final String QUALITY1_BLOCK_ID = "Rock_Basalt";
+    private static final String QUALITY1_DROP_ID = "Rock_Basalt_Cobble";
+    /**
+     * A custom-model block that has no gathering in the loaded game assets and
+     * therefore must be treated as unbreakable by the miner (gathering == null).
+     * All quality-2 blocks in the prerelease data are stalactites / special
+     * spawner blocks — none are mineable solid cubes, so we use this block to
+     * verify the unbreakable path instead.
+     */
+    private static final String UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID = "Rock_Basalt_Stalactite_Large";
 
     private BlockMinerSystemTests() {
     }
@@ -40,7 +57,9 @@ public final class BlockMinerSystemTests {
         return new TestSuite("block_miner_system")
                 .test(minerMinesBlockIntoContainer())
                 .test(minerStallsOnBackPressure())
-                .test(minerSkipsEmptyTarget());
+                .test(minerSkipsEmptyTarget())
+                .test(minerRespectsQuality1Speed())
+                .test(minerSkipsUnbreakableCustomModelBlock());
     }
 
     // -------------------------------------------------------------------------
@@ -119,5 +138,59 @@ public final class BlockMinerSystemTests {
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) == 0;
                 }, "BlockMinerSystem leaves the container empty when the target cell has no block"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 4: quality-1 block (Rock_Basalt) requires 40 ticks to mine
+    // -------------------------------------------------------------------------
+
+    private static TestCase minerRespectsQuality1Speed() {
+        return new TestCase("miner_respects_quality1_speed", 3, 3, 3)
+                .step(Steps.run(ctx -> {
+                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
+                    ctx.getWorld().setBlock(bx, by, bz, MINER_ID);
+                    ctx.getWorld().setBlock(bx, by - 1, bz, QUALITY1_BLOCK_ID);
+                }))
+                // After 200 ticks the block must still be present (quality 1 needs 400 ticks).
+                .step(Steps.wait(200))
+                .step(Steps.assertThat(ctx -> {
+                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
+                    return ItemTestUtil.getBlockId(ctx.getWorld(), bx, by - 1, bz) != 0;
+                }, QUALITY1_BLOCK_ID + " must NOT be mined before 400 ticks (checked at tick 200)"))
+                // Wait another 210 ticks (total ≥ 410) — mining must now be complete.
+                .step(Steps.wait(210))
+                .step(Steps.assertThat(ctx -> {
+                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
+                    if (ItemTestUtil.getBlockId(ctx.getWorld(), bx, by - 1, bz) != 0)
+                        return false;
+                    ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
+                            ctx.getWorld(), new Vector3i(bx, by, bz));
+                    return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) > 0;
+                }, QUALITY1_BLOCK_ID + " must be fully mined after 400+ ticks with drop " + QUALITY1_DROP_ID + " in container"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test 5: custom-model block with gathering==null is treated as unbreakable
+    // -------------------------------------------------------------------------
+
+    private static TestCase minerSkipsUnbreakableCustomModelBlock() {
+        return new TestCase("miner_skips_unbreakable_custom_model_block", 3, 3, 3)
+                .step(Steps.run(ctx -> {
+                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
+                    ctx.getWorld().setBlock(bx, by, bz, MINER_ID);
+                    ctx.getWorld().setBlock(bx, by - 1, bz, UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID);
+                }))
+                // Wait well past any mining threshold — 60 ticks is more than enough.
+                .step(Steps.wait(60))
+                .step(Steps.assertThat(ctx -> {
+                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
+                    // Block must still be present — gathering==null means unbreakable.
+                    if (ItemTestUtil.getBlockId(ctx.getWorld(), bx, by - 1, bz) == 0)
+                        return false;
+                    // Container must remain empty.
+                    ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
+                            ctx.getWorld(), new Vector3i(bx, by, bz));
+                    return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) == 0;
+                }, UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID + " has gathering=null in loaded assets and must not be mined"));
     }
 }

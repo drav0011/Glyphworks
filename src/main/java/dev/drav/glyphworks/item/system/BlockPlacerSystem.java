@@ -136,7 +136,9 @@ public final class BlockPlacerSystem extends EntityTickingSystem<ChunkStore> {
             }
 
             // Place the block and consume exactly one item from the slot.
-            store.getExternalData().getWorld().setBlock(adjacent.x, adjacent.y, adjacent.z, item.getBlockId());
+            final String blockId = item.getBlockId();
+            final int ax = adjacent.x, ay = adjacent.y, az = adjacent.z;
+            commandBuffer.run(_ -> commandBuffer.getExternalData().getWorld().setBlock(ax, ay, az, blockId));
             container.removeItemStackFromSlot(slot, 1);
             return; // One block per tick.
         }
