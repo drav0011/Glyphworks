@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Fluid_Pipe.name"
   },
   "Categories": [
-    "Blocks.Deco"
+    "Glyphworks.Fluid"
   ],
   "Recipe": {
     "Input": [
