@@ -45,8 +45,7 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "VariantRotation": "DoublePipe",
-    "HitboxType": "Tank",
+    "HitboxType": "Full",
     "CustomModel": "Blocks/Glyphworks/Item/Dropper/Default.blockymodel",
     "CustomModelTexture": [
       {
@@ -58,10 +57,10 @@
       "Components": {
         "ItemContainerBlock": {
           "ItemContainer": {
-            "Capacity": 9,
+            "Capacity": 1,
             "Items": {}
           },
-          "Capacity": 9
+          "Capacity": 1
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

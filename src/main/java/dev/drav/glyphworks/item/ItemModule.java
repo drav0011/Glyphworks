@@ -21,6 +21,7 @@ import dev.drav.glyphworks.item.system.BlockMinerSystem;
 import dev.drav.glyphworks.item.system.BlockPlacerSystem;
 import dev.drav.glyphworks.item.system.ItemDropperSystem;
 import dev.drav.glyphworks.item.system.ItemPickerSystem;
+import dev.drav.glyphworks.item.system.ItemSingleSlotSetupSystem;
 import dev.drav.glyphworks.item.system.ItemSinkSystem;
 import dev.drav.glyphworks.item.system.ItemSourceSystem;
 import dev.drav.glyphworks.item.tests.BlockMinerSystemTests;
@@ -100,6 +101,10 @@ public final class ItemModule extends GlyphworksModule {
         plugin.getChunkStoreRegistry().registerSystem(new BlockPlacerSystem());
         plugin.getChunkStoreRegistry().registerSystem(new ItemPickerSystem());
         plugin.getChunkStoreRegistry().registerSystem(new ItemDropperSystem());
+        plugin.getChunkStoreRegistry().registerSystem(new ItemSingleSlotSetupSystem(BlockMinerComponent.getComponentType()) {});
+        plugin.getChunkStoreRegistry().registerSystem(new ItemSingleSlotSetupSystem(BlockPlacerComponent.getComponentType()) {});
+        plugin.getChunkStoreRegistry().registerSystem(new ItemSingleSlotSetupSystem(ItemPickerComponent.getComponentType()) {});
+        plugin.getChunkStoreRegistry().registerSystem(new ItemSingleSlotSetupSystem(ItemDropperComponent.getComponentType()) {});
     }
 
     @Override

@@ -22,9 +22,11 @@ import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBloc
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.item.component.ItemDropperComponent;
 
 /**
@@ -57,6 +59,10 @@ public final class ItemDropperSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
+        if (!dropper.incrementAndShouldDrop()) {
+            return;
+        }
+
         ItemContainerBlock icb = chunk.getComponent(index, ItemContainerBlock.getComponentType());
         if (icb == null) {
             return;
@@ -79,6 +85,17 @@ public final class ItemDropperSystem extends EntityTickingSystem<ChunkStore> {
         int blockX = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX);
         int blockZ = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ);
 
+        // Only drop if the block below is empty or a fluid (blockId == 0 covers both).
+        ChunkStore chunkStore = commandBuffer.getExternalData();
+        BlockSection belowSection = FluidUtil.getBlockSection(chunkStore, store, blockX, localY - 1, blockZ);
+        if (belowSection == null) {
+            return;
+        }
+        int belowId = belowSection.get(ChunkUtil.localCoordinate(blockX), localY - 1, ChunkUtil.localCoordinate(blockZ));
+        if (belowId != 0) {
+            return;
+        }
+
         ItemContainer container = icb.getItemContainer();
         if (container == null) {
             return;
@@ -89,7 +106,7 @@ public final class ItemDropperSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        Vector3d dropPos = new Vector3d(blockX + 0.5d, localY, blockZ + 0.5d);
+        Vector3d dropPos = new Vector3d(blockX + 0.5d, localY - 0.5d, blockZ + 0.5d);
 
         World world = store.getExternalData().getWorld();
         Store<EntityStore> entityStore = world.getEntityStore().getStore();

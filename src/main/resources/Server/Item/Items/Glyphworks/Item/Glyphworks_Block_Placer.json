@@ -58,10 +58,10 @@
       "Components": {
         "ItemContainerBlock": {
           "ItemContainer": {
-            "Capacity": 9,
+            "Capacity": 1,
             "Items": {}
           },
-          "Capacity": 9
+          "Capacity": 1
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

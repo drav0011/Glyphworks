@@ -31,7 +31,15 @@ public final class ItemDropperComponent implements Component<ChunkStore> {
         return GlyphworksPlugin.get().getItemDropperComponentType();
     }
 
+    /** Runtime-only tick counter — not persisted, resets on server restart. */
+    private int tickCounter;
+
     public ItemDropperComponent() {
+    }
+
+    /** Returns {@code true} once every 5 ticks. */
+    public boolean incrementAndShouldDrop() {
+        return ++tickCounter % 5 == 0;
     }
 
     @Override
