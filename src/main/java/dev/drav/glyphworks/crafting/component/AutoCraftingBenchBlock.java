@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.crafting.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -80,7 +81,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
 
     @Nonnull
     public static final BuilderCodec<AutoCraftingBenchBlock> CODEC = BuilderCodec
-            .builder(AutoCraftingBenchBlock.class, AutoCraftingBenchBlock::new)
+            .builder(AutoCraftingBenchBlock.class, () -> new AutoCraftingBenchBlock())
             .append(
                     new KeyedCodec<>("Glyphworks_AutoCraftingBenchBlock_LockedRecipeId", Codec.STRING),
                     (b, v) -> b.lockedRecipeId = v,
@@ -161,6 +162,14 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
      */
     @Nonnull
     private transient Map<UUID, AutoCraftingBenchMonitorWindow> windows = new ConcurrentHashMap<>();
+
+    public AutoCraftingBenchBlock() {}
+
+    public AutoCraftingBenchBlock(@Nonnull AutoCraftingBenchBlock other) {
+        this.lockedRecipeId = other.lockedRecipeId;
+        this.craftingProgress = other.craftingProgress;
+        this.manaConsumptionRate = other.manaConsumptionRate;
+    }
 
     // ── Component type ─────────────────────────────────────────────────────────
 
@@ -417,7 +426,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
 
     @Nonnull
     public Map<UUID, AutoCraftingBenchMonitorWindow> getWindows() {
-        return windows;
+        return Collections.unmodifiableMap(windows);
     }
 
     /** Pushes a normalised progress value (0–1) to all open monitor windows. */
@@ -487,12 +496,6 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     @Override
     @Nullable
     public Component<ChunkStore> clone() {
-        AutoCraftingBenchBlock c = new AutoCraftingBenchBlock();
-        c.lockedRecipeId = this.lockedRecipeId;
-        c.inputContainer = this.inputContainer;
-        c.outputContainer = this.outputContainer;
-        c.craftingProgress = this.craftingProgress;
-        c.manaConsumptionRate = this.manaConsumptionRate;
-        return c;
+        return new AutoCraftingBenchBlock(this);
     }
 }

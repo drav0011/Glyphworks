@@ -31,7 +31,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class BlockPlacerComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<BlockPlacerComponent> CODEC = BuilderCodec
-            .builder(BlockPlacerComponent.class, BlockPlacerComponent::new)
+            .builder(BlockPlacerComponent.class, () -> new BlockPlacerComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_BlockPlacerComponent_TargetPosition", Vector3iUtil.CODEC),
                     (c, v) -> c.targetPosition = v,
@@ -59,6 +59,11 @@ public final class BlockPlacerComponent implements Component<ChunkStore> {
     public BlockPlacerComponent() {
     }
 
+    public BlockPlacerComponent(@Nonnull BlockPlacerComponent other) {
+        this.targetPosition = new Vector3i(other.targetPosition);
+        this.targetNormal = other.targetNormal;
+    }
+
     @Nonnull
     public Vector3i getTargetPosition() {
         return targetPosition;
@@ -71,9 +76,6 @@ public final class BlockPlacerComponent implements Component<ChunkStore> {
 
     @Override
     public BlockPlacerComponent clone() {
-        BlockPlacerComponent c = new BlockPlacerComponent();
-        c.targetPosition = new Vector3i(targetPosition.x, targetPosition.y, targetPosition.z);
-        c.targetNormal = targetNormal;
-        return c;
+        return new BlockPlacerComponent(this);
     }
 }

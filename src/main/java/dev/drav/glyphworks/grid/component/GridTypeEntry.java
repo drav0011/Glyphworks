@@ -158,6 +158,11 @@ public class GridTypeEntry {
         this.transferRate = transferRate;
     }
 
+    @Override
+    public GridTypeEntry clone() {
+        return new GridTypeEntry(this);
+    }
+
     /**
      * Adds {@code amount} to the accumulator and returns the number of whole units
      * that have accumulated (floored). The fractional remainder is kept for the

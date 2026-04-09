@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.fluid.component;
 
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -19,7 +21,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class FluidSinkComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidSinkComponent> CODEC = BuilderCodec
-            .builder(FluidSinkComponent.class, FluidSinkComponent::new)
+            .builder(FluidSinkComponent.class, () -> new FluidSinkComponent())
             .build();
 
     public static ComponentType<ChunkStore, FluidSinkComponent> getComponentType() {
@@ -29,8 +31,11 @@ public final class FluidSinkComponent implements Component<ChunkStore> {
     public FluidSinkComponent() {
     }
 
+    public FluidSinkComponent(@Nonnull FluidSinkComponent other) {
+    }
+
     @Override
     public FluidSinkComponent clone() {
-        return new FluidSinkComponent();
+        return new FluidSinkComponent(this);
     }
 }

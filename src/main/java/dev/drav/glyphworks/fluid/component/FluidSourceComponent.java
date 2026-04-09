@@ -24,7 +24,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class FluidSourceComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidSourceComponent> CODEC = BuilderCodec
-            .builder(FluidSourceComponent.class, FluidSourceComponent::new)
+            .builder(FluidSourceComponent.class, () -> new FluidSourceComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_FluidSourceComponent_FluidId", Codec.STRING),
                     (c, v) -> c.fluidId = v,
@@ -43,6 +43,10 @@ public final class FluidSourceComponent implements Component<ChunkStore> {
     public FluidSourceComponent() {
     }
 
+    public FluidSourceComponent(@Nonnull FluidSourceComponent other) {
+        this.fluidId = other.fluidId;
+    }
+
     @Nonnull
     public String getFluidId() {
         return fluidId;
@@ -50,8 +54,6 @@ public final class FluidSourceComponent implements Component<ChunkStore> {
 
     @Override
     public FluidSourceComponent clone() {
-        FluidSourceComponent c = new FluidSourceComponent();
-        c.fluidId = fluidId;
-        return c;
+        return new FluidSourceComponent(this);
     }
 }

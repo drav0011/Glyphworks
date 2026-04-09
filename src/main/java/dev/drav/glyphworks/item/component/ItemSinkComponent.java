@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.item.component;
 
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -20,7 +22,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class ItemSinkComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<ItemSinkComponent> CODEC = BuilderCodec
-            .builder(ItemSinkComponent.class, ItemSinkComponent::new)
+            .builder(ItemSinkComponent.class, () -> new ItemSinkComponent())
             .build();
 
     public static ComponentType<ChunkStore, ItemSinkComponent> getComponentType() {
@@ -30,8 +32,11 @@ public final class ItemSinkComponent implements Component<ChunkStore> {
     public ItemSinkComponent() {
     }
 
+    public ItemSinkComponent(@Nonnull ItemSinkComponent other) {
+    }
+
     @Override
     public ItemSinkComponent clone() {
-        return new ItemSinkComponent();
+        return new ItemSinkComponent(this);
     }
 }

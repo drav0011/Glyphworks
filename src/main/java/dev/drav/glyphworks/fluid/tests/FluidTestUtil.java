@@ -24,7 +24,6 @@ final class FluidTestUtil {
     // -------------------------------------------------------------------------
     // Rotation indices: each transforms the default Down targetNormal to the
     // given world-space direction (verified against GridFaceUtil.rotateBlockFace).
-    //   index = roll.ordinal()*16 + pitch.ordinal()*4 + yaw.ordinal()
     // -------------------------------------------------------------------------
 
     static final int ROTATION_DOWN  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.None);       // 0

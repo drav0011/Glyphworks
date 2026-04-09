@@ -1,5 +1,8 @@
 package dev.drav.glyphworks.grid.component;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
@@ -86,10 +89,17 @@ public class FacePlane {
      * @param containerKey Optional container key for multi-container machines
      */
     public FacePlane(Vector3i position, BlockFace normal, FaceMode mode, @Nullable String containerKey) {
-        this.position = position;
+        this.position = new Vector3i(position);
         this.normal = normal;
         this.mode = mode;
         this.containerKey = containerKey;
+    }
+
+    public FacePlane(@Nonnull FacePlane other) {
+        this.position = new Vector3i(other.position);
+        this.normal = other.normal;
+        this.mode = other.mode;
+        this.containerKey = other.containerKey;
     }
 
     public Vector3i getPosition() {
@@ -130,7 +140,9 @@ public class FacePlane {
         if (!(o instanceof FacePlane))
             return false;
         FacePlane other = (FacePlane) o;
-        return position.equals(other.position) && normal == other.normal && mode == other.mode;
+        if (!position.equals(other.position) || normal != other.normal || mode != other.mode)
+            return false;
+        return Objects.equals(containerKey, other.containerKey);
     }
 
     @Override
@@ -138,10 +150,11 @@ public class FacePlane {
         int result = position.hashCode();
         result = 31 * result + normal.hashCode();
         result = 31 * result + mode.hashCode();
+        result = 31 * result + (containerKey != null ? containerKey.hashCode() : 0);
         return result;
     }
 
     public FacePlane clone() {
-        return new FacePlane(position, normal, mode, containerKey);
+        return new FacePlane(this);
     }
 }

@@ -25,7 +25,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class ItemSourceComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<ItemSourceComponent> CODEC = BuilderCodec
-            .builder(ItemSourceComponent.class, ItemSourceComponent::new)
+            .builder(ItemSourceComponent.class, () -> new ItemSourceComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_ItemSourceComponent_ItemId", Codec.STRING),
                     (c, v) -> c.itemId = v,
@@ -44,6 +44,10 @@ public final class ItemSourceComponent implements Component<ChunkStore> {
     public ItemSourceComponent() {
     }
 
+    public ItemSourceComponent(@Nonnull ItemSourceComponent other) {
+        this.itemId = other.itemId;
+    }
+
     @Nonnull
     public String getItemId() {
         return itemId;
@@ -51,8 +55,6 @@ public final class ItemSourceComponent implements Component<ChunkStore> {
 
     @Override
     public ItemSourceComponent clone() {
-        ItemSourceComponent c = new ItemSourceComponent();
-        c.itemId = itemId;
-        return c;
+        return new ItemSourceComponent(this);
     }
 }

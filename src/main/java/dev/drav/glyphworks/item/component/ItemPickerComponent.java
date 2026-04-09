@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.item.component;
 
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
@@ -24,7 +26,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class ItemPickerComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<ItemPickerComponent> CODEC = BuilderCodec
-            .builder(ItemPickerComponent.class, ItemPickerComponent::new)
+            .builder(ItemPickerComponent.class, () -> new ItemPickerComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_ItemPickerComponent_Radius", Codec.INTEGER),
                     (c, v) -> c.radius = v,
@@ -42,14 +44,16 @@ public final class ItemPickerComponent implements Component<ChunkStore> {
     public ItemPickerComponent() {
     }
 
+    public ItemPickerComponent(@Nonnull ItemPickerComponent other) {
+        this.radius = other.radius;
+    }
+
     public int getRadius() {
         return radius;
     }
 
     @Override
     public ItemPickerComponent clone() {
-        ItemPickerComponent c = new ItemPickerComponent();
-        c.radius = radius;
-        return c;
+        return new ItemPickerComponent(this);
     }
 }

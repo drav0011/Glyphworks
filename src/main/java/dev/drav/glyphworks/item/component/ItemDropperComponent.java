@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.item.component;
 
+import javax.annotation.Nonnull;
+
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -24,7 +26,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class ItemDropperComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<ItemDropperComponent> CODEC = BuilderCodec
-            .builder(ItemDropperComponent.class, ItemDropperComponent::new)
+            .builder(ItemDropperComponent.class, () -> new ItemDropperComponent())
             .build();
 
     public static ComponentType<ChunkStore, ItemDropperComponent> getComponentType() {
@@ -37,6 +39,9 @@ public final class ItemDropperComponent implements Component<ChunkStore> {
     public ItemDropperComponent() {
     }
 
+    public ItemDropperComponent(@Nonnull ItemDropperComponent other) {
+    }
+
     /** Returns {@code true} once every 5 ticks. */
     public boolean incrementAndShouldDrop() {
         return ++tickCounter % 5 == 0;
@@ -44,6 +49,6 @@ public final class ItemDropperComponent implements Component<ChunkStore> {
 
     @Override
     public ItemDropperComponent clone() {
-        return new ItemDropperComponent();
+        return new ItemDropperComponent(this);
     }
 }

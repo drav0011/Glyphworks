@@ -57,7 +57,7 @@ public class ManaLiquifierBlock implements Component<ChunkStore> {
 
     @Nonnull
     public static final BuilderCodec<ManaLiquifierBlock> CODEC = BuilderCodec
-            .builder(ManaLiquifierBlock.class, ManaLiquifierBlock::new)
+            .builder(ManaLiquifierBlock.class, () -> new ManaLiquifierBlock())
             .append(
                     new KeyedCodec<>("Glyphworks_ManaLiquifierBlock_InputContainer", ItemContainer.CODEC),
                     (b, v) -> b.inputContainer = v,
@@ -100,6 +100,11 @@ public class ManaLiquifierBlock implements Component<ChunkStore> {
     private float remainingFuelEnergy = 0.0f;
 
     public ManaLiquifierBlock() {
+    }
+
+    public ManaLiquifierBlock(@Nonnull ManaLiquifierBlock other) {
+        this.processingProgress = other.processingProgress;
+        this.remainingFuelEnergy = other.remainingFuelEnergy;
     }
 
     public static ComponentType<ChunkStore, ManaLiquifierBlock> getComponentType() {
@@ -158,11 +163,6 @@ public class ManaLiquifierBlock implements Component<ChunkStore> {
 
     @Override
     public ManaLiquifierBlock clone() {
-        ManaLiquifierBlock copy = new ManaLiquifierBlock();
-        copy.processingProgress = processingProgress;
-        copy.remainingFuelEnergy = remainingFuelEnergy;
-        // inputContainer and fuelContainer are intentionally null on clone;
-        // setupContainers() will initialise them when the block entity is loaded.
-        return copy;
+        return new ManaLiquifierBlock(this);
     }
 }

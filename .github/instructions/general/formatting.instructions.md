@@ -34,6 +34,11 @@ Apply these principles consistently when writing, reviewing, or suggesting code 
 ### Indentation
 - Each scope level gets its own indent. Code becomes a visual hierarchy navigable at a glance.
 
+### Always use top-level imports
+- All `import` statements belong at the top of the file, before the class declaration.
+- Never reference a type by its fully-qualified name inline (e.g., `new java.util.HashSet<>()`) — import it and use the simple name.
+- Never use wildcard imports (`import java.util.*`). Import each type explicitly so dependencies are visible at a glance.
+
 ### Team rules win
 - Formatting conventions (braces, tabs vs spaces, quote style) are team decisions. Consistency across the codebase matters more than individual preference.
 

@@ -43,10 +43,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Inserter",
-    "CustomModel": "Blocks/Glyphworks/Item/Inserter/Inserter.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Inserter/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Item/Inserter/Inserter.png",
+        "Texture": "Blocks/Glyphworks/Item/Inserter/Default.png",
         "Weight": 1
       }
     ],
@@ -56,6 +56,7 @@
           "Glyphworks_GridComponent_Entries": [
             {
               "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 0.2,
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {

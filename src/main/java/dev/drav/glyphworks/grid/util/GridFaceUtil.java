@@ -55,7 +55,7 @@ public final class GridFaceUtil {
      * maps the JSON-space filler offset to the correct world-space offset.
      */
     public static Vector3i rotateFacePosition(Vector3i localPos, RotationTuple rotation) {
-        if (rotation.yaw() == Rotation.None && rotation.pitch() == Rotation.None && rotation.roll() == Rotation.None)
+        if (isIdentityRotation(rotation))
             return localPos;
         Vector3i rotated = new Vector3i(localPos.x, localPos.y, localPos.z);
         Rotation.applyRotationTo(rotated, rotation.yaw(), rotation.pitch(), rotation.roll());
@@ -70,7 +70,7 @@ public final class GridFaceUtil {
     public static BlockFace rotateBlockFace(BlockFace face, RotationTuple rotation) {
         if (face == BlockFace.None)
             return BlockFace.None;
-        if (rotation.yaw() == Rotation.None && rotation.pitch() == Rotation.None && rotation.roll() == Rotation.None)
+        if (isIdentityRotation(rotation))
             return face;
         Vector3i dir = blockFaceToVec(face);
         Rotation.applyRotationTo(dir, rotation.yaw(), rotation.pitch(), rotation.roll());
@@ -87,6 +87,12 @@ public final class GridFaceUtil {
             case Down  -> new Vector3i( 0, -1,  0);
             default    -> new Vector3i( 0,  0,  0);
         };
+    }
+
+    private static boolean isIdentityRotation(RotationTuple rotation) {
+        return rotation.yaw() == Rotation.None
+                && rotation.pitch() == Rotation.None
+                && rotation.roll() == Rotation.None;
     }
 
     private static BlockFace vecToBlockFace(Vector3i v) {

@@ -3,6 +3,7 @@ package dev.drav.glyphworks.grid.command;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -123,7 +124,7 @@ public final class GridGraphCommand extends AbstractWorldCommand {
     }
 
     private static int countComponents(GridGraph graph, Set<Vector3i> allNodes) {
-        Set<Vector3i> visited = new java.util.HashSet<>();
+        Set<Vector3i> visited = new HashSet<>();
         int count = 0;
         for (Vector3i node : allNodes) {
             if (visited.add(node)) {

@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.fluid.component;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.codec.Codec;
@@ -24,7 +25,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public class FluidPipeComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidPipeComponent> CODEC = BuilderCodec
-            .builder(FluidPipeComponent.class, FluidPipeComponent::new)
+            .builder(FluidPipeComponent.class, () -> new FluidPipeComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_FluidPipeComponent_FluidId", Codec.STRING),
                     (c, v) -> c.fluidId = v,
@@ -45,6 +46,10 @@ public class FluidPipeComponent implements Component<ChunkStore> {
 
     /** No-arg constructor required by {@link #CODEC}. */
     public FluidPipeComponent() {
+    }
+
+    public FluidPipeComponent(@Nonnull FluidPipeComponent other) {
+        this.fluidId = other.fluidId;
     }
 
     @Nullable

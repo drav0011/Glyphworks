@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.fluid.component;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.codec.Codec;
@@ -27,7 +28,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public class FluidContainerComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidContainerComponent> CODEC = BuilderCodec
-            .builder(FluidContainerComponent.class, FluidContainerComponent::new)
+            .builder(FluidContainerComponent.class, () -> new FluidContainerComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_FluidContainerComponent_Capacity", Codec.INTEGER),
                     (c, v) -> c.capacity = v,
@@ -69,6 +70,12 @@ public class FluidContainerComponent implements Component<ChunkStore> {
 
     public FluidContainerComponent(int capacity) {
         this.capacity = capacity;
+    }
+
+    public FluidContainerComponent(@Nonnull FluidContainerComponent other) {
+        this.capacity = other.capacity;
+        this.amount = other.amount;
+        this.fluidId = other.fluidId;
     }
 
     // ---- accessors ----------------------------------------------------------
@@ -150,9 +157,7 @@ public class FluidContainerComponent implements Component<ChunkStore> {
     @Override
     @Nullable
     public Component<ChunkStore> clone() {
-        FluidContainerComponent copy = new FluidContainerComponent(capacity);
-        copy.amount = 0;
-        copy.fluidId = null;
-        return copy;
+        // Newly placed tanks start empty — breaking a tank loses its fluid.
+        return new FluidContainerComponent(capacity);
     }
 }

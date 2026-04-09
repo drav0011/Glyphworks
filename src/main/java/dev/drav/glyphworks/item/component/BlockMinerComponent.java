@@ -32,7 +32,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class BlockMinerComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<BlockMinerComponent> CODEC = BuilderCodec
-            .builder(BlockMinerComponent.class, BlockMinerComponent::new)
+            .builder(BlockMinerComponent.class, () -> new BlockMinerComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_BlockMinerComponent_TargetPosition", Vector3iUtil.CODEC),
                     (c, v) -> c.targetPosition = v,
@@ -77,6 +77,12 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
     public BlockMinerComponent() {
     }
 
+    public BlockMinerComponent(@Nonnull BlockMinerComponent other) {
+        this.targetPosition = new Vector3i(other.targetPosition);
+        this.targetNormal = other.targetNormal;
+        this.miningProgress = other.miningProgress;
+    }
+
     @Nonnull
     public Vector3i getTargetPosition() {
         return targetPosition;
@@ -105,10 +111,6 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
 
     @Override
     public BlockMinerComponent clone() {
-        BlockMinerComponent c = new BlockMinerComponent();
-        c.targetPosition = new Vector3i(targetPosition.x, targetPosition.y, targetPosition.z);
-        c.targetNormal = targetNormal;
-        c.miningProgress = miningProgress;
-        return c;
+        return new BlockMinerComponent(this);
     }
 }

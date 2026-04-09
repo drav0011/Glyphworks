@@ -43,10 +43,10 @@
     "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
     "HitboxType": "Extractor",
-    "CustomModel": "Blocks/Glyphworks/Item/Extractor/Extractor.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Item/Extractor/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Item/Extractor/Extractor.png",
+        "Texture": "Blocks/Glyphworks/Item/Extractor/Default.png",
         "Weight": 1
       }
     ],
@@ -56,6 +56,7 @@
           "Glyphworks_GridComponent_Entries": [
             {
               "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 0.2,
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {

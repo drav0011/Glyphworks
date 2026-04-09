@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.test.runner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -52,9 +53,9 @@ public final class TestRunnerComponent implements Component<EntityStore> {
             boolean headless) {
         this.queue.clear();
         this.queue.addAll(tests);
-        this.originXs = originXs;
-        this.originYs = originYs;
-        this.originZs = originZs;
+        this.originXs = Arrays.copyOf(originXs, originXs.length);
+        this.originYs = Arrays.copyOf(originYs, originYs.length);
+        this.originZs = Arrays.copyOf(originZs, originZs.length);
         this.cleanupAfterRun = cleanupAfterRun;
         this.testWorldName = testWorldName;
         this.playerRef = playerRef;

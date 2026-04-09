@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.fluid.component;
 
+import javax.annotation.Nonnull;
+
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.codec.KeyedCodec;
@@ -28,7 +30,7 @@ import dev.drav.glyphworks.GlyphworksPlugin;
 public final class FluidRemoverComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidRemoverComponent> CODEC = BuilderCodec
-            .builder(FluidRemoverComponent.class, FluidRemoverComponent::new)
+            .builder(FluidRemoverComponent.class, () -> new FluidRemoverComponent())
             .append(
                     new KeyedCodec<>("Glyphworks_FluidRemoverComponent_TargetPosition", Vector3iUtil.CODEC),
                     (c, v) -> c.targetPosition = v,
@@ -58,6 +60,11 @@ public final class FluidRemoverComponent implements Component<ChunkStore> {
     public FluidRemoverComponent() {
     }
 
+    public FluidRemoverComponent(@Nonnull FluidRemoverComponent other) {
+        this.targetPosition = new Vector3i(other.targetPosition);
+        this.targetNormal = other.targetNormal;
+    }
+
     public Vector3i getTargetPosition() {
         return targetPosition;
     }
@@ -68,9 +75,6 @@ public final class FluidRemoverComponent implements Component<ChunkStore> {
 
     @Override
     public FluidRemoverComponent clone() {
-        FluidRemoverComponent c = new FluidRemoverComponent();
-        c.targetPosition = new Vector3i(targetPosition.x, targetPosition.y, targetPosition.z);
-        c.targetNormal = targetNormal;
-        return c;
+        return new FluidRemoverComponent(this);
     }
 }
