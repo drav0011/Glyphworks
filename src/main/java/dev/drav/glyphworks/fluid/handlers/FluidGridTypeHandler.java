@@ -62,6 +62,33 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     }
 
     // -------------------------------------------------------------------------
+    // Records
+    // -------------------------------------------------------------------------
+
+    private record FluidSource(String fluidId, int maxAvailable, FluidContainerComponent fcc,
+            GridLookup sourceLookup) {
+    }
+
+    private record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
+    }
+
+    private record FluidSinkEntry(
+            Ref<ChunkStore> ref,
+            GridComponent comp,
+            FacePlane sinkFace,
+            float rate,
+            int distance,
+            Vector3i originPos,
+            FluidContainerComponent fcc) {
+    }
+
+    private record PlannedTransfer(FluidContainerComponent fcc, int amount) {
+    }
+
+    private record FluidBFSResult(List<FluidSinkEntry> sinks, List<Ref<ChunkStore>> traversedPipes) {
+    }
+
+    // -------------------------------------------------------------------------
     // Tick
     // -------------------------------------------------------------------------
 
@@ -69,20 +96,15 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
      * Per-tick transfer pass for a single fluid-grid node.
      *
      * <p>
-     * <b>Pipe lock lifecycle</b>: when fluid first flows through a
-     * {@link FluidPipeComponent}, the pipe is locked to that fluid type
-     * ({@link FluidPipeComponent#setFluidId}). The lock persists until the pipe
-     * block is broken and replaced — the replacement starts from a fresh,
-     * uncontaminated {@code FluidPipeComponent} (null {@code fluidId}). There
-     * is no drain-triggered auto-unlock; this matches the EnderIO network-lock
-     * semantics.
+     * Only the root node of each connected network runs the full transfer pass.
+     * Non-root nodes return immediately. The root collects all fluid sources in
+     * the network, then for each source runs a BFS toward compatible sinks and
+     * executes a two-pass atomic transfer (plan then drain-fill).
      *
      * <p>
-     * <b>Transfer atomicity</b>: the transfer is performed in two passes.
-     * The first pass plans how much fluid each sink will receive without
-     * mutating any state. The second pass drains the source first, then fills
-     * each sink, so fluid can never be created from nothing if a later step
-     * fails.
+     * <b>Pipe lock lifecycle</b>: when fluid first flows through a
+     * {@link FluidPipeComponent}, the pipe is locked to that fluid type.
+     * The lock persists until the pipe block is broken and replaced.
      */
     @Override
     public void tick(
@@ -97,47 +119,59 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             @Nonnull Ref<ChunkStore> blockRef) {
 
         String typeId = entry.getGridType().id();
-
-        // ---- Step 1: recover originPos -----------------------------------
-        Vector3i originPos = component.getOriginPosition();
         GridGraph gridGraph = GlyphworksPlugin.get()
                 .getGridGraph(chunkStore.getWorld(), entry.getGridType());
+        Vector3i originPos = resolveOriginPosition(component, entry, chunkStore, blockRef, gridGraph);
 
-        if (originPos == null && gridGraph != null && !entry.getNeighbors().isEmpty()) {
-            Vector3i firstNeighbor = entry.getNeighbors().iterator().next();
-            for (Vector3i candidate : gridGraph.getNeighbors(firstNeighbor)) {
-                GridLookup cand = GridLookup.resolve(chunkStore, candidate);
-                if (cand != null && blockRef.equals(cand.blockRef())) {
-                    originPos = candidate;
-                    break;
-                }
-            }
+        if (shouldSkipNonRoot(gridGraph, originPos))
+            return;
+
+        List<FluidSource> sources = collectFluidSources(originPos, gridGraph, chunkStore, store, typeId);
+        if (sources.isEmpty())
+            return;
+
+        for (FluidSource source : sources) {
+            transferFluid(source, chunkStore, store, gridGraph, typeId, dt);
         }
+    }
 
-        // ---- Step 1b: skip non-root nodes --------------------------------
-        // Each connected network has one root node (arbitrary but stable).
-        // Only the root runs the full transfer pass on behalf of the whole network;
-        // all other nodes in the same network return immediately here.
-        // The root drains accumulators for every source it finds, so no fluid
-        // budget is silently lost by skipping non-root ticks.
-        if (gridGraph != null && originPos != null) {
-            Vector3i componentRoot = gridGraph.getComponentRoot(originPos);
-            if (componentRoot != null && !componentRoot.equals(originPos)) {
-                return;
-            }
+    // -------------------------------------------------------------------------
+    // Transfer pipeline
+    // -------------------------------------------------------------------------
+
+    @Nullable
+    private static Vector3i resolveOriginPosition(
+            @Nonnull GridComponent component,
+            @Nonnull GridTypeEntry entry,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Ref<ChunkStore> blockRef,
+            @Nullable GridGraph gridGraph) {
+        Vector3i originPos = component.getOriginPosition();
+        if (originPos != null || gridGraph == null || entry.getNeighbors().isEmpty())
+            return originPos;
+
+        Vector3i firstNeighbor = entry.getNeighbors().iterator().next();
+        for (Vector3i candidate : gridGraph.getNeighbors(firstNeighbor)) {
+            GridLookup cand = GridLookup.resolve(chunkStore, candidate);
+            if (cand != null && blockRef.equals(cand.blockRef()))
+                return candidate;
         }
+        return null;
+    }
 
-        // ---- Step 2: collect sources ------------------------------------
-        // Walk every node in this network and find all tank faces that have fluid.
-        // The root does this on behalf of the entire component so that non-root
-        // source tanks are still drained even though their own tick() returned early.
+    private static boolean shouldSkipNonRoot(@Nullable GridGraph gridGraph, @Nullable Vector3i originPos) {
+        if (gridGraph == null || originPos == null)
+            return false;
+        Vector3i componentRoot = gridGraph.getComponentRoot(originPos);
+        return componentRoot != null && !componentRoot.equals(originPos);
+    }
 
-        record FluidSource(String fluidId, int maxAvailable, FluidContainerComponent fcc,
-                GridLookup sourceLookup) {
-        }
-
-        // Members of this component — falls back to just the current node when the
-        // graph is unavailable (e.g. during chunk load before graph is ready).
+    private static List<FluidSource> collectFluidSources(
+            @Nullable Vector3i originPos,
+            @Nullable GridGraph gridGraph,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull String typeId) {
         Set<Vector3i> networkMembers;
         if (gridGraph != null && originPos != null) {
             Vector3i root = gridGraph.getComponentRoot(originPos);
@@ -151,214 +185,219 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             GridLookup memberLookup = GridLookup.resolve(chunkStore, memberPos);
             if (memberLookup == null)
                 continue;
-            GridComponent memberComp = memberLookup.component();
-            GridTypeEntry memberEntry = memberComp.getEntry(typeId);
+            GridTypeEntry memberEntry = memberLookup.component().getEntry(typeId);
             if (memberEntry == null)
                 continue;
             for (FacePlane face : memberEntry.getFaces()) {
                 FaceMode mode = face.getMode();
                 if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
                     continue;
-                String key = face.getContainerKey();
-                if (key != null) {
-                    // Tank: fluid is stored in FluidContainerComponent on this block.
-                    FluidContainerComponent fcc = store.getComponent(
-                            memberLookup.blockRef(), FluidContainerComponent.getComponentType());
-                    if (fcc == null || fcc.isEmpty() || fcc.getFluidId() == null)
-                        continue;
-                    sources.add(new FluidSource(fcc.getFluidId(), fcc.getAmount(), fcc, memberLookup));
-                }
-                // BIDIRECTIONAL/OUTPUT + null containerKey → pipe face or world-IO block,
-                // not a grid source.
+                if (face.getContainerKey() == null)
+                    continue;
+                FluidContainerComponent fcc = store.getComponent(
+                        memberLookup.blockRef(), FluidContainerComponent.getComponentType());
+                if (fcc == null || fcc.isEmpty() || fcc.getFluidId() == null)
+                    continue;
+                sources.add(new FluidSource(fcc.getFluidId(), fcc.getAmount(), fcc, memberLookup));
             }
         }
 
-        // Sort sources by world position (X → Y → Z) so that the source iteration
-        // order is deterministic regardless of HashSet bucket layout. This ensures
-        // that when two sources with incompatible fluids share a merged network, the
-        // source at the lower coordinate always wins the bridge lock.
         sources.sort(Comparator.comparingInt((FluidSource s) -> s.sourceLookup().originPos().x)
                 .thenComparingInt(s -> s.sourceLookup().originPos().y)
                 .thenComparingInt(s -> s.sourceLookup().originPos().z));
+        return sources;
+    }
 
-        if (sources.isEmpty()) {
+    private void transferFluid(
+            @Nonnull FluidSource source,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Store<ChunkStore> store,
+            @Nullable GridGraph gridGraph,
+            @Nonnull String typeId,
+            float dt) {
+        GridTypeEntry sourceEntry = source.sourceLookup().component().getEntry(typeId);
+        if (sourceEntry == null)
             return;
+        int toTransfer = sourceEntry.drainAccumulator(
+                sourceEntry.getTransferRate() * dt * chunkStore.getWorld().getTps());
+        if (toTransfer < 1)
+            return;
+
+        FluidBFSResult bfs = findFluidSinks(source, chunkStore, store, gridGraph, typeId);
+        if (bfs.sinks().isEmpty())
+            return;
+
+        executeFluidTransfer(source, toTransfer, bfs, store);
+    }
+
+    private FluidBFSResult findFluidSinks(
+            @Nonnull FluidSource source,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Store<ChunkStore> store,
+            @Nullable GridGraph gridGraph,
+            @Nonnull String typeId) {
+        GridLookup sourceLookup = source.sourceLookup();
+        Vector3i sourcePos = sourceLookup.originPos();
+        GridTypeEntry sourceEntry = sourceLookup.component().getEntry(typeId);
+
+        Set<Ref<ChunkStore>> visited = new HashSet<>();
+        visited.add(sourceLookup.blockRef());
+        Queue<BFSEntry> queue = new ArrayDeque<>();
+        List<FluidSinkEntry> sinks = new ArrayList<>();
+        List<Ref<ChunkStore>> traversedPipes = new ArrayList<>();
+
+        seedBFS(sourceEntry, sourcePos, sourceLookup, gridGraph, chunkStore, typeId, visited, queue);
+
+        while (!queue.isEmpty()) {
+            BFSEntry bfsNode = queue.poll();
+            GridTypeEntry entryCompEntry = bfsNode.lookup().component().getEntry(typeId);
+            if (entryCompEntry == null)
+                continue;
+
+            if (isTerminalNode(entryCompEntry)) {
+                classifyFluidSink(bfsNode, source, chunkStore, store, typeId, sinks);
+                continue;
+            }
+
+            FluidPipeComponent fpc = store.getComponent(bfsNode.lookup().blockRef(),
+                    FluidPipeComponent.getComponentType());
+            if (fpc != null && !fpc.accepts(source.fluidId()))
+                continue;
+
+            traversedPipes.add(bfsNode.lookup().blockRef());
+            expandRelayNeighbors(bfsNode, entryCompEntry, gridGraph, chunkStore, typeId, visited, queue);
         }
 
-        // ---- Step 3 & 4: BFS + transfer (once per source) ---------------
+        return new FluidBFSResult(sinks, traversedPipes);
+    }
 
-        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
+    private static void seedBFS(
+            @Nonnull GridTypeEntry sourceEntry,
+            @Nonnull Vector3i sourcePos,
+            @Nonnull GridLookup sourceLookup,
+            @Nullable GridGraph gridGraph,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull String typeId,
+            @Nonnull Set<Ref<ChunkStore>> visited,
+            @Nonnull Queue<BFSEntry> queue) {
+        Set<Vector3i> seedNeighbors = (gridGraph != null)
+                ? gridGraph.getNeighbors(sourcePos)
+                : sourceEntry.getNeighbors();
+        for (Vector3i neighborPos : seedNeighbors) {
+            FacePlane connectingFace = findEntryFace(chunkStore, sourceLookup, neighborPos, typeId);
+            if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
+                continue;
+            GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
+            if (lookup == null)
+                continue;
+            if (!visited.add(lookup.blockRef()))
+                continue;
+            GridTypeEntry seedNeighborEntry = lookup.component().getEntry(typeId);
+            if (seedNeighborEntry == null)
+                continue;
+            float rate = Math.min(sourceEntry.getTransferRate(), seedNeighborEntry.getTransferRate());
+            queue.add(new BFSEntry(lookup, rate, sourcePos, 1));
+        }
+    }
+
+    private static boolean isTerminalNode(@Nonnull GridTypeEntry entry) {
+        for (FacePlane face : entry.getFaces()) {
+            if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null)
+                return true;
+        }
+        return false;
+    }
+
+    private static void classifyFluidSink(
+            @Nonnull BFSEntry bfsNode,
+            @Nonnull FluidSource source,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull String typeId,
+            @Nonnull List<FluidSinkEntry> sinks) {
+        if (bfsNode.arrivedFrom() == null)
+            return;
+        FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
+        if (entryFace == null)
+            return;
+        FaceMode mode = entryFace.getMode();
+        if (mode != FaceMode.INPUT && mode != FaceMode.BIDIRECTIONAL)
+            return;
+        if (entryFace.getContainerKey() == null)
+            return;
+        FluidContainerComponent fcc = store.getComponent(
+                bfsNode.lookup().blockRef(), FluidContainerComponent.getComponentType());
+        if (fcc == null || fcc.availableSpace() <= 0)
+            return;
+        if (fcc.getFluidId() != null && !fcc.getFluidId().equals(source.fluidId()))
+            return;
+        sinks.add(new FluidSinkEntry(
+                bfsNode.lookup().blockRef(), bfsNode.lookup().component(), entryFace,
+                bfsNode.rate(), bfsNode.distance(),
+                bfsNode.lookup().originPos(), fcc));
+    }
+
+    private static void expandRelayNeighbors(
+            @Nonnull BFSEntry bfsNode,
+            @Nonnull GridTypeEntry entryCompEntry,
+            @Nullable GridGraph gridGraph,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull String typeId,
+            @Nonnull Set<Ref<ChunkStore>> visited,
+            @Nonnull Queue<BFSEntry> queue) {
+        Vector3i entryPos = bfsNode.lookup().originPos();
+        Set<Vector3i> relayNeighbors = (gridGraph != null)
+                ? gridGraph.getNeighbors(entryPos)
+                : entryCompEntry.getNeighbors();
+        for (Vector3i neighborPos : relayNeighbors) {
+            GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
+            if (lookup == null)
+                continue;
+            if (!visited.add(lookup.blockRef()))
+                continue;
+            GridTypeEntry relayNeighborEntry = lookup.component().getEntry(typeId);
+            if (relayNeighborEntry == null)
+                continue;
+            float rate = Math.min(bfsNode.rate(), relayNeighborEntry.getTransferRate());
+            queue.add(new BFSEntry(lookup, rate, entryPos, bfsNode.distance() + 1));
+        }
+    }
+
+    private static void executeFluidTransfer(
+            @Nonnull FluidSource source,
+            int toTransfer,
+            @Nonnull FluidBFSResult bfs,
+            @Nonnull Store<ChunkStore> store) {
+        List<FluidSinkEntry> sinks = bfs.sinks();
+        sinks.sort(Comparator.comparingInt(FluidSinkEntry::distance));
+
+        List<PlannedTransfer> transfers = new ArrayList<>();
+        int budget = Math.min(toTransfer, source.maxAvailable());
+        int remaining = budget;
+
+        for (FluidSinkEntry sink : sinks) {
+            if (remaining <= 0)
+                break;
+            int amount = Math.min(remaining, sink.fcc().availableSpace());
+            if (amount > 0) {
+                transfers.add(new PlannedTransfer(sink.fcc(), amount));
+                remaining -= amount;
+            }
+        }
+        if (transfers.isEmpty())
+            return;
+
+        int totalMoved = budget - remaining;
+        source.fcc().drain(totalMoved);
+
+        for (PlannedTransfer t : transfers) {
+            t.fcc().fill(source.fluidId(), t.amount());
         }
 
-        record SinkEntry(
-                Ref<ChunkStore> ref,
-                GridComponent comp,
-                FacePlane sinkFace,
-                float rate,
-                int distance,
-                Vector3i originPos,
-                FluidContainerComponent fcc) {
-        }
-
-        for (FluidSource source : sources) {
-            GridLookup sourceLookup = source.sourceLookup();
-            Vector3i sourcePos = sourceLookup.originPos();
-            GridComponent sourceComp = sourceLookup.component();
-
-            GridTypeEntry sourceEntry = sourceComp.getEntry(typeId);
-            if (sourceEntry == null)
-                continue;
-
-            // Drain accumulator from the source node's own entry (not the root's),
-            // so the per-node transfer-rate budget is correctly maintained even though
-            // this node's own tick() returned early.
-            int toTransfer = sourceEntry.drainAccumulator(sourceEntry.getTransferRate() * dt * chunkStore.getWorld().getTps());
-            if (toTransfer < 1) {
-                continue;
-            }
-
-            // -- BFS -------------------------------------------------------
-            Set<Ref<ChunkStore>> visited = new HashSet<>();
-            visited.add(sourceLookup.blockRef());
-            Queue<BFSEntry> queue = new ArrayDeque<>();
-            List<SinkEntry> sinks = new ArrayList<>();
-            // All pure-pipe nodes traversed; locked to sourceFluid after transfer.
-            List<Ref<ChunkStore>> traversedPipes = new ArrayList<>();
-
-            Set<Vector3i> seedNeighbors = (gridGraph != null)
-                    ? gridGraph.getNeighbors(sourcePos)
-                    : sourceEntry.getNeighbors();
-
-            for (Vector3i neighborPos : seedNeighbors) {
-                // Skip seeds reachable only through INPUT faces on the source node.
-                FacePlane connectingFace = findEntryFace(chunkStore, sourceLookup, neighborPos, typeId);
-                if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
-                    continue;
-                GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
-                if (lookup == null)
-                    continue;
-                if (!visited.add(lookup.blockRef()))
-                    continue;
-                GridTypeEntry seedNeighborEntry = lookup.component().getEntry(typeId);
-                if (seedNeighborEntry == null)
-                    continue;
-                float rate = Math.min(sourceEntry.getTransferRate(), seedNeighborEntry.getTransferRate());
-                queue.add(new BFSEntry(lookup, rate, sourcePos, 1));
-            }
-
-            while (!queue.isEmpty()) {
-                BFSEntry bfsNode = queue.poll();
-                GridComponent entryComp = bfsNode.lookup().component();
-                Vector3i entryPos = bfsNode.lookup().originPos();
-                GridTypeEntry entryCompEntry = entryComp.getEntry(typeId);
-                if (entryCompEntry == null)
-                    continue;
-
-                // Determine if this is a terminal (any non-pure-pipe face).
-                boolean isTerminal = false;
-                for (FacePlane face : entryCompEntry.getFaces()) {
-                    if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null) {
-                        isTerminal = true;
-                        break;
-                    }
-                }
-
-                if (isTerminal) {
-                    // Classify as a sink if reached through an INPUT or BIDIRECTIONAL face.
-                    if (bfsNode.arrivedFrom() != null) {
-                        FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
-                        if (entryFace != null) {
-                            FaceMode mode = entryFace.getMode();
-                            String key = entryFace.getContainerKey();
-
-                            if (mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL) {
-                                if (key != null) {
-                                    // Tank sink: check FluidContainerComponent compatibility.
-                                    FluidContainerComponent fcc = store.getComponent(
-                                            bfsNode.lookup().blockRef(), FluidContainerComponent.getComponentType());
-                                    if (fcc != null
-                                            && fcc.availableSpace() > 0
-                                            && (fcc.getFluidId() == null
-                                                    || fcc.getFluidId().equals(source.fluidId()))) {
-                                        sinks.add(new SinkEntry(
-                                                bfsNode.lookup().blockRef(), entryComp, entryFace,
-                                                bfsNode.rate(), bfsNode.distance(),
-                                                bfsNode.lookup().originPos(), fcc));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    continue; // terminals do not relay
-                }
-
-                // Pure-pipe relay: check FluidPipeComponent compatibility.
-                FluidPipeComponent fpc = store.getComponent(bfsNode.lookup().blockRef(),
-                        FluidPipeComponent.getComponentType());
-                if (fpc != null && !fpc.accepts(source.fluidId()))
-                    continue; // incompatible pipe
-
-                traversedPipes.add(bfsNode.lookup().blockRef());
-
-                Set<Vector3i> relayNeighbors = (gridGraph != null)
-                        ? gridGraph.getNeighbors(entryPos)
-                        : entryCompEntry.getNeighbors();
-                for (Vector3i neighborPos : relayNeighbors) {
-                    GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
-                    if (lookup == null)
-                        continue;
-                    if (!visited.add(lookup.blockRef()))
-                        continue;
-                    GridTypeEntry relayNeighborEntry = lookup.component().getEntry(typeId);
-                    if (relayNeighborEntry == null)
-                        continue;
-                    float rate = Math.min(bfsNode.rate(), relayNeighborEntry.getTransferRate());
-                    queue.add(new BFSEntry(lookup, rate, entryPos, bfsNode.distance() + 1));
-                }
-            }
-
-            if (sinks.isEmpty()) {
-                continue;
-            }
-
-            // -- Transfer (two-pass atomic: plan → drain → fill) ----------
-            sinks.sort(Comparator.comparingInt(SinkEntry::distance));
-
-            record PlannedTransfer(FluidContainerComponent fcc, int amount) {
-            }
-
-            List<PlannedTransfer> transfers = new ArrayList<>();
-            int budget = Math.min(toTransfer, source.maxAvailable());
-            int remaining = budget;
-
-            for (SinkEntry sink : sinks) {
-                if (remaining <= 0)
-                    break;
-                int amount = Math.min(remaining, sink.fcc().availableSpace());
-                if (amount > 0) {
-                    transfers.add(new PlannedTransfer(sink.fcc(), amount));
-                    remaining -= amount;
-                }
-            }
-
-            if (transfers.isEmpty())
-                continue;
-
-            int totalMoved = budget - remaining;
-
-            // -- Drain source first, then fill sinks ----------------------
-            source.fcc().drain(totalMoved);
-
-            for (PlannedTransfer t : transfers) {
-                t.fcc().fill(source.fluidId(), t.amount());
-            }
-
-            // -- Lock traversed pipes to this fluid -----------------------
-            for (Ref<ChunkStore> pipeRef : traversedPipes) {
-                FluidPipeComponent fpc = store.getComponent(pipeRef, FluidPipeComponent.getComponentType());
-                if (fpc != null && fpc.getFluidId() == null) {
-                    fpc.setFluidId(source.fluidId());
-                }
+        for (Ref<ChunkStore> pipeRef : bfs.traversedPipes()) {
+            FluidPipeComponent fpc = store.getComponent(pipeRef, FluidPipeComponent.getComponentType());
+            if (fpc != null && fpc.getFluidId() == null) {
+                fpc.setFluidId(source.fluidId());
             }
         }
     }

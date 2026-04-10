@@ -38,13 +38,11 @@ public final class BlockMinerSystemTests {
     private static final String QUALITY1_BLOCK_ID = "Rock_Basalt";
     private static final String QUALITY1_DROP_ID = "Rock_Basalt_Cobble";
     /**
-     * A custom-model block that has no gathering in the loaded game assets and
-     * therefore must be treated as unbreakable by the miner (gathering == null).
-     * All quality-2 blocks in the prerelease data are stalactites / special
-     * spawner blocks — none are mineable solid cubes, so we use this block to
-     * verify the unbreakable path instead.
+     * A Glyphworks custom-model block that defines no {@code Gathering} field and
+     * is therefore unbreakable by the miner (gathering == null). Using a mod-owned
+     * block avoids brittleness against engine asset changes.
      */
-    private static final String UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID = "Rock_Basalt_Stalactite_Large";
+    private static final String UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID = "Glyphworks_Fluid_Tank";
 
     private BlockMinerSystemTests() {
     }
@@ -191,6 +189,6 @@ public final class BlockMinerSystemTests {
                     ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) == 0;
-                }, UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID + " has gathering=null in loaded assets and must not be mined"));
+                }, UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID + " defines no gathering and must not be mined"));
     }
 }

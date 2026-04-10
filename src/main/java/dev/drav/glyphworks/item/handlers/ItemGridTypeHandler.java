@@ -81,6 +81,21 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         return "Item";
     }
 
+    // -------------------------------------------------------------------------
+    // Records
+    // -------------------------------------------------------------------------
+
+    private record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
+    }
+
+    private record ItemSinkEntry(Ref<ChunkStore> ref, GridComponent comp, FacePlane sinkFace, float rate,
+            int distance, Vector3i originPos) {
+    }
+
+    // -------------------------------------------------------------------------
+    // Tick
+    // -------------------------------------------------------------------------
+
     @Override
     public void tick(
             float dt,
@@ -94,15 +109,35 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             @Nonnull Ref<ChunkStore> blockRef) {
 
         String typeId = entry.getGridType().id();
-
-        // --- Step 1: collect source containers ---
-        // Container node → OUTPUT/BIDIRECTIONAL face + non-null containerKey → own
-        // container.
-        // Extractor → OUTPUT face + null containerKey → adjacent external block.
-        // Pipe face → BIDIRECTIONAL + null containerKey → skipped (no source).
-        List<ItemContainer> sourceContainers = new ArrayList<>();
         Vector3i originPos = component.getOriginPosition();
 
+        List<ItemContainer> sourceContainers = collectSourceContainers(
+                entry, originPos, store, blockRef, chunkStore);
+        if (sourceContainers.isEmpty())
+            return;
+
+        GridGraph gridGraph = GlyphworksPlugin.get().getGridGraph(chunkStore.getWorld(), entry.getGridType());
+        originPos = resolveOriginPosition(originPos, entry, chunkStore, blockRef, gridGraph);
+
+        List<ItemSinkEntry> sinks = findItemSinks(
+                entry, originPos, chunkStore, gridGraph, typeId, blockRef);
+        if (sinks.isEmpty())
+            return;
+
+        pushItemsToSinks(sourceContainers, sinks, entry, store, chunkStore, dt);
+    }
+
+    // -------------------------------------------------------------------------
+    // Transfer pipeline
+    // -------------------------------------------------------------------------
+
+    private static List<ItemContainer> collectSourceContainers(
+            @Nonnull GridTypeEntry entry,
+            @Nullable Vector3i originPos,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull Ref<ChunkStore> blockRef,
+            @Nonnull ChunkStore chunkStore) {
+        List<ItemContainer> sourceContainers = new ArrayList<>();
         for (FacePlane face : entry.getFaces()) {
             FaceMode mode = face.getMode();
             if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
@@ -114,62 +149,77 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 if (c != null && hasItems(c))
                     sourceContainers.add(c);
             } else if (mode == FaceMode.OUTPUT) {
-                // Extractor: external block on the opposite side of this face.
                 if (originPos == null)
                     continue;
                 ItemContainer c = resolveAdjacentContainer(chunkStore, originPos, face);
                 if (c != null && hasItems(c))
                     sourceContainers.add(c);
             }
-            // BIDIRECTIONAL + null containerKey = pipe face → no source contribution.
         }
-        if (sourceContainers.isEmpty())
-            return;
+        return sourceContainers;
+    }
 
-        // --- Step 2: BFS to find all reachable sinks ---
-        // The GridGraph is always authoritative for adjacency (rebuilt on chunk load
-        // from persisted GridComponent.neighbors). Use it for both seeding and relay.
-        GridGraph gridGraph = GlyphworksPlugin.get().getGridGraph(chunkStore.getWorld(), entry.getGridType());
+    @Nullable
+    private static Vector3i resolveOriginPosition(
+            @Nullable Vector3i originPos,
+            @Nonnull GridTypeEntry entry,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull Ref<ChunkStore> blockRef,
+            @Nullable GridGraph gridGraph) {
+        if (originPos != null || gridGraph == null || entry.getNeighbors().isEmpty())
+            return originPos;
 
-        // originPos may be null on reload: the tick system's ECS instance is different
-        // from the one ChunkLoadGridGraphEvent called setOriginPosition() on. Recover
-        // by looking ourselves up via any persisted neighbour's graph adjacency set.
-        if (originPos == null && gridGraph != null && !entry.getNeighbors().isEmpty()) {
-            Vector3i firstNeighbor = entry.getNeighbors().iterator().next();
-            for (Vector3i candidate : gridGraph.getNeighbors(firstNeighbor)) {
-                GridLookup cand = GridLookup.resolve(chunkStore, candidate);
-                if (cand != null && blockRef.equals(cand.blockRef())) {
-                    originPos = candidate;
-                    break;
-                }
-            }
+        Vector3i firstNeighbor = entry.getNeighbors().iterator().next();
+        for (Vector3i candidate : gridGraph.getNeighbors(firstNeighbor)) {
+            GridLookup cand = GridLookup.resolve(chunkStore, candidate);
+            if (cand != null && blockRef.equals(cand.blockRef()))
+                return candidate;
         }
+        return null;
+    }
 
-        // Resolve our own lookup to get the rotation needed for face-based seed
-        // filtering.
+    private static List<ItemSinkEntry> findItemSinks(
+            @Nonnull GridTypeEntry entry,
+            @Nullable Vector3i originPos,
+            @Nonnull ChunkStore chunkStore,
+            @Nullable GridGraph gridGraph,
+            @Nonnull String typeId,
+            @Nonnull Ref<ChunkStore> blockRef) {
         GridLookup selfLookup = (originPos != null) ? GridLookup.resolve(chunkStore, originPos) : null;
-
-        // BFSEntry carries the full GridLookup (includes rotation, needed for
-        // face-matching),
-        // the effective rate along the path, and the origin-position of the node that
-        // enqueued this entry so we can identify which face the path arrived through.
-        // distance = BFS hop count from this node to the discovered sink.
-        record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
-        }
-
-        // SinkEntry originPos is taken from GridLookup (always correct) rather than the
-        // transient GridComponent.getOriginPosition() which may be null on a reloaded
-        // world.
-        record SinkEntry(Ref<ChunkStore> ref, GridComponent comp, FacePlane sinkFace, float rate, int distance,
-                Vector3i originPos) {
-        }
 
         Set<Ref<ChunkStore>> visited = new HashSet<>();
         visited.add(blockRef);
         Queue<BFSEntry> queue = new ArrayDeque<>();
-        List<SinkEntry> sinks = new ArrayList<>();
+        List<ItemSinkEntry> sinks = new ArrayList<>();
 
-        // Seed BFS from all graph-adjacent nodes (always up-to-date).
+        seedItemBFS(entry, originPos, selfLookup, gridGraph, chunkStore, typeId, visited, queue);
+
+        while (!queue.isEmpty()) {
+            BFSEntry bfsNode = queue.poll();
+            GridTypeEntry nodeEntry = bfsNode.lookup().component().getEntry(typeId);
+            if (nodeEntry == null)
+                continue;
+
+            if (isTerminalNode(nodeEntry)) {
+                classifyItemSink(bfsNode, chunkStore, typeId, sinks);
+                continue;
+            }
+
+            expandRelayNeighbors(bfsNode, nodeEntry, gridGraph, chunkStore, typeId, visited, queue);
+        }
+
+        return sinks;
+    }
+
+    private static void seedItemBFS(
+            @Nonnull GridTypeEntry entry,
+            @Nullable Vector3i originPos,
+            @Nullable GridLookup selfLookup,
+            @Nullable GridGraph gridGraph,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull String typeId,
+            @Nonnull Set<Ref<ChunkStore>> visited,
+            @Nonnull Queue<BFSEntry> queue) {
         Set<Vector3i> seedNeighbors = (gridGraph != null && originPos != null)
                 ? gridGraph.getNeighbors(originPos)
                 : entry.getNeighbors();
@@ -190,102 +240,104 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             float rate = Math.min(entry.getTransferRate(), neighborEntry.getTransferRate());
             queue.add(new BFSEntry(lookup, rate, originPos, 1));
         }
+    }
 
-        while (!queue.isEmpty()) {
-            BFSEntry bfsNode = queue.poll();
-            GridComponent nodeComp = bfsNode.lookup().component();
-            GridTypeEntry nodeEntry = nodeComp.getEntry(typeId);
-            if (nodeEntry == null)
-                continue;
-
-            // A node is a terminal if it has ANY face that is not a pure-pipe face
-            // (BIDIRECTIONAL + null containerKey). Terminals do not relay the BFS.
-            boolean isTerminal = false;
-            for (FacePlane face : nodeEntry.getFaces()) {
-                if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null) {
-                    isTerminal = true;
-                    break;
-                }
-            }
-
-            if (isTerminal) {
-                // Identify the specific face the path arrived through, then bind this
-                // sink to that face only. Items will go to exactly one container.
-                if (bfsNode.arrivedFrom() != null) {
-                    FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
-                    if (entryFace != null) {
-                        FaceMode mode = entryFace.getMode();
-                        String key = entryFace.getContainerKey();
-                        if ((mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL)
-                                && (key != null || mode == FaceMode.INPUT)) {
-                            sinks.add(new SinkEntry(
-                                    bfsNode.lookup().blockRef(), nodeComp, entryFace, bfsNode.rate(),
-                                    bfsNode.distance(), bfsNode.lookup().originPos()));
-                        }
-                    }
-                }
-                // Do NOT relay BFS through terminals.
-                continue;
-            }
-
-            // Pure pipe node: relay BFS using the GridGraph for neighbor discovery.
-            Vector3i myPos = bfsNode.lookup().originPos();
-            Set<Vector3i> relayNeighbors = (gridGraph != null)
-                    ? gridGraph.getNeighbors(myPos)
-                    : nodeEntry.getNeighbors();
-            for (Vector3i neighborPos : relayNeighbors) {
-                GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
-                if (lookup == null)
-                    continue;
-                if (!visited.add(lookup.blockRef()))
-                    continue;
-                GridTypeEntry neighborEntry = lookup.component().getEntry(typeId);
-                if (neighborEntry == null)
-                    continue;
-                float rate = Math.min(bfsNode.rate(), neighborEntry.getTransferRate());
-                queue.add(new BFSEntry(lookup, rate, myPos, bfsNode.distance() + 1));
-            }
+    private static boolean isTerminalNode(@Nonnull GridTypeEntry entry) {
+        for (FacePlane face : entry.getFaces()) {
+            if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null)
+                return true;
         }
+        return false;
+    }
 
-        if (sinks.isEmpty())
+    private static void classifyItemSink(
+            @Nonnull BFSEntry bfsNode,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull String typeId,
+            @Nonnull List<ItemSinkEntry> sinks) {
+        if (bfsNode.arrivedFrom() == null)
             return;
+        FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
+        if (entryFace == null)
+            return;
+        FaceMode mode = entryFace.getMode();
+        String key = entryFace.getContainerKey();
+        if ((mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL)
+                && (key != null || mode == FaceMode.INPUT)) {
+            sinks.add(new ItemSinkEntry(
+                    bfsNode.lookup().blockRef(), bfsNode.lookup().component(), entryFace,
+                    bfsNode.rate(), bfsNode.distance(), bfsNode.lookup().originPos()));
+        }
+    }
 
-        // --- Step 3: push items from each source toward the closest available sink ---
-        // Sinks are sorted closest-first (by BFS hop count). The accumulator is drained
-        // once per source. Items overflow to the next-closest sink only when the
-        // current
-        // sink cannot accept any more.
-        sinks.sort(Comparator.comparingInt(SinkEntry::distance));
+    private static void expandRelayNeighbors(
+            @Nonnull BFSEntry bfsNode,
+            @Nonnull GridTypeEntry nodeEntry,
+            @Nullable GridGraph gridGraph,
+            @Nonnull ChunkStore chunkStore,
+            @Nonnull String typeId,
+            @Nonnull Set<Ref<ChunkStore>> visited,
+            @Nonnull Queue<BFSEntry> queue) {
+        Vector3i myPos = bfsNode.lookup().originPos();
+        Set<Vector3i> relayNeighbors = (gridGraph != null)
+                ? gridGraph.getNeighbors(myPos)
+                : nodeEntry.getNeighbors();
+        for (Vector3i neighborPos : relayNeighbors) {
+            GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
+            if (lookup == null)
+                continue;
+            if (!visited.add(lookup.blockRef()))
+                continue;
+            GridTypeEntry neighborEntry = lookup.component().getEntry(typeId);
+            if (neighborEntry == null)
+                continue;
+            float rate = Math.min(bfsNode.rate(), neighborEntry.getTransferRate());
+            queue.add(new BFSEntry(lookup, rate, myPos, bfsNode.distance() + 1));
+        }
+    }
+
+    private static void pushItemsToSinks(
+            @Nonnull List<ItemContainer> sourceContainers,
+            @Nonnull List<ItemSinkEntry> sinks,
+            @Nonnull GridTypeEntry entry,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull ChunkStore chunkStore,
+            float dt) {
+        sinks.sort(Comparator.comparingInt(ItemSinkEntry::distance));
 
         for (ItemContainer srcContainer : sourceContainers) {
             int toTransfer = entry.drainAccumulator(entry.getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1)
                 continue;
 
-            for (SinkEntry sink : sinks) {
+            for (ItemSinkEntry sink : sinks) {
                 if (toTransfer <= 0)
                     break;
-                FacePlane sinkFace = sink.sinkFace();
-                String sinkKey = sinkFace.getContainerKey();
-                ItemContainer sinkContainer;
-                // Use the originPos from GridLookup (captured at BFS time, always correct)
-                // rather than sink.comp().getOriginPosition() which may be null on reload.
-                Vector3i sinkOriginPos = sink.originPos();
-                if (sinkKey != null) {
-                    sinkContainer = resolveContainer(store, sink.ref(), sinkKey);
-                } else {
-                    // Inserter: push into the external block on the opposite side of the face.
-                    if (sinkOriginPos == null)
-                        continue;
-                    sinkContainer = resolveAdjacentContainer(chunkStore, sinkOriginPos, sinkFace);
-                }
+                ItemContainer sinkContainer = resolveSinkContainer(
+                        sink, store, chunkStore);
                 if (sinkContainer == null)
                     continue;
-
                 toTransfer -= moveItems(srcContainer, sinkContainer, toTransfer);
             }
         }
     }
+
+    @Nullable
+    private static ItemContainer resolveSinkContainer(
+            @Nonnull ItemSinkEntry sink,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull ChunkStore chunkStore) {
+        String sinkKey = sink.sinkFace().getContainerKey();
+        if (sinkKey != null)
+            return resolveContainer(store, sink.ref(), sinkKey);
+        if (sink.originPos() == null)
+            return null;
+        return resolveAdjacentContainer(chunkStore, sink.originPos(), sink.sinkFace());
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
     /**
      * Identifies which face of {@code terminal} the BFS path arrived through.

@@ -46,6 +46,7 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidPipeComponent": {},
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {

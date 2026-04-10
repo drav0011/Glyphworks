@@ -140,9 +140,7 @@ public class FacePlane {
         if (!(o instanceof FacePlane))
             return false;
         FacePlane other = (FacePlane) o;
-        if (!position.equals(other.position) || normal != other.normal || mode != other.mode)
-            return false;
-        return Objects.equals(containerKey, other.containerKey);
+        return position.equals(other.position) && normal == other.normal && mode == other.mode;
     }
 
     @Override
@@ -150,7 +148,6 @@ public class FacePlane {
         int result = position.hashCode();
         result = 31 * result + normal.hashCode();
         result = 31 * result + mode.hashCode();
-        result = 31 * result + (containerKey != null ? containerKey.hashCode() : 0);
         return result;
     }
 
