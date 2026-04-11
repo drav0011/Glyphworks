@@ -103,6 +103,8 @@ public class ManaLiquifierBlock implements Component<ChunkStore> {
     }
 
     public ManaLiquifierBlock(@Nonnull ManaLiquifierBlock other) {
+        this.inputContainer = other.inputContainer;
+        this.fuelContainer = other.fuelContainer;
         this.processingProgress = other.processingProgress;
         this.remainingFuelEnergy = other.remainingFuelEnergy;
     }

@@ -18,6 +18,7 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
@@ -26,6 +27,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
@@ -36,6 +38,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoCraftingBenchMonitorWindow;
 import dev.drav.glyphworks.crafting.window.AutoCraftingBenchSelectWindow;
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
  * Opens the automated crafting bench UI.
@@ -100,6 +103,10 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
 
         if (acbb == null || benchBlock == null || blockStateInfo == null)
             return;
+
+        PlayerRef playerRef = (PlayerRef) commandBuffer.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null)
+            sendFluidInfo(playerRef, chunkStoreStore, blockEntityRef);
 
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
         if (blockType == null)
@@ -184,5 +191,19 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
             @Nonnull World world,
             @Nonnull Vector3i targetBlock) {
         // No client-side simulation needed.
+    }
+
+    private static void sendFluidInfo(
+            @Nonnull PlayerRef player,
+            @Nonnull Store<ChunkStore> store,
+            @Nonnull Ref<ChunkStore> blockEntityRef) {
+        FluidContainerComponent fcc = (FluidContainerComponent) store.getComponent(
+                blockEntityRef, FluidContainerComponent.getComponentType());
+        if (fcc == null)
+            return;
+
+        String fluid = fcc.getFluidId() != null ? fcc.getFluidId() : "Empty";
+        player.sendMessage(Message.raw(
+                "[Glyphworks] Mana: " + fluid + " " + fcc.getAmount() + "/" + fcc.getCapacity() + "L"));
     }
 }

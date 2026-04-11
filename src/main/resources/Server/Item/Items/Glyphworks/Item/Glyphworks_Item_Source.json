@@ -52,6 +52,9 @@
           "Glyphworks_ItemSourceComponent_ItemId": "Wood_Amber_Trunk"
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

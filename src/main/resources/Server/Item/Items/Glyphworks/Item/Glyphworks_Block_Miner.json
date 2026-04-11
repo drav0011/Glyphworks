@@ -93,6 +93,9 @@
           "Glyphworks_BlockMinerComponent_MiningProgress": 0
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

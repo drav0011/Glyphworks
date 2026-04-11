@@ -22,7 +22,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
 public final class FluidSourceSystemTests {
 
     private static final String SOURCE_ID = "Glyphworks_Fluid_Source";
-    private static final String FLUID_ID = "Water_Source";
+    private static final String FLUID_ID = "Mana_Source";
     
 
     private FluidSourceSystemTests() {

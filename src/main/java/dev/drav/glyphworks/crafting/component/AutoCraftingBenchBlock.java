@@ -1,7 +1,6 @@
 package dev.drav.glyphworks.crafting.component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -167,6 +166,8 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
 
     public AutoCraftingBenchBlock(@Nonnull AutoCraftingBenchBlock other) {
         this.lockedRecipeId = other.lockedRecipeId;
+        this.inputContainer = other.inputContainer;
+        this.outputContainer = other.outputContainer;
         this.craftingProgress = other.craftingProgress;
         this.manaConsumptionRate = other.manaConsumptionRate;
     }
@@ -426,7 +427,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
 
     @Nonnull
     public Map<UUID, AutoCraftingBenchMonitorWindow> getWindows() {
-        return Collections.unmodifiableMap(windows);
+        return windows;
     }
 
     /** Pushes a normalised progress value (0–1) to all open monitor windows. */

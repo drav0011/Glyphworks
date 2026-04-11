@@ -72,7 +72,6 @@ public class FluidPipeComponent implements Component<ChunkStore> {
     @Override
     @Nullable
     public Component<ChunkStore> clone() {
-        // Pipe lock is not copied on placement; new pipes start uncontaminated.
-        return new FluidPipeComponent();
+        return new FluidPipeComponent(this);
     }
 }

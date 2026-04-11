@@ -47,9 +47,12 @@
           "Glyphworks_FluidContainerComponent_FluidId": null
         },
         "Glyphworks_FluidSourceComponent": {
-          "Glyphworks_FluidSourceComponent_FluidId": "Water_Source"
+          "Glyphworks_FluidSourceComponent_FluidId": "Mana_Source"
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

@@ -92,6 +92,9 @@
           }
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

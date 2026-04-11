@@ -87,6 +87,9 @@
           "Glyphworks_ItemPickerComponent_Radius": 3
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

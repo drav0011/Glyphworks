@@ -128,7 +128,10 @@
         }
       ]
     },
-    "BlockSoundSetId": "Stone"
+    "BlockSoundSetId": "Stone",
+    "Interactions": {
+      "Use": "Inspect_Block"
+    }
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {

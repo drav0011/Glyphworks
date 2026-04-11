@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlockRuleSet;
 import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
@@ -22,6 +23,7 @@ import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.connectedblocks.PipeConnectedBlockRuleSet;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
+import dev.drav.glyphworks.grid.interaction.InspectBlockInteraction;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
@@ -102,6 +104,11 @@ public final class GridModule extends GlyphworksModule {
         plugin.getEntityStoreRegistry().registerSystem(new BreakGridBlockEvent());
 
         plugin.getCommandRegistry().registerCommand(new GridGraphCommand());
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "InspectBlock",
+                InspectBlockInteraction.class,
+                InspectBlockInteraction.CODEC);
     }
 
     @Override

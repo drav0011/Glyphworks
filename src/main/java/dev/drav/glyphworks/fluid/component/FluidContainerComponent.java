@@ -157,7 +157,6 @@ public class FluidContainerComponent implements Component<ChunkStore> {
     @Override
     @Nullable
     public Component<ChunkStore> clone() {
-        // Newly placed tanks start empty — breaking a tank loses its fluid.
-        return new FluidContainerComponent(capacity);
+        return new FluidContainerComponent(this);
     }
 }

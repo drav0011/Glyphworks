@@ -78,6 +78,9 @@
           "Glyphworks_FluidContainerComponent_FluidId": null
         }
       }
+    },
+    "Interactions": {
+      "Use": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"
