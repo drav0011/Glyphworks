@@ -197,14 +197,23 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
         if (component.headless) {
             int exitCode = allPassed ? 0 : 1;
             LOGGER.info("[GlyphTest] Headless run complete — shutting down (exit " + exitCode + ")");
-            new Thread(() -> {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ignored) {
-                    Thread.currentThread().interrupt();
-                }
-                System.exit(exitCode);
-            }, "glyphtest-shutdown").start();
+            if (component.saveBeforeExit) {
+                String worldNameForSave = worldName;
+                CompletableFuture.runAsync(() -> {
+                    LOGGER.info("[GlyphTest] Saving persistence world before exit...");
+                    TestWorldManager.destroyTestWorld(worldNameForSave);
+                    System.exit(exitCode);
+                });
+            } else {
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    }
+                    System.exit(exitCode);
+                }, "glyphtest-shutdown").start();
+            }
         }
     }
 }

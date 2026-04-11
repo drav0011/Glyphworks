@@ -12,6 +12,7 @@ import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.test.command.TestCommands;
 import dev.drav.glyphworks.test.headless.HeadlessTestLauncher;
+import dev.drav.glyphworks.test.headless.PersistencePhaseLauncher;
 import dev.drav.glyphworks.test.runner.TestRunnerComponent;
 import dev.drav.glyphworks.test.runner.TestRunnerSystem;
 import dev.drav.glyphworks.test.tests.TestFrameworkTests;
@@ -51,6 +52,9 @@ public final class TestModule extends GlyphworksModule {
 
         if (HeadlessTestLauncher.isEnabled()) {
             Universe.get().getUniverseReady().thenRun(HeadlessTestLauncher::launch);
+        }
+        if (PersistencePhaseLauncher.isEnabled()) {
+            Universe.get().getUniverseReady().thenRun(PersistencePhaseLauncher::launch);
         }
     }
 
