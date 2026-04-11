@@ -37,7 +37,8 @@
         "Type": "Crafting",
         "Categories": [
           "Workbench_Crafting"
-        ]
+        ],
+        "RequiredTierLevel": 3
       }
     ],
     "TimeSeconds": 3

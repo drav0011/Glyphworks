@@ -32,7 +32,8 @@
         "Type": "Crafting",
         "Categories": [
           "Workbench_Crafting"
-        ]
+        ],
+        "RequiredTierLevel": 3
       }
     ],
     "TimeSeconds": 3
@@ -54,14 +55,19 @@
       "Type": "Crafting",
       "Categories": [
         {
-          "Id": "GlyphImprinter_Machines",
+          "Id": "GlyphImprinter_Benches",
           "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
-          "Name": "server.benchCategories.glyphimprinter.machines"
+          "Name": "server.benchCategories.glyphimprinter.benches"
         },
         {
-          "Id": "GlyphImprinter_Components",
-          "Icon": "Icons/CraftingCategories/Workbench/Deco_Target.png",
-          "Name": "server.benchCategories.glyphimprinter.components"
+          "Id": "GlyphImprinter_Fluid",
+          "Icon": "Icons/CraftingCategories/Workbench/Containers.png",
+          "Name": "server.benchCategories.glyphimprinter.fluid"
+        },
+        {
+          "Id": "GlyphImprinter_Items",
+          "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
+          "Name": "server.benchCategories.glyphimprinter.items"
         }
       ],
       "LocalOpenSoundEventId": "SFX_Workbench_Open",

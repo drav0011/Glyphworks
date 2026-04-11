@@ -30,7 +30,7 @@
         "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "GlyphImprinter_Components"
+          "GlyphImprinter_Items"
         ]
       }
     ],

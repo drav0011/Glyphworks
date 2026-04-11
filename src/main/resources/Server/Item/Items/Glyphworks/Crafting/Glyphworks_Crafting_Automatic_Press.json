@@ -39,7 +39,7 @@
         "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "GlyphImprinter_Machines"
+          "GlyphImprinter_Benches"
         ]
       }
     ],
