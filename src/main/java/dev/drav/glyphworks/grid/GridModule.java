@@ -23,6 +23,7 @@ import dev.drav.glyphworks.grid.command.GridGraphCommand;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.connectedblocks.PipeConnectedBlockRuleSet;
 import dev.drav.glyphworks.grid.event.BreakGridBlockEvent;
+import dev.drav.glyphworks.grid.interaction.ConfigureSourceInteraction;
 import dev.drav.glyphworks.grid.interaction.InspectBlockInteraction;
 import dev.drav.glyphworks.grid.event.ChunkLoadGridGraphEvent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -109,6 +110,11 @@ public final class GridModule extends GlyphworksModule {
                 "InspectBlock",
                 InspectBlockInteraction.class,
                 InspectBlockInteraction.CODEC);
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "ConfigureSource",
+                ConfigureSourceInteraction.class,
+                ConfigureSourceInteraction.CODEC);
     }
 
     @Override

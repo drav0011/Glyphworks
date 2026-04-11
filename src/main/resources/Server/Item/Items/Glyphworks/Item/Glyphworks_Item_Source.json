@@ -54,7 +54,8 @@
       }
     },
     "Interactions": {
-      "Use": "Inspect_Block"
+      "Use": "Configure_Source",
+      "Secondary": "Inspect_Block"
     }
   },
   "PlayerAnimationsId": "Block"

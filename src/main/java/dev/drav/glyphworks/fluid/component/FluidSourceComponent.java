@@ -52,6 +52,10 @@ public final class FluidSourceComponent implements Component<ChunkStore> {
         return fluidId;
     }
 
+    public void setFluidId(@Nonnull String fluidId) {
+        this.fluidId = fluidId;
+    }
+
     @Override
     public FluidSourceComponent clone() {
         return new FluidSourceComponent(this);

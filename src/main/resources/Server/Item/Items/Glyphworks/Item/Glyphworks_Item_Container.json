@@ -58,6 +58,9 @@
           ]
         }
       }
+    },
+    "Interactions": {
+      "Use": "Open_Container"
     }
   },
   "PlayerAnimationsId": "Block"

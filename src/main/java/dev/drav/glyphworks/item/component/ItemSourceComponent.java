@@ -53,6 +53,10 @@ public final class ItemSourceComponent implements Component<ChunkStore> {
         return itemId;
     }
 
+    public void setItemId(@Nonnull String itemId) {
+        this.itemId = itemId;
+    }
+
     @Override
     public ItemSourceComponent clone() {
         return new ItemSourceComponent(this);
