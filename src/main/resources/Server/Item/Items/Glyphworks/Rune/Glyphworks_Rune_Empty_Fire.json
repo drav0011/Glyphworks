@@ -48,7 +48,7 @@
   },
   "Icon": "Icons/ItemsGenerated/Glyphworks_Rune_Empty_Fire.png",
   "IconProperties": {
-    "Scale": 0.58823,
+    "Scale": 1.2,
     "Rotation": [
       22.5,
       45,
@@ -56,7 +56,7 @@
     ],
     "Translation": [
       0,
-      -13.5
+      0
     ]
   }
 }

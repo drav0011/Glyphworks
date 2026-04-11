@@ -63,5 +63,18 @@
       "Use": "Open_Container"
     }
   },
-  "PlayerAnimationsId": "Block"
+  "PlayerAnimationsId": "Block",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Item_Container.png",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
 }

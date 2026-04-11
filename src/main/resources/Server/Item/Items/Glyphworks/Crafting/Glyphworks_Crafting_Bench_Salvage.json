@@ -3,7 +3,7 @@
     "Name": "server.items.Glyphworks_Crafting_Bench_Salvage.name",
     "Description": "server.items.Glyphworks_Crafting_Bench_Salvage.description"
   },
-  "Icon": "Icons/ItemsGenerated/Bench_Salvage.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Salvage.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -187,15 +187,15 @@
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
-    "Scale": 0.05,
+    "Scale": 0.58823,
     "Rotation": [
       22.5,
       45,
       22.5
     ],
     "Translation": [
-      12,
-      -17.4
+      0,
+      -13.5
     ]
   },
   "Tags": {

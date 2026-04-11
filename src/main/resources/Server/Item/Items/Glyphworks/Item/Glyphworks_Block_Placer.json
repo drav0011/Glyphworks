@@ -97,5 +97,18 @@
       "Use": "Inspect_Block"
     }
   },
-  "PlayerAnimationsId": "Block"
+  "PlayerAnimationsId": "Block",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Block_Placer.png",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
 }

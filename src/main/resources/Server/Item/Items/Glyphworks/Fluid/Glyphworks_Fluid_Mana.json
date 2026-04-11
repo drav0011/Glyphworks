@@ -49,12 +49,13 @@
     "Scale": 0.58823,
     "Rotation": [
       22.5,
-      45.0,
+      45,
       22.5
     ],
     "Translation": [
-      0.0,
+      0,
       -13.5
     ]
-  }
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Fluid_Mana.png"
 }

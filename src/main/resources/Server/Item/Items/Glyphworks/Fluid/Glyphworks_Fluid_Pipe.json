@@ -378,6 +378,18 @@
     }
   },
   "PlayerAnimationsId": "Block",
-  "Icon": "Icons/ItemsGenerated/Deco_Cauldron_Big.png",
-  "Scale": 1
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Fluid_Pipe.png",
+  "Scale": 1,
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
 }
