@@ -39,7 +39,7 @@ public class GridComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, GridComponent> getComponentType() {
-        return GlyphworksPlugin.get().getGridComponentType();
+        return GlyphworksPlugin.get().getGridModule().getGridComponentType();
     }
 
     /**

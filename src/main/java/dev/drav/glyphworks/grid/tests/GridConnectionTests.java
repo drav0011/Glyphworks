@@ -75,7 +75,7 @@ public final class GridConnectionTests {
     }
 
     private static GridGraph graph(World world) {
-        return GlyphworksPlugin.get().getOrCreateGridGraph(world, ITEM_GRID);
+        return GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(world, ITEM_GRID);
     }
 
     private static boolean connected(World world, Vector3i a, Vector3i b) {
@@ -286,3 +286,4 @@ public final class GridConnectionTests {
                 }, "blocks of different grid types are not connected to each other in either direction"));
     }
 }
+

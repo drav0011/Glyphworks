@@ -22,7 +22,7 @@ public final class GridTestUtil {
      * edge from {@code a} to {@code b}.
      */
     public static boolean connected(World world, Vector3i a, Vector3i b, GridType type) {
-        GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, type);
+        GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(world, type);
 
         if (graph == null) {
             return false;
@@ -41,3 +41,4 @@ public final class GridTestUtil {
         return GridLookup.resolve(world.getChunkStore(), pos);
     }
 }
+

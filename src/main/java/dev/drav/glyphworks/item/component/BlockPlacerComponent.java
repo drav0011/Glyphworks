@@ -45,7 +45,7 @@ public final class BlockPlacerComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, BlockPlacerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getBlockPlacerComponentType();
+        return GlyphworksPlugin.get().getItemModule().getBlockPlacerComponentType();
     }
 
     /** Block-local offset from the block origin to the face cell. Default: (0,0,0). */

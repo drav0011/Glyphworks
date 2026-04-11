@@ -581,7 +581,7 @@ public final class ItemGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, ITEM_TYPE);
+                    GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(w, ITEM_TYPE);
                     if (graph == null)
                         return false;
                     Vector3i r0 = graph.getComponentRoot(new Vector3i(ox, oy, oz));
@@ -624,7 +624,7 @@ public final class ItemGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, ITEM_TYPE);
+                    GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(w, ITEM_TYPE);
                     if (graph == null)
                         return false;
                     Vector3i rootLeft = graph.getComponentRoot(new Vector3i(ox, oy, oz));
@@ -633,3 +633,4 @@ public final class ItemGridTransferTests {
                 }, "two surviving nodes have different roots after middle pipe is broken"));
     }
 }
+

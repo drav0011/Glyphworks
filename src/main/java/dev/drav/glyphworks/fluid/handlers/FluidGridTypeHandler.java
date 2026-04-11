@@ -119,7 +119,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             @Nonnull Ref<ChunkStore> blockRef) {
 
         String typeId = entry.getGridType().id();
-        GridGraph gridGraph = GlyphworksPlugin.get()
+        GridGraph gridGraph = GlyphworksPlugin.get().getGridModule()
                 .getGridGraph(chunkStore.getWorld(), entry.getGridType());
         Vector3i originPos = resolveOriginPosition(component, entry, chunkStore, blockRef, gridGraph);
 

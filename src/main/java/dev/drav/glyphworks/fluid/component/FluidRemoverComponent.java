@@ -44,7 +44,7 @@ public final class FluidRemoverComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidRemoverComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidRemoverComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidRemoverComponentType();
     }
 
     /**

@@ -120,7 +120,7 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
                 neighborEntry.addNeighbor(pos);
             }
 
-            GridGraph graph = GlyphworksPlugin.get().getOrCreateGridGraph(world, entry.getGridType());
+            GridGraph graph = GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(world, entry.getGridType());
             graph.addNode(pos);
             for (Vector3i n : entry.getNeighbors()) {
                 graph.addNode(n);
@@ -129,3 +129,4 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
         }
     }
 }
+

@@ -34,10 +34,20 @@ All assets are **namespaced by module**. The two asset roots follow the same `Gl
 ## Architecture
 
 ### ECS + Module pattern
-All block/entity state lives in `Component<ChunkStore>` or `Component<EntityStore>` — never in plain maps or singletons. Each domain (`grid`, `fluid`, `crafting`, `transfer`, `test`) is a `GlyphworksModule` subclass that registers its own component types, systems, and event handlers. `GlyphworksPlugin` delegates to modules and exposes module accessors — component types are accessed through their owning module, not the plugin root:
+All block/entity state lives in `Component<ChunkStore>` or `Component<EntityStore>` — never in plain maps or singletons. Each domain (`grid`, `fluid`, `crafting`, `transfer`, `test`) is a `GlyphworksModule` subclass that registers its own component types, systems, and event handlers. `GlyphworksPlugin` only manages modules — it exposes one getter per module and nothing else. Component types and grid graph state are always accessed through the owning module, never through the plugin directly:
 ```java
+// Correct — go through the module
 GlyphworksPlugin.get().getFluidModule().getFluidContainerComponentType();
+GlyphworksPlugin.get().getGridModule().getGridGraph(world, type);
+
+// Wrong — plugin must not re-expose module internals
+GlyphworksPlugin.get().getFluidContainerComponentType();  // do not add
+GlyphworksPlugin.get().getGridGraph(world, type);         // do not add
 ```
+
+**When adding a new component to an existing module:** add the `ComponentType` field and its getter only to the module class. The component's static `getComponentType()` method calls `GlyphworksPlugin.get().<Module>Module().<getter>()`. Do not add a forwarding method to `GlyphworksPlugin`.
+
+**When adding a new module:** add a private field, instantiate it in `setup()`, add it to the `modules` list, and expose it with a single `getXxxModule()` getter on `GlyphworksPlugin`. All component and state access goes through that getter.
 
 ### Grid network pipeline
 ```

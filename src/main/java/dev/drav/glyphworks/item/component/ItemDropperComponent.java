@@ -30,7 +30,7 @@ public final class ItemDropperComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, ItemDropperComponent> getComponentType() {
-        return GlyphworksPlugin.get().getItemDropperComponentType();
+        return GlyphworksPlugin.get().getItemModule().getItemDropperComponentType();
     }
 
     /** Runtime-only tick counter — not persisted, resets on server restart. */

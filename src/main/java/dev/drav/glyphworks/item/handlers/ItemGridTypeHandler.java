@@ -116,7 +116,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sourceContainers.isEmpty())
             return;
 
-        GridGraph gridGraph = GlyphworksPlugin.get().getGridGraph(chunkStore.getWorld(), entry.getGridType());
+        GridGraph gridGraph = GlyphworksPlugin.get().getGridModule().getGridGraph(chunkStore.getWorld(), entry.getGridType());
         originPos = resolveOriginPosition(originPos, entry, chunkStore, blockRef, gridGraph);
 
         List<ItemSinkEntry> sinks = findItemSinks(
@@ -569,3 +569,4 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     }
 
 }
+

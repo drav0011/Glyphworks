@@ -26,7 +26,7 @@ public final class ItemSinkComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, ItemSinkComponent> getComponentType() {
-        return GlyphworksPlugin.get().getItemSinkComponentType();
+        return GlyphworksPlugin.get().getItemModule().getItemSinkComponentType();
     }
 
     public ItemSinkComponent() {

@@ -67,7 +67,7 @@ public final class ChunkLoadGridGraphEvent {
                 if (type == null)
                     continue;
 
-                GridGraph graph = GlyphworksPlugin.get().getOrCreateGridGraph(event.getChunk().getWorld(), type);
+                GridGraph graph = GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(event.getChunk().getWorld(), type);
                 graph.addNode(pos);
 
                 for (Vector3i neighborPos : entry.getNeighbors()) {
@@ -78,3 +78,4 @@ public final class ChunkLoadGridGraphEvent {
         }
     }
 }
+

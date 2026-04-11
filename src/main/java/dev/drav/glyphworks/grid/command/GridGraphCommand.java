@@ -76,7 +76,7 @@ public final class GridGraphCommand extends AbstractWorldCommand {
         context.sendMessage(Message.raw("=== Glyphworks Grid Graph — world: " + world.getName() + " ==="));
 
         for (GridType type : types) {
-            GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, type);
+            GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(world, type);
 
             if (graph == null) {
                 context.sendMessage(Message.raw("  [" + type.id() + "] <no graph>"));
@@ -139,3 +139,4 @@ public final class GridGraphCommand extends AbstractWorldCommand {
         return "(" + pos.x + ", " + pos.y + ", " + pos.z + ")";
     }
 }
+

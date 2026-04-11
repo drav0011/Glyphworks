@@ -44,7 +44,7 @@ public final class FluidPlacerComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidPlacerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidPlacerComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidPlacerComponentType();
     }
 
     /**

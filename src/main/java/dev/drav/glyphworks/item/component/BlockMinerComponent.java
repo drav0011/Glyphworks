@@ -51,7 +51,7 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, BlockMinerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getBlockMinerComponentType();
+        return GlyphworksPlugin.get().getItemModule().getBlockMinerComponentType();
     }
 
     /** Block-local offset from the block origin to the face cell. Default: (0,0,0). */

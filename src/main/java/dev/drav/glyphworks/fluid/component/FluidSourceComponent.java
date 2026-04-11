@@ -33,7 +33,7 @@ public final class FluidSourceComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidSourceComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidSourceComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidSourceComponentType();
     }
 
     /** Asset ID of the fluid this block outputs infinitely. */

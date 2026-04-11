@@ -115,7 +115,7 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
             } else {
                 // No grid block here — check if one was just removed from any graph.
                 Set<Vector3i> allSurvivors = new HashSet<>();
-                for (GridGraph graph : GlyphworksPlugin.get().getAllGridGraphs(world)) {
+                for (GridGraph graph : GlyphworksPlugin.get().getGridModule().getAllGridGraphs(world)) {
                     if (!graph.contains(pos))
                         continue;
                     Set<Vector3i> graphNeighbors = new HashSet<>(graph.getNeighbors(pos));
@@ -157,3 +157,4 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
         }
     }
 }
+

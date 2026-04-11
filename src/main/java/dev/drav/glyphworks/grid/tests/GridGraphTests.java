@@ -62,7 +62,7 @@ public final class GridGraphTests {
     // -------------------------------------------------------------------------
 
     private static GridGraph graph(World world) {
-        return GlyphworksPlugin.get().getOrCreateGridGraph(world, TEST_TYPE);
+        return GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(world, TEST_TYPE);
     }
 
     private static Vector3i v(int x, int y, int z) {
@@ -400,3 +400,4 @@ public final class GridGraphTests {
                 }));
     }
 }
+

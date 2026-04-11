@@ -175,7 +175,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     // ── Component type ─────────────────────────────────────────────────────────
 
     public static ComponentType<ChunkStore, AutoCraftingBenchBlock> getComponentType() {
-        return GlyphworksPlugin.get().getAutoCraftingBenchBlockComponentType();
+        return GlyphworksPlugin.get().getCraftingModule().getAutoCraftingBenchBlockComponentType();
     }
 
     // ── Container setup ────────────────────────────────────────────────────────

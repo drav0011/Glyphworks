@@ -34,7 +34,7 @@ public class FluidPipeComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidPipeComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidPipeComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidPipeComponentType();
     }
 
     /**

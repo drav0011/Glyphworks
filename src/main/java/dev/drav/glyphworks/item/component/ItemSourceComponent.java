@@ -34,7 +34,7 @@ public final class ItemSourceComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, ItemSourceComponent> getComponentType() {
-        return GlyphworksPlugin.get().getItemSourceComponentType();
+        return GlyphworksPlugin.get().getItemModule().getItemSourceComponentType();
     }
 
     /** Asset ID of the item this block outputs infinitely. */

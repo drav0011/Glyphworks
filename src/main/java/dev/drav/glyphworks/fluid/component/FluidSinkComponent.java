@@ -25,7 +25,7 @@ public final class FluidSinkComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidSinkComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidSinkComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidSinkComponentType();
     }
 
     public FluidSinkComponent() {

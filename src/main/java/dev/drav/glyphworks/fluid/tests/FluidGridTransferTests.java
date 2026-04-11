@@ -552,7 +552,7 @@ public final class FluidGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, FLUID_TYPE);
+                    GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(w, FLUID_TYPE);
                     if (graph == null)
                         return false;
                     Vector3i r0 = graph.getComponentRoot(new Vector3i(ox, oy, oz));
@@ -596,7 +596,7 @@ public final class FluidGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, FLUID_TYPE);
+                    GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(w, FLUID_TYPE);
                     if (graph == null)
                         return false;
                     Vector3i rootLeft = graph.getComponentRoot(new Vector3i(ox, oy, oz));
@@ -783,3 +783,4 @@ public final class FluidGridTransferTests {
                 }, "no cross-contamination: SinkA only Water, SinkB only Lava (NS)"));
     }
 }
+

@@ -35,7 +35,7 @@ public final class ItemPickerComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, ItemPickerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getItemPickerComponentType();
+        return GlyphworksPlugin.get().getItemModule().getItemPickerComponentType();
     }
 
     /** Half-size of the pick-up cube in blocks. Default: 3 (7×7×7 area). */

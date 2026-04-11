@@ -1,7 +1,5 @@
 package dev.drav.glyphworks.grid.component;
 
-import java.util.Objects;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

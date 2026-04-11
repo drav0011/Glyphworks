@@ -84,7 +84,7 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
                 if (type == null)
                     continue;
 
-                GridGraph graph = GlyphworksPlugin.get().getGridGraph(event.getChunk().getWorld(), type);
+                GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(event.getChunk().getWorld(), type);
                 if (graph != null) {
                     graph.removeNode(pos);
                 }
@@ -92,3 +92,4 @@ public final class ChunkUnloadGridGraphEvent extends EntityEventSystem<ChunkStor
         }
     }
 }
+

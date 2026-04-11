@@ -62,7 +62,7 @@ public final class GridBlockChangeTests {
     }
 
     private static GridGraph graph(World world) {
-        return GlyphworksPlugin.get().getOrCreateGridGraph(world, ITEM_GRID);
+        return GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(world, ITEM_GRID);
     }
 
     private static boolean connected(World world, Vector3i a, Vector3i b) {
@@ -255,3 +255,4 @@ public final class GridBlockChangeTests {
                 }, ctx -> 5 * ctx.getWorld().getTps(), "auto-removing the middle pipe splits A and C into separate components"));
     }
 }
+

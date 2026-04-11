@@ -102,7 +102,7 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
             // Snapshot neighbors before removing node (removeNode wipes edges).
             Set<Vector3i> neighbors = new HashSet<>(entry.getNeighbors());
 
-            GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, entry.getGridType());
+            GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(world, entry.getGridType());
             if (graph != null) {
                 graph.removeNode(pos);
             }
@@ -121,3 +121,4 @@ public final class BreakGridBlockEvent extends EntityEventSystem<EntityStore, Br
         }
     }
 }
+

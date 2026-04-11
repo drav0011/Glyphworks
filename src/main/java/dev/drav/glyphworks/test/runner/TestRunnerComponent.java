@@ -63,7 +63,7 @@ public final class TestRunnerComponent implements Component<EntityStore> {
     }
 
     public static ComponentType<EntityStore, TestRunnerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getTestRunnerComponentType();
+        return GlyphworksPlugin.get().getTestModule().getTestRunnerComponentType();
     }
 
     @Override

@@ -66,7 +66,7 @@ public final class PipeConnectionTests {
      * has a direct edge from {@code a} to {@code b}.
      */
     private static boolean connected(World world, Vector3i a, Vector3i b) {
-        GridGraph graph = GlyphworksPlugin.get().getGridGraph(world, ITEM_GRID);
+        GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(world, ITEM_GRID);
         if (graph == null)
             return false;
         return graph.getNeighbors(a).contains(b);

@@ -136,7 +136,7 @@ public final class AutoCraftingBenchGridTests {
     private static boolean isConnected(World w, String gridTypeId, Vector3i a, Vector3i b) {
         GridType type = GridTypeRegistry.get(gridTypeId);
         if (type == null) return false;
-        GridGraph graph = GlyphworksPlugin.get().getGridGraph(w, type);
+        GridGraph graph = GlyphworksPlugin.get().getGridModule().getGridGraph(w, type);
         if (graph == null) return false;
         return graph.getNeighbors(a).contains(b);
     }
@@ -365,3 +365,4 @@ public final class AutoCraftingBenchGridTests {
                 }, "crafted item must drain from bench output → item pipe → item container (West-Input)"));
     }
 }
+

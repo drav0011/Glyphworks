@@ -47,7 +47,7 @@ public class FluidContainerComponent implements Component<ChunkStore> {
             .build();
 
     public static ComponentType<ChunkStore, FluidContainerComponent> getComponentType() {
-        return GlyphworksPlugin.get().getFluidContainerComponentType();
+        return GlyphworksPlugin.get().getFluidModule().getFluidContainerComponentType();
     }
 
     /** Maximum fluid this container can hold, in liters. Set via JSON asset. */

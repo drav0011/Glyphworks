@@ -178,11 +178,11 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
                     try {
                         Store<EntityStore> playerStore = playerWorld.getEntityStore().getStore();
                         Player.setGameMode(playerRef, GameMode.Creative, playerStore);
-                        Player playerComp = (Player) playerStore.getComponent(playerRef, Player.getComponentType());
-                        MovementStatesComponent msComp = (MovementStatesComponent) playerStore.getComponent(
-                                playerRef, MovementStatesComponent.getComponentType());
+                        Player playerComp = playerStore.getComponent(playerRef, Player.getComponentType());
+                        MovementStatesComponent msComp = playerStore.getComponent(playerRef,
+                                MovementStatesComponent.getComponentType());
                         if (playerComp != null && msComp != null) {
-                            playerComp.applyMovementStates(playerRef, new SavedMovementStates(true),
+                            Player.applyMovementStates(playerRef, new SavedMovementStates(true),
                                     msComp.getMovementStates(), playerStore);
                         }
                         playerStore.addComponent(playerRef, Teleport.getComponentType(),

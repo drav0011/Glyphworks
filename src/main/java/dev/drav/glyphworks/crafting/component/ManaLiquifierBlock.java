@@ -110,7 +110,7 @@ public class ManaLiquifierBlock implements Component<ChunkStore> {
     }
 
     public static ComponentType<ChunkStore, ManaLiquifierBlock> getComponentType() {
-        return GlyphworksPlugin.get().getManaLiquifierBlockComponentType();
+        return GlyphworksPlugin.get().getCraftingModule().getManaLiquifierBlockComponentType();
     }
 
     // ── Container setup ────────────────────────────────────────────────────────
