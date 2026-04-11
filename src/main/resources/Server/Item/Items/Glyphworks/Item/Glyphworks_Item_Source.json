@@ -5,6 +5,7 @@
   "Categories": [
     "Glyphworks.Items"
   ],
+  "Quality": "Tool",
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
@@ -56,6 +57,11 @@
     "Interactions": {
       "Use": "Configure_Source",
       "Secondary": "Inspect_Block"
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
     }
   },
   "PlayerAnimationsId": "Block",

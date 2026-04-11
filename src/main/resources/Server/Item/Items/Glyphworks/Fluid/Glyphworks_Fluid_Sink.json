@@ -79,6 +79,11 @@
         },
         "Glyphworks_FluidSinkComponent": {}
       }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
     }
   },
   "PlayerAnimationsId": "Block",

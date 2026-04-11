@@ -375,6 +375,11 @@
           "CustomModel": "Blocks/Glyphworks/Fluid/Pipe/Pipe_NSEWUD.blockymodel"
         }
       }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
     }
   },
   "PlayerAnimationsId": "Block",

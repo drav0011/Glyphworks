@@ -91,6 +91,11 @@
     },
     "Interactions": {
       "Use": "Inspect_Block"
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
     }
   },
   "PlayerAnimationsId": "Block",
