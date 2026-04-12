@@ -46,6 +46,7 @@ public final class FluidRemoverComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("fluid_remover_persistence_setup")
+                .persistence()
                 .test(setupRemoverState());
     }
 
@@ -70,6 +71,7 @@ public final class FluidRemoverComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("fluid_remover_persistence_assert")
+                .persistence()
                 .test(assertRemoverState());
     }
 

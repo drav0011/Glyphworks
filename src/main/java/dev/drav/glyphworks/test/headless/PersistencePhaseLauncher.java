@@ -75,7 +75,7 @@ public final class PersistencePhaseLauncher {
         @Nullable String suiteName  = System.getProperty(PROP_SUITE);
         @Nullable String testName   = System.getProperty(PROP_NAME);
 
-        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
+        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName, false,
                 msg -> LOGGER.severe("[GlyphTest] Persistence: " + msg));
         if (queue == null) {
             System.exit(1);

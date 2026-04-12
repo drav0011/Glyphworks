@@ -75,7 +75,7 @@ public final class HeadlessTestLauncher {
         String testName = System.getProperty(PROP_TEST_NAME);
         boolean cleanupAfterRun = true;
 
-        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
+        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName, true,
                 msg -> LOGGER.severe("[GlyphTest] Headless: " + msg));
         if (queue == null) {
             System.exit(1);

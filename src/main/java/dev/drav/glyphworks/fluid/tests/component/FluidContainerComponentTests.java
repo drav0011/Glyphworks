@@ -44,6 +44,7 @@ public final class FluidContainerComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("fluid_container_persistence_setup")
+                .persistence()
                 .test(setupContainerState());
     }
 
@@ -76,6 +77,7 @@ public final class FluidContainerComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("fluid_container_persistence_assert")
+                .persistence()
                 .test(assertContainerState());
     }
 

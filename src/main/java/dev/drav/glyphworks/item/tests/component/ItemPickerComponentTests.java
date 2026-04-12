@@ -41,6 +41,7 @@ public final class ItemPickerComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("item_picker_persistence_setup")
+                .persistence()
                 .test(setupPickerState());
     }
 
@@ -66,6 +67,7 @@ public final class ItemPickerComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("item_picker_persistence_assert")
+                .persistence()
                 .test(assertPickerState());
     }
 

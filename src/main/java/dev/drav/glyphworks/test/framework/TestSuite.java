@@ -17,6 +17,7 @@ public final class TestSuite {
 
     private final String id;
     private final List<TestCase> tests = new ArrayList<>();
+    private boolean persistence;
 
     public TestSuite(@Nonnull String id) {
         this.id = id;
@@ -26,6 +27,16 @@ public final class TestSuite {
     public TestSuite test(@Nonnull TestCase testCase) {
         tests.add(testCase);
         return this;
+    }
+
+    @Nonnull
+    public TestSuite persistence() {
+        this.persistence = true;
+        return this;
+    }
+
+    public boolean isPersistence() {
+        return persistence;
     }
 
     @Nonnull

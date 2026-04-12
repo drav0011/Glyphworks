@@ -86,6 +86,7 @@ public final class TestRegistry {
             @Nullable String moduleName,
             @Nullable String suiteName,
             @Nullable String testName,
+            boolean excludePersistence,
             @Nonnull Consumer<String> onError) {
 
         // ── Step 1: collect candidate suites tagged with their module ID ──
@@ -106,6 +107,13 @@ public final class TestRegistry {
                     candidates.add(Map.entry(me.getKey(), suite));
                 }
             }
+        }
+
+        // ── Step 1b: exclude persistence suites if requested ──
+        if (excludePersistence) {
+            candidates = candidates.stream()
+                    .filter(e -> !e.getValue().isPersistence())
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
 
         // ── Step 2: filter by suite name ──

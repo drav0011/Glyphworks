@@ -41,6 +41,7 @@ public final class ItemSourceComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("item_source_persistence_setup")
+                .persistence()
                 .test(setupSourceState());
     }
 
@@ -66,6 +67,7 @@ public final class ItemSourceComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("item_source_persistence_assert")
+                .persistence()
                 .test(assertSourceState());
     }
 

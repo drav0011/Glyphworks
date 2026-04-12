@@ -45,6 +45,7 @@ public final class BlockPlacerComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("block_placer_persistence_setup")
+                .persistence()
                 .test(setupPlacerState());
     }
 
@@ -67,6 +68,7 @@ public final class BlockPlacerComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("block_placer_persistence_assert")
+                .persistence()
                 .test(assertPlacerState());
     }
 

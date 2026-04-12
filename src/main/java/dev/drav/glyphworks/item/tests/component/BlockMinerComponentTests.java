@@ -47,6 +47,7 @@ public final class BlockMinerComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("block_miner_persistence_setup")
+                .persistence()
                 .test(setupMinerState());
     }
 
@@ -72,6 +73,7 @@ public final class BlockMinerComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("block_miner_persistence_assert")
+                .persistence()
                 .test(assertMinerState());
     }
 
