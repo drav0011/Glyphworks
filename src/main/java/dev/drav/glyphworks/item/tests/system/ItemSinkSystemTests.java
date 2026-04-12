@@ -1,10 +1,11 @@
-package dev.drav.glyphworks.item.tests;
+package dev.drav.glyphworks.item.tests.system;
 
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 
+import dev.drav.glyphworks.item.tests.ItemTestUtil;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;

@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.grid.tests;
+package dev.drav.glyphworks.grid.tests.component;
 
 import org.joml.Vector3i;
 

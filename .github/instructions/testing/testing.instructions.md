@@ -53,6 +53,29 @@ Apply these principles consistently when writing, reviewing, or suggesting code 
 - Test methods are private static factories returning `TestCase`.
 - Name the class after what it tests: `FluidSourceSystemTests`, `GridComponentTests`.
 
+### Separate component tests and system tests into subdirectories
+- System tests (integration tests that exercise ticking systems) live in `<module>/tests/system/`.
+- Component persistence tests (verify codec round-trip across server restarts) live in `<module>/tests/component/`.
+- Shared test utilities (`FluidTestUtil`, `ItemTestUtil`, etc.) stay at the `<module>/tests/` level and must be `public`.
+- Java package names mirror the directory: `dev.drav.glyphworks.fluid.tests.system`, `dev.drav.glyphworks.fluid.tests.component`.
+
+### Write a persistence test for every component with serialised fields
+- Any `Component` whose `BuilderCodec` encodes at least one field needs a persistence test.
+- Marker components with an empty codec (e.g. `FluidSinkComponent`, `ItemDropperComponent`) need no persistence test.
+- The test class lives in `<module>/tests/component/` and is named `<ComponentName>Tests.java`.
+- Each persistence test class registers two suites: a `_setup` suite and an `_assert` suite.
+- Suite IDs follow the pattern `<module>_<component_snake>_persistence_setup` / `_assert`.
+
+### Persistence test structure: setup + assert
+- **Setup suite** — places the block, waits for block-entity initialisation, writes known non-default values to all serialised fields, asserts baseline (verifies state before the server stops).
+- **Assert suite** — waitUntil the component exists again (block entity re-hydrated after engine restart), then asserts that every serialised field matches the values written in setup.
+- Use `waitUntil` (not `wait`) in both phases: block-entity hydration is async after chunk load.
+- Both suites use the same test-case bounding box so the test occupies the same world position in both phases.
+
+### Persistence test suite naming and registration
+- Register both suites in the same `register(moduleId)` call.
+- The persistence world is a single fixed-name world shared across all component test suites; positions are allocated from the same test-area grid as regular tests.
+
 ### Keep test bounding boxes minimal
 - Set `areaWidth`, `areaDepth`, `areaHeight` to the smallest size that fits the test scenario.
 - Larger boxes slow down world setup and increase the grid layout footprint.
@@ -116,11 +139,124 @@ public class FluidModule extends GlyphworksModule {
 
     @Override
     public void setupTests() {
+        // system/
         FluidSourceSystemTests.register("fluid");
         FluidGridTransferTests.register("fluid");
         FluidSinkSystemTests.register("fluid");
+        // component/
+        FluidContainerComponentTests.register("fluid");
+        FluidPipeComponentTests.register("fluid");
     }
 }
+```
+
+### Component persistence test class structure
+
+```java
+// In fluid/tests/component/FluidContainerComponentTests.java
+// Package: dev.drav.glyphworks.fluid.tests.component
+
+public final class FluidContainerComponentTests {
+
+    private static final String TANK_ID  = "Glyphworks_Fluid_Tank";
+    private static final String FLUID_ID = "Mana_Source";
+    private static final int    AMOUNT   = 750;
+
+    private FluidContainerComponentTests() {
+    }
+
+    public static void register(String moduleId) {
+        TestRegistry.register(moduleId, buildSetupSuite());
+        TestRegistry.register(moduleId, buildAssertSuite());
+    }
+
+    private static TestSuite buildSetupSuite() {
+        return new TestSuite("fluid_container_persistence_setup")
+                .test(setupContainerState());
+    }
+
+    private static TestSuite buildAssertSuite() {
+        return new TestSuite("fluid_container_persistence_assert")
+                .test(assertContainerState());
+    }
+
+    private static TestCase setupContainerState() {
+        return new TestCase("fluid_container_persists_state", 3, 3, 3)
+                .step(Steps.run(ctx -> {
+                    ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), TANK_ID);
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
+                            new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
+                    return fcc != null;
+                }, ctx -> 5 * ctx.getWorld().getTps(), "tank block entity initialised"))
+                .step(Steps.run(ctx -> {
+                    FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
+                            new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
+                    if (fcc != null) {
+                        fcc.setAmount(AMOUNT);
+                        fcc.setFluidId(FLUID_ID);
+                    }
+                }))
+                .step(Steps.assertThat(ctx -> {
+                    FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
+                            new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
+                    return fcc != null && fcc.getAmount() == AMOUNT && FLUID_ID.equals(fcc.getFluidId());
+                }, "baseline: container holds " + AMOUNT + "L of " + FLUID_ID + " before server stop"));
+    }
+
+    private static TestCase assertContainerState() {
+        return new TestCase("fluid_container_persists_state", 3, 3, 3)
+                .step(Steps.waitUntil(ctx -> {
+                    FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
+                            new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
+                    return fcc != null;
+                }, ctx -> 5 * ctx.getWorld().getTps(), "container reloaded after restart"))
+                .step(Steps.assertThat(ctx -> {
+                    FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
+                            new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
+                    return fcc != null && fcc.getAmount() == AMOUNT && FLUID_ID.equals(fcc.getFluidId());
+                }, "FluidContainerComponent persists amount and fluidId across server restart"));
+    }
+}
+```
+
+### Directory and package layout
+
+```
+fluid/tests/
+    FluidTestUtil.java              ← public; shared by both subdirs
+    component/
+        FluidContainerComponentTests.java
+        FluidPipeComponentTests.java
+        FluidSourceComponentTests.java
+        ...
+    system/
+        FluidGridTransferTests.java
+        FluidSourceSystemTests.java
+        ...
+
+item/tests/
+    ItemTestUtil.java               ← public
+    component/
+        ItemSourceComponentTests.java
+        BlockMinerComponentTests.java
+        ...
+    system/
+        ItemGridTransferTests.java
+        ItemSourceSystemTests.java
+        ...
+
+grid/tests/
+    GridTestUtil.java               ← public
+    component/
+        GridComponentTests.java
+        GridFaceUtilTests.java
+    system/
+        GridGraphTests.java
+        GridBlockChangeTests.java
+        GridConnectionTests.java
+        PipeConnectionTests.java
 ```
 
 ### Using waitUntil for async system convergence

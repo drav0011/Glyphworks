@@ -1,9 +1,10 @@
-package dev.drav.glyphworks.fluid.tests;
+package dev.drav.glyphworks.fluid.tests.system;
 
 import org.joml.Vector3i;
 
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;

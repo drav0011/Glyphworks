@@ -19,38 +19,38 @@ import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
-final class FluidTestUtil {
+public final class FluidTestUtil {
 
     // -------------------------------------------------------------------------
     // Rotation indices: each transforms the default Down targetNormal to the
     // given world-space direction (verified against GridFaceUtil.rotateBlockFace).
     // -------------------------------------------------------------------------
 
-    static final int ROTATION_DOWN  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.None);       // 0
-    static final int ROTATION_UP    = RotationTuple.index(Rotation.None, Rotation.OneEighty,   Rotation.None);       // 8
-    static final int ROTATION_NORTH = RotationTuple.index(Rotation.None, Rotation.Ninety,      Rotation.None);       // 4
-    static final int ROTATION_SOUTH = RotationTuple.index(Rotation.None, Rotation.TwoSeventy,  Rotation.None);       // 12
-    static final int ROTATION_EAST  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.Ninety);     // 16
-    static final int ROTATION_WEST  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.TwoSeventy); // 48
+    public static final int ROTATION_DOWN  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.None);       // 0
+    public static final int ROTATION_UP    = RotationTuple.index(Rotation.None, Rotation.OneEighty,   Rotation.None);       // 8
+    public static final int ROTATION_NORTH = RotationTuple.index(Rotation.None, Rotation.Ninety,      Rotation.None);       // 4
+    public static final int ROTATION_SOUTH = RotationTuple.index(Rotation.None, Rotation.TwoSeventy,  Rotation.None);       // 12
+    public static final int ROTATION_EAST  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.Ninety);     // 16
+    public static final int ROTATION_WEST  = RotationTuple.index(Rotation.None, Rotation.None,        Rotation.TwoSeventy); // 48
 
     private FluidTestUtil() {
     }
 
     @Nullable
-    static FluidContainerComponent getContainer(World world, Vector3i pos) {
+    public static FluidContainerComponent getContainer(World world, Vector3i pos) {
         GridLookup lu = GridLookup.resolve(world.getChunkStore(), pos);
         if (lu == null)
             return null;
         return world.getChunkStore().getStore().getComponent(lu.blockRef(), FluidContainerComponent.getComponentType());
     }
 
-    static int getFluidId(World world, int x, int y, int z) {
+    public static int getFluidId(World world, int x, int y, int z) {
         FluidSection fs = FluidUtil.getFluidSection(
                 world.getChunkStore(), world.getChunkStore().getStore(), new Vector3i(x, y, z));
         return fs != null ? fs.getFluidId(x, y, z) : 0;
     }
 
-    static void placeFluid(World world, int x, int y, int z, String fluidId) {
+    public static void placeFluid(World world, int x, int y, int z, String fluidId) {
         FluidSection fs = FluidUtil.ensureFluidSection(world.getChunkStore(), world.getChunkStore().getStore(), x, y,
                 z);
         if (fs == null)
@@ -70,7 +70,7 @@ final class FluidTestUtil {
      * relying on player interaction or {@code world.setBlock} (which always uses
      * rotation 0).
      */
-    static void setBlockWithRotation(World world, int x, int y, int z, String blockId, int rotationIndex) {
+    public static void setBlockWithRotation(World world, int x, int y, int z, String blockId, int rotationIndex) {
         long chunkIdx = ChunkUtil.indexChunkFromBlock(x, z);
         WorldChunk chunk = world.getChunkIfLoaded(chunkIdx);
         if (chunk == null)
@@ -86,7 +86,7 @@ final class FluidTestUtil {
      * Returns the world position of the cell adjacent to {@code (bx, by, bz)}
      * in the given {@code face} direction.
      */
-    static Vector3i targetPos(int bx, int by, int bz, BlockFace face) {
+    public static Vector3i targetPos(int bx, int by, int bz, BlockFace face) {
         return GridFaceUtil.addOffset(new Vector3i(bx, by, bz), face);
     }
 }

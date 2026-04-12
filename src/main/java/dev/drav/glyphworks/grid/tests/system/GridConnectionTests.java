@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.grid.tests;
+package dev.drav.glyphworks.grid.tests.system;
 
 import org.joml.Vector3i;
 
@@ -11,6 +11,7 @@ import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridType;
+import dev.drav.glyphworks.grid.tests.GridTestUtil;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;

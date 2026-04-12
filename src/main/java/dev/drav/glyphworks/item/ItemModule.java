@@ -24,13 +24,17 @@ import dev.drav.glyphworks.item.system.ItemPickerSystem;
 import dev.drav.glyphworks.item.system.ItemSingleSlotSetupSystem;
 import dev.drav.glyphworks.item.system.ItemSinkSystem;
 import dev.drav.glyphworks.item.system.ItemSourceSystem;
-import dev.drav.glyphworks.item.tests.BlockMinerSystemTests;
-import dev.drav.glyphworks.item.tests.BlockPlacerSystemTests;
-import dev.drav.glyphworks.item.tests.ItemDropperSystemTests;
-import dev.drav.glyphworks.item.tests.ItemGridTransferTests;
-import dev.drav.glyphworks.item.tests.ItemPickerSystemTests;
-import dev.drav.glyphworks.item.tests.ItemSinkSystemTests;
-import dev.drav.glyphworks.item.tests.ItemSourceSystemTests;
+import dev.drav.glyphworks.item.tests.component.BlockMinerComponentTests;
+import dev.drav.glyphworks.item.tests.component.BlockPlacerComponentTests;
+import dev.drav.glyphworks.item.tests.component.ItemPickerComponentTests;
+import dev.drav.glyphworks.item.tests.component.ItemSourceComponentTests;
+import dev.drav.glyphworks.item.tests.system.BlockMinerSystemTests;
+import dev.drav.glyphworks.item.tests.system.BlockPlacerSystemTests;
+import dev.drav.glyphworks.item.tests.system.ItemDropperSystemTests;
+import dev.drav.glyphworks.item.tests.system.ItemGridTransferTests;
+import dev.drav.glyphworks.item.tests.system.ItemPickerSystemTests;
+import dev.drav.glyphworks.item.tests.system.ItemSinkSystemTests;
+import dev.drav.glyphworks.item.tests.system.ItemSourceSystemTests;
 
 /**
  * Sub-plugin that owns the Item grid type, the item source/sink component
@@ -116,5 +120,9 @@ public final class ItemModule extends GlyphworksModule {
         BlockPlacerSystemTests.register("item");
         ItemPickerSystemTests.register("item");
         ItemDropperSystemTests.register("item");
+        ItemSourceComponentTests.register("item");
+        ItemPickerComponentTests.register("item");
+        BlockMinerComponentTests.register("item");
+        BlockPlacerComponentTests.register("item");
     }
 }

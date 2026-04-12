@@ -25,13 +25,13 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 
-final class ItemTestUtil {
+public final class ItemTestUtil {
 
     private ItemTestUtil() {
     }
 
     @Nullable
-    static ItemContainerBlock getItemContainerBlock(World world, Vector3i pos) {
+    public static ItemContainerBlock getItemContainerBlock(World world, Vector3i pos) {
         GridLookup lu = GridLookup.resolve(world.getChunkStore(), pos);
         if (lu == null)
             return null;
@@ -39,7 +39,7 @@ final class ItemTestUtil {
                 .getComponent(lu.blockRef(), ItemContainerBlock.getComponentType());
     }
 
-    static int countItems(ItemContainer container) {
+    public static int countItems(ItemContainer container) {
         if (container == null)
             return -1;
         int total = 0;
@@ -52,7 +52,7 @@ final class ItemTestUtil {
         return total;
     }
 
-    static void seedItems(ItemContainer container, String itemId, int amount) {
+    public static void seedItems(ItemContainer container, String itemId, int amount) {
         if (container == null)
             return;
         container.addItemStack(new ItemStack(itemId, amount), false, false, false);
@@ -62,7 +62,7 @@ final class ItemTestUtil {
      * Fills every slot in {@code container} to the item's registered max-stack
      * size, bypassing filters. Used to simulate a full container (back-pressure).
      */
-    static void fillContainer(ItemContainer container, String itemId) {
+    public static void fillContainer(ItemContainer container, String itemId) {
         if (container == null)
             return;
         DefaultAssetMap<String, Item> assetMap = Item.getAssetMap();
@@ -77,7 +77,7 @@ final class ItemTestUtil {
      * Returns the numeric block-type ID at the given world position, or {@code 0}
      * if the chunk section is not loaded or the cell is empty.
      */
-    static int getBlockId(World world, int x, int y, int z) {
+    public static int getBlockId(World world, int x, int y, int z) {
         BlockSection bs = FluidUtil.getBlockSection(
                 world.getChunkStore(), world.getChunkStore().getStore(), x, y, z);
         if (bs == null)
@@ -92,7 +92,7 @@ final class ItemTestUtil {
      * {@link World#execute}. The entity will be present at the start of the next
      * server tick.
      */
-    static void spawnItemEntity(
+    public static void spawnItemEntity(
             World world,
             Store<EntityStore> entityStore,
             double x, double y, double z,
