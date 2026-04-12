@@ -46,7 +46,7 @@ public final class FluidPlacerComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("fluid_placer_persistence_setup")
-                .persistence()
+                .persistence("setup")
                 .test(setupPlacerState());
     }
 
@@ -71,7 +71,7 @@ public final class FluidPlacerComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("fluid_placer_persistence_assert")
-                .persistence()
+                .persistence("assert")
                 .test(assertPlacerState());
     }
 

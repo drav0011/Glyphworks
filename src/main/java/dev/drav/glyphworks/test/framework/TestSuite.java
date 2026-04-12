@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A named, ordered collection of {@link TestCase}s belonging to one module.
@@ -18,6 +19,7 @@ public final class TestSuite {
     private final String id;
     private final List<TestCase> tests = new ArrayList<>();
     private boolean persistence;
+    private String persistencePhase;
 
     public TestSuite(@Nonnull String id) {
         this.id = id;
@@ -30,13 +32,19 @@ public final class TestSuite {
     }
 
     @Nonnull
-    public TestSuite persistence() {
+    public TestSuite persistence(@Nonnull String phase) {
         this.persistence = true;
+        this.persistencePhase = phase;
         return this;
     }
 
     public boolean isPersistence() {
         return persistence;
+    }
+
+    @Nullable
+    public String getPersistencePhase() {
+        return persistencePhase;
     }
 
     @Nonnull

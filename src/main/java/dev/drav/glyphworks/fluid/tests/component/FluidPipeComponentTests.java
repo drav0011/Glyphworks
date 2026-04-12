@@ -39,7 +39,7 @@ public final class FluidPipeComponentTests {
 
     private static TestSuite buildSetupSuite() {
         return new TestSuite("fluid_pipe_persistence_setup")
-                .persistence()
+                .persistence("setup")
                 .test(setupPipeState());
     }
 
@@ -65,7 +65,7 @@ public final class FluidPipeComponentTests {
 
     private static TestSuite buildAssertSuite() {
         return new TestSuite("fluid_pipe_persistence_assert")
-                .persistence()
+                .persistence("assert")
                 .test(assertPipeState());
     }
 

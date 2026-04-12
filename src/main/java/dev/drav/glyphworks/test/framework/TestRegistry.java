@@ -87,6 +87,8 @@ public final class TestRegistry {
             @Nullable String suiteName,
             @Nullable String testName,
             boolean excludePersistence,
+            boolean onlyPersistence,
+            @Nullable String persistencePhaseFilter,
             @Nonnull Consumer<String> onError) {
 
         // ── Step 1: collect candidate suites tagged with their module ID ──
@@ -109,11 +111,20 @@ public final class TestRegistry {
             }
         }
 
-        // ── Step 1b: exclude persistence suites if requested ──
+        // ── Step 1b: filter persistence suites if requested ──
         if (excludePersistence) {
             candidates = candidates.stream()
                     .filter(e -> !e.getValue().isPersistence())
                     .collect(Collectors.toCollection(ArrayList::new));
+        } else if (onlyPersistence) {
+            candidates = candidates.stream()
+                    .filter(e -> e.getValue().isPersistence())
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (persistencePhaseFilter != null) {
+                candidates = candidates.stream()
+                        .filter(e -> persistencePhaseFilter.equals(e.getValue().getPersistencePhase()))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
         }
 
         // ── Step 2: filter by suite name ──

@@ -80,7 +80,7 @@ public final class TestRunCommand extends AbstractAsyncCommand {
         String testName = testArg.get(context);
         boolean cleanupAfterRun = !noCleanupArg.get(context);
 
-        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName, true,
+        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName, true, false, null,
                 msg -> context.sendMessage(Message.raw("[GlyphTest] " + msg)));
         if (queue == null)
             return;

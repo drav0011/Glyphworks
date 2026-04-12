@@ -48,6 +48,11 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
                     (c, v) -> c.miningProgress = v,
                     c -> c.miningProgress)
             .add()
+            .append(
+                    new KeyedCodec<>("Glyphworks_BlockMinerComponent_LastSeenBlockId", Codec.INTEGER),
+                    (c, v) -> c.lastSeenBlockId = v,
+                    c -> c.lastSeenBlockId)
+            .add()
             .build();
 
     public static ComponentType<ChunkStore, BlockMinerComponent> getComponentType() {
@@ -70,9 +75,10 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
 
     /**
      * Numeric block-type ID of the block currently being mined.
-     * Transient — re-populated every tick; not persisted.
+     * Persisted so that the miner does not treat a restored block as a fresh
+     * target on the first tick after a restart, which would reset miningProgress.
      */
-    private transient int lastSeenBlockId = -1;
+    private int lastSeenBlockId = -1;
 
     public BlockMinerComponent() {
     }
@@ -81,6 +87,7 @@ public final class BlockMinerComponent implements Component<ChunkStore> {
         this.targetPosition = new Vector3i(other.targetPosition);
         this.targetNormal = other.targetNormal;
         this.miningProgress = other.miningProgress;
+        this.lastSeenBlockId = other.lastSeenBlockId;
     }
 
     @Nonnull
