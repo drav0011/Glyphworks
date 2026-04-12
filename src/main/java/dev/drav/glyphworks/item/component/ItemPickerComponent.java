@@ -52,6 +52,10 @@ public final class ItemPickerComponent implements Component<ChunkStore> {
         return radius;
     }
 
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
     @Override
     public ItemPickerComponent clone() {
         return new ItemPickerComponent(this);
