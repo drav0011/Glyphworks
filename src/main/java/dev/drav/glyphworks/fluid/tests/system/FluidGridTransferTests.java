@@ -26,26 +26,21 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  *
  * <h3>Block reference</h3>
  * <ul>
- * <li><b>Tank</b> ({@code Glyphworks_Fluid_Tank}): BIDIRECTIONAL face, 16 000
- * L,
- * no auto-refill/drain. Used for exact-amount tests.</li>
- * <li><b>Source</b> ({@code Glyphworks_Fluid_Source}): OUTPUT face, refilled to
- * capacity every tick by {@code FluidSourceSystem}. Used for throughput
- * tests.</li>
- * <li><b>Sink</b> ({@code Glyphworks_Fluid_Sink}): INPUT face, drained to empty
- * every tick by {@code FluidSinkSystem}. Used for throughput tests.</li>
- * <li><b>Pipe</b> ({@code Glyphworks_Fluid_Pipe}): BIDIRECTIONAL face, no
- * container. Pure relay.</li>
+ * <li><b>Tank</b> ({@code Glyphworks_Fluid_Tank}): INPUT on North, OUTPUT on
+ * South, 16 000 L, no auto-refill/drain. Used for exact-amount tests.</li>
+ * <li><b>Source</b> ({@code Glyphworks_Fluid_Source}): OUTPUT face (Up),
+ * refilled to capacity every tick by {@code FluidSourceSystem}.</li>
+ * <li><b>Sink</b> ({@code Glyphworks_Fluid_Sink}): INPUT face (Up), drained to
+ * empty every tick by {@code FluidSinkSystem}.</li>
+ * <li><b>Pipe</b> ({@code Glyphworks_Fluid_Pipe}): BIDIRECTIONAL on all 6
+ * faces, no container. Pure relay.</li>
  * </ul>
  *
  * <h3>Face orientation</h3>
- * Source, Sink, and Tank blocks define their face as {@code Up} in JSON space.
- * When testing horizontal East–West layouts the block must be rotated so that
- * face points toward its neighbour:
- * <ul>
- * <li>Up → East: {@link FluidTestUtil#ROTATION_EAST}</li>
- * <li>Up → West: {@link FluidTestUtil#ROTATION_WEST}</li>
- * </ul>
+ * Tanks have fixed North=Input and South=Output faces. Standard test layouts
+ * run along the Z axis so that the source tank's South face connects to the
+ * pipe chain and the sink tank's North face receives from it. No rotation is
+ * needed for Z-axis chains.
  */
 public final class FluidGridTransferTests {
 
@@ -110,13 +105,8 @@ public final class FluidGridTransferTests {
 
     // ── Layout helpers ────────────────────────────────────────────────────────
 
-    /**
-     * Places a block and registers grid connections.
-     * Uses the Up-face rotation constant to orient the block eastward or westward
-     * when needed.
-     */
-    private static void placeTank(World w, int x, int y, int z, int rotation) {
-        FluidTestUtil.setBlockWithRotation(w, x, y, z, TANK_ID, rotation);
+    private static void placeTank(World w, int x, int y, int z) {
+        w.setBlock(x, y, z, TANK_ID);
         PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
     }
 
@@ -126,22 +116,17 @@ public final class FluidGridTransferTests {
     }
 
     /**
-     * Standard 4-block East–West layout using pure storage Tanks:
+     * Standard 4-block Z-axis layout:
      *
      * <pre>
-     *   Tank(ox) ←BIDIR→ Pipe(ox+1) ←BIDIR→ Pipe(ox+2) ←BIDIR→ Tank(ox+3)
+     *   Tank(oz) →OUT(S)→ Pipe(oz+1) → Pipe(oz+2) →IN(N)→ Tank(oz+3)
      * </pre>
-     *
-     * All blocks have an Up face in JSON space. The rotation constants in
-     * {@link FluidTestUtil} are defined for blocks with a <em>Down</em> face,
-     * so they are inverted here: {@code ROTATION_WEST} turns Up→East, and
-     * {@code ROTATION_EAST} turns Up→West.
      */
     private static void placeTankLayout(World w, int ox, int oy, int oz) {
-        placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST); // Up → East
-        placePipe(w, ox + 1, oy, oz);
-        placePipe(w, ox + 2, oy, oz);
-        placeTank(w, ox + 3, oy, oz, FluidTestUtil.ROTATION_EAST); // Up → West
+        placeTank(w, ox, oy, oz);
+        placePipe(w, ox, oy, oz + 1);
+        placePipe(w, ox, oy, oz + 2);
+        placeTank(w, ox, oy, oz + 3);
     }
 
     @Nullable
@@ -163,19 +148,11 @@ public final class FluidGridTransferTests {
      * Test 1 — basic: fluid of the correct type travels through two relay pipes
      * into an empty tank within {@link #SHORT_WAIT} ticks.
      *
-     * <p>
-     * Because both tanks are BIDIRECTIONAL, the sink starts draining back as
-     * soon as it holds fluid and the system quickly equilibrates. Rather than
-     * asserting on the exact split, the test verifies the stable properties
-     * that hold at every tick after the first:
-     * <ul>
-     * <li>Total fluid is conserved: {@code src + sink == FILL_AMOUNT}.</li>
-     * <li>Some fluid reached the sink: {@code sink > 0}.</li>
-     * <li>The fluid type is correct: {@code sink.getFluidId() == WATER_ID}.</li>
-     * </ul>
+     * <p>Layout along Z axis: Source(oz) → Pipe → Pipe → Sink(oz+3).
+     * Source outputs South, sink inputs North. Flow is one-directional.
      */
     private static TestCase tankToTankViaPipes() {
-        return new TestCase("tank_to_tank_via_pipes", 6, 3, 3)
+        return new TestCase("tank_to_tank_via_pipes", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -189,12 +166,12 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src == null || sink == null)
                         return false;
-                    return src.getAmount() + sink.getAmount() == FILL_AMOUNT // conservation
-                            && sink.getAmount() > 0 // fluid reached sink
-                            && WATER_ID.equals(sink.getFluidId()); // correct type
+                    return src.getAmount() + sink.getAmount() == FILL_AMOUNT
+                            && sink.getAmount() > 0
+                            && WATER_ID.equals(sink.getFluidId());
                 }, "fluid reached sink; total conserved; correct fluid type"));
     }
 
@@ -222,7 +199,7 @@ public final class FluidGridTransferTests {
      * </ol>
      */
     private static TestCase transferRateIsRespected() {
-        return new TestCase("transfer_rate_is_respected", 6, 3, 3)
+        return new TestCase("transfer_rate_is_respected", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -236,18 +213,13 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src == null || sink == null)
                         return false;
-                    // Conservation: no fluid created or destroyed.
                     if (src.getAmount() + sink.getAmount() != FILL_AMOUNT)
                         return false;
-                    // Non-zero rate: handler must have transferred something.
                     if (sink.getAmount() == 0)
                         return false;
-                    // Rate limiting: unlimited BIDIR transfer would reach exactly
-                    // FILL_AMOUNT / 2 in the first tick; a rate-limited handler
-                    // stays well below that after SHORT_WAIT ticks.
                     return sink.getAmount() < FILL_AMOUNT / 2;
                 }, "conservation holds; sink > 0; rate is limited (sink < half total)"));
     }
@@ -257,7 +229,7 @@ public final class FluidGridTransferTests {
      * the path has its {@code fluidId} set to the transferred fluid type.
      */
     private static TestCase pipeLocksTsFluidAfterTransfer() {
-        return new TestCase("pipe_locks_to_fluid_after_transfer", 6, 3, 3)
+        return new TestCase("pipe_locks_to_fluid_after_transfer", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -270,8 +242,8 @@ public final class FluidGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidPipeComponent p1 = getPipe(w, ox + 1, oy, oz);
-                    FluidPipeComponent p2 = getPipe(w, ox + 2, oy, oz);
+                    FluidPipeComponent p1 = getPipe(w, ox, oy, oz + 1);
+                    FluidPipeComponent p2 = getPipe(w, ox, oy, oz + 2);
                     return p1 != null && WATER_ID.equals(p1.getFluidId())
                             && p2 != null && WATER_ID.equals(p2.getFluidId());
                 }, "both relay pipes locked to WATER_ID after transfer"));
@@ -285,12 +257,12 @@ public final class FluidGridTransferTests {
      * Water, the source must remain unchanged and the sink empty.
      */
     private static TestCase pipeBlocksIncompatibleFluid() {
-        return new TestCase("pipe_blocks_incompatible_fluid", 6, 3, 3)
+        return new TestCase("pipe_blocks_incompatible_fluid", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     placeTankLayout(w, ox, oy, oz);
-                    FluidPipeComponent pipe = getPipe(w, ox + 2, oy, oz);
+                    FluidPipeComponent pipe = getPipe(w, ox, oy, oz + 2);
                     if (pipe != null)
                         pipe.setFluidId(LAVA_ID);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
@@ -302,7 +274,7 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     return src != null && src.getAmount() == FILL_AMOUNT
                             && sink != null && sink.getAmount() == 0;
                 }, "source unchanged; sink empty when relay pipe is locked to incompatible fluid"));
@@ -323,13 +295,13 @@ public final class FluidGridTransferTests {
      * eliminates all free space and is the correct guard test.
      */
     private static TestCase noTransferWhenSinkFull() {
-        return new TestCase("no_transfer_when_sink_full", 6, 3, 3)
+        return new TestCase("no_transfer_when_sink_full", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     placeTankLayout(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src != null)
                         src.fill(WATER_ID, TANK_CAPACITY);
                     if (sink != null)
@@ -340,7 +312,7 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     return src != null && src.getAmount() == TANK_CAPACITY
                             && sink != null && sink.getAmount() == TANK_CAPACITY;
                 }, "no fluid moved when all tanks are at capacity (availableSpace == 0)"));
@@ -354,12 +326,12 @@ public final class FluidGridTransferTests {
      * is already locked to a different fluid type. The source should not drain.
      */
     private static TestCase sinkFluidTypeLockBlocksFill() {
-        return new TestCase("sink_fluid_type_lock_blocks_fill", 6, 3, 3)
+        return new TestCase("sink_fluid_type_lock_blocks_fill", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     placeTankLayout(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (sink != null)
                         sink.fill(LAVA_ID, 100);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
@@ -371,7 +343,7 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent sink = getContainer(w, ox + 3, oy, oz);
+                    FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     return src != null && src.getAmount() == FILL_AMOUNT
                             && sink != null && sink.getAmount() == 100;
                 }, "source unchanged; sink retains only Lava when locked to different fluid"));
@@ -381,47 +353,32 @@ public final class FluidGridTransferTests {
      * Test 7 — closest-first ordering: one source, two sinks at different
      * distances.
      *
-     * <p>
-     * Layout (branching topology, all blocks have Up face in JSON):
-     *
      * <pre>
-     *   Src(ox,oz) →East→ Pipe(ox+1,oz) →East→ SinkA(ox+2,oz)   [distance 2]
-     *                           ↓South
-     *                      Pipe(ox+1,oz+1)
-     *                           ↓South
-     *                      SinkB(ox+1,oz+2)                       [distance 3]
+     *   Src(ox,oz) →OUT(S)→ Pipe(ox,oz+1) → SinkA(ox,oz+2)      [distance 2]
+     *                             →East→
+     *                        Pipe(ox+1,oz+1) → SinkB(ox+1,oz+2) [distance 3]
      * </pre>
-     *
-     * After exactly 1 tick (budget = 25 L), SinkA receives fluid first;
-     * SinkB remains empty because the budget is exhausted.
      */
     private static TestCase multiSinkFillsClosestFirst() {
-        return new TestCase("multi_sink_fills_closest_first", 4, 4, 3)
+        return new TestCase("multi_sink_fills_closest_first", 4, 3, 5)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    // Source — Up face rotated East (ROTATION_WEST)
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST);
+                    placeTank(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
                         src.fill(WATER_ID, FILL_AMOUNT);
-                    // Central relay pipe — connects Source(W), SinkA(E), branch(S)
-                    placePipe(w, ox + 1, oy, oz);
-                    // SinkA — distance 2, Up face rotated West (ROTATION_EAST)
-                    placeTank(w, ox + 2, oy, oz, FluidTestUtil.ROTATION_EAST);
-                    // Branch pipe going south — distance 2
+                    placePipe(w, ox, oy, oz + 1);
+                    placeTank(w, ox, oy, oz + 2);
                     placePipe(w, ox + 1, oy, oz + 1);
-                    // SinkB — distance 3, Up face rotated North (ROTATION_SOUTH)
-                    placeTank(w, ox + 1, oy, oz + 2, FluidTestUtil.ROTATION_SOUTH);
+                    placeTank(w, ox + 1, oy, oz + 2);
                 }))
                 .step(Steps.wait(1))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidContainerComponent sinkA = getContainer(w, ox + 2, oy, oz);
+                    FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent sinkB = getContainer(w, ox + 1, oy, oz + 2);
-                    // After 1 tick the budget (25 L) goes to SinkA first (distance 2).
-                    // SinkA should have received fluid; SinkB should still be empty.
                     return sinkA != null && sinkA.getAmount() > 0
                             && sinkB != null && sinkB.getAmount() == 0;
                 }, "closer sink fills before farther sink within the same tick budget"));
@@ -430,45 +387,28 @@ public final class FluidGridTransferTests {
     /**
      * Test 8 — multi-source: two source tanks in the same network both drain.
      *
-     * <p>
-     * Uses a Y-shaped topology so that the Sink is always closer (distance 3)
-     * to each source than the opposite source is (distance 4). This guarantees
-     * that regardless of which source the root processes first, each source's
-     * BFS exhausts its budget on the Sink before it can reach—and re-fill—the
-     * already-drained opposite source.
-     *
      * <pre>
-     *   SrcA(ox,oz)   →E→  PipeA(ox+1,oz)
-     *                              ↓S
-     *   Sink(ox+2,oz+1) ←W← PipeC(ox+1,oz+1)   ← central relay
-     *                              ↓S
-     *   SrcB(ox,oz+2)  →E→  PipeB(ox+1,oz+2)
+     *   SrcA(ox,oz)   →OUT(S)→ PipeA(ox,oz+1)
+     *                                 →East→ PipeC(ox+1,oz+1) →OUT(S)→ Sink(ox+1,oz+2)
+     *   SrcB(ox+2,oz) →OUT(S)→ PipeB(ox+2,oz+1)
      * </pre>
      *
-     * Distance from each source to Sink = 3 hops (own-pipe→PipeC→Sink).
-     * Distance from each source to the other source = 4 hops.
-     * With budget = 25 L the Sink is always filled completely before the
-     * opposite source could receive anything, so both sources drain.
+     * Distance from each source to Sink = 3 hops.
      */
     private static TestCase multiSourceBothDrain() {
-        return new TestCase("multi_source_both_drain", 4, 4, 3)
+        return new TestCase("multi_source_both_drain", 5, 3, 5)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    // SrcA — Up face → East, ROTATION_WEST
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST);
-                    placePipe(w, ox + 1, oy, oz); // PipeA
-                    placePipe(w, ox + 1, oy, oz + 1); // PipeC — central relay
-                    placePipe(w, ox + 1, oy, oz + 2); // PipeB
-                    // SrcB — Up face → East, ROTATION_WEST
-                    placeTank(w, ox, oy, oz + 2, FluidTestUtil.ROTATION_WEST);
-                    // Sink — Up face → West, ROTATION_EAST
-                    placeTank(w, ox + 2, oy, oz + 1, FluidTestUtil.ROTATION_EAST);
+                    placeTank(w, ox, oy, oz);
+                    placePipe(w, ox, oy, oz + 1);
+                    placePipe(w, ox + 1, oy, oz + 1);
+                    placePipe(w, ox + 2, oy, oz + 1);
+                    placeTank(w, ox + 2, oy, oz);
+                    placeTank(w, ox + 1, oy, oz + 2);
 
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent srcB = getContainer(w, ox, oy, oz + 2);
-                    // Fill to capacity: neither source has free space, so it cannot
-                    // appear as a valid sink in the other source's BFS.
+                    FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
                     if (srcA != null)
                         srcA.fill(WATER_ID, TANK_CAPACITY);
                     if (srcB != null)
@@ -479,47 +419,38 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
-                    FluidContainerComponent srcB = getContainer(w, ox, oy, oz + 2);
+                    FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
                     return srcA != null && srcA.getAmount() < TANK_CAPACITY
                             && srcB != null && srcB.getAmount() < TANK_CAPACITY;
                 }, "both source tanks drained when two sources share a network"));
     }
 
     /**
-     * Test 9 — network isolation: two separate layouts placed side-by-side
-     * (offset in Z) do not exchange fluid across their independent networks.
+     * Test 9 — network isolation: two separate Z-axis chains placed side-by-side
+     * (offset in X) do not exchange fluid.
      *
-     * <p>
-     * Network A: SrcA(Water) → Pipe → TankA (empty)
-     * <br>
-     * Network B: SrcB(Lava) → Pipe → TankB (empty)
-     *
-     * <p>
-     * After transfer:
-     * <ul>
-     * <li>TankA must contain only Water.</li>
-     * <li>TankB must contain only Lava.</li>
-     * </ul>
+     * <pre>
+     *   Network A: Src(ox,oz) → Pipe(ox,oz+1) → Tank(ox,oz+2)
+     *   Network B: Src(ox+3,oz) → Pipe(ox+3,oz+1) → Tank(ox+3,oz+2)
+     * </pre>
      */
     private static TestCase disconnectedNetworksDoNotInterfere() {
-        return new TestCase("disconnected_networks_do_not_interfere", 6, 6, 3)
+        return new TestCase("disconnected_networks_do_not_interfere", 6, 3, 5)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
 
-                    // Network A at z = oz
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST); // Up → East
-                    placePipe(w, ox + 1, oy, oz);
-                    placeTank(w, ox + 2, oy, oz, FluidTestUtil.ROTATION_EAST); // Up → West
+                    placeTank(w, ox, oy, oz);
+                    placePipe(w, ox, oy, oz + 1);
+                    placeTank(w, ox, oy, oz + 2);
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     if (srcA != null)
                         srcA.fill(WATER_ID, FILL_AMOUNT);
 
-                    // Network B at z = oz+2 (separated — no shared nodes)
-                    placeTank(w, ox, oy, oz + 2, FluidTestUtil.ROTATION_WEST); // Up → East
-                    placePipe(w, ox + 1, oy, oz + 2);
-                    placeTank(w, ox + 2, oy, oz + 2, FluidTestUtil.ROTATION_EAST); // Up → West
-                    FluidContainerComponent srcB = getContainer(w, ox, oy, oz + 2);
+                    placeTank(w, ox + 3, oy, oz);
+                    placePipe(w, ox + 3, oy, oz + 1);
+                    placeTank(w, ox + 3, oy, oz + 2);
+                    FluidContainerComponent srcB = getContainer(w, ox + 3, oy, oz);
                     if (srcB != null)
                         srcB.fill(LAVA_ID, FILL_AMOUNT);
                 }))
@@ -527,12 +458,10 @@ public final class FluidGridTransferTests {
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidContainerComponent tankA = getContainer(w, ox + 2, oy, oz);
-                    FluidContainerComponent tankB = getContainer(w, ox + 2, oy, oz + 2);
+                    FluidContainerComponent tankA = getContainer(w, ox, oy, oz + 2);
+                    FluidContainerComponent tankB = getContainer(w, ox + 3, oy, oz + 2);
                     return tankA != null && WATER_ID.equals(tankA.getFluidId())
-                            && tankB != null && LAVA_ID.equals(tankB.getFluidId())
-                            && (tankA.getAmount() == 0 || WATER_ID.equals(tankA.getFluidId()))
-                            && (tankB.getAmount() == 0 || LAVA_ID.equals(tankB.getFluidId()));
+                            && tankB != null && LAVA_ID.equals(tankB.getFluidId());
                 }, "network A contains only Water, network B contains only Lava"));
     }
 
@@ -543,7 +472,7 @@ public final class FluidGridTransferTests {
      * connected-component index is maintained correctly.
      */
     private static TestCase componentRootTracksMembership() {
-        return new TestCase("component_root_tracks_membership", 6, 3, 3)
+        return new TestCase("component_root_tracks_membership", 3, 3, 6)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -557,41 +486,36 @@ public final class FluidGridTransferTests {
                     if (graph == null)
                         return false;
                     Vector3i r0 = graph.getComponentRoot(new Vector3i(ox, oy, oz));
-                    Vector3i r1 = graph.getComponentRoot(new Vector3i(ox + 1, oy, oz));
-                    Vector3i r2 = graph.getComponentRoot(new Vector3i(ox + 2, oy, oz));
-                    Vector3i r3 = graph.getComponentRoot(new Vector3i(ox + 3, oy, oz));
+                    Vector3i r1 = graph.getComponentRoot(new Vector3i(ox, oy, oz + 1));
+                    Vector3i r2 = graph.getComponentRoot(new Vector3i(ox, oy, oz + 2));
+                    Vector3i r3 = graph.getComponentRoot(new Vector3i(ox, oy, oz + 3));
                     return r0 != null && r0.equals(r1) && r1.equals(r2) && r2.equals(r3);
                 }, "all four nodes share the same component root"));
     }
 
     /**
-     * Test 11 — topology split: breaking the middle pipe of a 3-node chain
-     * causes the two surviving nodes to belong to two different components.
+     * Test 11 — topology split: breaking the middle pipe of a 3-node Z-axis
+     * chain causes the two surviving nodes to belong to different components.
      *
-     * <p>
-     * Layout: Tank(ox) — Pipe(ox+1) — Tank(ox+2)
-     * <br>
-     * After breaking Pipe(ox+1):
-     * <ul>
-     * <li>Tank(ox) has a root different from Tank(ox+2).</li>
-     * <li>Neither root is null.</li>
-     * </ul>
+     * <pre>
+     *   Tank(oz) → Pipe(oz+1) → Tank(oz+2)
+     * </pre>
      */
     private static TestCase rootChangesOnTopologyBreak() {
-        return new TestCase("root_changes_on_topology_break", 5, 3, 3)
+        return new TestCase("root_changes_on_topology_break", 3, 3, 5)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST); // Up → East
-                    placePipe(w, ox + 1, oy, oz);
-                    placeTank(w, ox + 2, oy, oz, FluidTestUtil.ROTATION_EAST); // Up → West
+                    placeTank(w, ox, oy, oz);
+                    placePipe(w, ox, oy, oz + 1);
+                    placeTank(w, ox, oy, oz + 2);
                 }))
                 .step(Steps.wait(1))
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    BreakGridBlockEvent.disconnectBlock(w, new Vector3i(ox + 1, oy, oz));
-                    w.setBlock(ox + 1, oy, oz, "Empty");
+                    BreakGridBlockEvent.disconnectBlock(w, new Vector3i(ox, oy, oz + 1));
+                    w.setBlock(ox, oy, oz + 1, "Empty");
                 }))
                 .step(Steps.wait(1))
                 .step(Steps.assertThat(ctx -> {
@@ -601,7 +525,7 @@ public final class FluidGridTransferTests {
                     if (graph == null)
                         return false;
                     Vector3i rootLeft = graph.getComponentRoot(new Vector3i(ox, oy, oz));
-                    Vector3i rootRight = graph.getComponentRoot(new Vector3i(ox + 2, oy, oz));
+                    Vector3i rootRight = graph.getComponentRoot(new Vector3i(ox, oy, oz + 2));
                     return rootLeft != null && rootRight != null && !rootLeft.equals(rootRight);
                 }, "two surviving nodes have different roots after middle pipe is broken"));
     }
@@ -637,106 +561,31 @@ public final class FluidGridTransferTests {
      */
 
     /**
-     * Variant A — E-W chains, N-S bridge.
+     * Variant A — two Z-axis chains separated in X, bridged in X.
      *
      * <pre>
-     *   TankA(ox,oz) ↔ PipeA(ox+1,oz) ↔ SinkA(ox+2,oz)         [z = oz]
-     *                        ↕ Bridge(ox+1,oz+1)  ← placed last
-     *   TankB(ox,oz+2) ↔ PipeB(ox+1,oz+2) ↔ SinkB(ox+2,oz+2)  [z = oz+2]
+     *   TankA(ox,oz) → PipeA(ox,oz+1) → SinkA(ox,oz+2)
+     *                   Bridge(ox+1,oz+1)   ← placed last
+     *   TankB(ox+2,oz) → PipeB(ox+2,oz+1) → SinkB(ox+2,oz+2)
      * </pre>
+     *
+     * Sources differ in X. Water at lower X wins.
      */
     private static TestCase mergedNetworkPipeLockEW() {
-        return new TestCase("merged_network_pipe_lock_ew", 5, 5, 3)
+        return new TestCase("merged_network_pipe_lock_ew", 5, 3, 5)
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    // Network A (z = oz) — Water
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_WEST); // Up → East
-                    placePipe(w, ox + 1, oy, oz);
-                    placeTank(w, ox + 2, oy, oz, FluidTestUtil.ROTATION_EAST); // Up → West
-                    FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
-                    if (srcA != null)
-                        srcA.fill(WATER_ID, FILL_AMOUNT);
-                    // Network B (z = oz+2) — Lava
-                    placeTank(w, ox, oy, oz + 2, FluidTestUtil.ROTATION_WEST); // Up → East
-                    placePipe(w, ox + 1, oy, oz + 2);
-                    placeTank(w, ox + 2, oy, oz + 2, FluidTestUtil.ROTATION_EAST); // Up → West
-                    FluidContainerComponent srcB = getContainer(w, ox, oy, oz + 2);
-                    if (srcB != null)
-                        srcB.fill(LAVA_ID, FILL_AMOUNT);
-                }))
-                // Wait until each network has processed independently and locked its pipe.
-                .step(Steps.waitUntil(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidPipeComponent pipeA = getPipe(w, ox + 1, oy, oz);
-                    FluidPipeComponent pipeB = getPipe(w, ox + 1, oy, oz + 2);
-                    return pipeA != null && WATER_ID.equals(pipeA.getFluidId())
-                            && pipeB != null && LAVA_ID.equals(pipeB.getFluidId());
-                }, TRANSFER_TICKS, "PipeA locked to Water and PipeB locked to Lava"))
-                // Place the bridge, merging both graphs into one component.
-                .step(Steps.run(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    placePipe(w, ox + 1, oy, oz + 1);
-                }))
-                // One tick for the merged handler to run.
-                .step(Steps.wait(1))
-                .step(Steps.assertThat(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidPipeComponent bridge = getPipe(w, ox + 1, oy, oz + 1);
-                    // Water source at (ox,oy,oz) has lower Z than Lava at (ox,oy,oz+2),
-                    // so Water iterates first and wins the bridge lock.
-                    return bridge != null && WATER_ID.equals(bridge.getFluidId());
-                }, "bridge locked to WATER_ID: lower-coordinate source wins (EW)"))
-                .step(Steps.assertThat(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidPipeComponent pipeA = getPipe(w, ox + 1, oy, oz);
-                    FluidPipeComponent pipeB = getPipe(w, ox + 1, oy, oz + 2);
-                    return pipeA != null && WATER_ID.equals(pipeA.getFluidId())
-                            && pipeB != null && LAVA_ID.equals(pipeB.getFluidId());
-                }, "dedicated pipes retain original fluid locks after bridge placed (EW)"))
-                .step(Steps.assertThat(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    FluidContainerComponent sinkA = getContainer(w, ox + 2, oy, oz);
-                    FluidContainerComponent sinkB = getContainer(w, ox + 2, oy, oz + 2);
-                    boolean sinkAOk = sinkA == null || sinkA.getFluidId() == null
-                            || WATER_ID.equals(sinkA.getFluidId());
-                    boolean sinkBOk = sinkB == null || sinkB.getFluidId() == null
-                            || LAVA_ID.equals(sinkB.getFluidId());
-                    return sinkAOk && sinkBOk;
-                }, "no cross-contamination: SinkA only Water, SinkB only Lava (EW)"));
-    }
-
-    /**
-     * Variant B — N-S chains, E-W bridge.
-     *
-     * <pre>
-     *   TankA(ox,oz)              TankB(ox+2,oz)
-     *   PipeA(ox,oz+1)            PipeB(ox+2,oz+1)
-     *          ←→ Bridge(ox+1,oz+1) ←→   ← placed last
-     *   SinkA(ox,oz+2)            SinkB(ox+2,oz+2)
-     * </pre>
-     */
-    private static TestCase mergedNetworkPipeLockNS() {
-        return new TestCase("merged_network_pipe_lock_ns", 5, 5, 3)
-                .step(Steps.run(ctx -> {
-                    World w = ctx.getWorld();
-                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
-                    // Network A (x = ox) — Water, flows South (+Z)
-                    placeTank(w, ox, oy, oz, FluidTestUtil.ROTATION_NORTH); // Up → South
+                    placeTank(w, ox, oy, oz);
                     placePipe(w, ox, oy, oz + 1);
-                    placeTank(w, ox, oy, oz + 2, FluidTestUtil.ROTATION_SOUTH); // Up → North
+                    placeTank(w, ox, oy, oz + 2);
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     if (srcA != null)
                         srcA.fill(WATER_ID, FILL_AMOUNT);
-                    // Network B (x = ox+2) — Lava, flows South (+Z)
-                    placeTank(w, ox + 2, oy, oz, FluidTestUtil.ROTATION_NORTH); // Up → South
+
+                    placeTank(w, ox + 2, oy, oz);
                     placePipe(w, ox + 2, oy, oz + 1);
-                    placeTank(w, ox + 2, oy, oz + 2, FluidTestUtil.ROTATION_SOUTH); // Up → North
+                    placeTank(w, ox + 2, oy, oz + 2);
                     FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
                     if (srcB != null)
                         srcB.fill(LAVA_ID, FILL_AMOUNT);
@@ -759,10 +608,8 @@ public final class FluidGridTransferTests {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidPipeComponent bridge = getPipe(w, ox + 1, oy, oz + 1);
-                    // Water source at (ox,oy,oz) has lower X than Lava at (ox+2,oy,oz),
-                    // so Water iterates first and wins the bridge lock.
                     return bridge != null && WATER_ID.equals(bridge.getFluidId());
-                }, "bridge locked to WATER_ID: lower-coordinate source wins (NS)"))
+                }, "bridge locked to WATER_ID: lower-coordinate source wins (EW)"))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
@@ -770,12 +617,83 @@ public final class FluidGridTransferTests {
                     FluidPipeComponent pipeB = getPipe(w, ox + 2, oy, oz + 1);
                     return pipeA != null && WATER_ID.equals(pipeA.getFluidId())
                             && pipeB != null && LAVA_ID.equals(pipeB.getFluidId());
-                }, "dedicated pipes retain original fluid locks after bridge placed (NS)"))
+                }, "dedicated pipes retain original fluid locks after bridge placed (EW)"))
                 .step(Steps.assertThat(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent sinkB = getContainer(w, ox + 2, oy, oz + 2);
+                    boolean sinkAOk = sinkA == null || sinkA.getFluidId() == null
+                            || WATER_ID.equals(sinkA.getFluidId());
+                    boolean sinkBOk = sinkB == null || sinkB.getFluidId() == null
+                            || LAVA_ID.equals(sinkB.getFluidId());
+                    return sinkAOk && sinkBOk;
+                }, "no cross-contamination: SinkA only Water, SinkB only Lava (EW)"));
+    }
+
+    /**
+     * Variant B — two Z-axis chains separated in Y, bridged vertically.
+     *
+     * <pre>
+     *   TankA(ox,oy,oz) → PipeA(ox,oy,oz+1) → SinkA(ox,oy,oz+2)     [y = oy]
+     *                      Bridge(ox,oy+1,oz+1)                       ← placed last
+     *   TankB(ox,oy+2,oz) → PipeB(ox,oy+2,oz+1) → SinkB(ox,oy+2,oz+2) [y = oy+2]
+     * </pre>
+     *
+     * Sources differ in Y. Water at lower Y wins.
+     */
+    private static TestCase mergedNetworkPipeLockNS() {
+        return new TestCase("merged_network_pipe_lock_ns", 3, 5, 5)
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    placeTank(w, ox, oy, oz);
+                    placePipe(w, ox, oy, oz + 1);
+                    placeTank(w, ox, oy, oz + 2);
+                    FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
+                    if (srcA != null)
+                        srcA.fill(WATER_ID, FILL_AMOUNT);
+
+                    placeTank(w, ox, oy + 2, oz);
+                    placePipe(w, ox, oy + 2, oz + 1);
+                    placeTank(w, ox, oy + 2, oz + 2);
+                    FluidContainerComponent srcB = getContainer(w, ox, oy + 2, oz);
+                    if (srcB != null)
+                        srcB.fill(LAVA_ID, FILL_AMOUNT);
+                }))
+                .step(Steps.waitUntil(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    FluidPipeComponent pipeA = getPipe(w, ox, oy, oz + 1);
+                    FluidPipeComponent pipeB = getPipe(w, ox, oy + 2, oz + 1);
+                    return pipeA != null && WATER_ID.equals(pipeA.getFluidId())
+                            && pipeB != null && LAVA_ID.equals(pipeB.getFluidId());
+                }, TRANSFER_TICKS, "PipeA locked to Water and PipeB locked to Lava"))
+                .step(Steps.run(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    placePipe(w, ox, oy + 1, oz + 1);
+                }))
+                .step(Steps.wait(1))
+                .step(Steps.assertThat(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    FluidPipeComponent bridge = getPipe(w, ox, oy + 1, oz + 1);
+                    return bridge != null && WATER_ID.equals(bridge.getFluidId());
+                }, "bridge locked to WATER_ID: lower-coordinate source wins (NS)"))
+                .step(Steps.assertThat(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    FluidPipeComponent pipeA = getPipe(w, ox, oy, oz + 1);
+                    FluidPipeComponent pipeB = getPipe(w, ox, oy + 2, oz + 1);
+                    return pipeA != null && WATER_ID.equals(pipeA.getFluidId())
+                            && pipeB != null && LAVA_ID.equals(pipeB.getFluidId());
+                }, "dedicated pipes retain original fluid locks after bridge placed (NS)"))
+                .step(Steps.assertThat(ctx -> {
+                    World w = ctx.getWorld();
+                    int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
+                    FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
+                    FluidContainerComponent sinkB = getContainer(w, ox, oy + 2, oz + 2);
                     boolean sinkAOk = sinkA == null || sinkA.getFluidId() == null
                             || WATER_ID.equals(sinkA.getFluidId());
                     boolean sinkBOk = sinkB == null || sinkB.getFluidId() == null

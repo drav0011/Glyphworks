@@ -41,6 +41,7 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
+    "VariantRotation": "NESW",
     "HitboxType": "Tank",
     "CustomModel": "Blocks/Glyphworks/Item/Container/Default.blockymodel",
     "CustomModelTexture": [

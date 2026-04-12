@@ -39,11 +39,10 @@ public final class BlockMinerSystemTests {
     private static final String QUALITY1_BLOCK_ID = "Rock_Basalt";
     private static final String QUALITY1_DROP_ID = "Rock_Basalt_Cobble";
     /**
-     * A Glyphworks custom-model block that defines no {@code Gathering} field and
-     * is therefore unbreakable by the miner (gathering == null). Using a mod-owned
-     * block avoids brittleness against engine asset changes.
+     * A custom-model block that defines no {@code Gathering} field and is therefore
+     * unbreakable by the miner (gathering == null).
      */
-    private static final String UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID = "Glyphworks_Fluid_Tank";
+    private static final String UNBREAKABLE_CUSTOM_MODEL_BLOCK_ID = "Editor_Block";
 
     private BlockMinerSystemTests() {
     }

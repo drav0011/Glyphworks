@@ -72,6 +72,13 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
         if (lookup == null)
             return;
 
+        // Filler cells of multi-block structures resolve to the origin block.
+        // Face positions in the GridComponent are relative to the origin, so
+        // processing a filler cell would compute wrong candidate positions and
+        // create spurious graph edges. Only process at the true origin.
+        if (!pos.equals(lookup.originPos()))
+            return;
+
         GridComponent component = lookup.component();
         if (component.getEntries().isEmpty())
             return;

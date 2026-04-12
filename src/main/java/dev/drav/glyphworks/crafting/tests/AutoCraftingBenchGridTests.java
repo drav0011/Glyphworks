@@ -1,16 +1,22 @@
 package dev.drav.glyphworks.crafting.tests;
 
 import javax.annotation.Nullable;
+
 import org.joml.Vector3i;
+
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.World;
+
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -46,8 +52,8 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  *
  * <p>Item-in network (test 5):
  * <pre>
- *   Item container (ox-1, oy, oz+2) [East-Output]
- *     → Item pipe (ox, oy, oz+2) [West connects to container, North connects to bench]
+ *   Item container (ox, oy, oz+3) [rotated 180° yaw → North-Output]
+ *     → Item pipe (ox, oy, oz+2) [connects to container; South connects to bench input]
  *     → Bench item input container
  * </pre>
  *
@@ -55,7 +61,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  * <pre>
  *   Bench item output container
  *     → Item pipe (ox, oy, oz-3) [South connects to bench output cell]
- *     → Item sink (ox, oy-1, oz-3) [Up-Input connects to pipe above]
+ *     → Item container (ox, oy, oz-4) [rotated 180° yaw → South-Input]
  * </pre>
  */
 public final class AutoCraftingBenchGridTests {
@@ -69,8 +75,10 @@ public final class AutoCraftingBenchGridTests {
     private static final String FLUID_SOURCE_ID  = "Glyphworks_Fluid_Source";
     private static final String ITEM_PIPE_ID     = "Glyphworks_Item_Pipe";
     private static final String ITEM_CONTAINER_ID = "Glyphworks_Item_Container";
-    private static final String ITEM_SINK_ID     = "Glyphworks_Item_Sink";
     private static final int    SETUP_WAIT       = 2;
+
+    private static final int ROTATION_YAW_180 = RotationTuple.index(
+            Rotation.OneEighty, Rotation.None, Rotation.None);
 
     private AutoCraftingBenchGridTests() {}
 
@@ -97,6 +105,11 @@ public final class AutoCraftingBenchGridTests {
 
     private static void placeBlock(World w, int x, int y, int z, String id) {
         w.setBlock(x, y, z, id);
+        PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
+    }
+
+    private static void placeBlockRotated(World w, int x, int y, int z, String id, int rotationIndex) {
+        FluidTestUtil.setBlockWithRotation(w, x, y, z, id, rotationIndex);
         PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
     }
 
@@ -285,23 +298,20 @@ public final class AutoCraftingBenchGridTests {
      *
      * <p>Layout:
      * <pre>
-     *   item container (ox-1, oy, oz+2)  [East-Output → pipe]
-     *   item pipe      (ox,   oy, oz+2)  [West connects to container; North connects to bench input]
-     *   bench input    (ox,   oy, oz+1)  [South-Input face cell]
+     *   item container (ox, oy, oz+3)  [rotated 180° yaw → North-Output → pipe]
+     *   item pipe      (ox, oy, oz+2)  [North connects to bench input]
+     *   bench input    (ox, oy, oz+1)  [South-Input face cell]
      * </pre>
      */
     private static TestCase itemsFlowIntoBenchViaItemPipe() {
-        return new TestCase("items_flow_into_bench_via_item_pipe", 5, 5, 5)
+        return new TestCase("items_flow_into_bench_via_item_pipe", 5, 5, 6)
                 .step(Steps.run(ctx -> {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                     placeBench(ctx.getWorld(), x, y, z);
                     lockRecipe(ctx.getWorld(), x, y, z);
-                    // Pipe at oz+2 connects South to bench input face and West to container
                     placeBlock(ctx.getWorld(), x, y, z + 2, ITEM_PIPE_ID);
-                    // Container at ox-1: East-Output face connects East to the pipe above
-                    placeBlock(ctx.getWorld(), x - 1, y, z + 2, ITEM_CONTAINER_ID);
-                    // Seed container with recipe ingredient
-                    ItemContainerBlock icb = getItemContainerBlock(ctx.getWorld(), x - 1, y, z + 2);
+                    placeBlockRotated(ctx.getWorld(), x, y, z + 3, ITEM_CONTAINER_ID, ROTATION_YAW_180);
+                    ItemContainerBlock icb = getItemContainerBlock(ctx.getWorld(), x, y, z + 3);
                     if (icb != null) {
                         icb.getItemContainer().addItemStack(
                                 new ItemStack(RECIPE_INPUT, 5), false, false, false);
@@ -311,58 +321,50 @@ public final class AutoCraftingBenchGridTests {
                 .step(Steps.assertThat(ctx -> {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                     return countInput(ctx.getWorld(), x, y, z) > 0;
-                }, "items must flow: item container (East-Output) → item pipe → bench input container"));
+                }, "items must flow: item container (North-Output via 180° yaw) → item pipe → bench input container"));
     }
 
     /**
-     * The bench crafts one cycle (ingredient + mana present), producing Deco_Target
-     * in the output container.  An item pipe at (ox, oy, oz-3) connects bench output
-     * to an item container (West-Input) at (ox+1, oy, oz-3).  After enough ticks for
-     * crafting + draining, the item container must have received at least one item.
-     *
-     * <p>Using an item container rather than item sink avoids any item-sink-specific
-     * archetype lookup issue. Container is to the East of the pipe so the
-     * pipe's East face links directly to the container's West-Input face.
+     * The bench crafts one cycle (ingredient + mana present), producing an item in
+     * the output container.  An item pipe at (ox, oy, oz-3) connects bench output
+     * to an item container at (ox, oy, oz-4) rotated 180° yaw so that its South-Input
+     * face connects to the pipe.
      *
      * <p>Layout:
      * <pre>
-     *   bench output   (ox,   oy, oz-2)  [North-Output face cell]
-     *   item pipe      (ox,   oy, oz-3)  [South→bench; East→container]
-     *   item container (ox+1, oy, oz-3)  [West-Input receives from pipe]
+     *   bench output   (ox, oy, oz-2)  [North-Output face cell]
+     *   item pipe      (ox, oy, oz-3)  [South→bench; North→container]
+     *   item container (ox, oy, oz-4)  [rotated 180° yaw → South-Input receives from pipe]
      * </pre>
      */
     private static TestCase itemsFlowOutOfBenchViaItemPipe() {
-        return new TestCase("items_flow_out_of_bench_via_item_pipe", 5, 5, 5)
+        return new TestCase("items_flow_out_of_bench_via_item_pipe", 5, 5, 7)
                 .step(Steps.run(ctx -> {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                     placeBench(ctx.getWorld(), x, y, z);
-                    // Pipe at oz-3 connects South to bench output face (oz-2 cell → bench origin)
                     placeBlock(ctx.getWorld(), x, y, z - 3, ITEM_PIPE_ID);
-                    // Item container to the East of the pipe; West face is Input → connects to pipe
-                    placeBlock(ctx.getWorld(), x + 1, y, z - 3, ITEM_CONTAINER_ID);
+                    placeBlockRotated(ctx.getWorld(), x, y, z - 4, ITEM_CONTAINER_ID, ROTATION_YAW_180);
                 }))
                 .step(Steps.wait(SETUP_WAIT))
                 .step(Steps.run(ctx -> {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                     lockRecipe(ctx.getWorld(), x, y, z);
-                    // Seed mana directly so the bench can craft
                     FluidContainerComponent fcc = getFluid(ctx.getWorld(), x, y, z);
                     if (fcc != null) fcc.fill(MANA_FLUID_ID, MANA_CAPACITY);
-                    // Seed one ingredient directly into the bench input container
                     AutoCraftingBenchBlock bench = getBench(ctx.getWorld(), x, y, z);
                     if (bench != null) {
                         ItemContainer input = bench.getInputContainer();
                         if (input != null) {
-                            input.addItemStack(new ItemStack(RECIPE_INPUT, 1), false, false, false);
+                            input.addItemStack(
+                                    new ItemStack(RECIPE_INPUT, 1), false, false, false);
                         }
                     }
                 }))
-                // Wait long enough for craft (1 s) + grid drain (1+ s)
                 .step(Steps.wait(ctx -> 5 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
-                    return countItemsAt(ctx.getWorld(), x + 1, y, z - 3) > 0;
-                }, "crafted item must drain from bench output → item pipe → item container (West-Input)"));
+                    return countItemsAt(ctx.getWorld(), x, y, z - 4) > 0;
+                }, "crafted item must drain from bench output → item pipe → item container (South-Input via 180° yaw)"));
     }
 }
 

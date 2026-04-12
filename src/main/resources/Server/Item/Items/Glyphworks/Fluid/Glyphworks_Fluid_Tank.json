@@ -41,7 +41,7 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "VariantRotation": "DoublePipe",
+    "VariantRotation": "NESW",
     "HitboxType": "Tank",
     "CustomModel": "Blocks/Glyphworks/Fluid/Tank/Default.blockymodel",
     "CustomModelTexture": [
