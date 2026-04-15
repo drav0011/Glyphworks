@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.item.system;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -16,11 +18,12 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockBreakingD
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockGathering;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.SoftBlockDropType;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
+import com.hypixel.hytale.server.core.modules.interaction.BlockHarvestUtils;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -151,19 +154,20 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
             miner.setLastSeenBlockId(targetBlockId);
         }
 
-        BlockBreakingDropType breaking = gathering.getBreaking();
-        int ticksRequired = computeTicksRequired(breaking);
-
-        // Determine the item that will drop so we can enforce back-pressure.
-        String dropItemId = (breaking != null) ? breaking.getItemId() : null;
-        if (dropItemId == null) {
-            dropItemId = blockType.getId();
-        }
-        int dropQty = (breaking != null) ? Math.max(1, breaking.getQuantity()) : 1;
-
-        // Back-pressure: stall mining while the container cannot accept the drop.
-        if (!container.canAddItemStack(new ItemStack(dropItemId, dropQty))) {
+        List<ItemStack> drops = computeDrops(blockType, gathering);
+        if (drops.isEmpty()) {
+            miner.setMiningProgress(0);
+            miner.setLastSeenBlockId(targetBlockId);
             return;
+        }
+
+        int ticksRequired = computeTicksRequired(gathering.getBreaking());
+
+        // Back-pressure: stall while any drop cannot fit.
+        for (ItemStack drop : drops) {
+            if (!container.canAddItemStack(drop)) {
+                return;
+            }
         }
 
         miner.setMiningProgress(miner.getMiningProgress() + 1);
@@ -172,9 +176,14 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        // Mining complete — add item to container and remove the block.
-        ItemStackTransaction tx = container.addItemStack(new ItemStack(dropItemId, dropQty));
-        if (tx.succeeded()) {
+        // Mining complete — add all drops and remove the block.
+        boolean anySucceeded = false;
+        for (ItemStack drop : drops) {
+            if (container.addItemStack(drop).succeeded()) {
+                anySucceeded = true;
+            }
+        }
+        if (anySucceeded) {
             final int ax = adjacent.x, ay = adjacent.y, az = adjacent.z;
             commandBuffer.run(_ -> commandBuffer.getExternalData().getWorld().setBlock(ax, ay, az, "Empty"));
         }
@@ -185,6 +194,20 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    @Nonnull
+    private static List<ItemStack> computeDrops(@Nonnull BlockType blockType, @Nonnull BlockGathering gathering) {
+        BlockBreakingDropType breaking = gathering.getBreaking();
+        if (breaking != null) {
+            int qty = Math.max(1, breaking.getQuantity());
+            return BlockHarvestUtils.getDrops(blockType, qty, breaking.getItemId(), breaking.getDropListId());
+        }
+        SoftBlockDropType soft = gathering.getSoft();
+        if (soft != null) {
+            return BlockHarvestUtils.getDrops(blockType, 1, soft.getItemId(), soft.getDropListId());
+        }
+        return List.of();
+    }
 
     /**
      * Maps a block's breaking quality tier to the number of ticks required to mine

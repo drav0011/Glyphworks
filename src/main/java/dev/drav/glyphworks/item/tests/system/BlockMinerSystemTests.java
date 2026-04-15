@@ -80,11 +80,11 @@ public final class BlockMinerSystemTests {
                     // World block at target must be cleared.
                     if (ItemTestUtil.getBlockId(ctx.getWorld(), tx, ty, tz) != 0)
                         return false;
-                    // Miner container must hold at least one drop item.
+                    // Miner container must hold the correct drop item.
                     ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) > 0;
-                }, "BlockMinerSystem mines Rock_Stone, clears the world block, and stores the drop"));
+                    return icb != null && ItemTestUtil.countItemsOfType(icb.getItemContainer(), DROP_ITEM_ID) > 0;
+                }, "BlockMinerSystem mines Rock_Stone, clears the world block, and stores " + DROP_ITEM_ID));
     }
 
     // -------------------------------------------------------------------------
@@ -163,7 +163,7 @@ public final class BlockMinerSystemTests {
                         return false;
                     ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return icb != null && ItemTestUtil.countItems(icb.getItemContainer()) > 0;
+                    return icb != null && ItemTestUtil.countItemsOfType(icb.getItemContainer(), QUALITY1_DROP_ID) > 0;
                 }, QUALITY1_BLOCK_ID + " must be fully mined after 400+ ticks with drop " + QUALITY1_DROP_ID + " in container"));
     }
 

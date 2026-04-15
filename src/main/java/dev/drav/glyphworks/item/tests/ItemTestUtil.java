@@ -52,6 +52,19 @@ public final class ItemTestUtil {
         return total;
     }
 
+    public static int countItemsOfType(ItemContainer container, String itemId) {
+        if (container == null)
+            return -1;
+        int total = 0;
+        for (short i = 0; i < container.getCapacity(); i++) {
+            ItemStack stack = container.getItemStack(i);
+            if (stack != null && !stack.isEmpty() && itemId.equals(stack.getItemId())) {
+                total += stack.getQuantity();
+            }
+        }
+        return total;
+    }
+
     public static void seedItems(ItemContainer container, String itemId, int amount) {
         if (container == null)
             return;
