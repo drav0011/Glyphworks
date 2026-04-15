@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Block_Placer.name"
+    "Name": "server.items.Glyphworks_Block_Placer.name",
+    "Description": "server.items.Glyphworks_Block_Placer.description"
   },
   "Categories": [
     "Glyphworks.Items"

@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Fluid_Tank.name"
+    "Name": "server.items.Glyphworks_Fluid_Tank.name",
+    "Description": "server.items.Glyphworks_Fluid_Tank.description"
   },
   "Categories": [
     "Glyphworks.Fluid"

@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Fluid_Placer.name"
+    "Name": "server.items.Glyphworks_Fluid_Placer.name",
+    "Description": "server.items.Glyphworks_Fluid_Placer.description"
   },
   "Categories": [
     "Glyphworks.Fluid"

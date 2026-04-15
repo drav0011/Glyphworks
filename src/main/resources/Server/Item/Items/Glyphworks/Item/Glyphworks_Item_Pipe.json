@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Item_Pipe.name"
+    "Name": "server.items.Glyphworks_Item_Pipe.name",
+    "Description": "server.items.Glyphworks_Item_Pipe.description"
   },
   "Categories": [
     "Glyphworks.Items"

@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Fluid_Remover.name"
+    "Name": "server.items.Glyphworks_Fluid_Remover.name",
+    "Description": "server.items.Glyphworks_Fluid_Remover.description"
   },
   "Categories": [
     "Glyphworks.Fluid"
