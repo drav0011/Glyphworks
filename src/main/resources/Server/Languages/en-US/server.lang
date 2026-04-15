@@ -1,11 +1,55 @@
-items.Glyphworks_Crafting_Bench_Furnace.name=Automated Furnace
-items.Glyphworks_Crafting_Bench_Furnace.description=A furnace that automatically pulls input and pushes output.
+# Benches
+items.Glyphworks_Crafting_Glyph_Imprinter.name=Glyph Imprinter
+items.Glyphworks_Crafting_Glyph_Imprinter.description=Used to craft Glyphworks benches and components.
+items.Glyphworks_Crafting_Manual_Press.name=Manual Rune Press
+items.Glyphworks_Crafting_Manual_Press.description=Used to shape raw materials into empty runes.
+items.Glyphworks_Crafting_Manual_Imbuer.name=Manual Imbuer
+items.Glyphworks_Crafting_Manual_Imbuer.description=Used to imbue empty runes with elemental essence.
+
+# Automatic Benches
+items.Glyphworks_Crafting_Automatic_Press.name=Automatic Rune Press
+items.Glyphworks_Crafting_Automatic_Press.description=Used to shape raw materials into empty runes.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Automatic_Imbuer.name=Automatic Imbuer
+items.Glyphworks_Crafting_Automatic_Imbuer.description=Used to imbue empty runes with elemental essence.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Mana_Liquifier.name=Mana Liquifier
+items.Glyphworks_Crafting_Mana_Liquifier.description=Used to convert elemental essences into liquid mana using fuel.\nAutomatically pulls input and pushes output.
+
+# Automatic Vanilla Benches
+items.Glyphworks_Crafting_Bench_Alchemy.name=Automated Alchemy Bench
+items.Glyphworks_Crafting_Bench_Alchemy.description=Used to create potions and elixirs.\nAutomatically pulls input and pushes output.\nRequires liquid mana.\n\n<i>The alchemists of old long sought the secrets to eternal life. Some might say they achieved that grand goal, though perhaps not in the form they imagined.</i>
+items.Glyphworks_Crafting_Bench_Arcane.name=Automated Arcane Bench
+items.Glyphworks_Crafting_Bench_Arcane.description=Used to fashion various arcane implements.\nAutomatically pulls input and pushes output.\nRequires liquid mana.\n\n<i>The arcane arts are the closest mere mortals have ever come to achieving Avatar powers. Had they mastered them sooner, perhaps they would not have been so easily swayed.</i>
+## Architects bench?
+## Armory bench?
+items.Glyphworks_Crafting_Bench_Armour.name=Automated Armour Bench
+items.Glyphworks_Crafting_Bench_Armour.description=Used to craft basic armor.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+## Builders?
+items.Glyphworks_Crafting_Bench_Furniture.name=Automated Furniture Bench
+items.Glyphworks_Crafting_Bench_Furniture.description=Used to craft furniture, storage, and decorative items to personalize your home.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Bench_Campfire.name=Automated Campfire
+items.Glyphworks_Crafting_Bench_Campfire.description=Cook basic meals.\nAutomatically pulls input and pushes output.\nRequires liquid mana.\n\n<i>To many an adventurer, the humble campfire is all it takes to declare a place "home." Unshakeable bonds can be forged while basking in its warmth and all great tales have sparked from its embers.</i>
+items.Glyphworks_Crafting_Bench_Cooking.name=Automated Cooking Bench
+items.Glyphworks_Crafting_Bench_Cooking.description=A built-in kitchen that can be used to make advanced dishes.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
 items.Glyphworks_Crafting_Bench_Farming.name=Automated Farming Bench
-items.Glyphworks_Crafting_Bench_Farming.description=A farming bench that automatically pulls input and pushes output.
+items.Glyphworks_Crafting_Bench_Farming.description=Used to craft farming accessories and animal feed.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Bench_Furnace.name=Automated Furnace
+items.Glyphworks_Crafting_Bench_Furnace.description=Used to process ore into metal bars.\nUpgrading reduces smelting times and increases storage capacity.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+## Loom?
+## Lumbermill?
+items.Glyphworks_Crafting_Bench_Salvage.name=Automated Salvage Bench
+items.Glyphworks_Crafting_Bench_Salvage.description=Can be used to break down some items into base materials.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Bench_Tannery.name=Automated Tannery
+items.Glyphworks_Crafting_Bench_Tannery.description=Used to process raw hides into leather.\nUpgrading reduces processing times and increases storage capacity.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Bench_Weapon.name=Automated Weapon Bench
+items.Glyphworks_Crafting_Bench_Weapon.description=Used to fashion basic weaponry.\nAutomatically pulls input and pushes output.\nRequires liquid mana.
+items.Glyphworks_Crafting_Bench_WorkBench.name=Automated Workbench
+items.Glyphworks_Crafting_Bench_WorkBench.description=A workstation enabling the crafting of more complex tools and items.\nAutomatically pulls input and pushes output.\nRequires liquid mana.\n\n<i>No artisan is born a creator. Even Avatars need time to hone their craft, particularly when bound by the rules of another's domain.</i>
+
+# Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
 items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.
 items.Glyphworks_Fluid_Pipe.name=Fluid Pipe
-items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes. Connects automatically to adjacent pipes.
+items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes. Connects \nAutomatically to adjacent pipes.
 items.Glyphworks_Fluid_Placer.name=Fluid Placer
 items.Glyphworks_Fluid_Placer.description=Places the stored fluid as a block directly below.
 items.Glyphworks_Fluid_Remover.name=Fluid Remover
@@ -16,12 +60,14 @@ items.Glyphworks_Fluid_Source.name=Fluid Source
 items.Glyphworks_Fluid_Source.description=Generates an infinite supply of fluid. Intended for creative use.
 items.Glyphworks_Fluid_Sink.name=Fluid Sink
 items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.
+
+# Item network
 items.Glyphworks_Item_Container.name=Item Container
 items.Glyphworks_Item_Container.description=Stores up to 20 item stacks.
 items.Glyphworks_Item_Pipe.name=Item Pipe
-items.Glyphworks_Item_Pipe.description=Transports items between network nodes. Connects automatically to adjacent pipes.
+items.Glyphworks_Item_Pipe.description=Transports items between network nodes. Connects \nAutomatically to adjacent pipes.
 items.Glyphworks_Item_Source.name=Item Source
-items.Glyphworks_Item_Source.description=Generates an infinite supply of any item. Intended for creative use.
+items.Glyphworks_Item_Source.description=Generates an infinite supply of any item. Intended for creative use. Press F to set the item it produces. Right click to inspect
 items.Glyphworks_Item_Sink.name=Item Sink
 items.Glyphworks_Item_Sink.description=Destroys any item piped into it.
 items.Glyphworks_Item_Inserter.name=Item Inserter
@@ -33,33 +79,11 @@ items.Glyphworks_Item_Picker.description=Collects items dropped on the ground wi
 items.Glyphworks_Item_Dropper.name=Item Dropper
 items.Glyphworks_Item_Dropper.description=Ejects items from the network as dropped entities on the ground.
 items.Glyphworks_Block_Miner.name=Block Miner
-items.Glyphworks_Block_Miner.description=Automatically mines the block directly below and outputs the drops.
+items.Glyphworks_Block_Miner.description=\nAutomatically mines the block directly below and outputs the drops.
 items.Glyphworks_Block_Placer.name=Block Placer
 items.Glyphworks_Block_Placer.description=Places blocks from the network directly below itself.
-items.Glyphworks_Crafting_Bench_Alchemy.name=Automated Alchemy Bench
-items.Glyphworks_Crafting_Bench_Alchemy.description=An alchemy bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Arcane.name=Automated Arcane Bench
-items.Glyphworks_Crafting_Bench_Arcane.description=An arcane bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Armour.name=Automated Armour Bench
-items.Glyphworks_Crafting_Bench_Armour.description=An armour bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Builders.name=Automated Builder's Bench
-items.Glyphworks_Crafting_Bench_Builders.description=A builder's bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Campfire.name=Automated Campfire
-items.Glyphworks_Crafting_Bench_Campfire.description=A campfire that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Cooking.name=Automated Cooking Bench
-items.Glyphworks_Crafting_Bench_Cooking.description=A cooking bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Furniture.name=Automated Furniture Bench
-items.Glyphworks_Crafting_Bench_Furniture.description=A furniture bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Loom.name=Automated Loom
-items.Glyphworks_Crafting_Bench_Loom.description=A loom that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Salvage.name=Automated Salvage Bench
-items.Glyphworks_Crafting_Bench_Salvage.description=A salvage bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Tannery.name=Automated Tannery
-items.Glyphworks_Crafting_Bench_Tannery.description=A tannery that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_Weapon.name=Automated Weapon Bench
-items.Glyphworks_Crafting_Bench_Weapon.description=A weapon bench that automatically pulls input and pushes output.
-items.Glyphworks_Crafting_Bench_WorkBench.name=Automated Workbench
-items.Glyphworks_Crafting_Bench_WorkBench.description=A workbench that automatically pulls input and pushes output.
+
+# Runes
 items.Glyphworks_Rune_Empty_Fire.name=Empty Fire Rune
 items.Glyphworks_Rune_Empty_Fire.description=Sowilo - the rune of sun and heat
 items.Glyphworks_Rune_Empty_Ice.name=Empty Ice Rune
@@ -84,24 +108,18 @@ items.Glyphworks_Rune_Void.name=Void Rune
 items.Glyphworks_Rune_Void.description=Hagalaz - imbued with the essence of void
 items.Glyphworks_Rune_Water.name=Water Rune
 items.Glyphworks_Rune_Water.description=Laguz - imbued with the essence of water
-items.Glyphworks_Crafting_Manual_Press.name=Manual Rune Press
-items.Glyphworks_Crafting_Manual_Press.description=A stone press for shaping empty runes.
-items.Glyphworks_Crafting_Glyph_Imprinter.name=Glyph Imprinter
-items.Glyphworks_Crafting_Glyph_Imprinter.description=An advanced bench for crafting Glyphworks machines and components.
-items.Glyphworks_Crafting_Manual_Imbuer.name=Manual Imbuer
-items.Glyphworks_Crafting_Manual_Imbuer.description=Imbues empty runes with elemental essence.
-items.Glyphworks_Crafting_Automatic_Press.name=Automatic Rune Press
-items.Glyphworks_Crafting_Automatic_Press.description=An automated rune press that integrates with item pipes.
-items.Glyphworks_Crafting_Automatic_Imbuer.name=Automatic Imbuer
-items.Glyphworks_Crafting_Automatic_Imbuer.description=An automated imbuer that integrates with item pipes.
-items.Glyphworks_Crafting_Mana_Liquifier.name=Mana Liquifier
-items.Glyphworks_Crafting_Mana_Liquifier.description=Converts elemental essences into liquid mana using fuel.
+
+# Categories
 benchCategories.runepress.crafting=Rune Crafting
 benchCategories.glyphimprinter.machines=Machines
 benchCategories.glyphimprinter.components=Components
 benchCategories.glyphimbuer.runes=Rune Imbuing
+
+# Resource types
 resourceType.Glyphworks_Empty_Rune.name=Empty Rune
 resourceType.Glyphworks_Filled_Rune.name=Filled Rune
+
+# Item categories
 ui.itemcategory.glyphworks=Glyphworks
 ui.itemcategory.glyphworks.benches=Benches
 ui.itemcategory.glyphworks.fluid=Fluid Network
