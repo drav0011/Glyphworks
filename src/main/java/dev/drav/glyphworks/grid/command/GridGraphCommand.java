@@ -48,6 +48,11 @@ public final class GridGraphCommand extends AbstractWorldCommand {
     }
 
     @Override
+    protected String generatePermissionNode() {
+        return "glyphworks.graph";
+    }
+
+    @Override
     protected void execute(
             @Nonnull CommandContext context,
             @Nonnull World world,
