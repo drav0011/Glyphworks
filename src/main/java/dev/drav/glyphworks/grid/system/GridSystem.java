@@ -1,5 +1,7 @@
 package dev.drav.glyphworks.grid.system;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
@@ -29,6 +31,7 @@ import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 public final class GridSystem extends EntityTickingSystem<ChunkStore> {
 
     private static final Logger LOGGER = Logger.getLogger(GridSystem.class.getName());
+    private static final Set<String> WARNED = new HashSet<>();
 
     @Override
     public Query<ChunkStore> getQuery() {
@@ -60,7 +63,9 @@ public final class GridSystem extends EntityTickingSystem<ChunkStore> {
 
             GridTypeHandler handler = GridTypeHandlerRegistry.get(gridType.id());
             if (handler == null) {
-                LOGGER.warning("[GridSystem] No handler registered for grid type: \"" + gridType.id() + "\"");
+                if (WARNED.add(gridType.id())) {
+                    LOGGER.warning("[GridSystem] No handler registered for grid type: \"" + gridType.id() + "\"");
+                }
                 continue;
             }
 
