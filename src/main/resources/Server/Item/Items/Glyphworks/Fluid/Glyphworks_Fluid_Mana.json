@@ -4,8 +4,9 @@
     "Description": "server.items.Glyphworks_Fluid_Mana.description"
   },
   "Categories": [
-    "Glyphworks.Fluid"
+    "Blocks.Fluids"
   ],
+  "Quality": "Rare",
   "Interactions": {
     "Secondary": {
       "Interactions": [

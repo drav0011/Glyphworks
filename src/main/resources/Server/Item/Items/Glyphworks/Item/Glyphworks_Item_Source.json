@@ -56,8 +56,8 @@
       }
     },
     "Interactions": {
-      "Use": "Configure_Source",
-      "Secondary": "Inspect_Block"
+      "Use": "Open_Container",
+      "Secondary": "Configure_Source"
     },
     "Gathering": {
       "Breaking": {

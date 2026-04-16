@@ -86,6 +86,9 @@
         "Glyphworks_ItemDropperComponent": {}
       }
     },
+    "Interactions": {
+      "Use": "Open_Container"
+    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"

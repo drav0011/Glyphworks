@@ -95,7 +95,7 @@
       }
     },
     "Interactions": {
-      "Use": "Inspect_Block"
+      "Use": "Open_Container"
     },
     "Gathering": {
       "Breaking": {
