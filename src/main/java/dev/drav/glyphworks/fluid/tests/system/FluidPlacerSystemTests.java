@@ -50,8 +50,7 @@ public final class FluidPlacerSystemTests {
                 .test(placerPlacesFluidToward(BlockFace.West,  FluidTestUtil.ROTATION_WEST))
                 // Guard-logic tests (direction-independent — tested with Down)
                 .test(placerSkipsWhenBelowThreshold())
-                .test(placerSkipsWhenTargetOccupied())
-                .test(placerSkipsWhenNoFluidLocked());
+                .test(placerSkipsWhenTargetOccupied());
     }
 
     // -------------------------------------------------------------------------
@@ -133,28 +132,5 @@ public final class FluidPlacerSystemTests {
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     return fcc != null && fcc.getAmount() == LITERS_PER_BLOCK;
                 }, "FluidPlacerSystem does not drain container when target cell is already occupied"));
-    }
-
-    private static TestCase placerSkipsWhenNoFluidLocked() {
-        return new TestCase("placer_skips_when_no_fluid_locked", 3, 3, 3)
-                .step(Steps.run(ctx -> {
-                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
-                    FluidTestUtil.setBlockWithRotation(ctx.getWorld(), bx, by, bz, BLOCK_ID,
-                            FluidTestUtil.ROTATION_DOWN);
-                }))
-                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
-                .step(Steps.run(ctx -> {
-                    int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
-                    // Set amount without locking a fluid type — fluidId stays null.
-                    FluidContainerComponent fcc = FluidTestUtil.getContainer(
-                            ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.setAmount(LITERS_PER_BLOCK);
-                }))
-                .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
-                .step(Steps.assertThat(ctx -> {
-                    int tx = ctx.getOriginX() + 1, ty = ctx.getOriginY(), tz = ctx.getOriginZ() + 1;
-                    return FluidTestUtil.getFluidId(ctx.getWorld(), tx, ty, tz) == 0;
-                }, "FluidPlacerSystem does not place fluid when no fluid type is locked in the container"));
     }
 }

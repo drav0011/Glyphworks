@@ -48,7 +48,9 @@ public final class FluidSourceSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        fcc.setFluidId(source.getFluidId());
-        fcc.setAmount(fcc.getCapacity());
+        if (!source.getFluidId().equals(fcc.getFluidId())) {
+            fcc.drain(fcc.getAmount());
+        }
+        fcc.fill(source.getFluidId(), fcc.availableSpace());
     }
 }

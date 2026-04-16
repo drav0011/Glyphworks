@@ -62,8 +62,7 @@ public final class FluidContainerComponentTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
-                        fcc.setAmount(AMOUNT);
-                        fcc.setFluidId(FLUID_ID);
+                        fcc.fill(FLUID_ID, AMOUNT);
                     }
                 }))
                 .step(Steps.assertThat(ctx -> {

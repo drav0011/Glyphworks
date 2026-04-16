@@ -88,8 +88,7 @@ public class ConfigureSourceInteraction extends SimpleBlockInteraction {
         FluidContainerComponent fcc = (FluidContainerComponent) store.getComponent(
                 blockEntityRef, FluidContainerComponent.getComponentType());
         if (fcc != null) {
-            fcc.setFluidId(newFluidId);
-            fcc.setAmount(0);
+            fcc.drain(fcc.getAmount());
         }
 
         return true;

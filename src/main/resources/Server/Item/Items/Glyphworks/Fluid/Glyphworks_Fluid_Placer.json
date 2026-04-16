@@ -78,9 +78,7 @@
           ]
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_Capacity": 1000,
-          "Glyphworks_FluidContainerComponent_Amount": 0,
-          "Glyphworks_FluidContainerComponent_FluidId": null
+          "Glyphworks_FluidContainerComponent_CapacityMb": 1000
         },
         "Glyphworks_FluidPlacerComponent": {
           "Glyphworks_FluidPlacerComponent_TargetNormal": "Down",

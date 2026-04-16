@@ -266,9 +266,7 @@
           "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_Capacity": 4000,
-          "Glyphworks_FluidContainerComponent_Amount": 0,
-          "Glyphworks_FluidContainerComponent_FluidId": null
+          "Glyphworks_FluidContainerComponent_CapacityMb": 4000
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

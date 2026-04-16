@@ -43,7 +43,6 @@ public final class FluidSinkSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        fcc.setAmount(0);
-        fcc.setFluidId(null);
+        fcc.drain(fcc.getAmount());
     }
 }

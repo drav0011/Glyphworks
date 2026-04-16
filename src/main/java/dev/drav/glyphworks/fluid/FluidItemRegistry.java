@@ -17,6 +17,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.config.cli
 public final class FluidItemRegistry {
 
     private static final Map<String, String> fluidIdToItemId = new HashMap<>();
+    private static final Map<String, String> itemIdToFluidId = new HashMap<>();
 
     private FluidItemRegistry() {
     }
@@ -26,6 +27,7 @@ public final class FluidItemRegistry {
             String fluidKey = extractFluidKey(entry.getValue());
             if (fluidKey != null) {
                 fluidIdToItemId.put(fluidKey, entry.getKey());
+                itemIdToFluidId.put(entry.getKey(), fluidKey);
             }
         }
     }
@@ -56,5 +58,10 @@ public final class FluidItemRegistry {
     @Nullable
     public static String resolveItemId(@Nonnull String fluidId) {
         return fluidIdToItemId.get(fluidId);
+    }
+
+    @Nullable
+    public static String resolveFluidId(@Nonnull String itemId) {
+        return itemIdToFluidId.get(itemId);
     }
 }

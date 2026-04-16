@@ -74,9 +74,7 @@
           ]
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_Capacity": 16000,
-          "Glyphworks_FluidContainerComponent_Amount": 0,
-          "Glyphworks_FluidContainerComponent_FluidId": null
+          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
         },
         "Glyphworks_FluidSinkComponent": {}
       }

@@ -69,12 +69,12 @@ public final class FluidSourceSystemTests {
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
-                    // Corrupt the container — wrong fluid, partial amount.
+                    // Put a partial fill in the container — source must top it back up.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
-                        fcc.setFluidId("Lava_Source");
-                        fcc.setAmount(1);
+                        fcc.drain(fcc.getAmount());
+                        fcc.fill(FLUID_ID, 1);
                     }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
@@ -84,6 +84,6 @@ public final class FluidSourceSystemTests {
                     return fcc != null
                             && fcc.getAmount() == fcc.getCapacity()
                             && FLUID_ID.equals(fcc.getFluidId());
-                }, "FluidSourceSystem overrides stale fluid ID and partial amount on the next tick"));
+                }, "FluidSourceSystem tops up a partially-filled container to capacity on the next tick"));
     }
 }

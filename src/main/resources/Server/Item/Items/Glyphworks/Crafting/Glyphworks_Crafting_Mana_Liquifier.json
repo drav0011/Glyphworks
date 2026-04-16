@@ -63,9 +63,7 @@
           "Glyphworks_ManaLiquifierBlock_FuelEnergy": 0.0
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_Capacity": 10000,
-          "Glyphworks_FluidContainerComponent_Amount": 0,
-          "Glyphworks_FluidContainerComponent_FluidId": null
+          "Glyphworks_FluidContainerComponent_CapacityMb": 10000
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

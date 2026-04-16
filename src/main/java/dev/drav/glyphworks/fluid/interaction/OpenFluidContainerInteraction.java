@@ -17,9 +17,6 @@ import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerBlockWindow;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
-import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
-import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -28,15 +25,12 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
- * Opens a one-slot, read-only container window that displays the fluid amount
- * stored inside the block. The slot holds a stack of the fluid's item
- * representation with a quantity equal to the stored liters, so the client
- * renders it as "x5000" for 5 buckets. The slot is fully locked to prevent
- * any player interaction.
+ * Opens a read-only container window that displays the fluid stored inside the
+ * block. The component's own item container (already DENY_ALL, 1 slot) is
+ * passed directly to the window — no separate display container needed.
  */
 public final class OpenFluidContainerInteraction extends SimpleBlockInteraction {
 
@@ -84,23 +78,8 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
 
         int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
 
-        ItemContainer displayContainer = SimpleItemContainer.getNewContainer((short) 1);
-        // DENY_ALL triggers a Hytale engine NPE on shift-click (null transaction in sendUpdate).
-        // The item is not stolen — the move fails — but the error is logged. This is a Hytale bug.
-        displayContainer.setGlobalFilter(FilterType.DENY_ALL);
-
-        if (fcc.getFluidId() != null) {
-            String displayId = FluidItemRegistry.resolveItemId(fcc.getFluidId());
-            if (displayId == null)
-                displayId = fcc.getFluidId();
-            displayContainer.setItemStackForSlot(
-                    (short) 0,
-                    new ItemStack(displayId, fcc.getAmount(), fcc.getAmount(), fcc.getCapacity(), null),
-                    false);
-        }
-
         ContainerBlockWindow window = new ContainerBlockWindow(
-                pos.x, pos.y, pos.z, rotationIndex, blockType, displayContainer);
+                pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getItemContainer());
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window);
     }
 
