@@ -7,8 +7,7 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
-
-import dev.drav.glyphworks.grid.component.FaceMode;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
 
@@ -135,12 +134,14 @@ public final class GridFaceUtil {
      * Returns {@code true} when two face modes can form a grid connection.
      * Two inputs or two outputs cannot link to each other.
      */
-    public static boolean areLinkable(FaceMode a, FaceMode b) {
-        if (a == FaceMode.CLOSED || b == FaceMode.CLOSED)
+    public static boolean areLinkable(FilterType a, FilterType b) {
+        if (!a.allowInput() && !a.allowOutput())
             return false;
-        if (a == FaceMode.INPUT  && b == FaceMode.INPUT)
+        if (!b.allowInput() && !b.allowOutput())
             return false;
-        if (a == FaceMode.OUTPUT && b == FaceMode.OUTPUT)
+        if (!a.allowOutput() && !b.allowOutput())
+            return false;
+        if (!a.allowInput() && !b.allowInput())
             return false;
         return true;
     }

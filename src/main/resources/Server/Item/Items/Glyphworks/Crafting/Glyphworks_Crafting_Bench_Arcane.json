@@ -98,7 +98,7 @@
                     "Z": -2
                   },
                   "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "output"
                 },
                 {
@@ -108,7 +108,7 @@
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
                 }
               ]
@@ -124,7 +124,7 @@
                     "Z": -1
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "mana"
                 }
               ]

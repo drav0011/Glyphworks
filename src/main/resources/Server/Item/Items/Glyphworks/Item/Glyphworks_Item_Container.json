@@ -43,7 +43,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "Input",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "items"
                 },
                 {
@@ -53,7 +53,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "Output",
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "items"
                 }
               ]

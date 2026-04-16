@@ -10,6 +10,7 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.math.vector.Vector3iUtil;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.protocol.BlockFace;
 
 /**
@@ -29,7 +30,7 @@ public class FacePlane {
                     c -> c.normal)
             .add()
             .append(
-                    new KeyedCodec<>("Glyphworks_FacePlane_Mode", new EnumCodec<>(FaceMode.class)),
+                    new KeyedCodec<>("Glyphworks_FacePlane_Mode", new EnumCodec<>(FilterType.class)),
                     (c, v) -> c.mode = v,
                     c -> c.mode)
             .add()
@@ -53,7 +54,7 @@ public class FacePlane {
     /**
      * Connection mode for this face
      */
-    private FaceMode mode;
+    private FilterType mode;
 
     /**
      * Optional key identifying which container on this block this face connects to.
@@ -68,7 +69,7 @@ public class FacePlane {
      * No-arg constructor required by {@link #CODEC}.
      */
     public FacePlane() {
-        this(new Vector3i(0, 0, 0), BlockFace.None, FaceMode.BIDIRECTIONAL, null);
+        this(new Vector3i(0, 0, 0), BlockFace.None, FilterType.ALLOW_ALL, null);
     }
 
     /**
@@ -76,7 +77,7 @@ public class FacePlane {
      * @param normal   Normal vector for this face
      * @param mode     Initial connection mode
      */
-    public FacePlane(Vector3i position, BlockFace normal, FaceMode mode) {
+    public FacePlane(Vector3i position, BlockFace normal, FilterType mode) {
         this(position, normal, mode, null);
     }
 
@@ -86,7 +87,7 @@ public class FacePlane {
      * @param mode         Initial connection mode
      * @param containerKey Optional container key for multi-container machines
      */
-    public FacePlane(Vector3i position, BlockFace normal, FaceMode mode, @Nullable String containerKey) {
+    public FacePlane(Vector3i position, BlockFace normal, FilterType mode, @Nullable String containerKey) {
         this.position = new Vector3i(position);
         this.normal = normal;
         this.mode = mode;
@@ -108,11 +109,11 @@ public class FacePlane {
         return normal;
     }
 
-    public FaceMode getMode() {
+    public FilterType getMode() {
         return mode;
     }
 
-    public void setMode(FaceMode mode) {
+    public void setMode(FilterType mode) {
         this.mode = mode;
     }
 

@@ -15,8 +15,9 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
+
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -92,7 +93,7 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
 
             // Scan faces, find compatible neighbors of the same grid type, and link.
             for (FacePlane face : entry.getFaces()) {
-                if (face.getMode() == FaceMode.CLOSED || face.getNormal() == BlockFace.None)
+                if (face.getMode() == FilterType.DENY_ALL || face.getNormal() == BlockFace.None)
                     continue;
 
                 BlockFace worldNormal = GridFaceUtil.rotateBlockFace(face.getNormal(), lookup.rotation());
@@ -118,7 +119,7 @@ public final class PlaceGridBlockEvent extends EntityEventSystem<EntityStore, Pl
                 FacePlane neighborFace = GridFaceUtil.findMatchingFace(neighborEntry, resolvedNeighborPos,
                         neighborLookup.rotation(),
                         GridFaceUtil.opposite(worldNormal), candidatePos);
-                if (neighborFace == null || neighborFace.getMode() == FaceMode.CLOSED)
+                if (neighborFace == null || neighborFace.getMode() == FilterType.DENY_ALL)
                     continue;
                 if (!GridFaceUtil.areLinkable(face.getMode(), neighborFace.getMode()))
                     continue;

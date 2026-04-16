@@ -24,6 +24,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -33,7 +34,6 @@ import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
-import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -139,8 +139,8 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             @Nonnull ChunkStore chunkStore) {
         List<ItemContainer> sourceContainers = new ArrayList<>();
         for (FacePlane face : entry.getFaces()) {
-            FaceMode mode = face.getMode();
-            if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
+            FilterType mode = face.getMode();
+            if (!mode.allowOutput())
                 continue;
 
             String key = face.getContainerKey();
@@ -148,7 +148,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 ItemContainer c = resolveContainer(store, blockRef, key);
                 if (c != null && hasItems(c))
                     sourceContainers.add(c);
-            } else if (mode == FaceMode.OUTPUT) {
+            } else if (mode == FilterType.ALLOW_OUTPUT_ONLY) {
                 if (originPos == null)
                     continue;
                 ItemContainer c = resolveAdjacentContainer(chunkStore, originPos, face);
@@ -226,7 +226,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         for (Vector3i neighborPos : seedNeighbors) {
             if (selfLookup != null) {
                 FacePlane connectingFace = findEntryFace(chunkStore, selfLookup, neighborPos, typeId);
-                if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
+                if (connectingFace != null && !connectingFace.getMode().allowOutput())
                     continue;
             }
             GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
@@ -244,7 +244,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
 
     private static boolean isTerminalNode(@Nonnull GridTypeEntry entry) {
         for (FacePlane face : entry.getFaces()) {
-            if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null)
+            if (face.getMode() != FilterType.ALLOW_ALL || face.getContainerKey() != null)
                 return true;
         }
         return false;
@@ -260,10 +260,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
         if (entryFace == null)
             return;
-        FaceMode mode = entryFace.getMode();
+        FilterType mode = entryFace.getMode();
         String key = entryFace.getContainerKey();
-        if ((mode == FaceMode.INPUT || mode == FaceMode.BIDIRECTIONAL)
-                && (key != null || mode == FaceMode.INPUT)) {
+        if (mode.allowInput() && (key != null || !mode.allowOutput())) {
             sinks.add(new ItemSinkEntry(
                     bfsNode.lookup().blockRef(), bfsNode.lookup().component(), entryFace,
                     bfsNode.rate(), bfsNode.distance(), bfsNode.lookup().originPos()));

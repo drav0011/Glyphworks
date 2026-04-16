@@ -61,7 +61,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -70,7 +70,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -79,7 +79,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "East",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -88,7 +88,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "West",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -97,7 +97,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -106,7 +106,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Down",
-                  "Glyphworks_FacePlane_Mode": "Bidirectional"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 }
               ]
             }

@@ -6,7 +6,7 @@ import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 
-import dev.drav.glyphworks.grid.component.FaceMode;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
@@ -63,38 +63,38 @@ public final class GridFaceUtilTests {
     private static TestCase linkableBidirBidir() {
         return new TestCase("linkable_bidir_bidir", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.BIDIRECTIONAL),
-                        "areLinkable(BIDIRECTIONAL, BIDIRECTIONAL) == true"));
+                        ctx -> GridFaceUtil.areLinkable(FilterType.ALLOW_ALL, FilterType.ALLOW_ALL),
+                        "areLinkable(ALLOW_ALL, ALLOW_ALL) == true"));
     }
 
     private static TestCase linkableInputOutput() {
         return new TestCase("linkable_input_output", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> GridFaceUtil.areLinkable(FaceMode.INPUT, FaceMode.OUTPUT),
-                        "areLinkable(INPUT, OUTPUT) == true"));
+                        ctx -> GridFaceUtil.areLinkable(FilterType.ALLOW_INPUT_ONLY, FilterType.ALLOW_OUTPUT_ONLY),
+                        "areLinkable(ALLOW_INPUT_ONLY, ALLOW_OUTPUT_ONLY) == true"));
     }
 
     private static TestCase linkableOutputInput() {
         return new TestCase("linkable_output_input", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> GridFaceUtil.areLinkable(FaceMode.OUTPUT, FaceMode.INPUT),
-                        "areLinkable(OUTPUT, INPUT) == true"));
+                        ctx -> GridFaceUtil.areLinkable(FilterType.ALLOW_OUTPUT_ONLY, FilterType.ALLOW_INPUT_ONLY),
+                        "areLinkable(ALLOW_OUTPUT_ONLY, ALLOW_INPUT_ONLY) == true"));
     }
 
     private static TestCase linkableInputBidir() {
         return new TestCase("linkable_input_bidir", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> GridFaceUtil.areLinkable(FaceMode.INPUT, FaceMode.BIDIRECTIONAL)
-                                && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.INPUT),
-                        "areLinkable(INPUT, BIDIR) and areLinkable(BIDIR, INPUT) are both true"));
+                        ctx -> GridFaceUtil.areLinkable(FilterType.ALLOW_INPUT_ONLY, FilterType.ALLOW_ALL)
+                                && GridFaceUtil.areLinkable(FilterType.ALLOW_ALL, FilterType.ALLOW_INPUT_ONLY),
+                        "areLinkable(ALLOW_INPUT_ONLY, ALLOW_ALL) and areLinkable(ALLOW_ALL, ALLOW_INPUT_ONLY) are both true"));
     }
 
     private static TestCase linkableOutputBidir() {
         return new TestCase("linkable_output_bidir", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> GridFaceUtil.areLinkable(FaceMode.OUTPUT, FaceMode.BIDIRECTIONAL)
-                                && GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.OUTPUT),
-                        "areLinkable(OUTPUT, BIDIR) and areLinkable(BIDIR, OUTPUT) are both true"));
+                        ctx -> GridFaceUtil.areLinkable(FilterType.ALLOW_OUTPUT_ONLY, FilterType.ALLOW_ALL)
+                                && GridFaceUtil.areLinkable(FilterType.ALLOW_ALL, FilterType.ALLOW_OUTPUT_ONLY),
+                        "areLinkable(ALLOW_OUTPUT_ONLY, ALLOW_ALL) and areLinkable(ALLOW_ALL, ALLOW_OUTPUT_ONLY) are both true"));
     }
 
     // -------------------------------------------------------------------------
@@ -104,25 +104,25 @@ public final class GridFaceUtilTests {
     private static TestCase notLinkableInputInput() {
         return new TestCase("not_linkable_input_input", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> !GridFaceUtil.areLinkable(FaceMode.INPUT, FaceMode.INPUT),
-                        "areLinkable(INPUT, INPUT) == false"));
+                        ctx -> !GridFaceUtil.areLinkable(FilterType.ALLOW_INPUT_ONLY, FilterType.ALLOW_INPUT_ONLY),
+                        "areLinkable(ALLOW_INPUT_ONLY, ALLOW_INPUT_ONLY) == false"));
     }
 
     private static TestCase notLinkableOutputOutput() {
         return new TestCase("not_linkable_output_output", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> !GridFaceUtil.areLinkable(FaceMode.OUTPUT, FaceMode.OUTPUT),
-                        "areLinkable(OUTPUT, OUTPUT) == false"));
+                        ctx -> !GridFaceUtil.areLinkable(FilterType.ALLOW_OUTPUT_ONLY, FilterType.ALLOW_OUTPUT_ONLY),
+                        "areLinkable(ALLOW_OUTPUT_ONLY, ALLOW_OUTPUT_ONLY) == false"));
     }
 
     private static TestCase notLinkableClosedAny() {
         return new TestCase("not_linkable_closed_any", 1, 1, 1)
                 .step(Steps.assertThat(
-                        ctx -> !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.BIDIRECTIONAL)
-                                && !GridFaceUtil.areLinkable(FaceMode.BIDIRECTIONAL, FaceMode.CLOSED)
-                                && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.INPUT)
-                                && !GridFaceUtil.areLinkable(FaceMode.CLOSED, FaceMode.OUTPUT),
-                        "areLinkable returns false for any pair involving CLOSED"));
+                        ctx -> !GridFaceUtil.areLinkable(FilterType.DENY_ALL, FilterType.ALLOW_ALL)
+                                && !GridFaceUtil.areLinkable(FilterType.ALLOW_ALL, FilterType.DENY_ALL)
+                                && !GridFaceUtil.areLinkable(FilterType.DENY_ALL, FilterType.ALLOW_INPUT_ONLY)
+                                && !GridFaceUtil.areLinkable(FilterType.DENY_ALL, FilterType.ALLOW_OUTPUT_ONLY),
+                        "areLinkable returns false for any pair involving DENY_ALL"));
     }
 
     // -------------------------------------------------------------------------
@@ -272,7 +272,7 @@ public final class GridFaceUtilTests {
         return new TestCase("find_matching_face_found", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     GridTypeEntry entry = new GridTypeEntry();
-                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL));
                     return GridFaceUtil.findMatchingFace(
                             entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.East, new Vector3i(0, 0, 0)) != null;
@@ -287,7 +287,7 @@ public final class GridFaceUtilTests {
         return new TestCase("find_matching_face_wrong_normal", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     GridTypeEntry entry = new GridTypeEntry();
-                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL));
                     return GridFaceUtil.findMatchingFace(
                             entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.North, new Vector3i(0, 0, 0)) == null;
@@ -303,7 +303,7 @@ public final class GridFaceUtilTests {
         return new TestCase("find_matching_face_wrong_position", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     GridTypeEntry entry = new GridTypeEntry();
-                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    entry.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL));
                     return GridFaceUtil.findMatchingFace(
                             entry, new Vector3i(0, 0, 0), RotationTuple.NONE,
                             BlockFace.East, new Vector3i(5, 5, 5)) == null;

@@ -18,12 +18,12 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.BlockFace;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
-import dev.drav.glyphworks.grid.component.FaceMode;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -189,8 +189,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             if (memberEntry == null)
                 continue;
             for (FacePlane face : memberEntry.getFaces()) {
-                FaceMode mode = face.getMode();
-                if (mode != FaceMode.OUTPUT && mode != FaceMode.BIDIRECTIONAL)
+                FilterType mode = face.getMode();
+                if (!mode.allowOutput())
                     continue;
                 if (face.getContainerKey() == null)
                     continue;
@@ -285,7 +285,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 : sourceEntry.getNeighbors();
         for (Vector3i neighborPos : seedNeighbors) {
             FacePlane connectingFace = findEntryFace(chunkStore, sourceLookup, neighborPos, typeId);
-            if (connectingFace != null && connectingFace.getMode() == FaceMode.INPUT)
+            if (connectingFace != null && !connectingFace.getMode().allowOutput())
                 continue;
             GridLookup lookup = GridLookup.resolve(chunkStore, neighborPos);
             if (lookup == null)
@@ -302,7 +302,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
     private static boolean isTerminalNode(@Nonnull GridTypeEntry entry) {
         for (FacePlane face : entry.getFaces()) {
-            if (face.getMode() != FaceMode.BIDIRECTIONAL || face.getContainerKey() != null)
+            if (face.getMode() != FilterType.ALLOW_ALL || face.getContainerKey() != null)
                 return true;
         }
         return false;
@@ -320,8 +320,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         FacePlane entryFace = findEntryFace(chunkStore, bfsNode.lookup(), bfsNode.arrivedFrom(), typeId);
         if (entryFace == null)
             return;
-        FaceMode mode = entryFace.getMode();
-        if (mode != FaceMode.INPUT && mode != FaceMode.BIDIRECTIONAL)
+        FilterType mode = entryFace.getMode();
+        if (!mode.allowInput())
             return;
         if (entryFace.getContainerKey() == null)
             return;

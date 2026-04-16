@@ -5,7 +5,7 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.World;
 
-import dev.drav.glyphworks.grid.component.FaceMode;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -205,14 +205,14 @@ public final class GridComponentTests {
         return new TestCase("clone_deep_copy_faces", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     GridTypeEntry original = new GridTypeEntry();
-                    original.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL));
+                    original.addFace(new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL));
                     GridTypeEntry clone = new GridTypeEntry(original);
                     // Mutate the face in the clone — should not affect the original.
                     for (FacePlane f : clone.getFaces()) {
-                        f.setMode(FaceMode.CLOSED);
+                        f.setMode(FilterType.DENY_ALL);
                     }
-                    return original.getFaces().stream().allMatch(f -> f.getMode() == FaceMode.BIDIRECTIONAL)
-                            && clone.getFaces().stream().allMatch(f -> f.getMode() == FaceMode.CLOSED);
+                    return original.getFaces().stream().allMatch(f -> f.getMode() == FilterType.ALLOW_ALL)
+                            && clone.getFaces().stream().allMatch(f -> f.getMode() == FilterType.DENY_ALL);
                 }, "clone() deep-copies FacePlane instances: mutating a face in the clone does not affect the original"));
     }
 
@@ -245,11 +245,11 @@ public final class GridComponentTests {
         return new TestCase("face_plane_equals_ignores_container_key", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
                     FacePlane withKeyA = new FacePlane(
-                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, "key_a");
+                            new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL, "key_a");
                     FacePlane withKeyB = new FacePlane(
-                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, "key_b");
+                            new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL, "key_b");
                     FacePlane withNull = new FacePlane(
-                            new Vector3i(0, 0, 0), BlockFace.East, FaceMode.BIDIRECTIONAL, null);
+                            new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL, null);
                     return withKeyA.equals(withKeyB)
                             && withKeyA.equals(withNull)
                             && withKeyA.hashCode() == withKeyB.hashCode()

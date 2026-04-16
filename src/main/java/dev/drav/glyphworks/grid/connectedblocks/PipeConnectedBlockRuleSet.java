@@ -19,8 +19,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlockRuleSet;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlocksUtil;
-
-import dev.drav.glyphworks.grid.component.FaceMode;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -140,7 +139,7 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
             String selfTypeId = selfEntry.getGridType().id();
 
             for (FacePlane face : selfEntry.getFaces()) {
-                if (face.getMode() == FaceMode.CLOSED) {
+                if (face.getMode() == FilterType.DENY_ALL) {
                     continue;
                 }
 
@@ -176,7 +175,7 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
                 if (neighborFace == null) {
                     continue;
                 }
-                if (neighborFace.getMode() == FaceMode.CLOSED) {
+                if (neighborFace.getMode() == FilterType.DENY_ALL) {
                     continue;
                 }
                 if (!GridFaceUtil.areLinkable(face.getMode(), neighborFace.getMode())) {
