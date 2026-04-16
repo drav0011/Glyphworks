@@ -2,22 +2,26 @@ package dev.drav.glyphworks.fluid;
 
 import javax.annotation.Nonnull;
 
+import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
-import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
-import dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
-import dev.drav.glyphworks.fluid.system.FluidSinkSystem;
-import dev.drav.glyphworks.fluid.system.FluidSourceSystem;
+import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
+import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler;
+import dev.drav.glyphworks.fluid.interaction.OpenFluidContainerInteraction;
 import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
+import dev.drav.glyphworks.fluid.system.FluidSinkSystem;
+import dev.drav.glyphworks.fluid.system.FluidSourceSystem;
 import dev.drav.glyphworks.fluid.tests.component.FluidContainerComponentTests;
 import dev.drav.glyphworks.fluid.tests.component.FluidPipeComponentTests;
 import dev.drav.glyphworks.fluid.tests.component.FluidPlacerComponentTests;
@@ -73,6 +77,13 @@ public final class FluidModule extends GlyphworksModule {
     public void setup(@Nonnull GlyphworksPlugin plugin) {
         GridTypeRegistry.register(GridType.of("Fluid"));
         GridTypeHandlerRegistry.register(new FluidGridTypeHandler());
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "OpenFluidContainer",
+                OpenFluidContainerInteraction.class,
+                OpenFluidContainerInteraction.CODEC);
+
+        plugin.getEventRegistry().register(LoadedAssetsEvent.class, Item.class, FluidItemRegistry::onItemsLoaded);
 
         this.fluidContainerComponentType = plugin.getChunkStoreRegistry().registerComponent(
                 FluidContainerComponent.class, "Glyphworks_FluidContainerComponent", FluidContainerComponent.CODEC);

@@ -91,7 +91,7 @@
       }
     },
     "Interactions": {
-      "Use": "Inspect_Block"
+      "Use": "OpenFluidContainer"
     },
     "Gathering": {
       "Breaking": {

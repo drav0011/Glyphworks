@@ -9,13 +9,16 @@
   "Quality": "Tool",
   "BlockType": {
     "Material": "Solid",
-    "DrawType": "Cube",
+    "DrawType": "Model",
     "BlockSoundSetId": "Stone",
+    "Opacity": "Transparent",
     "VariantRotation": "DoublePipe",
-    "Textures": [
+    "HitboxType": "Tank",
+    "CustomModel": "Blocks/Glyphworks/Fluid/Source/Default.blockymodel",
+    "CustomModelTexture": [
       {
-        "All": "Blocks/Glyphworks/Fluid/Source/Default.png",
-        "Weight": 2
+        "Texture": "Blocks/Glyphworks/Fluid/Source/Default.png",
+        "Weight": 1
       }
     ],
     "BlockEntity": {
@@ -51,7 +54,7 @@
       }
     },
     "Interactions": {
-      "Use": "Inspect_Block",
+      "Use": "OpenFluidContainer",
       "Secondary": "Configure_Source"
     },
     "Gathering": {
