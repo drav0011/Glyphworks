@@ -25,10 +25,10 @@
       "Components": {
         "ItemContainerBlock": {
           "ItemContainer": {
-            "Capacity": 2,
+            "Capacity": 1,
             "Items": {}
           },
-          "Capacity": 2
+          "Capacity": 1
         },
         "Glyphworks_ItemSourceComponent": {},
         "Glyphworks_GridComponent": {
@@ -54,7 +54,7 @@
       }
     },
     "Interactions": {
-      "Use": "Open_Container"
+      "Use": "Open_Item_Source"
     },
     "Gathering": {
       "Breaking": {

@@ -2,6 +2,7 @@ package dev.drav.glyphworks.item.tests.component;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -55,11 +56,11 @@ public final class ItemSourceComponentTests {
                 .step(Steps.run(ctx -> {
                     ItemSourceComponent isc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
                     if (isc != null)
-                        isc.setItemId(CHANGED_ITEM);
+                        isc.getSelectorContainer().setItemStackForSlot((short) 0, new ItemStack(CHANGED_ITEM, 1), false);
                 }))
                 .step(Steps.assertThat(ctx -> {
                     ItemSourceComponent isc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
-                    return isc != null && CHANGED_ITEM.equals(isc.getItemId());
+                    return isc != null && CHANGED_ITEM.equals(isc.getSelectedItemId());
                 }, "baseline: source itemId is " + CHANGED_ITEM + " before server stop"));
     }
 
@@ -77,8 +78,8 @@ public final class ItemSourceComponentTests {
                         ctx -> 5 * ctx.getWorld().getTps(), "source reloaded after restart"))
                 .step(Steps.assertThat(ctx -> {
                     ItemSourceComponent isc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
-                    return isc != null && CHANGED_ITEM.equals(isc.getItemId());
-                }, "ItemSourceComponent persists itemId across server restart"));
+                    return isc != null && CHANGED_ITEM.equals(isc.getSelectedItemId());
+                }, "ItemSourceComponent persists selector item across server restart"));
     }
 
     // ── Helper ────────────────────────────────────────────────────────────────

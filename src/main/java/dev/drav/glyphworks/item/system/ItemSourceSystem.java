@@ -55,10 +55,18 @@ public final class ItemSourceSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
+        String selectedItemId = source.getSelectedItemId();
+        if (selectedItemId == null) {
+            for (short i = 0; i < container.getCapacity(); i++) {
+                container.setItemStackForSlot(i, null, false);
+            }
+            return;
+        }
+
         for (short i = 0; i < container.getCapacity(); i++) {
             ItemStack stack = container.getItemStack(i);
             if (stack == null || stack.isEmpty()) {
-                container.setItemStackForSlot(i, new ItemStack(source.getItemId(), 64), false);
+                container.setItemStackForSlot(i, new ItemStack(selectedItemId, 64), false);
             }
         }
     }

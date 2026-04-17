@@ -3,6 +3,7 @@ package dev.drav.glyphworks.item;
 import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Interaction;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksModule;
@@ -17,6 +18,7 @@ import dev.drav.glyphworks.item.component.ItemPickerComponent;
 import dev.drav.glyphworks.item.component.ItemSinkComponent;
 import dev.drav.glyphworks.item.component.ItemSourceComponent;
 import dev.drav.glyphworks.item.handlers.ItemGridTypeHandler;
+import dev.drav.glyphworks.item.interaction.OpenItemSourceInteraction;
 import dev.drav.glyphworks.item.system.BlockMinerSystem;
 import dev.drav.glyphworks.item.system.BlockPlacerSystem;
 import dev.drav.glyphworks.item.system.ItemDropperSystem;
@@ -77,6 +79,11 @@ public final class ItemModule extends GlyphworksModule {
     public void setup(@Nonnull GlyphworksPlugin plugin) {
         GridTypeRegistry.register(GridType.of("Item"));
         GridTypeHandlerRegistry.register(new ItemGridTypeHandler());
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "OpenItemSource",
+                OpenItemSourceInteraction.class,
+                OpenItemSourceInteraction.CODEC);
 
         this.itemSourceComponentType = plugin.getChunkStoreRegistry().registerComponent(
                 ItemSourceComponent.class, "Glyphworks_ItemSourceComponent", ItemSourceComponent.CODEC);
