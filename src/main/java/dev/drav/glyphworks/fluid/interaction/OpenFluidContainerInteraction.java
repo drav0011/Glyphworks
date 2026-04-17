@@ -26,6 +26,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens a read-only container window that displays the fluid stored inside the
@@ -76,7 +77,7 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
         if (worldChunk == null)
             return;
 
-        int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
+        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getItemContainer());

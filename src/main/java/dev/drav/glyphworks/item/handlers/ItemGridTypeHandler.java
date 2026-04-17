@@ -41,6 +41,7 @@ import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridTypeHandler;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Per-tick handler for the {@code "Item"} grid type.
@@ -442,7 +443,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             WorldChunk worldChunk = chunkStore.getWorld().getChunkIfLoaded(chunkIndex);
             if (worldChunk == null)
                 return null;
-            int filler = worldChunk.getFiller(pos.x, pos.y, pos.z);
+            int filler = DeprecatedChunkAccess.getFiller(worldChunk, pos.x, pos.y, pos.z);
             if (filler == FillerBlockUtil.NO_FILLER)
                 return null;
             Vector3i originPos = new Vector3i(

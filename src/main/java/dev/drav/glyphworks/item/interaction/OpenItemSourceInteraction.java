@@ -28,6 +28,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.item.component.ItemSourceComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class OpenItemSourceInteraction extends SimpleBlockInteraction {
 
@@ -80,7 +81,7 @@ public final class OpenItemSourceInteraction extends SimpleBlockInteraction {
         if (worldChunk == null)
             return;
 
-        int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
+        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType,

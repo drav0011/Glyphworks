@@ -23,7 +23,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContainerWindow;
-import com.hypixel.hytale.server.core.inventory.Inventory;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
@@ -142,9 +142,8 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
         if (playerComponent == null)
             return false;
 
-        Inventory inventory = playerComponent.getInventory();
         windowData.add("inventoryHints", new JsonArray());
-        inventoryRegistration = inventory.getCombinedHotbarFirst().registerChangeEvent(event -> {
+        inventoryRegistration = InventoryComponent.getCombined(store, ref, InventoryComponent.HOTBAR_FIRST).registerChangeEvent(event -> {
             windowData.add("inventoryHints", new JsonArray());
             invalidate();
         });

@@ -37,6 +37,7 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoCraftingBenchMonitorWindow;
 import dev.drav.glyphworks.crafting.window.AutoCraftingBenchSelectWindow;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens the automated crafting bench UI.
@@ -117,7 +118,7 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
         WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
         if (worldChunk == null)
             return;
-        int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
+        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
         int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();

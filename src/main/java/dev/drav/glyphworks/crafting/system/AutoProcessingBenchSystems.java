@@ -37,6 +37,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class AutoProcessingBenchSystems {
 
@@ -79,7 +80,7 @@ public final class AutoProcessingBenchSystems {
             int blockX = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX);
             int blockZ = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ);
 
-            BlockSection blockSection = blockChunk.getSectionAtBlockY(localY);
+            BlockSection blockSection = DeprecatedChunkAccess.getSection(blockChunk, localY);
             int blockId = blockSection.get(localX, localY, localZ);
             BlockType blockType = (BlockType) BlockType.getAssetMap().getAsset(blockId);
             if (blockType == null)

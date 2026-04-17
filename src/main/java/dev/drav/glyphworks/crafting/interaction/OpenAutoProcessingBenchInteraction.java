@@ -36,6 +36,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens an {@link AutoProcessingBenchWindow} for mana-powered auto processing
@@ -106,7 +107,7 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
         if (worldChunk == null)
             return;
-        int rotationIndex = worldChunk.getRotationIndex(pos.x, pos.y, pos.z);
+        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
         int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();
