@@ -62,12 +62,6 @@
           "FilterValidIngredients": true
         }
       ],
-      "Fuel": [
-        {
-          "ResourceTypeId": "Fuel",
-          "Icon": "Icons/Processing/FuelSlotIcon.png"
-        }
-      ],
       "LocalOpenSoundEventId": "SFX_Furnace_Bench_Open",
       "LocalCloseSoundEventId": "SFX_Furnace_Bench_Close",
       "CompletedSoundEventId": "SFX_Furnace_Bench_Processing_Complete",
@@ -75,25 +69,6 @@
       "FailedSoundEventId": "SFX_Furnace_Bench_Processing_Failed",
       "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
       "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
-      "ExtraOutput": {
-        "Outputs": [
-          {
-            "ItemId": "Ingredient_Charcoal"
-          }
-        ],
-        "PerFuelItemsConsumed": 2,
-        "IgnoredFuelSources": [
-          {
-            "ItemId": "Ingredient_Charcoal"
-          },
-          {
-            "ItemId": "Ingredient_Fibre"
-          },
-          {
-            "ItemId": "Ingredient_Tree_Sap"
-          }
-        ]
-      },
       "OutputSlotsCount": 4,
       "Id": "Furnace",
       "TierLevels": [
@@ -155,23 +130,13 @@
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": -1,
+                    "X": 0,
                     "Y": 0,
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 1,
-                    "Y": 0,
-                    "Z": 1
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             },
@@ -307,7 +272,7 @@
     },
     "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Open_Processing_Bench"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",

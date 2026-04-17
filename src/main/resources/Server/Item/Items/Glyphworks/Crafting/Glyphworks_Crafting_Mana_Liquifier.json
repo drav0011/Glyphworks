@@ -128,7 +128,7 @@
     },
     "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Inspect_Block"
+      "Use": "Open_Container"
     }
   },
   "PlayerAnimationsId": "Block",

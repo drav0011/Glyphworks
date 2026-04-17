@@ -53,6 +53,9 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -82,14 +85,11 @@
               ]
             }
           ]
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
         }
       }
     },
     "Interactions": {
-      "Use": "OpenFluidContainer"
+      "Use": "Open_Fluid_Container"
     },
     "Gathering": {
       "Breaking": {

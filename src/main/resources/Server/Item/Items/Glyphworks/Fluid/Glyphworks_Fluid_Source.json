@@ -23,6 +23,12 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
+        },
+        "ItemContainerBlock": {
+          "Capacity": 2
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -42,18 +48,11 @@
               ]
             }
           ]
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
-        },
-        "Glyphworks_FluidSourceComponent": {
-          "Glyphworks_FluidSourceComponent_FluidId": "Mana_Source"
         }
       }
     },
     "Interactions": {
-      "Use": "OpenFluidContainer",
-      "Secondary": "Configure_Source"
+      "Use": "Open_Fluid_Container"
     },
     "Gathering": {
       "Breaking": {

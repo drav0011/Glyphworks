@@ -57,6 +57,17 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_CapacityMb": 1000
+        },
+        "Glyphworks_FluidPlacerComponent": {
+          "Glyphworks_FluidPlacerComponent_TargetNormal": "Down",
+          "Glyphworks_FluidPlacerComponent_TargetPosition": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -76,22 +87,11 @@
               ]
             }
           ]
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 1000
-        },
-        "Glyphworks_FluidPlacerComponent": {
-          "Glyphworks_FluidPlacerComponent_TargetNormal": "Down",
-          "Glyphworks_FluidPlacerComponent_TargetPosition": {
-            "X": 0,
-            "Y": 0,
-            "Z": 0
-          }
         }
       }
     },
     "Interactions": {
-      "Use": "OpenFluidContainer"
+      "Use": "Open_Fluid_Container"
     },
     "Gathering": {
       "Breaking": {

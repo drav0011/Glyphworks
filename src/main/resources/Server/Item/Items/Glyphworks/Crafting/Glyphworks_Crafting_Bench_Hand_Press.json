@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Manual_Press.name",
-    "Description": "server.items.Glyphworks_Crafting_Manual_Press.description"
+    "Name": "server.items.Glyphworks_Crafting_Bench_Hand_Press.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Hand_Press.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Manual_Press.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Hand_Press.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -28,7 +28,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Manual_Press"
+        "ItemId": "Glyphworks_Crafting_Bench_Hand_Press"
       }
     ],
     "BenchRequirement": [
@@ -47,14 +47,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/ManualPress/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/BenchHandPress/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/ManualPress/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/BenchHandPress/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Manual_Press",
+    "HitboxType": "Glyphworks_Crafting_Bench_Hand_Press",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",

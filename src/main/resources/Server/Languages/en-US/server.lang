@@ -1,16 +1,16 @@
 # Benches
 items.Glyphworks_Crafting_Glyph_Imprinter.name=Glyph Imprinter
 items.Glyphworks_Crafting_Glyph_Imprinter.description=Used to craft Glyphworks benches and components.
-items.Glyphworks_Crafting_Manual_Press.name=Manual Rune Press
-items.Glyphworks_Crafting_Manual_Press.description=Used to shape raw materials into empty runes.
+items.Glyphworks_Crafting_Bench_Hand_Press.name=Hand Rune Press
+items.Glyphworks_Crafting_Bench_Hand_Press.description=Used to shape raw materials into empty runes.
 items.Glyphworks_Crafting_Manual_Imbuer.name=Manual Imbuer
 items.Glyphworks_Crafting_Manual_Imbuer.description=Used to imbue empty runes with elemental essence.
 
 # Automatic Benches
-items.Glyphworks_Crafting_Automatic_Press.name=Automatic Rune Press
-items.Glyphworks_Crafting_Automatic_Press.description=Used to shape raw materials into empty runes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Automatic_Imbuer.name=Automatic Imbuer
-items.Glyphworks_Crafting_Automatic_Imbuer.description=Used to imbue empty runes with elemental essence.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Bench_Press.name=Rune Press
+items.Glyphworks_Crafting_Bench_Press.description=Used to shape raw materials into empty runes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Bench_Imbuer.name=Imbuer
+items.Glyphworks_Crafting_Bench_Imbuer.description=Used to imbue empty runes with elemental essence.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
 items.Glyphworks_Crafting_Mana_Liquifier.name=Mana Liquifier
 items.Glyphworks_Crafting_Mana_Liquifier.description=Used to convert elemental essences into liquid <color is="#35c1f1">mana</color> using fuel.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#00D4D5">fluid output</color>.
 

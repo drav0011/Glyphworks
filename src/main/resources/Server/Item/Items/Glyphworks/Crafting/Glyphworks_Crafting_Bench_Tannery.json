@@ -206,7 +206,7 @@
     },
     "BlockSoundSetId": "Wood",
     "Interactions": {
-      "Use": "Open_Processing_Bench"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",

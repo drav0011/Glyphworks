@@ -62,31 +62,6 @@
           "FilterValidIngredients": true
         }
       ],
-      "Fuel": [
-        {
-          "ResourceTypeId": "Fuel",
-          "Icon": "Icons/Processing/FuelSlotIcon.png"
-        }
-      ],
-      "ExtraOutput": {
-        "Outputs": [
-          {
-            "ItemId": "Ingredient_Charcoal"
-          }
-        ],
-        "PerFuelItemsConsumed": 2,
-        "IgnoredFuelSources": [
-          {
-            "ItemId": "Ingredient_Charcoal"
-          },
-          {
-            "ItemId": "Ingredient_Fibre"
-          },
-          {
-            "ItemId": "Ingredient_Tree_Sap"
-          }
-        ]
-      },
       "OutputSlotsCount": 4,
       "Id": "Campfire",
       "LocalOpenSoundEventId": "SFX_Campfire_Open_Local",
@@ -122,23 +97,13 @@
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": -1,
+                    "X": 0,
                     "Y": 0,
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 1,
-                    "Y": 0,
-                    "Z": 1
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             },
@@ -222,7 +187,7 @@
     },
     "BlockSoundSetId": "Campfire",
     "Interactions": {
-      "Use": "Open_Processing_Bench"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",

@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Automatic_Press.name",
-    "Description": "server.items.Glyphworks_Crafting_Automatic_Press.description"
+    "Name": "server.items.Glyphworks_Crafting_Bench_Press.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Press.description"
   },
   "Categories": [
     "Glyphworks.Benches"
@@ -31,7 +31,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Automatic_Press"
+        "ItemId": "Glyphworks_Crafting_Bench_Press"
       }
     ],
     "BenchRequirement": [
@@ -49,14 +49,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/AutomaticPress/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/BenchPress/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/AutomaticPress/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/BenchPress/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Automatic_Press",
+    "HitboxType": "Glyphworks_Crafting_Bench_Press",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
@@ -168,5 +168,5 @@
   },
   "MaxStack": 1,
   "ItemSoundSetId": "ISS_Blocks_Wood",
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Automatic_Press.png"
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Press.png"
 }

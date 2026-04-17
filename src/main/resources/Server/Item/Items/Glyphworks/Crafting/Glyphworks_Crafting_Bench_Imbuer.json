@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Automatic_Imbuer.name",
-    "Description": "server.items.Glyphworks_Crafting_Automatic_Imbuer.description"
+    "Name": "server.items.Glyphworks_Crafting_Bench_Imbuer.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Imbuer.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Automatic_Imbuer.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Imbuer.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -28,7 +28,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Automatic_Imbuer"
+        "ItemId": "Glyphworks_Crafting_Bench_Imbuer"
       }
     ],
     "BenchRequirement": [
@@ -46,14 +46,14 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/BenchImbuer/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/AutomaticImbuer/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/BenchImbuer/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Automatic_Imbuer",
+    "HitboxType": "Glyphworks_Crafting_Bench_Imbuer",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
