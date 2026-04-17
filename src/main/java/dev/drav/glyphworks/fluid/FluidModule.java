@@ -18,6 +18,7 @@ import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler;
 import dev.drav.glyphworks.fluid.interaction.OpenFluidContainerInteraction;
+import dev.drav.glyphworks.fluid.interaction.OpenFluidSourceInteraction;
 import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
 import dev.drav.glyphworks.fluid.system.FluidSinkSystem;
@@ -82,6 +83,11 @@ public final class FluidModule extends GlyphworksModule {
                 "OpenFluidContainer",
                 OpenFluidContainerInteraction.class,
                 OpenFluidContainerInteraction.CODEC);
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "OpenFluidSource",
+                OpenFluidSourceInteraction.class,
+                OpenFluidSourceInteraction.CODEC);
 
         plugin.getEventRegistry().register(LoadedAssetsEvent.class, Item.class, FluidItemRegistry::onItemsLoaded);
 

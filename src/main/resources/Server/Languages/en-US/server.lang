@@ -3,8 +3,8 @@ items.Glyphworks_Crafting_Glyph_Imprinter.name=Glyph Imprinter
 items.Glyphworks_Crafting_Glyph_Imprinter.description=Used to craft Glyphworks benches and components.
 items.Glyphworks_Crafting_Bench_Hand_Press.name=Hand Rune Press
 items.Glyphworks_Crafting_Bench_Hand_Press.description=Used to shape raw materials into empty runes.
-items.Glyphworks_Crafting_Manual_Imbuer.name=Manual Imbuer
-items.Glyphworks_Crafting_Manual_Imbuer.description=Used to imbue empty runes with elemental essence.
+items.Glyphworks_Crafting_Bench_Manual_Imbuer.name=Manual Imbuer
+items.Glyphworks_Crafting_Bench_Manual_Imbuer.description=Used to imbue empty runes with elemental essence.
 
 # Automatic Benches
 items.Glyphworks_Crafting_Bench_Press.name=Rune Press

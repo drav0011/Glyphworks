@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Manual_Imbuer.name",
-    "Description": "server.items.Glyphworks_Crafting_Manual_Imbuer.description"
+    "Name": "server.items.Glyphworks_Crafting_Bench_Manual_Imbuer.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Manual_Imbuer.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Manual_Imbuer.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Manual_Imbuer.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -24,7 +24,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Manual_Imbuer"
+        "ItemId": "Glyphworks_Crafting_Bench_Manual_Imbuer"
       }
     ],
     "BenchRequirement": [
@@ -49,7 +49,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Manual_Imbuer",
+    "HitboxType": "Glyphworks_Crafting_Bench_Manual_Imbuer",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",

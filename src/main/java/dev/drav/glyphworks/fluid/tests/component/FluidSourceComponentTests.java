@@ -2,8 +2,10 @@ package dev.drav.glyphworks.fluid.tests.component;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
+import dev.drav.glyphworks.fluid.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -26,8 +28,8 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class FluidSourceComponentTests {
 
-    private static final String SOURCE_ID      = "Glyphworks_Fluid_Source";
-    private static final String CHANGED_FLUID  = "Lava_Source";
+    private static final String SOURCE_ID   = "Glyphworks_Fluid_Source";
+    private static final String CHANGED_FLUID = "Lava_Source";
 
     private FluidSourceComponentTests() {
     }
@@ -46,7 +48,7 @@ public final class FluidSourceComponentTests {
     }
 
     private static TestCase setupSourceState() {
-        return new TestCase("fluid_source_persists_fluid_id", 3, 3, 3)
+        return new TestCase("fluid_source_persists_selector", 3, 3, 3)
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
@@ -54,13 +56,17 @@ public final class FluidSourceComponentTests {
                         ctx -> 5 * ctx.getWorld().getTps(), "source block entity initialised"))
                 .step(Steps.run(ctx -> {
                     FluidSourceComponent fsc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
-                    if (fsc != null)
-                        fsc.setFluidId(CHANGED_FLUID);
+                    if (fsc != null) {
+                        String itemId = FluidItemRegistry.resolveItemId(CHANGED_FLUID);
+                        if (itemId != null) {
+                            fsc.getSelectorContainer().setItemStackForSlot((short) 0, new ItemStack(itemId, 1, 1000, 1000, null), false);
+                        }
+                    }
                 }))
                 .step(Steps.assertThat(ctx -> {
                     FluidSourceComponent fsc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
-                    return fsc != null && CHANGED_FLUID.equals(fsc.getFluidId());
-                }, "baseline: source fluidId is " + CHANGED_FLUID + " before server stop"));
+                    return fsc != null && CHANGED_FLUID.equals(fsc.getSelectedFluidId());
+                }, "baseline: selector resolves to " + CHANGED_FLUID + " before server stop"));
     }
 
     // ── Assert suite ──────────────────────────────────────────────────────────
@@ -72,13 +78,13 @@ public final class FluidSourceComponentTests {
     }
 
     private static TestCase assertSourceState() {
-        return new TestCase("fluid_source_persists_fluid_id", 3, 3, 3)
+        return new TestCase("fluid_source_persists_selector", 3, 3, 3)
                 .step(Steps.waitUntil(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(), "source reloaded after restart"))
                 .step(Steps.assertThat(ctx -> {
                     FluidSourceComponent fsc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
-                    return fsc != null && CHANGED_FLUID.equals(fsc.getFluidId());
-                }, "FluidSourceComponent persists fluidId across server restart"));
+                    return fsc != null && CHANGED_FLUID.equals(fsc.getSelectedFluidId());
+                }, "FluidSourceComponent persists selector container across server restart"));
     }
 
     // ── Helper ────────────────────────────────────────────────────────────────

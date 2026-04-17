@@ -23,11 +23,9 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidSourceComponent": {},
         "Glyphworks_FluidContainerComponent": {
           "Glyphworks_FluidContainerComponent_CapacityMb": 16000
-        },
-        "ItemContainerBlock": {
-          "Capacity": 2
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -52,7 +50,7 @@
       }
     },
     "Interactions": {
-      "Use": "Open_Fluid_Container"
+      "Use": "Open_Fluid_Source"
     },
     "Gathering": {
       "Breaking": {

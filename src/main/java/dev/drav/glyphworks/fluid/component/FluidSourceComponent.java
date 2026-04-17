@@ -1,34 +1,39 @@
 package dev.drav.glyphworks.fluid.component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.fluid.FluidItemRegistry;
 
 /**
- * Marks a block as a creative fluid source — a block that always keeps its
- * {@link FluidContainerComponent} filled to capacity with a fixed fluid type.
+ * Marks a block as a creative fluid source.
  *
  * <p>
- * The {@code fluidId} is the asset ID of the fluid (e.g. {@code "Fluid_Water"})
- * that this source produces infinitely. The paired
- * {@link dev.drav.glyphworks.fluid.system.FluidSourceSystem} resets the
- * container to full every tick so downstream grid consumers never run dry.
+ * The fluid type to produce is determined by whichever fluid item the player
+ * places in the single-slot {@link #selectorContainer}. The paired
+ * {@link dev.drav.glyphworks.fluid.system.FluidSourceSystem} reads
+ * {@link #getSelectedFluidId()} each tick and keeps the block's
+ * {@link FluidContainerComponent} filled to capacity with that fluid. When
+ * the selector slot is empty the source produces nothing.
  */
 public final class FluidSourceComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidSourceComponent> CODEC = BuilderCodec
             .builder(FluidSourceComponent.class, () -> new FluidSourceComponent())
             .append(
-                    new KeyedCodec<>("Glyphworks_FluidSourceComponent_FluidId", Codec.STRING),
-                    (c, v) -> c.fluidId = v,
-                    c -> c.fluidId)
+                    new KeyedCodec<>("Glyphworks_FluidSourceComponent_SelectorContainer", SimpleItemContainer.CODEC),
+                    (c, v) -> c.selectorContainer = v,
+                    c -> c.selectorContainer)
             .add()
             .build();
 
@@ -36,24 +41,36 @@ public final class FluidSourceComponent implements Component<ChunkStore> {
         return GlyphworksPlugin.get().getFluidModule().getFluidSourceComponentType();
     }
 
-    /** Asset ID of the fluid this block outputs infinitely. */
-    @Nonnull
-    private String fluidId = "Fluid_Water";
+    /** One-slot container holding the player's chosen fluid item. Always {@link FilterType#ALLOW_ALL}. */
+    private SimpleItemContainer selectorContainer;
 
     public FluidSourceComponent() {
+        this.selectorContainer = new SimpleItemContainer((short) 1);
     }
 
     public FluidSourceComponent(@Nonnull FluidSourceComponent other) {
-        this.fluidId = other.fluidId;
+        this.selectorContainer = new SimpleItemContainer((short) 1);
+        ItemStack existingStack = other.selectorContainer.getItemStack((short) 0);
+        if (existingStack != null) {
+            this.selectorContainer.setItemStackForSlot((short) 0, existingStack, false);
+        }
     }
 
-    @Nonnull
-    public String getFluidId() {
-        return fluidId;
+    /**
+     * Returns the fluid asset ID of the item currently in the selector slot, or
+     * {@code null} if the slot is empty or holds an item not registered as a fluid.
+     */
+    @Nullable
+    public String getSelectedFluidId() {
+        ItemStack stack = selectorContainer.getItemStack((short) 0);
+        if (stack == null) {
+            return null;
+        }
+        return FluidItemRegistry.resolveFluidId(stack.getItemId());
     }
 
-    public void setFluidId(@Nonnull String fluidId) {
-        this.fluidId = fluidId;
+    public SimpleItemContainer getSelectorContainer() {
+        return selectorContainer;
     }
 
     @Override
