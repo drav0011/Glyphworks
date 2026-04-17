@@ -63,6 +63,7 @@
           },
           "Capacity": 1
         },
+        "Glyphworks_ItemDropperComponent": {},
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -82,8 +83,7 @@
               ]
             }
           ]
-        },
-        "Glyphworks_ItemDropperComponent": {}
+        }
       }
     },
     "Interactions": {

@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
-import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -22,9 +21,9 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
-import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -33,6 +32,7 @@ import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
@@ -414,7 +414,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
      * Looks up the item inventory of any block (grid or non-grid) at {@code pos}.
      *
      * <p>
-     * Resolution order: {@link ProcessingBenchBlock} (returns combined
+     * Resolution order: {@link AutoProcessingBenchBlock} (returns combined
      * container) → {@link ItemContainerBlock} (returns its single container).
      *
      * @return the container, or {@code null} if the position is unloaded / has no
@@ -463,9 +463,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 return null;
         }
 
-        ProcessingBenchBlock pbb = worldStore.getComponent(blockRef, ProcessingBenchBlock.getComponentType());
-        if (pbb != null)
-            return pbb.getItemContainer();
+        AutoProcessingBenchBlock apbb = worldStore.getComponent(blockRef, AutoProcessingBenchBlock.getComponentType());
+        if (apbb != null)
+            return apbb.getItemContainer();
 
         AutoCraftingBenchBlock acbb = worldStore.getComponent(blockRef, AutoCraftingBenchBlock.getComponentType());
         if (acbb != null)
@@ -485,8 +485,8 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     /**
      * Resolves the {@link ItemContainer} identified by {@code key} on the grid
      * block referenced by {@code ref}.
-     * Maps {@code "input"}/{@code "output"}/{@code "fuel"} for
-     * {@link ProcessingBenchBlock}; returns the single container for
+     * Maps {@code "input"}/{@code "output"} for
+     * {@link AutoProcessingBenchBlock}; returns the single container for
      * {@link ItemContainerBlock}.
      * 
      * TODO: better expansible resolution for containers, cannot be adding component types to this class every time we add a new block with a container.
@@ -496,12 +496,11 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             @Nonnull Store<ChunkStore> store,
             @Nonnull Ref<ChunkStore> ref,
             @Nonnull String key) {
-        ProcessingBenchBlock pbb = store.getComponent(ref, ProcessingBenchBlock.getComponentType());
-        if (pbb != null) {
+        AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
+        if (apbb != null) {
             return switch (key) {
-                case "input" -> pbb.getInputContainer();
-                case "output" -> pbb.getOutputContainer();
-                case "fuel" -> pbb.getFuelContainer();
+                case "input" -> apbb.getInputContainer();
+                case "output" -> apbb.getOutputContainer();
                 default -> null;
             };
         }

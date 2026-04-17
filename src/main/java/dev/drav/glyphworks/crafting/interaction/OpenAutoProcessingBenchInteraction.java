@@ -9,9 +9,6 @@ import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
-import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
-import com.hypixel.hytale.builtin.crafting.window.BenchWindow;
-import com.hypixel.hytale.builtin.crafting.window.ProcessingBenchWindow;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -36,17 +33,13 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
- * Opens a {@link AutoProcessingBenchWindow} for grid-connected
- * {@link ProcessingBenchBlock} machines that run on liquid mana.
- *
- * <p>
- * When a {@link FluidContainerComponent} is present on the block entity the
- * fuel slot shows the live mana level. Without one the window falls back to
- * the vanilla {@link ProcessingBenchWindow}.
+ * Opens an {@link AutoProcessingBenchWindow} for mana-powered auto processing
+ * benches.
  */
 public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
 
@@ -91,14 +84,14 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         if (blockEntityRef == null || !blockEntityRef.isValid())
             return;
 
-        ProcessingBenchBlock pbb = (ProcessingBenchBlock) chunkStoreStore.getComponent(
-                blockEntityRef, ProcessingBenchBlock.getComponentType());
+        AutoProcessingBenchBlock apbb = (AutoProcessingBenchBlock) chunkStoreStore.getComponent(
+                blockEntityRef, AutoProcessingBenchBlock.getComponentType());
         BenchBlock benchBlock = (BenchBlock) chunkStoreStore.getComponent(
                 blockEntityRef, BenchBlock.getComponentType());
         BlockModule.BlockStateInfo blockStateInfo = (BlockModule.BlockStateInfo) chunkStoreStore.getComponent(
                 blockEntityRef, BlockModule.BlockStateInfo.getComponentType());
 
-        if (pbb == null || benchBlock == null || blockStateInfo == null)
+        if (apbb == null || benchBlock == null || blockStateInfo == null)
             return;
 
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
@@ -121,19 +114,13 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         FluidContainerComponent fluidContainer = (FluidContainerComponent) chunkStoreStore.getComponent(
                 blockEntityRef, FluidContainerComponent.getComponentType());
 
-        BenchWindow window = fluidContainer != null
-                ? new AutoProcessingBenchWindow(
-                        pbb, benchBlock, blockStateInfo,
-                        pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer)
-                : new ProcessingBenchWindow(
-                        pbb, benchBlock, blockStateInfo,
-                        pos.x, pos.y, pos.z, rotationIndex, blockType);
+        AutoProcessingBenchWindow window = new AutoProcessingBenchWindow(
+                apbb, benchBlock, blockStateInfo,
+                pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer);
 
-        Map<UUID, BenchWindow> windows = benchBlock.getWindows();
+        Map<UUID, AutoProcessingBenchWindow> windows = apbb.getWindows();
         if (windows.putIfAbsent(uuid, window) != null)
             return;
-
-        pbb.updateFuelValues(windows);
 
         if (!playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window)) {
             windows.remove(uuid, window);
@@ -149,8 +136,8 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
                 return;
             String interactionState = BlockAccessor.getCurrentInteractionState(currentBlockType);
             if (windows.isEmpty()
-                    && !ProcessingBenchBlock.PROCESSING.equals(interactionState)
-                    && !ProcessingBenchBlock.PROCESS_COMPLETED.equals(interactionState)) {
+                    && !"processing".equals(interactionState)
+                    && !"process_completed".equals(interactionState)) {
                 world.setBlockInteractionState(pos, BenchBlock.getBaseBlockType(currentBlockType),
                         benchBlock.getTierStateName());
             }
@@ -172,3 +159,4 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         // No client-side simulation needed.
     }
 }
+

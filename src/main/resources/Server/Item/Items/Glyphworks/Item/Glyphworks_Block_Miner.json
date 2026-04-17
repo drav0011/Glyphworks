@@ -64,6 +64,14 @@
           },
           "Capacity": 3
         },
+        "Glyphworks_BlockMinerComponent": {
+          "Glyphworks_BlockMinerComponent_TargetNormal": "Down",
+          "Glyphworks_BlockMinerComponent_TargetPosition": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -83,15 +91,6 @@
               ]
             }
           ]
-        },
-        "Glyphworks_BlockMinerComponent": {
-          "Glyphworks_BlockMinerComponent_TargetNormal": "Down",
-          "Glyphworks_BlockMinerComponent_TargetPosition": {
-            "X": 0,
-            "Y": 0,
-            "Z": 0
-          },
-          "Glyphworks_BlockMinerComponent_MiningProgress": 0
         }
       }
     },

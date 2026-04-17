@@ -13,18 +13,14 @@ import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction;
 import dev.drav.glyphworks.crafting.interaction.OpenAutoProcessingBenchInteraction;
-import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem;
-import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem;
-import dev.drav.glyphworks.crafting.system.ManaLiquifierSetupSystem;
-import dev.drav.glyphworks.crafting.system.ManaLiquifierSystem;
-import dev.drav.glyphworks.crafting.system.ProcessingBenchAutoStartSystem;
-import dev.drav.glyphworks.crafting.system.ProcessingBenchManaSystem;
+import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystems;
+import dev.drav.glyphworks.crafting.system.AutoProcessingBenchSystems;
+import dev.drav.glyphworks.crafting.system.ManaLiquifierSystems;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchFlowTests;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchGridTests;
 import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchTests;
 import dev.drav.glyphworks.crafting.tests.ManaLiquifierSystemTests;
 import dev.drav.glyphworks.crafting.tests.component.AutoProcessingBenchBlockTests;
-import dev.drav.glyphworks.crafting.tests.system.ProcessingBenchManaSystemTests;
 
 /**
  * Sub-plugin that owns the auto-crafting bench component,
@@ -82,12 +78,12 @@ public final class CraftingModule extends GlyphworksModule {
 
     @Override
     public void start(@Nonnull GlyphworksPlugin plugin) {
-        plugin.getChunkStoreRegistry().registerSystem(new ProcessingBenchAutoStartSystem());
-        plugin.getChunkStoreRegistry().registerSystem(new ProcessingBenchManaSystem());
-        plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSetupSystem());
-        plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystem());
-        plugin.getChunkStoreRegistry().registerSystem(new ManaLiquifierSetupSystem());
-        plugin.getChunkStoreRegistry().registerSystem(new ManaLiquifierSystem());
+        plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystems.Setup());
+        plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystems.Tick());
+        plugin.getChunkStoreRegistry().registerSystem(new AutoProcessingBenchSystems.Setup());
+        plugin.getChunkStoreRegistry().registerSystem(new AutoProcessingBenchSystems.Tick());
+        plugin.getChunkStoreRegistry().registerSystem(new ManaLiquifierSystems.Setup());
+        plugin.getChunkStoreRegistry().registerSystem(new ManaLiquifierSystems.Tick());
     }
 
     @Override
@@ -96,7 +92,6 @@ public final class CraftingModule extends GlyphworksModule {
         AutoCraftingBenchFlowTests.register("crafting");
         AutoCraftingBenchGridTests.register("crafting");
         ManaLiquifierSystemTests.register("crafting");
-        ProcessingBenchManaSystemTests.register("crafting");
         AutoProcessingBenchBlockTests.register("crafting");
     }
 }

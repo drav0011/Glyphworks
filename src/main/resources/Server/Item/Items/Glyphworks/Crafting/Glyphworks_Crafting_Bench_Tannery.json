@@ -106,7 +106,6 @@
     "BlockEntity": {
       "Components": {
         "BenchBlock": {},
-        "ProcessingBenchBlock": {},
         "Glyphworks_AutoProcessingBenchBlock": {
           "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 25.0
         },

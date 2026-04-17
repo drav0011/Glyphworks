@@ -60,6 +60,7 @@
           },
           "Capacity": 1
         },
+        "Glyphworks_ItemSinkComponent": {},
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {
@@ -79,8 +80,7 @@
               ]
             }
           ]
-        },
-        "Glyphworks_ItemSinkComponent": {}
+        }
       }
     },
     "Interactions": {
