@@ -45,11 +45,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  */
 public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
-    /** Liters per world source-fluid block (one bucket). */
-    private static final int LITERS_PER_BLOCK = 1_000;
-
-    private static final int EMPTY_FLUID_ID = 0;
-
     @Override
     public Query<ChunkStore> getQuery() {
         return Query.and(
@@ -69,7 +64,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.getAmount() < LITERS_PER_BLOCK) {
+        if (fcc.getAmount() < FluidUtil.LITERS_PER_BLOCK) {
             return;
         }
         if (fcc.getFluidId() == null) {
@@ -120,13 +115,23 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
+        BlockSection adjBlockSection = FluidUtil.getBlockSection(chunkStore, store, adjacent.x, adjacent.y, adjacent.z);
+        if (adjBlockSection == null) {
+            return;
+        }
+        int adjLocalX = ChunkUtil.localCoordinate(adjacent.x);
+        int adjLocalZ = ChunkUtil.localCoordinate(adjacent.z);
+        if (adjBlockSection.get(adjLocalX, adjacent.y, adjLocalZ) != FluidUtil.EMPTY_BLOCK_ID) {
+            return;
+        }
+
         int existingFluidId = fs.getFluidId(adjacent.x, adjacent.y, adjacent.z);
-        if (existingFluidId != EMPTY_FLUID_ID) {
+        if (existingFluidId != FluidUtil.EMPTY_FLUID_ID) {
             return;
         }
 
         int indexedId = Fluid.getAssetMap().getIndex(fcc.getFluidId());
-        if (indexedId <= EMPTY_FLUID_ID) {
+        if (indexedId <= FluidUtil.EMPTY_FLUID_ID) {
             return;
         }
 
@@ -135,7 +140,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int drained = fcc.drain(LITERS_PER_BLOCK);
+        int drained = fcc.drain(FluidUtil.LITERS_PER_BLOCK);
         if (drained > 0) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, indexedId, (byte) fluid.getMaxFluidLevel());
             Ref<ChunkStore> adjChunkRef = chunkStore

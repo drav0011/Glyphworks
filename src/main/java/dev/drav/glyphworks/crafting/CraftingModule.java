@@ -12,6 +12,7 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction;
+import dev.drav.glyphworks.crafting.interaction.OpenAutoProcessingBenchInteraction;
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSetupSystem;
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystem;
 import dev.drav.glyphworks.crafting.system.ManaLiquifierSetupSystem;
@@ -67,6 +68,11 @@ public final class CraftingModule extends GlyphworksModule {
                 "OpenAutoCraftingBench",
                 OpenAutoCraftingBenchInteraction.class,
                 OpenAutoCraftingBenchInteraction.CODEC);
+
+        plugin.getCodecRegistry(Interaction.CODEC).register(
+                "OpenAutoProcessingBench",
+                OpenAutoProcessingBenchInteraction.class,
+                OpenAutoProcessingBenchInteraction.CODEC);
 
         this.manaLiquifierBlockComponentType = plugin.getChunkStoreRegistry().registerComponent(
                 ManaLiquifierBlock.class,

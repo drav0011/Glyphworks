@@ -24,6 +24,7 @@ import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContainerWindow;
 import com.hypixel.hytale.server.core.inventory.Inventory;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
@@ -35,6 +36,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
  * Processing-style monitor window for {@link AutoCraftingBenchBlock}.
@@ -63,7 +65,13 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
     private final CombinedItemContainer itemContainer;
 
     @Nullable
+    private final FluidContainerComponent fluidContainer;
+
+    @Nullable
     private EventRegistration<?, ?> inventoryRegistration;
+
+    @Nullable
+    private EventRegistration<?, ?> fluidRegistration;
 
     private float progress;
 
@@ -72,39 +80,34 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
             @Nonnull BenchBlock benchBlock,
             @Nonnull BlockModule.BlockStateInfo blockStateInfo,
             int x, int y, int z, int rotationIndex,
-            @Nonnull BlockType blockType) {
+            @Nonnull BlockType blockType,
+            @Nullable FluidContainerComponent fluidContainer) {
         super(WindowType.Processing, x, y, z, rotationIndex, blockType, benchBlock);
         this.acbb = acbb;
         this.blockStateInfo = blockStateInfo;
+        this.fluidContainer = fluidContainer;
 
-        // Build a slot layout that matches the client's expectation: fuel | input |
-        // output.
-        // The dummy 1-slot fuel container is output-only so nothing can be inserted
-        // into it.
-        ItemContainer dummyFuel = SimpleItemContainer.getNewContainer((short) 1);
-        dummyFuel.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
+        // Build slot layout: fuel | input | output.
+        // Fuel slot is either the live fluid container or a locked-empty dummy.
+        ItemContainer fuelSlotContainer = fluidContainer != null
+                ? fluidContainer.getItemContainer()
+                : buildDummyFuelContainer();
         ItemContainer input = acbb.getInputContainer();
         ItemContainer output = acbb.getOutputContainer();
         this.itemContainer = (input != null && output != null)
-                ? new CombinedItemContainer(dummyFuel, input, output)
-                : new CombinedItemContainer(dummyFuel);
+                ? new CombinedItemContainer(fuelSlotContainer, input, output)
+                : new CombinedItemContainer(fuelSlotContainer);
 
         this.progress = computeProgress(acbb);
 
         // Fields expected by the Processing client renderer.
         windowData.addProperty("active", Boolean.TRUE);
         windowData.addProperty("progress", Float.valueOf(this.progress));
-        // Dummy fuel slot — one slot keeps the stop button interactive.
-        JsonArray fuelArr = new JsonArray();
-        JsonObject fuelSlot = new JsonObject();
-        fuelSlot.addProperty("icon", "");
-        fuelSlot.addProperty("resourceTypeId", "");
-        fuelArr.add(fuelSlot);
-        windowData.add("fuel", fuelArr);
         windowData.addProperty("maxFuel", Integer.valueOf(1));
         windowData.addProperty("fuelTime", Float.valueOf(1.0f));
         windowData.addProperty("processingSlots", Integer.valueOf(0));
         windowData.addProperty("processingFuelSlots", Integer.valueOf(1)); // slot 0 active
+        buildFuelWindowData();
 
         String lockedId = acbb.getLockedRecipeId();
         if (lockedId != null) {
@@ -140,13 +143,19 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
             return false;
 
         Inventory inventory = playerComponent.getInventory();
-        // inventoryHints are empty for auto-crafting benches (no manual fuel/recipe
-        // selection), but the Processing window renderer requires the field to exist.
         windowData.add("inventoryHints", new JsonArray());
         inventoryRegistration = inventory.getCombinedHotbarFirst().registerChangeEvent(event -> {
             windowData.add("inventoryHints", new JsonArray());
             invalidate();
         });
+
+        if (fluidContainer != null) {
+            fluidRegistration = fluidContainer.getItemContainer().registerChangeEvent(event -> {
+                buildFuelWindowData();
+                invalidate();
+            });
+        }
+
         return true;
     }
 
@@ -156,6 +165,10 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
         if (inventoryRegistration != null) {
             inventoryRegistration.unregister();
             inventoryRegistration = null;
+        }
+        if (fluidRegistration != null) {
+            fluidRegistration.unregister();
+            fluidRegistration = null;
         }
     }
 
@@ -220,6 +233,33 @@ public final class AutoCraftingBenchMonitorWindow extends BenchWindow implements
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
+
+    private static ItemContainer buildDummyFuelContainer() {
+        ItemContainer dummy = SimpleItemContainer.getNewContainer((short) 1);
+        dummy.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
+        return dummy;
+    }
+
+    private void buildFuelWindowData() {
+        JsonArray fuelArr = new JsonArray();
+        JsonObject fuelSlot = new JsonObject();
+        fuelSlot.addProperty("resourceTypeId", "");
+
+        if (fluidContainer != null) {
+            ItemStack stack = fluidContainer.getItemContainer().getItemStack((short) 0);
+            fuelSlot.addProperty("icon", stack != null ? stack.getItemId() : "");
+            float fuelTime = fluidContainer.getCapacity() > 0
+                    ? (float) fluidContainer.getAmount() / fluidContainer.getCapacity()
+                    : 0.0f;
+            windowData.addProperty("fuelTime", Float.valueOf(fuelTime));
+        } else {
+            fuelSlot.addProperty("icon", "");
+            windowData.addProperty("fuelTime", Float.valueOf(1.0f));
+        }
+
+        fuelArr.add(fuelSlot);
+        windowData.add("fuel", fuelArr);
+    }
 
     private static float computeProgress(@Nonnull AutoCraftingBenchBlock acbb) {
         var recipe = acbb.getLockedRecipe();

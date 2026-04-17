@@ -44,11 +44,6 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  */
 public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
 
-    /** Liters per world source-fluid block (one bucket). */
-    private static final int LITERS_PER_BLOCK = 1_000;
-
-    private static final int EMPTY_FLUID_ID = 0;
-
     @Override
     public Query<ChunkStore> getQuery() {
         return Query.and(
@@ -68,7 +63,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.availableSpace() < LITERS_PER_BLOCK) {
+        if (fcc.availableSpace() < FluidUtil.LITERS_PER_BLOCK) {
             return;
         }
 
@@ -118,7 +113,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
 
         int fluidId = fs.getFluidId(adjacent.x, adjacent.y, adjacent.z);
 
-        if (fluidId == EMPTY_FLUID_ID) {
+        if (fluidId == FluidUtil.EMPTY_FLUID_ID) {
             return;
         }
 
@@ -127,9 +122,9 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int filled = fcc.fill(fluid.getId(), LITERS_PER_BLOCK);
+        int filled = fcc.fill(fluid.getId(), FluidUtil.LITERS_PER_BLOCK);
         if (filled > 0) {
-            fs.setFluid(adjacent.x, adjacent.y, adjacent.z, EMPTY_FLUID_ID, (byte) 0);
+            fs.setFluid(adjacent.x, adjacent.y, adjacent.z, FluidUtil.EMPTY_FLUID_ID, (byte) 0);
             Ref<ChunkStore> adjChunkRef = chunkStore
                     .getChunkReference(ChunkUtil.indexChunkFromBlock(adjacent.x, adjacent.z));
             if (adjChunkRef != null && adjChunkRef.isValid()) {

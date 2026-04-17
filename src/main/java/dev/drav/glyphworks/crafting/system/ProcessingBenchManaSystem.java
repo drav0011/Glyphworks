@@ -43,7 +43,7 @@ public final class ProcessingBenchManaSystem extends EntityTickingSystem<ChunkSt
             @Nonnull CommandBuffer<ChunkStore> commandBuffer) {
 
         ProcessingBenchBlock pbb = archetypeChunk.getComponent(index, ProcessingBenchBlock.getComponentType());
-        if (pbb == null || !pbb.isActive())
+        if (pbb == null)
             return;
 
         FluidContainerComponent manaContainer = archetypeChunk.getComponent(index, FluidContainerComponent.getComponentType());
@@ -52,11 +52,16 @@ public final class ProcessingBenchManaSystem extends EntityTickingSystem<ChunkSt
 
         int drain = drainAmount(archetypeChunk, index);
         if (hasSufficientMana(manaContainer, drain)) {
-            manaContainer.drain(drain);
+            if (pbb.isActive())
+                manaContainer.drain(drain);
             return;
         }
 
         drainRemainingMana(manaContainer);
+        // For fuel-less benches, ProcessingBenchBlock.advanceProcessing ignores
+        // isActive() and advances progress unconditionally. Resetting inputProgress
+        // to 0 each tick prevents recipe completion when mana is absent.
+        pbb.setInputProgress(0.0f);
         stopBench(pbb, archetypeChunk, index);
     }
 

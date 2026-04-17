@@ -12,30 +12,17 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
-import dev.drav.glyphworks.grid.component.GridComponent;
 
 /**
- * Automatically activates a {@link ProcessingBenchBlock} each tick when it has
- * a<
- * {@link GridComponent} and the necessary items to begin processing:
- *
- * <ul>
- * <li>At least one item in the input container.</li>
- * <li>At least one item in the fuel container, <em>when</em> the bench
- * defines fuel slots.</li>
- * </ul>
+ * Automatically activates a {@link ProcessingBenchBlock} each tick when it is
+ * an {@link AutoProcessingBenchBlock} (mana-powered) machine that has items in
+ * the input container and sufficient liquid mana to run.
  *
  * <p>
- * This allows grid-connected furnaces/processors to start themselves as soon
- * as an item pipe fills their input (and fuel) slots, without requiring a
- * player
- * to open the UI and press the start button.
- *
- * <p>
- * Deactivation is still handled by the vanilla
- * {@code ProcessingBenchBlock.ProcessingBenchTick} — we never call
- * {@code setActive(false)} here.
+ * Deactivation is handled by {@link ProcessingBenchManaSystem} when mana runs
+ * out, and by the vanilla {@code ProcessingBenchBlock} tick when input is empty.
  */
 public final class ProcessingBenchAutoStartSystem extends EntityTickingSystem<ChunkStore> {
 
@@ -47,7 +34,7 @@ public final class ProcessingBenchAutoStartSystem extends EntityTickingSystem<Ch
 
     @Override
     public Query<ChunkStore> getQuery() {
-        return Query.and(ProcessingBenchBlock.getComponentType(), GridComponent.getComponentType());
+        return Query.and(ProcessingBenchBlock.getComponentType(), AutoProcessingBenchBlock.getComponentType());
     }
 
     @Override
@@ -70,12 +57,6 @@ public final class ProcessingBenchAutoStartSystem extends EntityTickingSystem<Ch
         // Require at least one item in the input container.
         if (pbb.getInputContainer().isEmpty())
             return;
-
-        // When the bench has fuel slots, require at least one fuel item too.
-        if (pbb.getProcessingBench().getFuel() != null) {
-            if (pbb.getFuelContainer().isEmpty())
-                return;
-        }
 
         // Require mana in the fluid container if one is present.
         FluidContainerComponent fluidContainer = archetypeChunk.getComponent(

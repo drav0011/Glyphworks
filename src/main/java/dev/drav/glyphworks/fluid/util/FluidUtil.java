@@ -13,6 +13,13 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 public final class FluidUtil {
 
+    /**
+     * 1 source block = 1 000 L = 1 bucket = 1 000 mB
+     */
+    public static final int LITERS_PER_BLOCK = 1_000;
+    public static final int EMPTY_FLUID_ID = 0;
+    public static final int EMPTY_BLOCK_ID = 0;
+
     private FluidUtil() {
     }
 

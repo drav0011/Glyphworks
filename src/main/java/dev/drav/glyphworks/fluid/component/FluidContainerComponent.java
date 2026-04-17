@@ -68,6 +68,7 @@ public class FluidContainerComponent implements Component<ChunkStore> {
 
     /** No-arg constructor required by {@link #CODEC}. */
     public FluidContainerComponent() {
+        this.capacityMb = 1000;
         this.itemContainer = new SimpleItemContainer((short) 1);
         applyContainerFilters();
     }
@@ -171,7 +172,7 @@ public class FluidContainerComponent implements Component<ChunkStore> {
             return 0;
         int newAmount = current - removed;
         if (newAmount == 0) {
-            itemContainer.removeItemStackFromSlot((short) 0);
+            itemContainer.setItemStackForSlot((short) 0, null, false);
         } else {
             itemContainer.setItemStackForSlot((short) 0, buildStack(stack.getItemId(), newAmount), false);
         }

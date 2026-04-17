@@ -80,7 +80,7 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getItemContainer());
-        playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window);
+        playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
     }
 
     @Nullable

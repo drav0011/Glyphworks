@@ -9,7 +9,9 @@ import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
+import com.hypixel.hytale.builtin.crafting.component.ProcessingBenchBlock;
 import com.hypixel.hytale.builtin.crafting.window.BenchWindow;
+import com.hypixel.hytale.builtin.crafting.window.ProcessingBenchWindow;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -28,35 +30,32 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHa
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
-import dev.drav.glyphworks.crafting.window.AutoCraftingBenchMonitorWindow;
-import dev.drav.glyphworks.crafting.window.AutoCraftingBenchSelectWindow;
+import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
- * Opens the automated crafting bench UI.
+ * Opens a {@link AutoProcessingBenchWindow} for grid-connected
+ * {@link ProcessingBenchBlock} machines that run on liquid mana.
  *
- * <ul>
- * <li>If no recipe is locked → opens {@link AutoCraftingBenchSelectWindow}
- * (basic crafting browser) so the player can pick a recipe.</li>
- * <li>If a recipe is locked → opens {@link AutoCraftingBenchMonitorWindow}
- * (processing-style view) showing live progress and the item containers.
- * The "Change Recipe" button (SetActive=false) clears the lock.</li>
- * </ul>
+ * <p>
+ * When a {@link FluidContainerComponent} is present on the block entity the
+ * fuel slot shows the live mana level. Without one the window falls back to
+ * the vanilla {@link ProcessingBenchWindow}.
  */
-public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
+public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
 
     @Nonnull
-    public static final BuilderCodec<OpenAutoCraftingBenchInteraction> CODEC = BuilderCodec.builder(
-            OpenAutoCraftingBenchInteraction.class,
-            OpenAutoCraftingBenchInteraction::new,
+    public static final BuilderCodec<OpenAutoProcessingBenchInteraction> CODEC = BuilderCodec.builder(
+            OpenAutoProcessingBenchInteraction.class,
+            OpenAutoProcessingBenchInteraction::new,
             SimpleBlockInteraction.CODEC)
-            .documentation("Opens the automated crafting bench.")
+            .documentation("Opens a processing bench window showing liquid mana as fuel.")
             .build();
 
     @Override
@@ -92,18 +91,15 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
         if (blockEntityRef == null || !blockEntityRef.isValid())
             return;
 
-        AutoCraftingBenchBlock acbb = (AutoCraftingBenchBlock) chunkStoreStore.getComponent(
-                blockEntityRef, AutoCraftingBenchBlock.getComponentType());
+        ProcessingBenchBlock pbb = (ProcessingBenchBlock) chunkStoreStore.getComponent(
+                blockEntityRef, ProcessingBenchBlock.getComponentType());
         BenchBlock benchBlock = (BenchBlock) chunkStoreStore.getComponent(
                 blockEntityRef, BenchBlock.getComponentType());
         BlockModule.BlockStateInfo blockStateInfo = (BlockModule.BlockStateInfo) chunkStoreStore.getComponent(
                 blockEntityRef, BlockModule.BlockStateInfo.getComponentType());
 
-        if (acbb == null || benchBlock == null || blockStateInfo == null)
+        if (pbb == null || benchBlock == null || blockStateInfo == null)
             return;
-
-        FluidContainerComponent fluidContainer = (FluidContainerComponent) chunkStoreStore.getComponent(
-                blockEntityRef, FluidContainerComponent.getComponentType());
 
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
         if (blockType == null)
@@ -122,62 +118,48 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
         int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();
 
-        if (acbb.getLockedRecipeId() == null) {
-            // ── No recipe locked: open recipe selector ────────────────────────
-            AutoCraftingBenchSelectWindow selectWindow = new AutoCraftingBenchSelectWindow(
-                    acbb, benchBlock, blockStateInfo,
-                    pos.x, pos.y, pos.z, rotationIndex, blockType);
-            openBenchPage(playerComponent, ref, store, selectWindow,
-                    openSoundIndex, closeSoundIndex, commandBuffer, null);
-        } else {
-            // ── Recipe locked: open monitor window ────────────────────────────
-            Map<UUID, AutoCraftingBenchMonitorWindow> windows = acbb.getWindows();
-            AutoCraftingBenchMonitorWindow monitorWindow = new AutoCraftingBenchMonitorWindow(
-                    acbb, benchBlock, blockStateInfo,
-                    pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer);
+        FluidContainerComponent fluidContainer = (FluidContainerComponent) chunkStoreStore.getComponent(
+                blockEntityRef, FluidContainerComponent.getComponentType());
 
-            if (windows.putIfAbsent(uuid, monitorWindow) == null) {
-                if (!openBenchPage(playerComponent, ref, store, monitorWindow,
-                        openSoundIndex, closeSoundIndex, commandBuffer,
-                        () -> windows.remove(uuid, monitorWindow))) {
-                    windows.remove(uuid, monitorWindow);
-                }
-            }
-        }
-    }
+        BenchWindow window = fluidContainer != null
+                ? new AutoProcessingBenchWindow(
+                        pbb, benchBlock, blockStateInfo,
+                        pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer)
+                : new ProcessingBenchWindow(
+                        pbb, benchBlock, blockStateInfo,
+                        pos.x, pos.y, pos.z, rotationIndex, blockType);
 
-    /**
-     * Opens {@code window} on {@link Page#Bench}, registers the close sound, and
-     * optionally runs {@code onClose} when the window is dismissed.
-     *
-     * @return {@code true} if the page was successfully opened
-     */
-    private static boolean openBenchPage(
-            @Nonnull Player playerComponent,
-            @Nonnull Ref<EntityStore> ref,
-            @Nonnull Store<EntityStore> store,
-            @Nonnull BenchWindow window,
-            int openSoundIndex,
-            int closeSoundIndex,
-            @Nonnull CommandBuffer<EntityStore> commandBuffer,
-            @Nullable Runnable onClose) {
+        Map<UUID, BenchWindow> windows = benchBlock.getWindows();
+        if (windows.putIfAbsent(uuid, window) != null)
+            return;
+
+        pbb.updateFuelValues(windows);
+
         if (!playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Bench, true, window)) {
-            return false;
+            windows.remove(uuid, window);
+            return;
         }
 
         window.registerCloseEvent(event -> {
-            if (onClose != null)
-                onClose.run();
-            if (closeSoundIndex != 0) {
-                SoundUtil.playSoundEvent2d(ref, closeSoundIndex, SoundCategory.UI, commandBuffer);
+            windows.remove(uuid, window);
+            BlockType currentBlockType = world.getBlockType(pos);
+            if (currentBlockType == null
+                    || currentBlockType == BlockType.EMPTY
+                    || currentBlockType == BlockType.UNKNOWN)
+                return;
+            String interactionState = BlockAccessor.getCurrentInteractionState(currentBlockType);
+            if (windows.isEmpty()
+                    && !ProcessingBenchBlock.PROCESSING.equals(interactionState)
+                    && !ProcessingBenchBlock.PROCESS_COMPLETED.equals(interactionState)) {
+                world.setBlockInteractionState(pos, BenchBlock.getBaseBlockType(currentBlockType),
+                        benchBlock.getTierStateName());
             }
+            if (closeSoundIndex != 0)
+                SoundUtil.playSoundEvent2d(ref, closeSoundIndex, SoundCategory.UI, commandBuffer);
         });
 
-        if (openSoundIndex != 0) {
+        if (openSoundIndex != 0)
             SoundUtil.playSoundEvent2d(ref, openSoundIndex, SoundCategory.UI, commandBuffer);
-        }
-
-        return true;
     }
 
     @Override
