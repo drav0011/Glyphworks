@@ -146,7 +146,7 @@ public final class AutoCraftingBenchSystems {
     public static final class Tick extends EntityTickingSystem<ChunkStore> {
 
         private static final float DEFAULT_RECIPE_TIME = 1.0f;
-        private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+        private static final String MANA_FLUID_ID = "Mana_Source";
 
         @Override
         public Query<ChunkStore> getQuery() {

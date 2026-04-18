@@ -316,7 +316,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(lockedRecipe);
         if (inputs.isEmpty())
             return false;
-        return !inputContainer.getSlotMaterialsToRemove(inputs, true, true).isEmpty();
+        return !inputContainer.getSlotMaterialsToRemove(inputs, false, true).isEmpty();
     }
 
     /**
@@ -356,7 +356,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(lockedRecipe);
         List<ItemStack> outputs = CraftingManager.getOutputItemStacks(lockedRecipe);
 
-        ListTransaction<MaterialTransaction> removeTx = inputContainer.removeMaterials(inputs, true, true, true);
+        ListTransaction<MaterialTransaction> removeTx = inputContainer.removeMaterials(inputs, true, false, true);
         if (!removeTx.succeeded())
             return;
 

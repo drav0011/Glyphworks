@@ -150,7 +150,7 @@ public final class AutoProcessingBenchSystems {
 
     public static final class Tick extends EntityTickingSystem<ChunkStore> {
 
-        private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+        private static final String MANA_FLUID_ID = "Mana_Source";
 
         @Override
         public Query<ChunkStore> getQuery() {
