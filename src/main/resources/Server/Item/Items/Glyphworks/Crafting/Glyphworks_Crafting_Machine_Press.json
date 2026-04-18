@@ -4,7 +4,7 @@
     "Description": "server.items.Glyphworks_Crafting_Machine_Press.description"
   },
   "Categories": [
-    "Glyphworks.Benches"
+    "Glyphworks.Machines"
   ],
   "Recipe": {
     "Input": [
@@ -39,7 +39,7 @@
         "Id": "GlyphImprinter",
         "Type": "Crafting",
         "Categories": [
-          "GlyphImprinter_Benches"
+          "GlyphImprinter_Machines"
         ]
       }
     ],

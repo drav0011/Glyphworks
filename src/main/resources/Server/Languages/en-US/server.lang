@@ -63,7 +63,7 @@ items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.\nAutom
 
 # Item network
 items.Glyphworks_Item_Container.name=Item Container
-items.Glyphworks_Item_Container.description=Stores up to 20 item stacks. 
+items.Glyphworks_Item_Container.description=Stores up to 20 item stacks.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Item_Pipe.name=Item Pipe
 items.Glyphworks_Item_Pipe.description=Transports items between network nodes.\nAutomatically connects to adjacent pipes.
 items.Glyphworks_Item_Source.name=Item Source
@@ -71,7 +71,7 @@ items.Glyphworks_Item_Source.description=Generates an infinite supply of any ite
 items.Glyphworks_Item_Sink.name=Item Sink
 items.Glyphworks_Item_Sink.description=Destroys any item piped into it.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Item_Inserter.name=Item Inserter
-items.Glyphworks_Item_Inserter.description=Pushes items from the network into the block directly below.\nAutomatically pulls <color is="#47D500">input</color>.
+items.Glyphworks_Item_Inserter.description=Pushes items from the network into the inventories of the block directly below.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Item_Extractor.name=Item Extractor
 items.Glyphworks_Item_Extractor.description=Pulls items out of the inventories of the block directly below and moves them into the network.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Item_Picker.name=Item Picker
@@ -111,7 +111,9 @@ items.Glyphworks_Rune_Water.description=Laguz - imbued with the essence of water
 
 # Categories
 benchCategories.runepress.crafting=Rune Crafting
-benchCategories.glyphimprinter.machines=Machines
+benchCategories.glyphimprinter.machines=Benches & Machines
+benchCategories.glyphimprinter.items=Item Network
+benchCategories.glyphimprinter.fluid=Fluid Network
 benchCategories.glyphimprinter.components=Components
 benchCategories.glyphimbuer.runes=Rune Imbuing
 
@@ -122,6 +124,7 @@ resourceType.Glyphworks_Filled_Rune.name=Filled Rune
 # Item categories
 ui.itemcategory.glyphworks=Glyphworks
 ui.itemcategory.glyphworks.benches=Benches
-ui.itemcategory.glyphworks.fluid=Fluid Network
+ui.itemcategory.glyphworks.machines=Machines
 ui.itemcategory.glyphworks.items=Item Network
+ui.itemcategory.glyphworks.fluid=Fluid Network
 ui.itemcategory.glyphworks.runes=Runes

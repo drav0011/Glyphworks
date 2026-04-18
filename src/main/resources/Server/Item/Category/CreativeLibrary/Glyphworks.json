@@ -1,5 +1,5 @@
 {
-  "Icon": "Icons/ItemCategories/Items.png",
+  "Icon": "Icons/ItemCategories/Editor.png",
   "Order": 10,
   "Children": [
     {
@@ -8,13 +8,18 @@
       "Icon": "Icons/ItemCategories/Bench.png"
     },
     {
-      "Id": "Fluid",
-      "Name": "server.ui.itemcategory.glyphworks.fluid",
-      "Icon": "Icons/ItemCategories/Container.png"
+      "Id": "Machines",
+      "Name": "server.ui.itemcategory.glyphworks.machines",
+      "Icon": "Icons/ItemCategories/Builder Tools.png"
     },
     {
       "Id": "Items",
       "Name": "server.ui.itemcategory.glyphworks.items",
+      "Icon": "Icons/ItemCategories/Container.png"
+    },
+    {
+      "Id": "Fluid",
+      "Name": "server.ui.itemcategory.glyphworks.fluid",
       "Icon": "Icons/ItemCategories/Container.png"
     },
     {

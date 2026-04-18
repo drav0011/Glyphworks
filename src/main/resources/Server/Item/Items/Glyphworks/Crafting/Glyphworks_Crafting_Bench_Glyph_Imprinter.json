@@ -55,19 +55,19 @@
       "Type": "Crafting",
       "Categories": [
         {
-          "Id": "GlyphImprinter_Benches",
+          "Id": "GlyphImprinter_Machines",
           "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
-          "Name": "server.benchCategories.glyphimprinter.benches"
-        },
-        {
-          "Id": "GlyphImprinter_Fluid",
-          "Icon": "Icons/CraftingCategories/Workbench/Containers.png",
-          "Name": "server.benchCategories.glyphimprinter.fluid"
+          "Name": "server.benchCategories.glyphimprinter.machines"
         },
         {
           "Id": "GlyphImprinter_Items",
           "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
           "Name": "server.benchCategories.glyphimprinter.items"
+        },
+        {
+          "Id": "GlyphImprinter_Fluid",
+          "Icon": "Icons/CraftingCategories/Workbench/Containers.png",
+          "Name": "server.benchCategories.glyphimprinter.fluid"
         }
       ],
       "LocalOpenSoundEventId": "SFX_Workbench_Open",
