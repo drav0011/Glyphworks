@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Furnace.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Furnace.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Furnace.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Furnace.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Furnace.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Furnace.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -24,7 +24,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Furnace"
+        "ItemId": "Glyphworks_Crafting_Machine_Furnace"
       }
     ],
     "BenchRequirement": [
@@ -49,7 +49,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Furnace",
+    "HitboxType": "Glyphworks_Crafting_Machine_Furnace",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Processing",
@@ -208,7 +208,7 @@
               "Weight": 1
             }
           ],
-          "HitboxType": "Glyphworks_Crafting_Bench_Furnace",
+          "HitboxType": "Glyphworks_Crafting_Machine_Furnace",
           "State": {
             "Definitions": {
               "Processing": {

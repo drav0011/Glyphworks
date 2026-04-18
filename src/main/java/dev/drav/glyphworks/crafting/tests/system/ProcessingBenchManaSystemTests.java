@@ -30,7 +30,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class ProcessingBenchManaSystemTests {
 
-    private static final String FURNACE_ID = "Glyphworks_Crafting_Bench_Furnace";
+    private static final String FURNACE_ID = "Glyphworks_Crafting_Machine_Furnace";
     private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
     private static final int MANA_CAPACITY = 4_000;
 

@@ -46,7 +46,7 @@ public final class AutoCraftingBenchFlowTests {
 
     // ── Constants ─────────────────────────────────────────────────────────────
 
-    private static final String BENCH_ID = "Glyphworks_Crafting_Bench_WorkBench";
+    private static final String BENCH_ID = "Glyphworks_Crafting_Machine_WorkBench";
 
     /**
      * Recipe ID for the {@code Deco_Target} item's embedded recipe: 1× Ingredient_Fibre → 1×

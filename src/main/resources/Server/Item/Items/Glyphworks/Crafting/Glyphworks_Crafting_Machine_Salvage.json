@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Salvage.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Salvage.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Salvage.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Salvage.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Salvage.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Salvage.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -28,7 +28,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Salvage"
+        "ItemId": "Glyphworks_Crafting_Machine_Salvage"
       }
     ],
     "BenchRequirement": [
@@ -53,7 +53,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Salvage",
+    "HitboxType": "Glyphworks_Crafting_Machine_Salvage",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Processing",

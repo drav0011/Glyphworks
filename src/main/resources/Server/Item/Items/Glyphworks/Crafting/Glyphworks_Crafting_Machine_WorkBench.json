@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_WorkBench.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_WorkBench.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_WorkBench.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_WorkBench.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_WorkBench.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_WorkBench.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -24,7 +24,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_WorkBench"
+        "ItemId": "Glyphworks_Crafting_Machine_WorkBench"
       }
     ],
     "BenchRequirement": [
@@ -49,7 +49,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+    "HitboxType": "Glyphworks_Crafting_Machine_WorkBench",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
@@ -210,7 +210,7 @@
               "Weight": 1
             }
           ],
-          "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+          "HitboxType": "Glyphworks_Crafting_Machine_WorkBench",
           "State": {
             "Definitions": {
               "CraftCompleted": {
@@ -227,7 +227,7 @@
               "Weight": 1
             }
           ],
-          "HitboxType": "Glyphworks_Crafting_Bench_WorkBench",
+          "HitboxType": "Glyphworks_Crafting_Machine_WorkBench",
           "State": {
             "Definitions": {
               "CraftCompleted": {

@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Alchemy.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Alchemy.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Alchemy.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Alchemy.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Alchemy.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Alchemy.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -32,7 +32,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Alchemy"
+        "ItemId": "Glyphworks_Crafting_Machine_Alchemy"
       }
     ],
     "BenchRequirement": [
@@ -57,7 +57,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Alchemy",
+    "HitboxType": "Glyphworks_Crafting_Machine_Alchemy",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",

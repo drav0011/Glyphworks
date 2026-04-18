@@ -1,87 +1,87 @@
 # Benches
-items.Glyphworks_Crafting_Glyph_Imprinter.name=Glyph Imprinter
-items.Glyphworks_Crafting_Glyph_Imprinter.description=Used to craft Glyphworks benches and components.
-items.Glyphworks_Crafting_Bench_Hand_Press.name=Hand Rune Press
-items.Glyphworks_Crafting_Bench_Hand_Press.description=Used to shape raw materials into empty runes.
-items.Glyphworks_Crafting_Bench_Manual_Imbuer.name=Manual Imbuer
-items.Glyphworks_Crafting_Bench_Manual_Imbuer.description=Used to imbue empty runes with elemental essence.
+items.Glyphworks_Crafting_Bench_Glyph_Imprinter.name=Glyph Imprinter Bench
+items.Glyphworks_Crafting_Bench_Glyph_Imprinter.description=Used to craft Glyphworks benches, machines and components.
+items.Glyphworks_Crafting_Bench_Press.name=Rune Press Bench
+items.Glyphworks_Crafting_Bench_Press.description=Used to shape raw materials into empty runes.
+items.Glyphworks_Crafting_Bench_Imbuer.name=Imbuer Bench
+items.Glyphworks_Crafting_Bench_Imbuer.description=Used to imbue empty runes with elemental essence.
 
-# Automatic Benches
-items.Glyphworks_Crafting_Bench_Press.name=Rune Press
-items.Glyphworks_Crafting_Bench_Press.description=Used to shape raw materials into empty runes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Imbuer.name=Imbuer
-items.Glyphworks_Crafting_Bench_Imbuer.description=Used to imbue empty runes with elemental essence.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Mana_Liquifier.name=Mana Liquifier
-items.Glyphworks_Crafting_Mana_Liquifier.description=Used to convert elemental essences into liquid <color is="#35c1f1">mana</color> using fuel.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#00D4D5">fluid output</color>.
+# Machines
+items.Glyphworks_Crafting_Machine_Press.name=Rune Press Machine
+items.Glyphworks_Crafting_Machine_Press.description=Used to shape raw materials into empty runes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Imbuer.name=Imbuer Machine
+items.Glyphworks_Crafting_Machine_Imbuer.description=Used to imbue empty runes with elemental essence.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Mana_Liquifier.name=Mana Liquifier Machine
+items.Glyphworks_Crafting_Machine_Mana_Liquifier.description=Used to convert elemental essences into liquid <color is="#35c1f1">mana</color> using fuel.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#00D4D5">output</color>.
 
-# Automatic Vanilla Benches
-items.Glyphworks_Crafting_Bench_Alchemy.name=Automated Alchemy Bench
-items.Glyphworks_Crafting_Bench_Alchemy.description=Used to create potions and elixirs.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>The alchemists of old long sought the secrets to eternal life. Some might say they achieved that grand goal, though perhaps not in the form they imagined.</i>
-items.Glyphworks_Crafting_Bench_Arcane.name=Automated Arcane Bench
-items.Glyphworks_Crafting_Bench_Arcane.description=Used to fashion various arcane implements.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>The arcane arts are the closest mere mortals have ever come to achieving Avatar powers. Had they mastered them sooner, perhaps they would not have been so easily swayed.</i>
-## Architects bench?
-## Armory bench?
-items.Glyphworks_Crafting_Bench_Armour.name=Automated Armour Bench
-items.Glyphworks_Crafting_Bench_Armour.description=Used to craft basic armor.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+# Vanilla Machines
+items.Glyphworks_Crafting_Machine_Alchemy.name=Alchemy Machine
+items.Glyphworks_Crafting_Machine_Alchemy.description=Used to create potions and elixirs.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>The alchemists of old long sought the secrets to eternal life. Some might say they achieved that grand goal, though perhaps not in the form they imagined.</i>
+items.Glyphworks_Crafting_Machine_Arcane.name=Arcane Machine
+items.Glyphworks_Crafting_Machine_Arcane.description=Used to fashion various arcane implements.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>The arcane arts are the closest mere mortals have ever come to achieving Avatar powers. Had they mastered them sooner, perhaps they would not have been so easily swayed.</i>
+## Architects?
+## Armory?
+items.Glyphworks_Crafting_Machine_Armour.name=Armour Machine
+items.Glyphworks_Crafting_Machine_Armour.description=Used to craft basic armor.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
 ## Builders?
-items.Glyphworks_Crafting_Bench_Furniture.name=Automated Furniture Bench
-items.Glyphworks_Crafting_Bench_Furniture.description=Used to craft furniture, storage, and decorative items to personalize your home.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Campfire.name=Automated Campfire
-items.Glyphworks_Crafting_Bench_Campfire.description=Cook basic meals.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>To many an adventurer, the humble campfire is all it takes to declare a place "home." Unshakeable bonds can be forged while basking in its warmth and all great tales have sparked from its embers.</i>
-items.Glyphworks_Crafting_Bench_Cooking.name=Automated Cooking Bench
-items.Glyphworks_Crafting_Bench_Cooking.description=A built-in kitchen that can be used to make advanced dishes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Farming.name=Automated Farming Bench
-items.Glyphworks_Crafting_Bench_Farming.description=Used to craft farming accessories and animal feed.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Furnace.name=Automated Furnace
-items.Glyphworks_Crafting_Bench_Furnace.description=Used to process ore into metal bars.\nUpgrading reduces smelting times and increases storage capacity.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Furniture.name=Furniture Machine
+items.Glyphworks_Crafting_Machine_Furniture.description=Used to craft furniture, storage, and decorative items to personalize your home.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Campfire.name=Campfire Machine
+items.Glyphworks_Crafting_Machine_Campfire.description=Cook basic meals.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>To many an adventurer, the humble campfire is all it takes to declare a place "home." Unshakeable bonds can be forged while basking in its warmth and all great tales have sparked from its embers.</i>
+items.Glyphworks_Crafting_Machine_Cooking.name=Cooking Machine
+items.Glyphworks_Crafting_Machine_Cooking.description=A built-in kitchen that can be used to make advanced dishes.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Farming.name=Farming Machine
+items.Glyphworks_Crafting_Machine_Farming.description=Used to craft farming accessories and animal feed.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Furnace.name=Furnace Machine
+items.Glyphworks_Crafting_Machine_Furnace.description=Used to process ore into metal bars.\nUpgrading reduces smelting times and increases storage capacity.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
 ## Loom?
 ## Lumbermill?
-items.Glyphworks_Crafting_Bench_Salvage.name=Automated Salvage Bench
-items.Glyphworks_Crafting_Bench_Salvage.description=Can be used to break down some items into base materials.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Tannery.name=Automated Tannery
-items.Glyphworks_Crafting_Bench_Tannery.description=Used to process raw hides into leather.\nUpgrading reduces processing times and increases storage capacity.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_Weapon.name=Automated Weapon Bench
-items.Glyphworks_Crafting_Bench_Weapon.description=Used to fashion basic weaponry.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
-items.Glyphworks_Crafting_Bench_WorkBench.name=Automated Workbench
-items.Glyphworks_Crafting_Bench_WorkBench.description=A workstation enabling the crafting of more complex tools and items.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>No artisan is born a creator. Even Avatars need time to hone their craft, particularly when bound by the rules of another's domain.</i>
+items.Glyphworks_Crafting_Machine_Salvage.name=Salvage Machine
+items.Glyphworks_Crafting_Machine_Salvage.description=Can be used to break down some items into base materials.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Tannery.name=Tannery Machine
+items.Glyphworks_Crafting_Machine_Tannery.description=Used to process raw hides into leather.\nUpgrading reduces processing times and increases storage capacity.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_Weapon.name=Weapon Machine
+items.Glyphworks_Crafting_Machine_Weapon.description=Used to fashion basic weaponry.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.
+items.Glyphworks_Crafting_Machine_WorkBench.name=Workbench Machine
+items.Glyphworks_Crafting_Machine_WorkBench.description=A workstation enabling the crafting of more complex tools and items.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>No artisan is born a creator. Even Avatars need time to hone their craft, particularly when bound by the rules of another's domain.</i>
 
 # Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
-items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.
+items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.\nAutomatically pulls <color is="#003DD5">input</color> and pushes <color is="#00D4D5">output</color>.
 items.Glyphworks_Fluid_Pipe.name=Fluid Pipe
-items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes. Connects \nAutomatically to adjacent pipes.
+items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes.\nAutomatically connects to adjacent pipes.
 items.Glyphworks_Fluid_Placer.name=Fluid Placer
-items.Glyphworks_Fluid_Placer.description=Places the stored fluid as a block directly below.
+items.Glyphworks_Fluid_Placer.description=Places the stored fluid as a block directly below.\nAutomatically pulls <color is="#003DD5">input</color>.
 items.Glyphworks_Fluid_Remover.name=Fluid Remover
-items.Glyphworks_Fluid_Remover.description=Collects the fluid block directly below and moves it into the network.
+items.Glyphworks_Fluid_Remover.description=Collects the fluid block directly below.\nAutomatically pushes <color is="#00D4D5">output</color>.
 items.Glyphworks_Fluid_Mana.name=Liquid Mana
 items.Glyphworks_Fluid_Mana.description=<i>The universe's source of power</i>
 items.Glyphworks_Fluid_Source.name=Fluid Source
-items.Glyphworks_Fluid_Source.description=Generates an infinite supply of fluid. Intended for creative use.
+items.Glyphworks_Fluid_Source.description=Generates an infinite supply of fluid.\nAutomatically pulls pushes <color is="#00D4D5">output</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Fluid_Sink.name=Fluid Sink
-items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.
+items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.\nAutomatically pulls <color is="#003DD5">input</color>.
 
 # Item network
 items.Glyphworks_Item_Container.name=Item Container
-items.Glyphworks_Item_Container.description=Stores up to 20 item stacks.
+items.Glyphworks_Item_Container.description=Stores up to 20 item stacks. 
 items.Glyphworks_Item_Pipe.name=Item Pipe
-items.Glyphworks_Item_Pipe.description=Transports items between network nodes. Connects \nAutomatically to adjacent pipes.
+items.Glyphworks_Item_Pipe.description=Transports items between network nodes.\nAutomatically connects to adjacent pipes.
 items.Glyphworks_Item_Source.name=Item Source
-items.Glyphworks_Item_Source.description=Generates an infinite supply of any item. Intended for creative use. Press F to set the item it produces. Right click to inspect
+items.Glyphworks_Item_Source.description=Generates an infinite supply of any item.\nAutomatically pulls pushes <color is="#FF0000">output</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Item_Sink.name=Item Sink
-items.Glyphworks_Item_Sink.description=Destroys any item piped into it.
+items.Glyphworks_Item_Sink.description=Destroys any item piped into it.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Item_Inserter.name=Item Inserter
-items.Glyphworks_Item_Inserter.description=Pushes items from the network into the block directly below.
+items.Glyphworks_Item_Inserter.description=Pushes items from the network into the block directly below.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Item_Extractor.name=Item Extractor
-items.Glyphworks_Item_Extractor.description=Pulls items out of the block directly below and moves them into the network.
+items.Glyphworks_Item_Extractor.description=Pulls items out of the inventories of the block directly below and moves them into the network.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Item_Picker.name=Item Picker
-items.Glyphworks_Item_Picker.description=Collects items dropped on the ground within a 3-block radius.
+items.Glyphworks_Item_Picker.description=Collects items dropped on the ground within a 3-block radius.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Item_Dropper.name=Item Dropper
-items.Glyphworks_Item_Dropper.description=Ejects items from the network as dropped entities on the ground.
+items.Glyphworks_Item_Dropper.description=Ejects items from the network as dropped entities on the ground.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Block_Miner.name=Block Miner
-items.Glyphworks_Block_Miner.description=Automatically mines the block directly below and <color is="#FF0000">output</color>s the drops.
+items.Glyphworks_Block_Miner.description=Automatically mines the block directly below and outputs the drops.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Block_Placer.name=Block Placer
-items.Glyphworks_Block_Placer.description=Places blocks from the network directly below itself.
+items.Glyphworks_Block_Placer.description=Places blocks from the network directly below itself.\nAutomatically pulls <color is="#47D500">input</color>.
 
 # Runes
 items.Glyphworks_Rune_Empty_Fire.name=Empty Fire Rune

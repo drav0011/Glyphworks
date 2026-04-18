@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Farming.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Farming.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Farming.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Farming.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Farming.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Farming.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -24,7 +24,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Farming"
+        "ItemId": "Glyphworks_Crafting_Machine_Farming"
       }
     ],
     "BenchRequirement": [
@@ -49,7 +49,7 @@
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Farming",
+    "HitboxType": "Glyphworks_Crafting_Machine_Farming",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",

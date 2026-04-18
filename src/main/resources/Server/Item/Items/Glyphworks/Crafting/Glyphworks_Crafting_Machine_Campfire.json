@@ -1,0 +1,212 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Crafting_Machine_Campfire.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Campfire.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Campfire.png",
+  "Categories": [
+    "Glyphworks.Benches"
+  ],
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Rubble",
+        "Quantity": 2
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Fire",
+        "Quantity": 2
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Crafting_Machine_Campfire"
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Id": "GlyphImprinter",
+        "Type": "Crafting",
+        "Categories": [
+          "GlyphImprinter_Benches"
+        ]
+      }
+    ],
+    "TimeSeconds": 3
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Campfire/Default.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Glyphworks/Crafting/Campfire/Default.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Glyphworks_Crafting_Machine_Campfire",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Processing",
+      "AllowNoInputProcessing": true,
+      "Input": [
+        {
+          "FilterValidIngredients": true
+        },
+        {
+          "FilterValidIngredients": true
+        }
+      ],
+      "OutputSlotsCount": 4,
+      "Id": "Campfire",
+      "LocalOpenSoundEventId": "SFX_Campfire_Open_Local",
+      "LocalCloseSoundEventId": "SFX_Campfire_Close_Local",
+      "EndSoundEventId": "SFX_Campfire_Processing_End",
+      "FailedSoundEventId": "SFX_Campfire_Processing_Failed"
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 25.0
+        },
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_CapacityMb": 4000
+        },
+        "Glyphworks_GridComponent": {
+          "Glyphworks_GridComponent_Entries": [
+            {
+              "Glyphworks_GridTypeEntry_Type": "Item",
+              "Glyphworks_GridTypeEntry_TransferRate": 1,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "input"
+                }
+              ]
+            },
+            {
+              "Glyphworks_GridTypeEntry_Type": "Fluid",
+              "Glyphworks_GridTypeEntry_TransferRate": 25,
+              "Glyphworks_GridTypeEntry_Faces": [
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
+                    "Y": 2,
+                    "Z": -1
+                  },
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "State": {
+      "Definitions": {
+        "Processing": {
+          "Looping": true,
+          "Light": {
+            "Color": "#ecb"
+          },
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Benches/Furnace_Texture.png",
+              "Weight": 1
+            }
+          ],
+          "AmbientSoundEventId": "SFX_Campfire_Processing",
+          "Particles": [
+            {
+              "SystemId": "Campfire_New_Cartoon",
+              "Scale": 1
+            }
+          ],
+          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+        },
+        "ProcessCompleted": {
+          "Light": {
+            "Color": "#ecb"
+          },
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Benches/Furnace_Texture.png",
+              "Weight": 1
+            }
+          ],
+          "AmbientSoundEventId": "SFX_Campfire_Processing",
+          "Looping": true,
+          "Particles": [
+            {
+              "SystemId": "Campfire_New_Cartoon",
+              "Scale": 1
+            }
+          ],
+          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Wood",
+    "ParticleColor": "#6b3820",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Campfire",
+    "Interactions": {
+      "Use": "Open_Auto_Processing_Bench"
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Blocks_Wood"
+}

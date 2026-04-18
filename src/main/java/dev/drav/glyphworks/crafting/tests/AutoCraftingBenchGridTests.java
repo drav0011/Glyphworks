@@ -66,7 +66,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class AutoCraftingBenchGridTests {
 
-    private static final String BENCH_ID         = "Glyphworks_Crafting_Bench_WorkBench";
+    private static final String BENCH_ID         = "Glyphworks_Crafting_Machine_WorkBench";
     private static final String RECIPE_ID        = "Deco_Target_Recipe_Generated_0";
     private static final String RECIPE_INPUT     = "Ingredient_Fibre";
     private static final String MANA_FLUID_ID    = "Glyphworks_Fluid_Mana";

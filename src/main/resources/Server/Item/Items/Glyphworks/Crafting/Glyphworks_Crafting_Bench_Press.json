@@ -3,6 +3,7 @@
     "Name": "server.items.Glyphworks_Crafting_Bench_Press.name",
     "Description": "server.items.Glyphworks_Crafting_Bench_Press.description"
   },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Press.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -23,10 +24,6 @@
       {
         "ItemId": "Ingredient_Bar_Iron",
         "Quantity": 30
-      },
-      {
-        "ResourceTypeId": "Glyphworks_Filled_Rune",
-        "Quantity": 4
       }
     ],
     "Output": [
@@ -36,11 +33,12 @@
     ],
     "BenchRequirement": [
       {
-        "Id": "GlyphImprinter",
+        "Id": "Workbench",
         "Type": "Crafting",
         "Categories": [
-          "GlyphImprinter_Benches"
-        ]
+          "Workbench_Crafting"
+        ],
+        "RequiredTierLevel": 3
       }
     ],
     "TimeSeconds": 3
@@ -75,59 +73,7 @@
     },
     "BlockEntity": {
       "Components": {
-        "BenchBlock": {},
-        "Glyphworks_AutoCraftingBenchBlock": {
-          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 4000
-        },
-        "Glyphworks_GridComponent": {
-          "Glyphworks_GridComponent_Entries": [
-            {
-              "Glyphworks_GridTypeEntry_Type": "Item",
-              "Glyphworks_GridTypeEntry_TransferRate": 1,
-              "Glyphworks_GridTypeEntry_Faces": [
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 0,
-                    "Y": 0,
-                    "Z": -2
-                  },
-                  "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "output"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 0,
-                    "Y": 0,
-                    "Z": 1
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "input"
-                }
-              ]
-            },
-            {
-              "Glyphworks_GridTypeEntry_Type": "Fluid",
-              "Glyphworks_GridTypeEntry_TransferRate": 25,
-              "Glyphworks_GridTypeEntry_Faces": [
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 0,
-                    "Y": 2,
-                    "Z": -1
-                  },
-                  "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "mana"
-                }
-              ]
-            }
-          ]
-        }
+        "BenchBlock": {}
       }
     },
     "Gathering": {
@@ -143,10 +89,7 @@
         }
       ]
     },
-    "BlockSoundSetId": "Stone",
-    "Interactions": {
-      "Use": "Open_Auto_Crafting_Bench"
-    }
+    "BlockSoundSetId": "Stone"
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
@@ -167,6 +110,5 @@
     ]
   },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood",
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Press.png"
+  "ItemSoundSetId": "ISS_Blocks_Wood"
 }

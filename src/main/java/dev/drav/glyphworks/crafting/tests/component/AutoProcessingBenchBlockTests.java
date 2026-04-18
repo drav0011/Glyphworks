@@ -31,7 +31,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  */
 public final class AutoProcessingBenchBlockTests {
 
-    private static final String FURNACE_ID = "Glyphworks_Crafting_Bench_Furnace";
+    private static final String FURNACE_ID = "Glyphworks_Crafting_Machine_Furnace";
 
     /** Written during setup — intentionally different from the JSON default of 25.0. */
     private static final float WRITTEN_RATE = 50.0f;

@@ -1,35 +1,37 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Cooking.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Cooking.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Press.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Press.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Cooking.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
   "Recipe": {
-    "TimeSeconds": 3,
     "Input": [
       {
-        "ItemId": "Ingredient_Bar_Copper",
-        "Quantity": 2
-      },
-      {
         "ResourceTypeId": "Wood_Trunk",
-        "Quantity": 10
+        "Quantity": 2
       },
       {
         "ResourceTypeId": "Rock",
-        "Quantity": 5
+        "Quantity": 10
       },
       {
-        "ItemId": "Glyphworks_Rune_Fire",
-        "Quantity": 2
+        "ItemId": "Ingredient_Bar_Copper",
+        "Quantity": 20
+      },
+      {
+        "ItemId": "Ingredient_Bar_Iron",
+        "Quantity": 30
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Filled_Rune",
+        "Quantity": 4
       }
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Cooking"
+        "ItemId": "Glyphworks_Crafting_Machine_Press"
       }
     ],
     "BenchRequirement": [
@@ -40,44 +42,36 @@
           "GlyphImprinter_Benches"
         ]
       }
-    ]
+    ],
+    "TimeSeconds": 3
   },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/Cooking/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Machine_Press/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Cooking/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Machine_Press/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Cooking",
+    "HitboxType": "Glyphworks_Crafting_Machine_Press",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
       "Categories": [
         {
-          "Id": "Prepared",
-          "Icon": "Icons/CraftingCategories/Cooking/Prepared.png",
-          "Name": "server.benchCategories.prepared"
-        },
-        {
-          "Id": "Baked",
-          "Icon": "Icons/CraftingCategories/Cooking/Baked.png",
-          "Name": "server.benchCategories.baked"
-        },
-        {
-          "Id": "Ingredients",
-          "Name": "server.benchCategories.ingredients",
-          "Icon": "Icons/CraftingCategories/Cooking/Boiled.png"
+          "Id": "RunePress_Crafting",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.runepress.crafting"
         }
       ],
-      "LocalOpenSoundEventId": "SFX_Bench_Placeholder",
-      "LocalCloseSoundEventId": "SFX_Bench_Placeholder",
-      "CompletedSoundEventId": "SFX_Bench_Placeholder",
-      "Id": "Cookingbench"
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "Id": "RunePress"
     },
     "BlockEntity": {
       "Components": {
@@ -136,24 +130,12 @@
         }
       }
     },
-    "State": {
-      "Definitions": {
-        "CraftCompleted": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Cooking/Crafting.blockyanim",
-          "Looping": true
-        },
-        "CraftCompletedInstant": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Cooking/Crafting.blockyanim"
-        }
-      }
-    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"
       }
     },
-    "BlockParticleSetId": "Stone",
-    "ParticleColor": "#5C583E",
+    "BlockParticleSetId": "Wood",
     "Support": {
       "Down": [
         {
@@ -185,6 +167,6 @@
     ]
   },
   "MaxStack": 1,
-  "ItemLevel": 6,
-  "ItemSoundSetId": "ISS_Blocks_Wood"
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Press.png"
 }

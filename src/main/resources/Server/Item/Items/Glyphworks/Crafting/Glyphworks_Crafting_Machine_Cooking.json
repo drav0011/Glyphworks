@@ -1,21 +1,26 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Campfire.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Campfire.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Cooking.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Cooking.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Campfire.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Cooking.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
   "Recipe": {
+    "TimeSeconds": 3,
     "Input": [
       {
-        "ItemId": "Ingredient_Stick",
-        "Quantity": 4
+        "ItemId": "Ingredient_Bar_Copper",
+        "Quantity": 2
       },
       {
-        "ResourceTypeId": "Rubble",
-        "Quantity": 2
+        "ResourceTypeId": "Wood_Trunk",
+        "Quantity": 10
+      },
+      {
+        "ResourceTypeId": "Rock",
+        "Quantity": 5
       },
       {
         "ItemId": "Glyphworks_Rune_Fire",
@@ -24,7 +29,7 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Campfire"
+        "ItemId": "Glyphworks_Crafting_Machine_Cooking"
       }
     ],
     "BenchRequirement": [
@@ -35,45 +40,50 @@
           "GlyphImprinter_Benches"
         ]
       }
-    ],
-    "TimeSeconds": 3
+    ]
   },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/Campfire/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Cooking/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Campfire/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Cooking/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Campfire",
+    "HitboxType": "Glyphworks_Crafting_Machine_Cooking",
     "VariantRotation": "NESW",
     "Bench": {
-      "Type": "Processing",
-      "AllowNoInputProcessing": true,
-      "Input": [
+      "Type": "Crafting",
+      "Categories": [
         {
-          "FilterValidIngredients": true
+          "Id": "Prepared",
+          "Icon": "Icons/CraftingCategories/Cooking/Prepared.png",
+          "Name": "server.benchCategories.prepared"
         },
         {
-          "FilterValidIngredients": true
+          "Id": "Baked",
+          "Icon": "Icons/CraftingCategories/Cooking/Baked.png",
+          "Name": "server.benchCategories.baked"
+        },
+        {
+          "Id": "Ingredients",
+          "Name": "server.benchCategories.ingredients",
+          "Icon": "Icons/CraftingCategories/Cooking/Boiled.png"
         }
       ],
-      "OutputSlotsCount": 4,
-      "Id": "Campfire",
-      "LocalOpenSoundEventId": "SFX_Campfire_Open_Local",
-      "LocalCloseSoundEventId": "SFX_Campfire_Close_Local",
-      "EndSoundEventId": "SFX_Campfire_Processing_End",
-      "FailedSoundEventId": "SFX_Campfire_Processing_Failed"
+      "LocalOpenSoundEventId": "SFX_Bench_Placeholder",
+      "LocalCloseSoundEventId": "SFX_Bench_Placeholder",
+      "CompletedSoundEventId": "SFX_Bench_Placeholder",
+      "Id": "Cookingbench"
     },
     "BlockEntity": {
       "Components": {
         "BenchBlock": {},
-        "Glyphworks_AutoProcessingBenchBlock": {
-          "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 25.0
+        "Glyphworks_AutoCraftingBenchBlock": {
+          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
         },
         "Glyphworks_FluidContainerComponent": {
           "Glyphworks_FluidContainerComponent_CapacityMb": 4000
@@ -128,45 +138,12 @@
     },
     "State": {
       "Definitions": {
-        "Processing": {
-          "Looping": true,
-          "Light": {
-            "Color": "#ecb"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Campfire_Processing",
-          "Particles": [
-            {
-              "SystemId": "Campfire_New_Cartoon",
-              "Scale": 1
-            }
-          ],
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+        "CraftCompleted": {
+          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Cooking/Crafting.blockyanim",
+          "Looping": true
         },
-        "ProcessCompleted": {
-          "Light": {
-            "Color": "#ecb"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Campfire_Processing",
-          "Looping": true,
-          "Particles": [
-            {
-              "SystemId": "Campfire_New_Cartoon",
-              "Scale": 1
-            }
-          ],
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
+        "CraftCompletedInstant": {
+          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Cooking/Crafting.blockyanim"
         }
       }
     },
@@ -175,8 +152,8 @@
         "GatherType": "Benches"
       }
     },
-    "BlockParticleSetId": "Wood",
-    "ParticleColor": "#6b3820",
+    "BlockParticleSetId": "Stone",
+    "ParticleColor": "#5C583E",
     "Support": {
       "Down": [
         {
@@ -184,9 +161,9 @@
         }
       ]
     },
-    "BlockSoundSetId": "Campfire",
+    "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Open_Auto_Processing_Bench"
+      "Use": "Open_Auto_Crafting_Bench"
     }
   },
   "PlayerAnimationsId": "Block",
@@ -208,5 +185,6 @@
     ]
   },
   "MaxStack": 1,
+  "ItemLevel": 6,
   "ItemSoundSetId": "ISS_Blocks_Wood"
 }

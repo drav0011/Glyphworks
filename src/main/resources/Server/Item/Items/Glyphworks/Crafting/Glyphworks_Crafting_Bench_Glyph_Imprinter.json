@@ -1,9 +1,8 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Manual_Imbuer.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Manual_Imbuer.description"
+    "Name": "server.items.Glyphworks_Crafting_Bench_Glyph_Imprinter.name",
+    "Description": "server.items.Glyphworks_Crafting_Bench_Glyph_Imprinter.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Manual_Imbuer.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -11,29 +10,30 @@
     "Input": [
       {
         "ResourceTypeId": "Wood_Trunk",
-        "Quantity": 2
+        "Quantity": 6
       },
       {
         "ResourceTypeId": "Rock",
-        "Quantity": 10
+        "Quantity": 8
       },
       {
         "ResourceTypeId": "Glyphworks_Empty_Rune",
-        "Quantity": 4
+        "Quantity": 2
       }
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Manual_Imbuer"
+        "ItemId": "Glyphworks_Crafting_Bench_Glyph_Imprinter"
       }
     ],
     "BenchRequirement": [
       {
-        "Id": "GlyphImprinter",
+        "Id": "Workbench",
         "Type": "Crafting",
         "Categories": [
-          "GlyphImprinter_Benches"
-        ]
+          "Workbench_Crafting"
+        ],
+        "RequiredTierLevel": 3
       }
     ],
     "TimeSeconds": 3
@@ -42,29 +42,39 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/ManualImbuer/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/GlyphImprinter/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/ManualImbuer/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/GlyphImprinter/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Manual_Imbuer",
+    "HitboxType": "Glyphworks_Crafting_Bench_Glyph_Imprinter",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",
       "Categories": [
         {
-          "Id": "GlyphImbuer_Runes",
+          "Id": "GlyphImprinter_Benches",
           "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
-          "Name": "server.benchCategories.glyphimbuer.runes"
+          "Name": "server.benchCategories.glyphimprinter.benches"
+        },
+        {
+          "Id": "GlyphImprinter_Fluid",
+          "Icon": "Icons/CraftingCategories/Workbench/Containers.png",
+          "Name": "server.benchCategories.glyphimprinter.fluid"
+        },
+        {
+          "Id": "GlyphImprinter_Items",
+          "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
+          "Name": "server.benchCategories.glyphimprinter.items"
         }
       ],
       "LocalOpenSoundEventId": "SFX_Workbench_Open",
       "LocalCloseSoundEventId": "SFX_Workbench_Close",
       "CompletedSoundEventId": "SFX_Workbench_Craft",
       "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
-      "Id": "GlyphImbuer"
+      "Id": "GlyphImprinter"
     },
     "BlockEntity": {
       "Components": {
@@ -105,5 +115,6 @@
     ]
   },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood"
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Glyph_Imprinter.png"
 }

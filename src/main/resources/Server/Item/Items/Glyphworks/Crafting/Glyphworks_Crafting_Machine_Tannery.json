@@ -1,9 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Bench_Furniture.name",
-    "Description": "server.items.Glyphworks_Crafting_Bench_Furniture.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Tannery.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Tannery.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Bench_Furniture.png",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Tannery.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -14,17 +14,21 @@
         "ResourceTypeId": "Wood_Trunk"
       },
       {
-        "Quantity": 4,
+        "Quantity": 3,
         "ResourceTypeId": "Rock"
       },
       {
-        "ItemId": "Glyphworks_Rune_Life",
+        "ItemId": "Ingredient_Hide_Light",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Glyphworks_Rune_Water",
         "Quantity": 2
       }
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Bench_Furniture"
+        "ItemId": "Glyphworks_Crafting_Machine_Tannery"
       }
     ],
     "BenchRequirement": [
@@ -41,71 +45,69 @@
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
-    "Opacity": "Semitransparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/Furniture/Default.blockymodel",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Tannery/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Furniture/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Tannery/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Bench_Furniture",
+    "HitboxType": "Glyphworks_Crafting_Machine_Tannery",
     "VariantRotation": "NESW",
     "Bench": {
-      "Type": "Crafting",
-      "Categories": [
+      "Type": "Processing",
+      "Input": [
         {
-          "Id": "Furniture_Storage",
-          "Icon": "Icons/CraftingCategories/Furniture/Storage.png",
-          "Name": "server.benchCategories.furniture.storage"
+          "FilterValidIngredients": true
         },
         {
-          "Id": "Furniture_Beds",
-          "Icon": "Icons/CraftingCategories/Furniture/Beds.png",
-          "Name": "server.benchCategories.furniture.beds"
-        },
-        {
-          "Id": "Furniture_Lighting",
-          "Icon": "Icons/CraftingCategories/Furniture/Lighting.png",
-          "Name": "server.benchCategories.furniture.lighting"
-        },
-        {
-          "Id": "Furniture_Pottery",
-          "Icon": "Icons/CraftingCategories/Furniture/Pottery.png",
-          "Name": "server.benchCategories.furniture.pottery"
-        },
-        {
-          "Id": "Furniture_Textiles",
-          "Icon": "Icons/CraftingCategories/Furniture/Textiles.png",
-          "Name": "server.benchCategories.furniture.textiles"
-        },
-        {
-          "Id": "Furniture_Village_Walls",
-          "Icon": "Icons/CraftingCategories/Furniture/Village_Walls.png",
-          "Name": "server.benchCategories.furniture.village_walls"
-        },
-        {
-          "Id": "Furniture_Misc",
-          "Icon": "Icons/CraftingCategories/Furniture/Misc.png",
-          "Name": "server.benchCategories.furniture.misc"
-        },
-        {
-          "Id": "Furniture_Seasonal",
-          "Icon": "Icons/CraftingCategories/Furniture/Seasonal.png",
-          "Name": "server.benchCategories.furniture.seasonal"
+          "FilterValidIngredients": true
         }
       ],
-      "LocalOpenSoundEventId": "SFX_Workbench_Open",
-      "LocalCloseSoundEventId": "SFX_Workbench_Close",
-      "CompletedSoundEventId": "SFX_Workbench_Craft",
-      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
-      "Id": "Furniture_Bench"
+      "OutputSlotsCount": 2,
+      "LocalOpenSoundEventId": "SFX_Lumbermill_Bench_Open",
+      "LocalCloseSoundEventId": "SFX_Lumbermill_Bench_Close",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Id": "Tannery",
+      "TierLevels": [
+        {
+          "UpgradeRequirement": {
+            "Material": [
+              {
+                "ItemId": "Ingredient_Leather_Light",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Ingredient_Leather_Medium",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Ingredient_Leather_Heavy",
+                "Quantity": 5
+              },
+              {
+                "ItemId": "Ingredient_Chitin_Sturdy",
+                "Quantity": 5
+              }
+            ],
+            "TimeSeconds": 3
+          },
+          "CraftingTimeReductionModifier": 0
+        },
+        {
+          "CraftingTimeReductionModifier": 0.4,
+          "ExtraInputSlot": 1,
+          "ExtraOutputSlot": 2
+        }
+      ]
     },
     "BlockEntity": {
       "Components": {
         "BenchBlock": {},
-        "Glyphworks_AutoCraftingBenchBlock": {
-          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 25.0
         },
         "Glyphworks_FluidContainerComponent": {
           "Glyphworks_FluidContainerComponent_CapacityMb": 4000
@@ -160,10 +162,34 @@
     },
     "State": {
       "Definitions": {
-        "CraftCompleted": {
-          "Looping": true
+        "Processing": {
+          "Looping": true,
+          "Light": {
+            "Color": "#B72"
+          },
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/Tannery/Default.png",
+              "Weight": 1
+            }
+          ],
+          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
+          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Tannery/Processing.blockyanim"
         },
-        "CraftCompletedInstant": {}
+        "ProcessCompleted": {
+          "Light": {
+            "Color": "#B72"
+          },
+          "CustomModelTexture": [
+            {
+              "Texture": "Blocks/Glyphworks/Crafting/Tannery/Default.png",
+              "Weight": 1
+            }
+          ],
+          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
+          "Looping": true,
+          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Tannery/Processing.blockyanim"
+        }
       }
     },
     "Gathering": {
@@ -172,7 +198,7 @@
       }
     },
     "BlockParticleSetId": "Wood",
-    "ParticleColor": "#6b472f",
+    "ParticleColor": "#63422b",
     "Support": {
       "Down": [
         {
@@ -182,7 +208,7 @@
     },
     "BlockSoundSetId": "Wood",
     "Interactions": {
-      "Use": "Open_Auto_Crafting_Bench"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",
@@ -204,6 +230,6 @@
     ]
   },
   "MaxStack": 1,
-  "ItemLevel": 7,
+  "ItemLevel": 3,
   "ItemSoundSetId": "ISS_Blocks_Wood"
 }

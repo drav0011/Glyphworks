@@ -36,7 +36,7 @@ public final class AutoCraftingBenchTests {
     // ── Block ID ──────────────────────────────────────────────────────────────
 
     /** WorkBench carries ALL the component types under test. */
-    private static final String BENCH_ID = "Glyphworks_Crafting_Bench_WorkBench";
+    private static final String BENCH_ID = "Glyphworks_Crafting_Machine_WorkBench";
 
     // ── Expected constants (from the block JSON) ───────────────────────────────
 

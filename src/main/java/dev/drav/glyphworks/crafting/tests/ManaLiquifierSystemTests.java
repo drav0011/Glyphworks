@@ -39,7 +39,7 @@ public final class ManaLiquifierSystemTests {
 
     // ── Constants ─────────────────────────────────────────────────────────────
 
-    private static final String LIQUIFIER_ID = "Glyphworks_Crafting_Mana_Liquifier";
+    private static final String LIQUIFIER_ID = "Glyphworks_Crafting_Machine_Mana_Liquifier";
 
     /** Fluid container capacity from the block JSON. */
     private static final int FLUID_CAPACITY = 10_000;

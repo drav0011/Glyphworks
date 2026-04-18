@@ -1,8 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "server.items.Glyphworks_Crafting_Mana_Liquifier.name",
-    "Description": "server.items.Glyphworks_Crafting_Mana_Liquifier.description"
+    "Name": "server.items.Glyphworks_Crafting_Machine_Imbuer.name",
+    "Description": "server.items.Glyphworks_Crafting_Machine_Imbuer.description"
   },
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Imbuer.png",
   "Categories": [
     "Glyphworks.Benches"
   ],
@@ -10,24 +11,24 @@
     "Input": [
       {
         "ResourceTypeId": "Wood_Trunk",
-        "Quantity": 4
+        "Quantity": 2
       },
       {
         "ResourceTypeId": "Rock",
-        "Quantity": 20
-      },
-      {
-        "ItemId": "Ingredient_Bar_Copper",
-        "Quantity": 8
+        "Quantity": 10
       },
       {
         "ResourceTypeId": "Glyphworks_Empty_Rune",
+        "Quantity": 4
+      },
+      {
+        "ResourceTypeId": "Glyphworks_Filled_Rune",
         "Quantity": 4
       }
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Crafting_Mana_Liquifier"
+        "ItemId": "Glyphworks_Crafting_Machine_Imbuer"
       }
     ],
     "BenchRequirement": [
@@ -45,25 +46,38 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/ManaLiquifier/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Machine_Imbuer/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/ManaLiquifier/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Machine_Imbuer/Default.png",
         "Weight": 1
       }
     ],
-    "HitboxType": "Glyphworks_Crafting_Mana_Liquifier",
+    "HitboxType": "Glyphworks_Crafting_Machine_Imbuer",
     "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "GlyphImbuer_Runes",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.glyphimbuer.runes"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Workbench_Open",
+      "LocalCloseSoundEventId": "SFX_Workbench_Close",
+      "CompletedSoundEventId": "SFX_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "Id": "GlyphImbuer"
+    },
     "BlockEntity": {
       "Components": {
-        "Glyphworks_ManaLiquifierBlock": {
-          "Glyphworks_ManaLiquifierBlock_InputContainer": null,
-          "Glyphworks_ManaLiquifierBlock_FuelContainer": null,
-          "Glyphworks_ManaLiquifierBlock_Progress": 0.0,
-          "Glyphworks_ManaLiquifierBlock_FuelEnergy": 0.0
+        "BenchBlock": {},
+        "Glyphworks_AutoCraftingBenchBlock": {
+          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 10000
+          "Glyphworks_FluidContainerComponent_CapacityMb": 4000
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -73,23 +87,23 @@
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": -1,
+                    "X": 0,
+                    "Y": 0,
+                    "Z": -2
+                  },
+                  "Glyphworks_FacePlane_Normal": "North",
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "output"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 0,
                     "Y": 0,
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 1,
-                    "Y": 0,
-                    "Z": 1
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             },
@@ -100,11 +114,11 @@
                 {
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
-                    "Y": 0,
+                    "Y": 2,
                     "Z": -1
                   },
-                  "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "mana"
                 }
               ]
@@ -128,7 +142,7 @@
     },
     "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Open_Container"
+      "Use": "Open_Auto_Crafting_Bench"
     }
   },
   "PlayerAnimationsId": "Block",
@@ -144,7 +158,11 @@
       -13.5
     ]
   },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood",
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Mana_Liquifier.png"
+  "ItemSoundSetId": "ISS_Blocks_Wood"
 }
