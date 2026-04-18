@@ -46,10 +46,10 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/Machine_Imbuer/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Imbuer/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Machine_Imbuer/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Imbuer/Default.png",
         "Weight": 1
       }
     ],

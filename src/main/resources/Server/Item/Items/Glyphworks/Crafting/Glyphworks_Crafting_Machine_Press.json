@@ -49,10 +49,10 @@
     "Material": "Solid",
     "DrawType": "Model",
     "Opacity": "Transparent",
-    "CustomModel": "Blocks/Glyphworks/Crafting/Machine_Press/Default.blockymodel",
+    "CustomModel": "Blocks/Glyphworks/Crafting/Press/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Machine_Press/Default.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Press/Default.png",
         "Weight": 1
       }
     ],
