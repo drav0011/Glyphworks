@@ -118,8 +118,9 @@ benchCategories.glyphimprinter.components=Components
 benchCategories.glyphimbuer.runes=Rune Imbuing
 
 # Resource types
-resourceType.Glyphworks_Empty_Rune.name=Empty Rune
-resourceType.Glyphworks_Filled_Rune.name=Filled Rune
+resourceType.Glyphworks_Empty_Rune.name=Any Empty Rune
+resourceType.Glyphworks_Filled_Rune.name=Any Filled Rune
+resourceType.Glyphworks_Essence.name=Any Essence
 
 # Item categories
 ui.itemcategory.glyphworks=Glyphworks

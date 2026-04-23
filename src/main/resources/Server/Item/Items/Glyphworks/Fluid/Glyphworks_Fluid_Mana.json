@@ -17,6 +17,30 @@
       ]
     }
   },
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Glyphworks_Essence",
+        "Quantity": 1
+      }
+    ],
+    "Output": [
+      {
+        "ItemId": "Glyphworks_Fluid_Mana",
+        "Quantity": 1,
+        "Metadata": {
+          "FluidMb": 250
+        }
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Processing",
+        "Id": "Glyphworks_ManaLiquifier"
+      }
+    ],
+    "TimeSeconds": 3.0
+  },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Cube",

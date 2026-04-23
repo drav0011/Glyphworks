@@ -33,7 +33,6 @@ import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
-import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -472,10 +471,6 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (acbb != null)
             return acbb.getItemContainer();
 
-        ManaLiquifierBlock mlb = worldStore.getComponent(blockRef, ManaLiquifierBlock.getComponentType());
-        if (mlb != null)
-            return mlb.getInputContainer();
-
         ItemContainerBlock icb = worldStore.getComponent(blockRef, ItemContainerBlock.getComponentType());
         if (icb != null)
             return icb.getItemContainer();
@@ -510,14 +505,6 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             return switch (key) {
                 case "input" -> acbb.getInputContainer();
                 case "output" -> acbb.getOutputContainer();
-                default -> null;
-            };
-        }
-        ManaLiquifierBlock mlb = store.getComponent(ref, ManaLiquifierBlock.getComponentType());
-        if (mlb != null) {
-            return switch (key) {
-                case "input" -> mlb.getInputContainer();
-                case "fuel" -> mlb.getFuelContainer();
                 default -> null;
             };
         }

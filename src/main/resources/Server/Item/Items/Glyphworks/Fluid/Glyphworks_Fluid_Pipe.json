@@ -15,7 +15,8 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Fluid_Pipe"
+        "ItemId": "Glyphworks_Fluid_Pipe",
+        "Quantity": 10
       }
     ],
     "OutputQuantity": 10,

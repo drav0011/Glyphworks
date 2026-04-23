@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.crafting.component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,7 +46,10 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.crafting.util.FluidRecipeUtil;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
+import dev.drav.glyphworks.fluid.FluidStack;
+import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 /**
  * Full state component for mana-powered automated processing benches.
@@ -172,7 +176,10 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
         List<MaterialQuantity> validIngredients = new ArrayList<>();
         for (CraftingRecipe recipe : recipes) {
             if (!recipe.isRestrictedByBenchTierLevel(pb.getId(), tierLevel)) {
-                validIngredients.addAll(CraftingManager.getInputMaterials(recipe));
+                for (MaterialQuantity mat : CraftingManager.getInputMaterials(recipe)) {
+                    if (!FluidRecipeUtil.isFluidIngredient(mat))
+                        validIngredients.add(mat);
+                }
             }
         }
         short cap = inputContainer.getCapacity();
@@ -190,7 +197,7 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
     // ── Recipe detection ───────────────────────────────────────────────────────
 
     @Nullable
-    public CraftingRecipe findMatchingRecipe(int tierLevel) {
+    public CraftingRecipe findMatchingRecipe(int tierLevel, @Nullable FluidContainerComponent fcc) {
         if (processingBench == null || inputContainer == null || inputContainer.getCapacity() == 0)
             return null;
 
@@ -207,7 +214,10 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
             List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(recipe);
             if (inputs.isEmpty())
                 continue;
-            if (!inputContainer.getSlotMaterialsToRemove(inputs, true, true).isEmpty()) {
+            List<MaterialQuantity> itemInputs = FluidRecipeUtil.itemParts(inputs);
+            boolean itemsReady = itemInputs.isEmpty()
+                    || !inputContainer.getSlotMaterialsToRemove(itemInputs, true, true).isEmpty();
+            if (itemsReady && hasEnoughFluidInputs(recipe, fcc)) {
                 if (inputs.size() > bestInputCount) {
                     bestInputCount = inputs.size();
                     best = recipe;
@@ -220,38 +230,73 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
 
     // ── Crafting checks ────────────────────────────────────────────────────────
 
-    public boolean isReadyToCraft(@Nonnull CraftingRecipe recipe) {
+    public boolean isReadyToCraft(@Nonnull CraftingRecipe recipe, @Nullable FluidContainerComponent fcc) {
         if (inputContainer == null || inputContainer.getCapacity() == 0)
             return false;
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(recipe);
         if (inputs.isEmpty())
             return false;
-        return !inputContainer.getSlotMaterialsToRemove(inputs, true, true).isEmpty();
+        List<MaterialQuantity> itemInputs = FluidRecipeUtil.itemParts(inputs);
+        boolean itemsReady = itemInputs.isEmpty()
+                || !inputContainer.getSlotMaterialsToRemove(itemInputs, true, true).isEmpty();
+        return itemsReady && hasEnoughFluidInputs(recipe, fcc);
     }
 
-    public boolean canFitOutput(@Nonnull CraftingRecipe recipe) {
+    public boolean canFitOutput(@Nonnull CraftingRecipe recipe, @Nullable FluidContainerComponent fcc) {
         if (outputContainer == null)
             return false;
-        List<ItemStack> outputs = CraftingManager.getOutputItemStacks(recipe);
-        return outputContainer.canAddItemStacks(outputs, false, false);
+        MaterialQuantity[] rawOutputs = recipe.getOutputs();
+        List<MaterialQuantity> outputs = rawOutputs != null ? Arrays.asList(rawOutputs) : List.of();
+
+        List<MaterialQuantity> itemOutputs = FluidRecipeUtil.itemParts(outputs);
+        List<ItemStack> itemStacks = new ArrayList<>();
+        for (MaterialQuantity mat : itemOutputs) {
+            ItemStack stack = mat.toItemStack();
+            if (stack != null && !stack.isEmpty())
+                itemStacks.add(stack);
+        }
+        if (!outputContainer.canAddItemStacks(itemStacks, false, false))
+            return false;
+
+        return canFitFluidOutputs(outputs, fcc);
     }
 
     public void completeCraft(
             @Nonnull CraftingRecipe recipe,
+            @Nullable FluidContainerComponent fcc,
             @Nonnull Store<EntityStore> entityStore,
             int blockX, int blockY, int blockZ) throws MatchException {
 
         List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(recipe);
-        List<ItemStack> outputs = CraftingManager.getOutputItemStacks(recipe);
+        List<MaterialQuantity> itemInputs = FluidRecipeUtil.itemParts(inputs);
+        List<MaterialQuantity> fluidInputs = FluidRecipeUtil.fluidParts(inputs);
 
-        ListTransaction<MaterialTransaction> removeTx = inputContainer.removeMaterials(inputs, true, true, true);
-        if (!removeTx.succeeded())
-            return;
+        MaterialQuantity[] rawOutputs = recipe.getOutputs();
+        List<MaterialQuantity> outputList = rawOutputs != null ? Arrays.asList(rawOutputs) : List.of();
+        List<MaterialQuantity> itemOutputs = FluidRecipeUtil.itemParts(outputList);
+        List<MaterialQuantity> fluidOutputs = FluidRecipeUtil.fluidParts(outputList);
+
+        if (!itemInputs.isEmpty()) {
+            ListTransaction<MaterialTransaction> removeTx = inputContainer.removeMaterials(itemInputs, true, true, true);
+            if (!removeTx.succeeded())
+                return;
+        }
+
+        for (MaterialQuantity fluidInput : fluidInputs) {
+            if (fcc != null)
+                fcc.drain(FluidRecipeUtil.fluidMb(fluidInput));
+        }
 
         craftingProgress = 0.0f;
         isCrafting = false;
 
-        ListTransaction<ItemStackTransaction> addTx = outputContainer.addItemStacks(outputs, false, false, false);
+        List<ItemStack> itemStacks = new ArrayList<>();
+        for (MaterialQuantity mat : itemOutputs) {
+            ItemStack stack = mat.toItemStack();
+            if (stack != null && !stack.isEmpty())
+                itemStacks.add(stack);
+        }
+        ListTransaction<ItemStackTransaction> addTx = outputContainer.addItemStacks(itemStacks, false, false, false);
         List<ItemStack> remainder = new ArrayList<>();
         for (ItemStackTransaction tx : addTx.getList()) {
             ItemStack rem = tx.getRemainder();
@@ -262,6 +307,46 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
             Holder<EntityStore>[] holders = ejectItems(entityStore, remainder, blockX, blockY, blockZ);
             entityStore.addEntities(holders, AddReason.SPAWN);
         }
+
+        for (MaterialQuantity fluidOutput : fluidOutputs) {
+            if (fcc != null) {
+                String outFluidId = FluidRecipeUtil.fluidId(fluidOutput);
+                if (outFluidId != null)
+                    fcc.fill(new FluidStack(outFluidId, FluidRecipeUtil.fluidMb(fluidOutput), fcc.getCapacity()));
+            }
+        }
+    }
+
+    private boolean hasEnoughFluidInputs(
+            @Nonnull CraftingRecipe recipe, @Nullable FluidContainerComponent fcc) {
+        List<MaterialQuantity> fluidInputs = FluidRecipeUtil.fluidParts(CraftingManager.getInputMaterials(recipe));
+        if (fluidInputs.isEmpty())
+            return true;
+        if (fcc == null || fcc.isEmpty())
+            return false;
+        if (fluidInputs.size() > 1)
+            return false;
+        MaterialQuantity required = fluidInputs.get(0);
+        return java.util.Objects.equals(FluidRecipeUtil.fluidId(required), fcc.getFluidId())
+                && fcc.getAmount() >= FluidRecipeUtil.fluidMb(required);
+    }
+
+    private boolean canFitFluidOutputs(
+            @Nonnull List<MaterialQuantity> outputs, @Nullable FluidContainerComponent fcc) {
+        List<MaterialQuantity> fluidOutputs = FluidRecipeUtil.fluidParts(outputs);
+        if (fluidOutputs.isEmpty())
+            return true;
+        if (fcc == null)
+            return false;
+        if (fluidOutputs.size() > 1)
+            return false;
+        MaterialQuantity fluidOutput = fluidOutputs.get(0);
+        String outputFluidId = FluidRecipeUtil.fluidId(fluidOutput);
+        int outputMb = FluidRecipeUtil.fluidMb(fluidOutput);
+        String currentFluidId = fcc.getFluidId();
+        if (currentFluidId != null && !currentFluidId.equals(outputFluidId))
+            return false;
+        return fcc.availableSpace() >= outputMb;
     }
 
     // ── Progress / windows ─────────────────────────────────────────────────────

@@ -173,7 +173,10 @@ public final class AutoProcessingBenchSystems {
             if (benchBlock == null)
                 return;
 
-            CraftingRecipe recipe = resolveRecipe(apbb, benchBlock.getTierLevel());
+            FluidContainerComponent fcc = archetypeChunk.getComponent(
+                    index, FluidContainerComponent.getComponentType());
+
+            CraftingRecipe recipe = resolveRecipe(apbb, benchBlock.getTierLevel(), fcc);
             if (recipe == null) {
                 resetProgress(apbb);
                 return;
@@ -197,24 +200,22 @@ public final class AutoProcessingBenchSystems {
             int blockZ = coords[2];
 
             if (apbb.getCraftingProgress() >= recipeTime) {
-                if (apbb.isReadyToCraft(recipe) && apbb.canFitOutput(recipe)) {
+                if (apbb.isReadyToCraft(recipe, fcc) && apbb.canFitOutput(recipe, fcc)) {
                     World world = store.getExternalData().getWorld();
-                    apbb.completeCraft(recipe, world.getEntityStore().getStore(), blockX, blockY, blockZ);
+                    apbb.completeCraft(recipe, fcc, world.getEntityStore().getStore(), blockX, blockY, blockZ);
                 }
                 return;
             }
 
-            if (apbb.isReadyToCraft(recipe)) {
+            if (apbb.isReadyToCraft(recipe, fcc)) {
                 float manaRate = apbb.getManaConsumptionRate();
                 if (manaRate > 0.0f) {
-                    FluidContainerComponent fluid = archetypeChunk.getComponent(
-                            index, FluidContainerComponent.getComponentType());
-                    if (fluid == null || fluid.isEmpty() || !MANA_FLUID_ID.equals(fluid.getFluidId()))
+                    if (fcc == null || fcc.isEmpty() || !MANA_FLUID_ID.equals(fcc.getFluidId()))
                         return;
                     int cost = Math.max(1, Math.round(manaRate));
-                    if (fluid.getAmount() < cost)
+                    if (fcc.getAmount() < cost)
                         return;
-                    fluid.drain(cost);
+                    fcc.drain(cost);
                 }
 
                 apbb.setCrafting(true);
@@ -222,9 +223,9 @@ public final class AutoProcessingBenchSystems {
                 apbb.setCraftingProgress(newProgress);
                 apbb.sendProgress(newProgress / recipeTime);
 
-                if (newProgress >= recipeTime && apbb.canFitOutput(recipe) && apbb.isReadyToCraft(recipe)) {
+                if (newProgress >= recipeTime && apbb.canFitOutput(recipe, fcc) && apbb.isReadyToCraft(recipe, fcc)) {
                     World world = store.getExternalData().getWorld();
-                    apbb.completeCraft(recipe, world.getEntityStore().getStore(), blockX, blockY, blockZ);
+                    apbb.completeCraft(recipe, fcc, world.getEntityStore().getStore(), blockX, blockY, blockZ);
                     apbb.sendProgress(0.0f);
                 }
             } else {
@@ -233,11 +234,14 @@ public final class AutoProcessingBenchSystems {
         }
 
         @Nullable
-        private CraftingRecipe resolveRecipe(@Nonnull AutoProcessingBenchBlock apbb, int tierLevel) {
+        private CraftingRecipe resolveRecipe(
+                @Nonnull AutoProcessingBenchBlock apbb,
+                int tierLevel,
+                @Nullable FluidContainerComponent fcc) {
             CraftingRecipe current = apbb.getCurrentRecipe();
-            if (current != null && apbb.isReadyToCraft(current))
+            if (current != null && apbb.isReadyToCraft(current, fcc))
                 return current;
-            CraftingRecipe found = apbb.findMatchingRecipe(tierLevel);
+            CraftingRecipe found = apbb.findMatchingRecipe(tierLevel, fcc);
             if (found != current)
                 apbb.setCurrentRecipe(found);
             return found;

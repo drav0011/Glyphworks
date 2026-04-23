@@ -54,13 +54,27 @@
     ],
     "HitboxType": "Glyphworks_Crafting_Machine_Mana_Liquifier",
     "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Processing",
+      "AllowNoInputProcessing": false,
+      "Input": [
+        {
+          "FilterValidIngredients": true
+        }
+      ],
+      "OutputSlotsCount": 1,
+      "Id": "Glyphworks_ManaLiquifier",
+      "TierLevels": [
+        {
+          "CraftingTimeReductionModifier": 0
+        }
+      ]
+    },
     "BlockEntity": {
       "Components": {
-        "Glyphworks_ManaLiquifierBlock": {
-          "Glyphworks_ManaLiquifierBlock_InputContainer": null,
-          "Glyphworks_ManaLiquifierBlock_FuelContainer": null,
-          "Glyphworks_ManaLiquifierBlock_Progress": 0.0,
-          "Glyphworks_ManaLiquifierBlock_FuelEnergy": 0.0
+        "BenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 0.0
         },
         "Glyphworks_FluidContainerComponent": {
           "Glyphworks_FluidContainerComponent_CapacityMb": 10000
@@ -73,23 +87,13 @@
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": -1,
+                    "X": 0,
                     "Y": 0,
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 1,
-                    "Y": 0,
-                    "Z": 1
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             },
@@ -128,7 +132,7 @@
     },
     "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Open_Container"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",
