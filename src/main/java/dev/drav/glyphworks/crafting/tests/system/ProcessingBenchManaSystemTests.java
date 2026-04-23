@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.World;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -31,7 +32,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
 public final class ProcessingBenchManaSystemTests {
 
     private static final String FURNACE_ID = "Glyphworks_Crafting_Machine_Furnace";
-    private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+    private static final String MANA_FLUID_ID = "Mana_Source";
     private static final int MANA_CAPACITY = 4_000;
 
     /**
@@ -100,7 +101,7 @@ public final class ProcessingBenchManaSystemTests {
         if (manaAmount > 0) {
             FluidContainerComponent mana = getManaContainer(w, x, y, z);
             if (mana != null)
-                mana.fill(MANA_FLUID_ID, manaAmount);
+                mana.fill(new FluidStack(MANA_FLUID_ID, manaAmount, mana.getCapacity()));
         }
     }
 

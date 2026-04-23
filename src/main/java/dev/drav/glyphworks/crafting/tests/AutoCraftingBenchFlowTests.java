@@ -11,6 +11,7 @@ import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -63,7 +64,7 @@ public final class AutoCraftingBenchFlowTests {
      */
     private static final String FILLER_ITEM = "Rock_Stone";
 
-    private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+    private static final String MANA_FLUID_ID = "Mana_Source";
     private static final int MANA_CAPACITY = 4_000;
 
     /**
@@ -152,7 +153,7 @@ public final class AutoCraftingBenchFlowTests {
     private static void seedMana(World w, int x, int y, int z) {
         FluidContainerComponent fcc = getFluid(w, x, y, z);
         if (fcc != null)
-            fcc.fill(MANA_FLUID_ID, MANA_CAPACITY);
+            fcc.fill(new FluidStack(MANA_FLUID_ID, MANA_CAPACITY, fcc.getCapacity()));
     }
 
     /**

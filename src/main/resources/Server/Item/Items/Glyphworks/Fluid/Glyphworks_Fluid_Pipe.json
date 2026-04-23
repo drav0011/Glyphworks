@@ -48,6 +48,9 @@
     "BlockEntity": {
       "Components": {
         "Glyphworks_FluidPipeComponent": {},
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_CapacityMb": 500
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {

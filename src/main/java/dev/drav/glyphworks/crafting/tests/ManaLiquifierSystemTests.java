@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
@@ -26,7 +27,7 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  * <li>No fuel item → progress stays at {@code 0.0f} indefinitely.</li>
  * <li>Fuel item consumed on first tick when {@code remainingFuelEnergy == 0}.</li>
  * <li>Full cycle: essence consumed and {@link ManaLiquifierBlock#MANA_OUTPUT_PER_ESSENCE}
- *     liters of mana produced, progress reset to zero.</li>
+ *     mB of mana produced, progress reset to zero.</li>
  * <li>Full fluid output → progress clamped at {@link ManaLiquifierBlock#RECIPE_TIME},
  *     essence not consumed.</li>
  * <li>Non-essence item in input → progress clamps at recipe time, no mana
@@ -203,7 +204,7 @@ public final class ManaLiquifierSystemTests {
     /**
      * Test 3 — With sufficient fuel energy injected directly and one essence in
      * the input, a full cycle must complete: the essence is consumed, exactly
-     * {@link ManaLiquifierBlock#MANA_OUTPUT_PER_ESSENCE} liters of mana appear in
+     * {@link ManaLiquifierBlock#MANA_OUTPUT_PER_ESSENCE} mB of mana appear in
      * the fluid container, and progress resets to {@code 0.0f}.
      */
     private static TestCase fullCycleProducesMana() {
@@ -266,7 +267,7 @@ public final class ManaLiquifierSystemTests {
                     if (mlb == null || fluid == null)
                         return;
                     // Fill the fluid output to capacity.
-                    fluid.fill(ManaLiquifierBlock.MANA_FLUID_ID, FLUID_CAPACITY);
+                    fluid.fill(new FluidStack(ManaLiquifierBlock.MANA_FLUID_ID, FLUID_CAPACITY, fluid.getCapacity()));
                     // Provide ample fuel energy and an essence.
                     mlb.setRemainingFuelEnergy(ManaLiquifierBlock.RECIPE_TIME + 2.0f);
                     ItemContainer input = mlb.getInputContainer();

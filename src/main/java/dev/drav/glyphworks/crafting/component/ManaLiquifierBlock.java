@@ -27,19 +27,19 @@ import dev.drav.glyphworks.GlyphworksPlugin;
  * Accepts any vanilla essence item in the input slot and heat-producing fuel
  * in the fuel slot. When fuel energy is available, processing advances each
  * tick. On cycle completion, one essence is consumed and
- * {@link #MANA_OUTPUT_PER_ESSENCE} liters of {@link #MANA_FLUID_ID} are added
+ * {@link #MANA_OUTPUT_PER_ESSENCE} mB of {@link #MANA_FLUID_ID} are added
  * to the block's {@link dev.drav.glyphworks.fluid.component.FluidContainerComponent}.
  */
 public class ManaLiquifierBlock implements Component<ChunkStore> {
 
-    /** Mana produced per essence consumed, in liters. */
+    /** Mana produced per essence consumed, in mB. */
     public static final int MANA_OUTPUT_PER_ESSENCE = 200;
 
     /** Time in seconds to process one essence. */
     public static final float RECIPE_TIME = 3.0f;
 
     /** Fluid ID output by this machine. */
-    public static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+    public static final String MANA_FLUID_ID = "Mana_Source";
 
     /**
      * Vanilla essence item IDs accepted by this machine.

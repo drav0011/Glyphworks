@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.fluid.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
@@ -98,7 +99,7 @@ public final class FluidSourceSystemTests {
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
                         fcc.drain(fcc.getAmount());
-                        fcc.fill(FLUID_ID, 1);
+                        fcc.fill(new FluidStack(FLUID_ID, 1, fcc.getCapacity()));
                     }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))

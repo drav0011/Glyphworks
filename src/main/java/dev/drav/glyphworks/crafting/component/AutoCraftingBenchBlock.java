@@ -133,7 +133,7 @@ public class AutoCraftingBenchBlock implements Component<ChunkStore> {
     private float craftingProgress = 0.0f;
 
     /**
-     * Mana consumption rate in liters per tick while actively crafting.
+     * Mana consumption rate in mB per tick while actively crafting.
      * Set per bench in JSON; defaults to 0 (no mana required).
      */
     private float manaConsumptionRate = 0.0f;

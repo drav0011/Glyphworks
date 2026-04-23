@@ -21,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
@@ -63,7 +64,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.availableSpace() < FluidUtil.LITERS_PER_BLOCK) {
+        if (fcc.availableSpace() < FluidUtil.MB_PER_BLOCK) {
             return;
         }
 
@@ -122,7 +123,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int filled = fcc.fill(fluid.getId(), FluidUtil.LITERS_PER_BLOCK);
+        int filled = fcc.fill(new FluidStack(fluid.getId(), FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
         if (filled > 0) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, FluidUtil.EMPTY_FLUID_ID, (byte) 0);
             Ref<ChunkStore> adjChunkRef = chunkStore

@@ -9,37 +9,28 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
-import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.FluidStack;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 
 /**
- * Stores fluid inside a block as a single-slot item container.
+ * Stores fluid inside a block as a {@link FluidContainer} with a single slot.
  *
  * <p>
- * Fluid is represented by one {@link ItemStack} in slot 0:
- * <ul>
- *   <li>{@code quantity} — number of whole buckets (ceil of amount / 1 000 mB), always ≥ 1 when non-empty</li>
- *   <li>{@code durability} — exact amount stored in mB</li>
- *   <li>{@code maxDurability} — capacity of this container in mB</li>
- * </ul>
- * The container is locked with {@link FilterType#DENY_ALL} — players cannot
- * interact with it directly. All reads and writes go through the grid or
+ * Fluid is represented as a {@link FluidStack} in slot 0. The container is locked
+ * against player interaction — all reads and writes go through the grid or
  * dedicated systems.
  *
  * <p>
- * A container is considered <em>empty</em> when slot 0 holds no stack.
- * On the first fill, the slot is created and the container is locked to that
- * fluid type until it is fully drained.
+ * A container is considered <em>empty</em> when slot 0 holds no stack. On the first
+ * fill the slot is locked to that fluid type until it is fully drained.
  */
 public class FluidContainerComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidContainerComponent> CODEC = BuilderCodec
-            .builder(FluidContainerComponent.class, () -> new FluidContainerComponent())
+            .builder(FluidContainerComponent.class, FluidContainerComponent::new)
             .append(
                     new KeyedCodec<>("Glyphworks_FluidContainerComponent_CapacityMb", Codec.INTEGER),
                     (c, v) -> c.capacityMb = v,
@@ -47,11 +38,8 @@ public class FluidContainerComponent implements Component<ChunkStore> {
             .addValidator(Validators.greaterThan(0))
             .add()
             .append(
-                    new KeyedCodec<>("Glyphworks_FluidContainerComponent_Container", SimpleItemContainer.CODEC),
-                    (c, v) -> {
-                        c.itemContainer = v;
-                        c.applyContainerFilters();
-                    },
+                    new KeyedCodec<>("Glyphworks_FluidContainerComponent_Container", FluidContainer.CODEC),
+                    (c, v) -> c.itemContainer = v,
                     c -> c.itemContainer)
             .add()
             .build();
@@ -63,54 +51,49 @@ public class FluidContainerComponent implements Component<ChunkStore> {
     /** Maximum fluid this container can hold, in mB. Set via JSON asset. */
     private int capacityMb;
 
-    /** Single-slot container holding the fluid item stack. Always DENY_ALL. */
-    private SimpleItemContainer itemContainer;
+    /** Single-slot container holding the fluid stack. Always DENY_ALL. */
+    private FluidContainer itemContainer;
 
     /** No-arg constructor required by {@link #CODEC}. */
     public FluidContainerComponent() {
         this.capacityMb = 1000;
-        this.itemContainer = new SimpleItemContainer((short) 1);
-        applyContainerFilters();
+        this.itemContainer = new FluidContainer();
     }
 
     public FluidContainerComponent(int capacityMb) {
         this.capacityMb = capacityMb;
-        this.itemContainer = new SimpleItemContainer((short) 1);
-        applyContainerFilters();
+        this.itemContainer = new FluidContainer();
     }
 
     public FluidContainerComponent(@Nonnull FluidContainerComponent other) {
         this.capacityMb = other.capacityMb;
-        this.itemContainer = new SimpleItemContainer((short) 1);
-        ItemStack existingStack = other.itemContainer.getItemStack((short) 0);
-        if (existingStack != null) {
-            this.itemContainer.setItemStackForSlot((short) 0, existingStack, false);
+        this.itemContainer = new FluidContainer();
+        FluidStack existing = other.itemContainer.getFluid();
+        if (existing != null) {
+            this.itemContainer.setItemStackForSlot((short) 0, existing, false);
         }
-        applyContainerFilters();
     }
-
-    private void applyContainerFilters() {
-        itemContainer.setGlobalFilter(FilterType.DENY_ALL);
-    }
-
-    // ---- accessors ----------------------------------------------------------
 
     public int getCapacity() {
         return capacityMb;
     }
 
+    /** Returns the fluid currently stored, or {@code null} if the container is empty. */
+    @Nullable
+    public FluidStack getFluid() {
+        return itemContainer.getFluid();
+    }
+
     /** Returns the amount of fluid stored, in mB. */
     public int getAmount() {
-        ItemStack stack = itemContainer.getItemStack((short) 0);
-        return stack != null ? (int) stack.getDurability() : 0;
+        FluidStack fluid = getFluid();
+        return fluid != null ? fluid.getAmountMb() : 0;
     }
 
     @Nullable
     public String getFluidId() {
-        ItemStack stack = itemContainer.getItemStack((short) 0);
-        if (stack == null)
-            return null;
-        return FluidItemRegistry.resolveFluidId(stack.getItemId());
+        FluidStack fluid = getFluid();
+        return fluid != null ? fluid.getFluidId() : null;
     }
 
     /** {@code true} when slot 0 is empty. */
@@ -123,65 +106,59 @@ public class FluidContainerComponent implements Component<ChunkStore> {
         return capacityMb - getAmount();
     }
 
-    /** Returns the backing item container. Always {@link FilterType#DENY_ALL}. */
-    public SimpleItemContainer getItemContainer() {
+    /** Returns the backing {@link FluidContainer}. */
+    public FluidContainer getItemContainer() {
         return itemContainer;
     }
 
     /**
-     * Attempts to add {@code liters} mB of {@code fluidId} to this container.
+     * Attempts to add the fluid in {@code incoming} to this container.
      *
      * <p>
-     * Rejected (returns 0) if the container is locked to a different fluid
-     * type, or if {@code fluidId} has no registered item representation.
-     * Otherwise up to {@code liters} mB are accepted (capped by available
-     * space) and the number actually accepted is returned.
+     * Rejected (returns 0) if the container already holds a different fluid type.
+     * Otherwise up to {@code incoming.getAmountMb()} mB are accepted, capped by
+     * available space.
      *
-     * @return mB actually added (0 – liters)
+     * @return mB actually added (0 – incoming.getAmountMb())
      */
-    public int fill(String fluidId, int liters) {
+    public int fill(@Nonnull FluidStack incoming) {
+        String incomingFluidId = incoming.getFluidId();
+        if (incomingFluidId == null) return 0;
+
         String currentFluidId = getFluidId();
-        if (currentFluidId != null && !currentFluidId.equals(fluidId))
-            return 0;
-        int accepted = Math.min(liters, availableSpace());
-        if (accepted <= 0)
-            return 0;
-        String itemId = FluidItemRegistry.resolveItemId(fluidId);
-        if (itemId == null)
-            return 0;
+        if (currentFluidId != null && !currentFluidId.equals(incomingFluidId)) return 0;
+
+        int accepted = Math.min(incoming.getAmountMb(), availableSpace());
+        if (accepted <= 0) return 0;
+
         int newAmount = getAmount() + accepted;
-        itemContainer.setItemStackForSlot((short) 0, buildStack(itemId, newAmount), false);
+        itemContainer.setItemStackForSlot((short) 0, new FluidStack(incomingFluidId, newAmount, capacityMb), false);
         return accepted;
     }
 
     /**
-     * Drains up to {@code liters} mB from this container.
+     * Drains up to {@code mB} mB from this container.
      *
      * <p>
      * If the container becomes empty, slot 0 is cleared automatically.
      *
-     * @return mB actually drained (0 – liters)
+     * @return the drained fluid stack, or {@code null} if the container was already empty
      */
-    public int drain(int liters) {
-        ItemStack stack = itemContainer.getItemStack((short) 0);
-        if (stack == null)
-            return 0;
-        int current = (int) stack.getDurability();
-        int removed = Math.min(liters, current);
-        if (removed <= 0)
-            return 0;
-        int newAmount = current - removed;
-        if (newAmount == 0) {
+    @Nullable
+    public FluidStack drain(int mB) {
+        FluidStack current = getFluid();
+        if (current == null) return null;
+
+        int removed = Math.min(mB, current.getAmountMb());
+        if (removed <= 0) return null;
+
+        int remaining = current.getAmountMb() - removed;
+        if (remaining == 0) {
             itemContainer.setItemStackForSlot((short) 0, null, false);
         } else {
-            itemContainer.setItemStackForSlot((short) 0, buildStack(stack.getItemId(), newAmount), false);
+            itemContainer.setItemStackForSlot((short) 0, current.withAmount(remaining), false);
         }
-        return removed;
-    }
-
-    private ItemStack buildStack(String itemId, int amountMb) {
-        int qty = Math.max(1, (int) Math.ceil((double) amountMb / 1000));
-        return new ItemStack(itemId, qty, amountMb, capacityMb, null);
+        return new FluidStack(current.getFluidId(), removed, capacityMb);
     }
 
     @Override

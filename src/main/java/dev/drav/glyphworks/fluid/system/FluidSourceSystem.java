@@ -9,6 +9,7 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
 
@@ -57,6 +58,6 @@ public final class FluidSourceSystem extends EntityTickingSystem<ChunkStore> {
         if (!selectedFluidId.equals(fcc.getFluidId())) {
             fcc.drain(fcc.getAmount());
         }
-        fcc.fill(selectedFluidId, fcc.availableSpace());
+        fcc.fill(new FluidStack(selectedFluidId, fcc.availableSpace(), fcc.getCapacity()));
     }
 }

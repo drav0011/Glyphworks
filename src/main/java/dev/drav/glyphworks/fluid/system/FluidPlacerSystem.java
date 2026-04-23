@@ -21,6 +21,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
@@ -64,7 +65,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.getAmount() < FluidUtil.LITERS_PER_BLOCK) {
+        if (fcc.getAmount() < FluidUtil.MB_PER_BLOCK) {
             return;
         }
         if (fcc.getFluidId() == null) {
@@ -140,8 +141,8 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int drained = fcc.drain(FluidUtil.LITERS_PER_BLOCK);
-        if (drained > 0) {
+        FluidStack drained = fcc.drain(FluidUtil.MB_PER_BLOCK);
+        if (drained != null && drained.getAmountMb() > 0) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, indexedId, (byte) fluid.getMaxFluidLevel());
             Ref<ChunkStore> adjChunkRef = chunkStore
                     .getChunkReference(ChunkUtil.indexChunkFromBlock(adjacent.x, adjacent.z));

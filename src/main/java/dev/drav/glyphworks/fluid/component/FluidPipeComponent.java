@@ -11,21 +11,25 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.fluid.FluidStack;
 
 /**
- * Tracks which fluid type is currently occupying a grid pipe block.
+ * Type-lock marker for a grid pipe block.
  *
  * <p>
- * When {@code fluidId} is {@code null} the pipe is uncontaminated and
- * accepts any fluid. Once fluid flows through it the ID is locked so that a
- * second, incompatible fluid cannot mix inside the same pipe segment. The lock
- * is cleared when the pipe is drained (handled by
- * {@link dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler}).
+ * When {@code fluidId} is {@code null} the pipe is unlocked and accepts any
+ * fluid. Once fluid flows through it the ID is locked so that a second,
+ * incompatible fluid cannot mix inside the same pipe segment.
+ *
+ * <p>
+ * Actual fluid storage lives in the companion {@link FluidContainerComponent}
+ * on the same block entity. This component is concerned only with type
+ * identity, not the stored amount.
  */
 public class FluidPipeComponent implements Component<ChunkStore> {
 
     public static final BuilderCodec<FluidPipeComponent> CODEC = BuilderCodec
-            .builder(FluidPipeComponent.class, () -> new FluidPipeComponent())
+            .builder(FluidPipeComponent.class, FluidPipeComponent::new)
             .append(
                     new KeyedCodec<>("Glyphworks_FluidPipeComponent_FluidId", Codec.STRING),
                     (c, v) -> c.fluidId = v,
@@ -37,14 +41,9 @@ public class FluidPipeComponent implements Component<ChunkStore> {
         return GlyphworksPlugin.get().getFluidModule().getFluidPipeComponentType();
     }
 
-    /**
-     * Asset ID of the fluid currently passing through this pipe, or {@code null}
-     * when the pipe is clean and accepts any fluid.
-     */
     @Nullable
     private String fluidId;
 
-    /** No-arg constructor required by {@link #CODEC}. */
     public FluidPipeComponent() {
     }
 
@@ -62,11 +61,13 @@ public class FluidPipeComponent implements Component<ChunkStore> {
     }
 
     /**
-     * Returns {@code true} if this pipe can carry {@code fluidId}.
-     * An uncontaminated pipe ({@code fluidId == null}) accepts anything.
+     * Returns {@code true} if this pipe can carry the given fluid.
+     * An unlocked pipe ({@code fluidId == null}) accepts any fluid.
      */
-    public boolean accepts(String fluidId) {
-        return this.fluidId == null || this.fluidId.equals(fluidId);
+    public boolean accepts(@Nullable FluidStack fluid) {
+        if (fluidId == null) return true;
+        if (fluid == null) return false;
+        return fluidId.equals(fluid.getFluidId());
     }
 
     @Override

@@ -3,6 +3,7 @@ package dev.drav.glyphworks.fluid.tests.system;
 import org.joml.Vector3i;
 
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -51,7 +52,7 @@ public final class FluidSinkSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null)
-                        fcc.fill(FLUID_ID, fcc.getCapacity());
+                        fcc.fill(new FluidStack(FLUID_ID, fcc.getCapacity(), fcc.getCapacity()));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {

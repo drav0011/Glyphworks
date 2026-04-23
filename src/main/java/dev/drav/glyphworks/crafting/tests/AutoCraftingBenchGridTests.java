@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -69,7 +70,7 @@ public final class AutoCraftingBenchGridTests {
     private static final String BENCH_ID         = "Glyphworks_Crafting_Machine_WorkBench";
     private static final String RECIPE_ID        = "Deco_Target_Recipe_Generated_0";
     private static final String RECIPE_INPUT     = "Ingredient_Fibre";
-    private static final String MANA_FLUID_ID    = "Glyphworks_Fluid_Mana";
+    private static final String MANA_FLUID_ID    = "Mana_Source";
     private static final int    MANA_CAPACITY    = 4_000;
     private static final String FLUID_PIPE_ID    = "Glyphworks_Fluid_Pipe";
     private static final String FLUID_SOURCE_ID  = "Glyphworks_Fluid_Source";
@@ -283,7 +284,7 @@ public final class AutoCraftingBenchGridTests {
                     placeBlock(ctx.getWorld(), x, y + 2, z + 2, FLUID_SOURCE_ID);
                     // Seed source with mana
                     FluidContainerComponent fcc = getFluid(ctx.getWorld(), x, y + 2, z + 2);
-                    if (fcc != null) fcc.fill(MANA_FLUID_ID, MANA_CAPACITY);
+                    if (fcc != null) fcc.fill(new FluidStack(MANA_FLUID_ID, MANA_CAPACITY, fcc.getCapacity()));
                 }))
                 .step(Steps.wait(ctx -> 3 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
@@ -350,7 +351,7 @@ public final class AutoCraftingBenchGridTests {
                     int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                     lockRecipe(ctx.getWorld(), x, y, z);
                     FluidContainerComponent fcc = getFluid(ctx.getWorld(), x, y, z);
-                    if (fcc != null) fcc.fill(MANA_FLUID_ID, MANA_CAPACITY);
+                    if (fcc != null) fcc.fill(new FluidStack(MANA_FLUID_ID, MANA_CAPACITY, fcc.getCapacity()));
                     AutoCraftingBenchBlock bench = getBench(ctx.getWorld(), x, y, z);
                     if (bench != null) {
                         ItemContainer input = bench.getInputContainer();

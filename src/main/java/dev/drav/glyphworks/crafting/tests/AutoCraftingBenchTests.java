@@ -7,6 +7,7 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
@@ -42,7 +43,7 @@ public final class AutoCraftingBenchTests {
 
     private static final int EXPECTED_MANA_CAPACITY = 4_000;
     private static final float EXPECTED_MANA_RATE = 25.0f;
-    private static final String MANA_FLUID_ID = "Glyphworks_Fluid_Mana";
+    private static final String MANA_FLUID_ID = "Mana_Source";
 
     private AutoCraftingBenchTests() {
     }
@@ -115,7 +116,7 @@ public final class AutoCraftingBenchTests {
 
     /**
      * Test 2 — The mana consumption rate read from JSON must equal
-     * {@link #EXPECTED_MANA_RATE} liters per tick.
+     * {@link #EXPECTED_MANA_RATE} mB per tick.
      */
     private static TestCase benchManaRateFromJson() {
         return new TestCase("bench_mana_rate_from_json", 3, 3, 3)
@@ -159,7 +160,7 @@ public final class AutoCraftingBenchTests {
      * Test 4 — The mana container accepts fluid injected directly, confirming
      * that a pipe network can deliver mana to a running bench.
      *
-     * <p>After placing the bench, {@value #EXPECTED_MANA_CAPACITY} liters of mana
+     * <p>After placing the bench, {@value #EXPECTED_MANA_CAPACITY} mB of mana
      * are injected directly into the {@link FluidContainerComponent}. The
      * container must report the correct amount and fluid ID on the next tick.
      */
@@ -172,7 +173,7 @@ public final class AutoCraftingBenchTests {
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
                     FluidContainerComponent fcc = getFluidContainer(w, x, y, z);
                     if (fcc != null)
-                        fcc.fill(MANA_FLUID_ID, EXPECTED_MANA_CAPACITY);
+                        fcc.fill(new FluidStack(MANA_FLUID_ID, EXPECTED_MANA_CAPACITY, fcc.getCapacity()));
                 }))
                 .step(Steps.wait(2))
                 .step(Steps.assertThat(ctx -> {

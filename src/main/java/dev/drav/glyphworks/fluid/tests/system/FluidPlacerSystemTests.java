@@ -5,6 +5,7 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.protocol.BlockFace;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
@@ -75,7 +76,7 @@ public final class FluidPlacerSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     if (fcc != null)
-                        fcc.fill(FLUID_ID, FluidUtil.LITERS_PER_BLOCK);
+                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
@@ -123,14 +124,14 @@ public final class FluidPlacerSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     if (fcc != null)
-                        fcc.fill(FLUID_ID, FluidUtil.LITERS_PER_BLOCK);
+                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.getAmount() == FluidUtil.LITERS_PER_BLOCK;
+                    return fcc != null && fcc.getAmount() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidPlacerSystem does not drain container when target cell is already occupied"));
     }
 
@@ -148,14 +149,14 @@ public final class FluidPlacerSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     if (fcc != null)
-                        fcc.fill(FLUID_ID, FluidUtil.LITERS_PER_BLOCK);
+                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.getAmount() == FluidUtil.LITERS_PER_BLOCK;
+                    return fcc != null && fcc.getAmount() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidPlacerSystem does not drain container when target cell contains a solid block"));
     }
 }

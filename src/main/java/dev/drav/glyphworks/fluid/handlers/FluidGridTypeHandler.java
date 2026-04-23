@@ -22,6 +22,7 @@ import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -65,8 +66,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     // Records
     // -------------------------------------------------------------------------
 
-    private record FluidSource(String fluidId, int maxAvailable, FluidContainerComponent fcc,
-            GridLookup sourceLookup) {
+    private record FluidSource(FluidStack fluid, FluidContainerComponent fcc, GridLookup sourceLookup) {
     }
 
     private record BFSEntry(GridLookup lookup, float rate, Vector3i arrivedFrom, int distance) {
@@ -196,9 +196,12 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                     continue;
                 FluidContainerComponent fcc = store.getComponent(
                         memberLookup.blockRef(), FluidContainerComponent.getComponentType());
-                if (fcc == null || fcc.isEmpty() || fcc.getFluidId() == null)
+                if (fcc == null)
                     continue;
-                sources.add(new FluidSource(fcc.getFluidId(), fcc.getAmount(), fcc, memberLookup));
+                FluidStack fluid = fcc.getFluid();
+                if (fluid == null)
+                    continue;
+                sources.add(new FluidSource(fluid, fcc, memberLookup));
             }
         }
 
@@ -261,7 +264,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
             FluidPipeComponent fpc = store.getComponent(bfsNode.lookup().blockRef(),
                     FluidPipeComponent.getComponentType());
-            if (fpc != null && !fpc.accepts(source.fluidId()))
+            if (fpc != null && !fpc.accepts(source.fluid()))
                 continue;
 
             traversedPipes.add(bfsNode.lookup().blockRef());
@@ -329,7 +332,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 bfsNode.lookup().blockRef(), FluidContainerComponent.getComponentType());
         if (fcc == null || fcc.availableSpace() <= 0)
             return;
-        if (fcc.getFluidId() != null && !fcc.getFluidId().equals(source.fluidId()))
+        FluidStack sinkFluid = fcc.getFluid();
+        if (sinkFluid != null && !sinkFluid.isStackableWith(source.fluid()))
             return;
         sinks.add(new FluidSinkEntry(
                 bfsNode.lookup().blockRef(), bfsNode.lookup().component(), entryFace,
@@ -368,14 +372,60 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             int toTransfer,
             @Nonnull FluidBFSResult bfs,
             @Nonnull Store<ChunkStore> store) {
-        List<FluidSinkEntry> sinks = bfs.sinks();
-        sinks.sort(Comparator.comparingInt(FluidSinkEntry::distance));
+        String fluidId = source.fluid().getFluidId();
+
+        List<FluidContainerComponent> pipeFccs = collectPipeFccs(bfs.traversedPipes(), store);
+        int poolAmount = 0;
+        int poolCapacity = 0;
+        for (FluidContainerComponent fcc : pipeFccs) {
+            poolAmount += fcc.getAmount();
+            poolCapacity += fcc.getCapacity();
+        }
+
+        if (poolCapacity > 0) {
+            int fromSource = Math.min(toTransfer, Math.min(source.fluid().getAmountMb(), poolCapacity - poolAmount));
+            if (fromSource > 0) {
+                source.fcc().drain(fromSource);
+                poolAmount += fromSource;
+            }
+        } else {
+            poolAmount = executeDirectTransfer(source, toTransfer, bfs.sinks());
+            lockPipes(bfs.traversedPipes(), fluidId, store);
+            return;
+        }
+
+        if (poolAmount > 0) {
+            poolAmount = drainPoolToSinks(fluidId, poolAmount, bfs.sinks());
+        }
+
+        distributeToPipes(fluidId, poolAmount, pipeFccs);
+        lockPipes(bfs.traversedPipes(), fluidId, store);
+    }
+
+    private static List<FluidContainerComponent> collectPipeFccs(
+            @Nonnull List<Ref<ChunkStore>> pipeRefs,
+            @Nonnull Store<ChunkStore> store) {
+        List<FluidContainerComponent> result = new ArrayList<>();
+        for (Ref<ChunkStore> ref : pipeRefs) {
+            FluidContainerComponent fcc = store.getComponent(ref, FluidContainerComponent.getComponentType());
+            if (fcc != null)
+                result.add(fcc);
+        }
+        return result;
+    }
+
+    private static int executeDirectTransfer(
+            @Nonnull FluidSource source,
+            int toTransfer,
+            @Nonnull List<FluidSinkEntry> sinks) {
+        List<FluidSinkEntry> sorted = new ArrayList<>(sinks);
+        sorted.sort(Comparator.comparingInt(FluidSinkEntry::distance));
 
         List<PlannedTransfer> transfers = new ArrayList<>();
-        int budget = Math.min(toTransfer, source.maxAvailable());
+        int budget = Math.min(toTransfer, source.fluid().getAmountMb());
         int remaining = budget;
 
-        for (FluidSinkEntry sink : sinks) {
+        for (FluidSinkEntry sink : sorted) {
             if (remaining <= 0)
                 break;
             int amount = Math.min(remaining, sink.fcc().availableSpace());
@@ -385,19 +435,60 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             }
         }
         if (transfers.isEmpty())
-            return;
+            return 0;
 
         int totalMoved = budget - remaining;
         source.fcc().drain(totalMoved);
 
+        String fluidId = source.fluid().getFluidId();
         for (PlannedTransfer t : transfers) {
-            t.fcc().fill(source.fluidId(), t.amount());
+            t.fcc().fill(new FluidStack(fluidId, t.amount(), t.fcc().getCapacity()));
         }
+        return 0;
+    }
 
-        for (Ref<ChunkStore> pipeRef : bfs.traversedPipes()) {
+    private static int drainPoolToSinks(
+            @Nonnull String fluidId,
+            int poolAmount,
+            @Nonnull List<FluidSinkEntry> sinks) {
+        List<FluidSinkEntry> sorted = new ArrayList<>(sinks);
+        sorted.sort(Comparator.comparingInt(FluidSinkEntry::distance));
+
+        for (FluidSinkEntry sink : sorted) {
+            if (poolAmount <= 0)
+                break;
+            int amount = Math.min(poolAmount, sink.fcc().availableSpace());
+            if (amount > 0) {
+                sink.fcc().fill(new FluidStack(fluidId, amount, sink.fcc().getCapacity()));
+                poolAmount -= amount;
+            }
+        }
+        return poolAmount;
+    }
+
+    private static void distributeToPipes(
+            @Nonnull String fluidId,
+            int totalAmount,
+            @Nonnull List<FluidContainerComponent> pipeFccs) {
+        for (FluidContainerComponent fcc : pipeFccs) {
+            fcc.drain(fcc.getCapacity());
+        }
+        for (FluidContainerComponent fcc : pipeFccs) {
+            if (totalAmount <= 0)
+                break;
+            int filled = fcc.fill(new FluidStack(fluidId, totalAmount, fcc.getCapacity()));
+            totalAmount -= filled;
+        }
+    }
+
+    private static void lockPipes(
+            @Nonnull List<Ref<ChunkStore>> pipeRefs,
+            @Nonnull String fluidId,
+            @Nonnull Store<ChunkStore> store) {
+        for (Ref<ChunkStore> pipeRef : pipeRefs) {
             FluidPipeComponent fpc = store.getComponent(pipeRef, FluidPipeComponent.getComponentType());
             if (fpc != null && fpc.getFluidId() == null) {
-                fpc.setFluidId(source.fluidId());
+                fpc.setFluidId(fluidId);
             }
         }
     }

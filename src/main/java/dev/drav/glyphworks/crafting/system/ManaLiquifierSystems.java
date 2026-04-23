@@ -31,6 +31,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 
 public final class ManaLiquifierSystems {
@@ -211,7 +212,7 @@ public final class ManaLiquifierSystems {
             if (fluid == null)
                 return;
 
-            int added = fluid.fill(ManaLiquifierBlock.MANA_FLUID_ID, ManaLiquifierBlock.MANA_OUTPUT_PER_ESSENCE);
+            int added = fluid.fill(new FluidStack(ManaLiquifierBlock.MANA_FLUID_ID, ManaLiquifierBlock.MANA_OUTPUT_PER_ESSENCE, fluid.getCapacity()));
             if (added <= 0)
                 return;
 
