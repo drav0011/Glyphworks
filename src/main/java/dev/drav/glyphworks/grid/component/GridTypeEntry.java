@@ -77,12 +77,6 @@ public class GridTypeEntry {
     private float transferRate = 1.0f;
 
     /**
-     * Runtime-only fractional carry-over for sub-tick transfer rates.
-     * Not serialised.
-     */
-    private transient float transferAccumulator = 0.0f;
-
-    /**
      * No-arg constructor required by {@link #CODEC}.
      */
     public GridTypeEntry() {
@@ -104,7 +98,6 @@ public class GridTypeEntry {
         }
         this.neighbors = new HashSet<>(other.neighbors);
         this.transferRate = other.transferRate;
-        // transferAccumulator intentionally not copied — fresh placement starts at zero.
     }
 
     @Nullable
@@ -161,22 +154,5 @@ public class GridTypeEntry {
     @Override
     public GridTypeEntry clone() {
         return new GridTypeEntry(this);
-    }
-
-    /**
-     * Adds {@code amount} to the accumulator and returns the number of whole units
-     * that have accumulated (floored). The fractional remainder is kept for the
-     * next tick.
-     *
-     * @param amount the per-tick contribution (typically
-     *               {@code effectiveRate * dt * TPS})
-     * @return how many whole items (or other units) to transfer this tick; 0 if
-     *         the threshold has not been reached yet
-     */
-    public int drainAccumulator(float amount) {
-        transferAccumulator += amount;
-        int whole = (int) transferAccumulator;
-        transferAccumulator -= whole;
-        return whole;
     }
 }

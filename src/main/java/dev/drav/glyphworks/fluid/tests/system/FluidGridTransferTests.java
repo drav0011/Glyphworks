@@ -160,7 +160,7 @@ public final class FluidGridTransferTests {
                     placeTankLayout(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -170,9 +170,9 @@ public final class FluidGridTransferTests {
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src == null || sink == null)
                         return false;
-                    return src.getAmount() + sink.getAmount() == FILL_AMOUNT
-                            && sink.getAmount() > 0
-                            && WATER_ID.equals(sink.getFluidId());
+                    return src.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() + sink.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == FILL_AMOUNT
+                            && !sink.getFluidContainer().fluids().isEmpty()
+                            && sink.getFluidContainer().amountOf(WATER_ID) > 0;
                 }, "fluid reached sink; total conserved; correct fluid type"));
     }
 
@@ -207,7 +207,7 @@ public final class FluidGridTransferTests {
                     placeTankLayout(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -217,11 +217,11 @@ public final class FluidGridTransferTests {
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src == null || sink == null)
                         return false;
-                    if (src.getAmount() + sink.getAmount() != FILL_AMOUNT)
+                    if (src.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() + sink.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() != FILL_AMOUNT)
                         return false;
-                    if (sink.getAmount() == 0)
+                    if (sink.getFluidContainer().fluids().isEmpty())
                         return false;
-                    return sink.getAmount() < FILL_AMOUNT / 2;
+                    return sink.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() < FILL_AMOUNT / 2;
                 }, "conservation holds; sink > 0; rate is limited (sink < half total)"));
     }
 
@@ -237,7 +237,7 @@ public final class FluidGridTransferTests {
                     placeTankLayout(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -268,7 +268,7 @@ public final class FluidGridTransferTests {
                         pipe.setFluidId(LAVA_ID);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(TRANSFER_TICKS))
                 .step(Steps.assertThat(ctx -> {
@@ -276,8 +276,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
-                    return src != null && src.getAmount() == FILL_AMOUNT
-                            && sink != null && sink.getAmount() == 0;
+                    return src != null && src.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == FILL_AMOUNT
+                            && sink != null && sink.getFluidContainer().fluids().isEmpty();
                 }, "source unchanged; sink empty when relay pipe is locked to incompatible fluid"));
     }
 
@@ -304,9 +304,9 @@ public final class FluidGridTransferTests {
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, TANK_CAPACITY, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, TANK_CAPACITY, false);
                     if (sink != null)
-                        sink.fill(new FluidStack(WATER_ID, TANK_CAPACITY, TANK_CAPACITY));
+                        sink.getFluidContainer().addFluid(WATER_ID, TANK_CAPACITY, false);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -314,8 +314,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
-                    return src != null && src.getAmount() == TANK_CAPACITY
-                            && sink != null && sink.getAmount() == TANK_CAPACITY;
+                    return src != null && src.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == TANK_CAPACITY
+                            && sink != null && sink.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == TANK_CAPACITY;
                 }, "no fluid moved when all tanks are at capacity (availableSpace == 0)"));
     }
 
@@ -334,10 +334,10 @@ public final class FluidGridTransferTests {
                     placeTankLayout(w, ox, oy, oz);
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
                     if (sink != null)
-                        sink.fill(new FluidStack(LAVA_ID, 100, TANK_CAPACITY));
+                        sink.getFluidContainer().addFluid(LAVA_ID, 100, false);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(TRANSFER_TICKS))
                 .step(Steps.assertThat(ctx -> {
@@ -345,8 +345,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     FluidContainerComponent sink = getContainer(w, ox, oy, oz + 3);
-                    return src != null && src.getAmount() == FILL_AMOUNT
-                            && sink != null && sink.getAmount() == 100;
+                    return src != null && src.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == FILL_AMOUNT
+                            && sink != null && sink.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() == 100;
                 }, "source unchanged; sink retains only Lava when locked to different fluid"));
     }
 
@@ -368,7 +368,7 @@ public final class FluidGridTransferTests {
                     placeTank(w, ox, oy, oz);
                     FluidContainerComponent src = getContainer(w, ox, oy, oz);
                     if (src != null)
-                        src.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        src.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
                     placePipe(w, ox, oy, oz + 1);
                     placeTank(w, ox, oy, oz + 2);
                     placePipe(w, ox + 1, oy, oz + 1);
@@ -380,8 +380,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent sinkB = getContainer(w, ox + 1, oy, oz + 2);
-                    return sinkA != null && sinkA.getAmount() > 0
-                            && sinkB != null && sinkB.getAmount() == 0;
+                    return sinkA != null && !sinkA.getFluidContainer().fluids().isEmpty()
+                            && sinkB != null && sinkB.getFluidContainer().fluids().isEmpty();
                 }, "closer sink fills before farther sink within the same tick budget"));
     }
 
@@ -411,9 +411,9 @@ public final class FluidGridTransferTests {
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
                     if (srcA != null)
-                        srcA.fill(new FluidStack(WATER_ID, TANK_CAPACITY, TANK_CAPACITY));
+                        srcA.getFluidContainer().addFluid(WATER_ID, TANK_CAPACITY, false);
                     if (srcB != null)
-                        srcB.fill(new FluidStack(WATER_ID, TANK_CAPACITY, TANK_CAPACITY));
+                        srcB.getFluidContainer().addFluid(WATER_ID, TANK_CAPACITY, false);
                 }))
                 .step(Steps.wait(SHORT_WAIT))
                 .step(Steps.assertThat(ctx -> {
@@ -421,8 +421,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
-                    return srcA != null && srcA.getAmount() < TANK_CAPACITY
-                            && srcB != null && srcB.getAmount() < TANK_CAPACITY;
+                    return srcA != null && srcA.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() < TANK_CAPACITY
+                            && srcB != null && srcB.getFluidContainer().fluids().stream().mapToInt(FluidStack::getQuantity).sum() < TANK_CAPACITY;
                 }, "both source tanks drained when two sources share a network"));
     }
 
@@ -446,14 +446,14 @@ public final class FluidGridTransferTests {
                     placeTank(w, ox, oy, oz + 2);
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     if (srcA != null)
-                        srcA.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcA.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
 
                     placeTank(w, ox + 3, oy, oz);
                     placePipe(w, ox + 3, oy, oz + 1);
                     placeTank(w, ox + 3, oy, oz + 2);
                     FluidContainerComponent srcB = getContainer(w, ox + 3, oy, oz);
                     if (srcB != null)
-                        srcB.fill(new FluidStack(LAVA_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcB.getFluidContainer().addFluid(LAVA_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.wait(TRANSFER_TICKS))
                 .step(Steps.assertThat(ctx -> {
@@ -461,8 +461,8 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent tankA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent tankB = getContainer(w, ox + 3, oy, oz + 2);
-                    return tankA != null && WATER_ID.equals(tankA.getFluidId())
-                            && tankB != null && LAVA_ID.equals(tankB.getFluidId());
+                    return tankA != null && tankA.getFluidContainer().amountOf(WATER_ID) > 0
+                            && tankB != null && tankB.getFluidContainer().amountOf(LAVA_ID) > 0;
                 }, "network A contains only Water, network B contains only Lava"));
     }
 
@@ -582,14 +582,14 @@ public final class FluidGridTransferTests {
                     placeTank(w, ox, oy, oz + 2);
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     if (srcA != null)
-                        srcA.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcA.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
 
                     placeTank(w, ox + 2, oy, oz);
                     placePipe(w, ox + 2, oy, oz + 1);
                     placeTank(w, ox + 2, oy, oz + 2);
                     FluidContainerComponent srcB = getContainer(w, ox + 2, oy, oz);
                     if (srcB != null)
-                        srcB.fill(new FluidStack(LAVA_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcB.getFluidContainer().addFluid(LAVA_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.waitUntil(ctx -> {
                     World w = ctx.getWorld();
@@ -624,10 +624,10 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent sinkB = getContainer(w, ox + 2, oy, oz + 2);
-                    boolean sinkAOk = sinkA == null || sinkA.getFluidId() == null
-                            || WATER_ID.equals(sinkA.getFluidId());
-                    boolean sinkBOk = sinkB == null || sinkB.getFluidId() == null
-                            || LAVA_ID.equals(sinkB.getFluidId());
+                    boolean sinkAOk = sinkA == null
+                            || sinkA.getFluidContainer().fluidIds().stream().allMatch(WATER_ID::equals);
+                    boolean sinkBOk = sinkB == null
+                            || sinkB.getFluidContainer().fluidIds().stream().allMatch(LAVA_ID::equals);
                     return sinkAOk && sinkBOk;
                 }, "no cross-contamination: SinkA only Water, SinkB only Lava (EW)"));
     }
@@ -653,14 +653,14 @@ public final class FluidGridTransferTests {
                     placeTank(w, ox, oy, oz + 2);
                     FluidContainerComponent srcA = getContainer(w, ox, oy, oz);
                     if (srcA != null)
-                        srcA.fill(new FluidStack(WATER_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcA.getFluidContainer().addFluid(WATER_ID, FILL_AMOUNT, false);
 
                     placeTank(w, ox, oy + 2, oz);
                     placePipe(w, ox, oy + 2, oz + 1);
                     placeTank(w, ox, oy + 2, oz + 2);
                     FluidContainerComponent srcB = getContainer(w, ox, oy + 2, oz);
                     if (srcB != null)
-                        srcB.fill(new FluidStack(LAVA_ID, FILL_AMOUNT, TANK_CAPACITY));
+                        srcB.getFluidContainer().addFluid(LAVA_ID, FILL_AMOUNT, false);
                 }))
                 .step(Steps.waitUntil(ctx -> {
                     World w = ctx.getWorld();
@@ -695,12 +695,13 @@ public final class FluidGridTransferTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent sinkA = getContainer(w, ox, oy, oz + 2);
                     FluidContainerComponent sinkB = getContainer(w, ox, oy + 2, oz + 2);
-                    boolean sinkAOk = sinkA == null || sinkA.getFluidId() == null
-                            || WATER_ID.equals(sinkA.getFluidId());
-                    boolean sinkBOk = sinkB == null || sinkB.getFluidId() == null
-                            || LAVA_ID.equals(sinkB.getFluidId());
+                    boolean sinkAOk = sinkA == null
+                            || sinkA.getFluidContainer().fluidIds().stream().allMatch(WATER_ID::equals);
+                    boolean sinkBOk = sinkB == null
+                            || sinkB.getFluidContainer().fluidIds().stream().allMatch(LAVA_ID::equals);
                     return sinkAOk && sinkBOk;
                 }, "no cross-contamination: SinkA only Water, SinkB only Lava (NS)"));
     }
 }
+
 

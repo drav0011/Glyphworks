@@ -92,6 +92,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             int distance, Vector3i originPos) {
     }
 
+        private record ItemSourceEntry(ItemContainer container, FacePlane sourceFace, GridTypeEntry entry) {
+        }
+
     // -------------------------------------------------------------------------
     // Tick
     // -------------------------------------------------------------------------
@@ -111,9 +114,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         String typeId = entry.getGridType().id();
         Vector3i originPos = component.getOriginPosition();
 
-        List<ItemContainer> sourceContainers = collectSourceContainers(
+        List<ItemSourceEntry> sourceEntries = collectSourceEntries(
                 entry, originPos, store, blockRef, chunkStore);
-        if (sourceContainers.isEmpty())
+        if (sourceEntries.isEmpty())
             return;
 
         GridGraph gridGraph = GlyphworksPlugin.get().getGridModule().getGridGraph(chunkStore.getWorld(), entry.getGridType());
@@ -124,20 +127,20 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sinks.isEmpty())
             return;
 
-        pushItemsToSinks(sourceContainers, sinks, entry, store, chunkStore, dt);
+        pushItemsToSinks(sourceEntries, sinks, store, chunkStore, dt);
     }
 
     // -------------------------------------------------------------------------
     // Transfer pipeline
     // -------------------------------------------------------------------------
 
-    private static List<ItemContainer> collectSourceContainers(
+    private static List<ItemSourceEntry> collectSourceEntries(
             @Nonnull GridTypeEntry entry,
             @Nullable Vector3i originPos,
             @Nonnull Store<ChunkStore> store,
             @Nonnull Ref<ChunkStore> blockRef,
             @Nonnull ChunkStore chunkStore) {
-        List<ItemContainer> sourceContainers = new ArrayList<>();
+        List<ItemSourceEntry> sourceEntries = new ArrayList<>();
         for (FacePlane face : entry.getFaces()) {
             FilterType mode = face.getMode();
             if (!mode.allowOutput())
@@ -147,16 +150,16 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             if (key != null) {
                 ItemContainer c = resolveContainer(store, blockRef, key);
                 if (c != null && hasItems(c))
-                    sourceContainers.add(c);
+                    sourceEntries.add(new ItemSourceEntry(c, face, entry));
             } else if (mode == FilterType.ALLOW_OUTPUT_ONLY) {
                 if (originPos == null)
                     continue;
                 ItemContainer c = resolveAdjacentContainer(chunkStore, originPos, face);
                 if (c != null && hasItems(c))
-                    sourceContainers.add(c);
+                    sourceEntries.add(new ItemSourceEntry(c, face, entry));
             }
         }
-        return sourceContainers;
+        return sourceEntries;
     }
 
     @Nullable
@@ -296,16 +299,16 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     }
 
     private static void pushItemsToSinks(
-            @Nonnull List<ItemContainer> sourceContainers,
+            @Nonnull List<ItemSourceEntry> sourceEntries,
             @Nonnull List<ItemSinkEntry> sinks,
-            @Nonnull GridTypeEntry entry,
             @Nonnull Store<ChunkStore> store,
             @Nonnull ChunkStore chunkStore,
             float dt) {
         sinks.sort(Comparator.comparingInt(ItemSinkEntry::distance));
 
-        for (ItemContainer srcContainer : sourceContainers) {
-            int toTransfer = entry.drainAccumulator(entry.getTransferRate() * dt * chunkStore.getWorld().getTps());
+        for (ItemSourceEntry source : sourceEntries) {
+            int toTransfer = source.sourceFace().drainAccumulator(
+                    source.entry().getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1)
                 continue;
 
@@ -316,7 +319,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                         sink, store, chunkStore);
                 if (sinkContainer == null)
                     continue;
-                toTransfer -= moveItems(srcContainer, sinkContainer, toTransfer);
+                toTransfer -= moveItems(source.container(), sinkContainer, toTransfer);
             }
         }
     }
