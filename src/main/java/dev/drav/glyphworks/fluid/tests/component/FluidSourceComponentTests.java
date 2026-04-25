@@ -5,8 +5,8 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;

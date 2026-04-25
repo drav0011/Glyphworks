@@ -85,11 +85,14 @@ public final class FluidRemoverSystemTests {
                     // World cell must be cleared.
                     if (FluidTestUtil.getFluidId(w, tx, ty, tz) != 0)
                         return false;
-                    // Container must hold exactly 1 000 mB of the correct fluid.
+                    // Container must hold exactly 1 000 mB of the correct fluid in slot 0.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(w, new Vector3i(bx, by, bz));
-                    return fcc != null
-                            && fcc.getAmount() == FluidUtil.MB_PER_BLOCK
-                            && FLUID_ID.equals(fcc.getFluidId());
+                    if (fcc == null)
+                        return false;
+                    FluidStack slot0 = fcc.getFluidContainer().getFluidStack((short) 0);
+                    return slot0 != null
+                            && FLUID_ID.equals(slot0.getFluidId())
+                            && slot0.getQuantity() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidRemoverSystem picks up fluid from " + direction.name().toLowerCase()
                         + " and fills container"));
     }
@@ -111,7 +114,7 @@ public final class FluidRemoverSystemTests {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.isEmpty();
+                    return fcc != null && fcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "FluidRemoverSystem leaves container empty when target cell has no fluid"));
     }
 
@@ -132,7 +135,7 @@ public final class FluidRemoverSystemTests {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
-                    return tankFcc != null && tankFcc.isEmpty();
+                    return tankFcc != null && tankFcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "fluid remover does not fill the tank when no world fluid is present"));
     }
 
@@ -158,7 +161,8 @@ public final class FluidRemoverSystemTests {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
-                    return removerFcc != null && !removerFcc.isEmpty();
+                    FluidStack slot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    return slot0 != null && slot0.getQuantity() > 0;
                 }, ctx -> 5 * ctx.getWorld().getTps(), "remover picks up world fluid into container"))
                 .step(Steps.waitUntil(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
@@ -166,8 +170,16 @@ public final class FluidRemoverSystemTests {
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
-                    return removerFcc != null && removerFcc.isEmpty()
-                            && tankFcc != null && tankFcc.getAmount() == FluidUtil.MB_PER_BLOCK;
+                    FluidStack removerSlot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    int tankTotal = 0;
+                    if (tankFcc != null) {
+                        for (short slot = 0; slot < tankFcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = tankFcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                tankTotal += stack.getQuantity();
+                        }
+                    }
+                    return removerSlot0 == null && tankFcc != null && tankTotal == FluidUtil.MB_PER_BLOCK;
                 }, ctx -> 10 * ctx.getWorld().getTps(),
                         "remover drains to zero and tank holds all " + FluidUtil.MB_PER_BLOCK + " mB"));
     }
@@ -185,8 +197,12 @@ public final class FluidRemoverSystemTests {
                     // Fill the container to capacity — system must skip.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.fill(new FluidStack(FLUID_ID, fcc.getCapacity(), fcc.getCapacity()));
+                    if (fcc != null) {
+                        FluidStack full = new FluidStack(FLUID_ID,
+                                fcc.getFluidContainer().getCapacityMbPerSlot(),
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, full, true, false);
+                    }
                     // Place fluid at the Down target cell.
                     FluidTestUtil.placeFluid(ctx.getWorld(), bx, by - 1, bz, FLUID_ID);
                 }))
@@ -199,3 +215,4 @@ public final class FluidRemoverSystemTests {
                 }, "FluidRemoverSystem does not consume world fluid when container has no available space"));
     }
 }
+

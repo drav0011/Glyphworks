@@ -80,7 +80,7 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
         int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
-                pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getItemContainer());
+                pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getFluidContainer());
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
     }
 

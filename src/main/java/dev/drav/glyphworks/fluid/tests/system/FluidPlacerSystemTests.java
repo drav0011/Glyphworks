@@ -75,8 +75,13 @@ public final class FluidPlacerSystemTests {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
+                    if (fcc != null) {
+                        FluidStack stack = new FluidStack(
+                                FLUID_ID,
+                                FluidUtil.MB_PER_BLOCK,
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, stack, true, false);
+                    }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
@@ -87,7 +92,7 @@ public final class FluidPlacerSystemTests {
                         return false;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.getAmount() == 0;
+                    return fcc != null && fcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "FluidPlacerSystem drains 1 000 L and places fluid " + direction.name().toLowerCase()));
     }
 
@@ -123,15 +128,21 @@ public final class FluidPlacerSystemTests {
                     FluidTestUtil.placeFluid(ctx.getWorld(), bx, by - 1, bz, FLUID_ID);
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
+                    if (fcc != null) {
+                        FluidStack stack = new FluidStack(
+                                FLUID_ID,
+                                FluidUtil.MB_PER_BLOCK,
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, stack, true, false);
+                    }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.getAmount() == FluidUtil.MB_PER_BLOCK;
+                    FluidStack slot0 = fcc != null ? fcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    return slot0 != null && slot0.getQuantity() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidPlacerSystem does not drain container when target cell is already occupied"));
     }
 
@@ -148,16 +159,23 @@ public final class FluidPlacerSystemTests {
                     ctx.getWorld().setBlock(bx, by - 1, bz, SOLID_BLOCK_ID);
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.fill(new FluidStack(FLUID_ID, FluidUtil.MB_PER_BLOCK, fcc.getCapacity()));
+                    if (fcc != null) {
+                        FluidStack stack = new FluidStack(
+                                FLUID_ID,
+                                FluidUtil.MB_PER_BLOCK,
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, stack, true, false);
+                    }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.getAmount() == FluidUtil.MB_PER_BLOCK;
+                    FluidStack slot0 = fcc != null ? fcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    return slot0 != null && slot0.getQuantity() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidPlacerSystem does not drain container when target cell contains a solid block"));
     }
 }
+
 

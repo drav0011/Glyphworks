@@ -16,6 +16,7 @@ import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.fluid.component.FluidSinkComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.handlers.FluidGridTypeHandler;
 import dev.drav.glyphworks.fluid.interaction.OpenFluidContainerInteraction;
 import dev.drav.glyphworks.fluid.interaction.OpenFluidSourceInteraction;

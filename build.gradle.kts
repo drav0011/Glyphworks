@@ -45,11 +45,3 @@ tasks.register<Exec>("generateAssetSchemas") {
         schemaAssetsDir.mkdirs()
     }
 }
-
-tasks.named("build") {
-    finalizedBy("generateAssetSchemas")
-}
-
-afterEvaluate {
-    tasks.findByName("runServer")?.dependsOn("generateAssetSchemas")
-}

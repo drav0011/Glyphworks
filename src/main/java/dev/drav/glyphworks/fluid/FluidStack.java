@@ -9,16 +9,18 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
+
 /**
  * An {@link ItemStack} that represents a measured amount of a specific fluid.
  *
  * <p>
  * The inherited fields carry fluid semantics:
  * {@code itemId} is the item for this fluid (from {@link FluidItemRegistry})
- * {@code durability} is the exact amount in mB
+ * {@code quantity} is the exact amount in mB
+ * {@code durability} mirrors {@code quantity} for UI displays that still read
+ * it
  * {@code maxDurability} is the container capacity in mB
- * {@code quantity} is the whole display count
- * ({@code ceil(amount / MB_PER_BLOCK)}), always ≥ 1.
  *
  * <p>
  * Because {@code FluidStack} is an {@code ItemStack} it can be stored in any
@@ -55,6 +57,7 @@ public class FluidStack extends ItemStack {
                     s -> s.maxDurability)
             .addValidator(Validators.greaterThanOrEqual(0.0))
             .add()
+            .afterDecode(FluidStack::normalizeQuantityDurability)
             .build();
 
     /**
@@ -73,16 +76,12 @@ public class FluidStack extends ItemStack {
      *                                  item
      */
     public FluidStack(@Nonnull String fluidId, int amountMb, int capacityMb) {
-        super(resolveItemId(fluidId), displayBuckets(amountMb), (double) amountMb, (double) capacityMb, null);
+        super(resolveItemId(fluidId), amountMb, (double) amountMb, (double) capacityMb, null);
     }
 
     @Nullable
     public String getFluidId() {
         return FluidItemRegistry.resolveFluidId(itemId);
-    }
-
-    public int getAmountMb() {
-        return (int) getDurability();
     }
 
     public int getCapacityMb() {
@@ -91,7 +90,7 @@ public class FluidStack extends ItemStack {
 
     @Override
     public boolean isEmpty() {
-        return getAmountMb() == 0;
+        return getQuantity() == 0;
     }
 
     @Override
@@ -103,19 +102,15 @@ public class FluidStack extends ItemStack {
         return myFluidId != null && myFluidId.equals(otherFluidId);
     }
 
-    /**
-     * Returns a new {@code FluidStack} with {@code amountMb} mB, or {@code null}
-     * if {@code amountMb} is zero (matches the {@link ItemStack#withQuantity} →
-     * null pattern).
-     */
+    @Override
     @Nullable
-    public FluidStack withAmount(int amountMb) {
-        if (amountMb <= 0)
+    public FluidStack withQuantity(int quantity) {
+        if (quantity <= 0)
             return null;
         String fluidId = getFluidId();
         if (fluidId == null)
             return null;
-        return new FluidStack(fluidId, amountMb, getCapacityMb());
+        return new FluidStack(fluidId, quantity, getCapacityMb());
     }
 
     /**
@@ -132,7 +127,12 @@ public class FluidStack extends ItemStack {
         String fluidId = FluidItemRegistry.resolveFluidId(stack.getItemId());
         if (fluidId == null)
             return null;
-        return new FluidStack(fluidId, (int) stack.getDurability(), (int) stack.getMaxDurability());
+        int amountMb = stack.getQuantity() > 0 ? stack.getQuantity() : (int) Math.round(stack.getDurability());
+        return new FluidStack(fluidId, amountMb, (int) stack.getMaxDurability());
+    }
+
+    private static void normalizeQuantityDurability(@Nonnull FluidStack stack) {
+        stack.durability = stack.quantity;
     }
 
     private static String resolveItemId(String fluidId) {
@@ -143,7 +143,4 @@ public class FluidStack extends ItemStack {
         return itemId;
     }
 
-    private static int displayBuckets(int amountMb) {
-        return Math.max(1, (int) Math.ceil(amountMb / 1000.0));
-    }
 }

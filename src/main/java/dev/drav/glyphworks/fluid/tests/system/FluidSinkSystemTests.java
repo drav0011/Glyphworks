@@ -2,7 +2,6 @@ package dev.drav.glyphworks.fluid.tests.system;
 
 import org.joml.Vector3i;
 
-
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
@@ -51,14 +50,25 @@ public final class FluidSinkSystemTests {
                 .step(Steps.run(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    if (fcc != null)
-                        fcc.fill(new FluidStack(FLUID_ID, fcc.getCapacity(), fcc.getCapacity()));
+                    if (fcc != null) {
+                        FluidStack stack = new FluidStack(
+                                FLUID_ID,
+                                fcc.getFluidContainer().getCapacityMbPerSlot(),
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStack(stack, true, false);
+                    }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null && fcc.getAmount() == 0 && fcc.getFluidId() == null;
+                    if (fcc == null)
+                        return false;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        if (fcc.getFluidContainer().getFluidStack(slot) != null)
+                            return false;
+                    }
+                    return true;
                 }, "FluidSinkSystem zeroes the container amount and clears the fluid lock each tick"));
     }
 
@@ -75,7 +85,14 @@ public final class FluidSinkSystemTests {
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null && fcc.isEmpty();
+                    if (fcc == null)
+                        return false;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        if (fcc.getFluidContainer().getFluidStack(slot) != null)
+                            return false;
+                    }
+                    return true;
                 }, "FluidSinkSystem is a no-op when the container is already empty"));
     }
 }
+

@@ -94,7 +94,7 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType,
-                new CombinedItemContainer(source.getSelectorContainer(), fcc.getItemContainer()));
+                new CombinedItemContainer(source.getSelectorContainer(), fcc.getFluidContainer()));
 
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
     }

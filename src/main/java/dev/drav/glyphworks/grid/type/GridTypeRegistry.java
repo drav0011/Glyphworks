@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
  * <p>
  * Unknown IDs encountered during deserialization are logged and return
  * {@code null}.
+ * 
+ * TODO: A grid type, always needs a handler, so maybe these registries should be merged and keyed by the same ID?
  */
 public final class GridTypeRegistry {
 
