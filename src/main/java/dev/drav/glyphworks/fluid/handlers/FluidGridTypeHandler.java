@@ -261,7 +261,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
             int toPull = Math.min(budget, Math.min(pool.poolAmount, space));
             FluidStack toAdd = new FluidStack(pool.poolFluidId, toPull, consumer.container().getCapacityMbPerSlot());
-            ItemStackTransaction tx = consumer.container().addFluidStack(toAdd, false, false);
+            ItemStackTransaction tx = consumer.container().addFluidStack(toAdd);
             FluidStack remainder = tx.getRemainder() instanceof FluidStack fs ? fs : null;
             int added = toPull - (remainder != null ? remainder.getQuantity() : 0);
             pool.poolAmount -= added;

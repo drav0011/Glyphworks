@@ -18,6 +18,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerBlockWindow;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -28,15 +29,16 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens a two-slot window for the fluid source block:
  * <ol>
- *   <li>The selector slot — player places a fluid item here to choose what the
- *       source produces; fully writable ({@code ALLOW_ALL}).</li>
- *   <li>The display slot — shows the internal fluid container, always full with
- *       the selected fluid; read-only ({@code DENY_ALL}).</li>
+ * <li>The selector slot — player places a fluid item here to choose what the
+ * source produces; fully writable ({@code ALLOW_ALL}).</li>
+ * <li>The display slot — shows the internal fluid container, always full with
+ * the selected fluid; read-only ({@code DENY_ALL}).</li>
  * </ol>
  */
 public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
@@ -46,7 +48,8 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
             OpenFluidSourceInteraction.class,
             OpenFluidSourceInteraction::new,
             SimpleBlockInteraction.CODEC)
-            .documentation("Opens the fluid source UI: a selector slot for choosing the fluid and a read-only display showing the container state.")
+            .documentation(
+                    "Opens the fluid source UI: a selector slot for choosing the fluid and a read-only display showing the container state.")
             .build();
 
     @Override
@@ -91,10 +94,12 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
             return;
 
         int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
+        FluidContainer displayContainer = fcc.getFluidContainer().clone();
+        displayContainer.setGlobalFilter(FilterType.DENY_ALL);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType,
-                new CombinedItemContainer(source.getSelectorContainer(), fcc.getFluidContainer()));
+                new CombinedItemContainer(source.getSelectorContainer(), displayContainer));
 
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
     }

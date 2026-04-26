@@ -17,6 +17,7 @@ import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerBlockWindow;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -26,6 +27,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
@@ -79,8 +81,11 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
 
         int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
 
+        FluidContainer displayContainer = fcc.getFluidContainer().clone();
+        displayContainer.setGlobalFilter(FilterType.DENY_ALL);
+
         ContainerBlockWindow window = new ContainerBlockWindow(
-                pos.x, pos.y, pos.z, rotationIndex, blockType, fcc.getFluidContainer());
+            pos.x, pos.y, pos.z, rotationIndex, blockType, displayContainer);
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
     }
 

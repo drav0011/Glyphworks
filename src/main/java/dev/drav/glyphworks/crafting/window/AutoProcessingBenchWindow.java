@@ -1,5 +1,8 @@
 package dev.drav.glyphworks.crafting.window;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -24,22 +27,22 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
-import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 
 /**
  * Processing window for {@link AutoProcessingBenchBlock} machines running on
  * liquid mana.
  *
  * <p>
- * Slot 0 is the mana fuel slot (read-only view of the fluid container).
- * Slots 1..N are input slots. The remaining slots are output slots.
+ * Slot order is fluid-input, item-input, item-output, fluid-output.
  *
  * <p>
  * Progress is pushed each tick by
@@ -64,7 +67,10 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     private EventRegistration<?, ?> inventoryRegistration;
 
     @Nullable
-    private EventRegistration<?, ?> fluidRegistration;
+    private EventRegistration<?, ?> inputRegistration;
+
+    @Nullable
+    private EventRegistration<?, ?> outputRegistration;
 
     private float progress;
 
@@ -80,23 +86,48 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
         this.blockStateInfo = blockStateInfo;
         this.fluidContainer = fluidContainer;
 
-        ItemContainer fuelSlotContainer = fluidContainer != null
-                ? fluidContainer.getItemContainer()
-                : buildDummyFuelContainer();
-        ItemContainer input = apbb.getInputContainer();
-        ItemContainer output = apbb.getOutputContainer();
-        this.itemContainer = (input != null && output != null)
-                ? new CombinedItemContainer(fuelSlotContainer, input, output)
-                : new CombinedItemContainer(fuelSlotContainer);
+        List<ItemContainer> containers = new ArrayList<>();
+        FluidContainer fluidFuelCopy = buildDeniedFluidCopy(apbb.getFluidFuelContainer());
+        if (fluidFuelCopy != null) {
+            containers.add(fluidFuelCopy);
+        }
 
-        this.progress = apbb.getCraftingProgress();
+        ItemContainer itemFuel = apbb.getItemFuelContainer();
+        if (itemFuel != null) {
+            containers.add(itemFuel);
+        }
+
+        FluidContainer fluidInputCopy = buildDeniedFluidCopy(apbb.getFluidInputContainer());
+        if (fluidInputCopy != null) {
+            containers.add(fluidInputCopy);
+        }
+
+        ItemContainer itemInput = apbb.getItemInputContainer();
+        if (itemInput != null) {
+            containers.add(itemInput);
+        }
+
+        ItemContainer itemOutput = apbb.getItemOutputContainer();
+        if (itemOutput != null) {
+            containers.add(itemOutput);
+        }
+
+        FluidContainer fluidOutputCopy = buildDeniedFluidCopy(apbb.getFluidOutputContainer());
+        if (fluidOutputCopy != null) {
+            containers.add(fluidOutputCopy);
+        }
+
+        this.itemContainer = new CombinedItemContainer(containers.toArray(ItemContainer[]::new));
+
+        this.progress = apbb.getInputProgress();
 
         windowData.addProperty("active", Boolean.TRUE);
         windowData.addProperty("progress", Float.valueOf(this.progress));
         windowData.addProperty("maxFuel", Integer.valueOf(1));
         windowData.addProperty("fuelTime", Float.valueOf(1.0f));
         windowData.addProperty("processingSlots", Integer.valueOf(0));
-        windowData.addProperty("processingFuelSlots", Integer.valueOf(1));
+        windowData.addProperty("processingFuelSlots",
+                Integer.valueOf(apbb.getFuel() != null ? apbb.getFuel().getCapacity() : 0));
 
         buildFuelWindowData();
         buildInputWindowData(blockType, benchBlock.getTierLevel());
@@ -115,13 +146,23 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             return false;
 
         windowData.add("inventoryHints", new JsonArray());
-        inventoryRegistration = InventoryComponent.getCombined(store, ref, InventoryComponent.HOTBAR_FIRST).registerChangeEvent(event -> {
-            windowData.add("inventoryHints", new JsonArray());
-            invalidate();
-        });
+        inventoryRegistration = InventoryComponent.getCombined(store, ref, InventoryComponent.HOTBAR_FIRST)
+                .registerChangeEvent(event -> {
+                    windowData.add("inventoryHints", new JsonArray());
+                    invalidate();
+                });
 
-        if (fluidContainer != null) {
-            fluidRegistration = fluidContainer.getItemContainer().registerChangeEvent(event -> {
+        ItemContainer fuel = apbb.getFuel();
+        if (fuel != null) {
+            inputRegistration = fuel.registerChangeEvent(event -> {
+                buildFuelWindowData();
+                invalidate();
+            });
+        }
+
+        ItemContainer output = apbb.getOutput();
+        if (output != null) {
+            outputRegistration = output.registerChangeEvent(event -> {
                 buildFuelWindowData();
                 invalidate();
             });
@@ -137,9 +178,13 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             inventoryRegistration.unregister();
             inventoryRegistration = null;
         }
-        if (fluidRegistration != null) {
-            fluidRegistration.unregister();
-            fluidRegistration = null;
+        if (inputRegistration != null) {
+            inputRegistration.unregister();
+            inputRegistration = null;
+        }
+        if (outputRegistration != null) {
+            outputRegistration.unregister();
+            outputRegistration = null;
         }
     }
 
@@ -180,25 +225,48 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
-
     private void buildFuelWindowData() {
         JsonArray fuelArr = new JsonArray();
-        JsonObject fuelSlot = new JsonObject();
-        fuelSlot.addProperty("resourceTypeId", "");
+        float fuelTime = 1.0f;
 
-        if (fluidContainer != null) {
-            ItemStack stack = fluidContainer.getItemContainer().getItemStack((short) 0);
-            fuelSlot.addProperty("icon", stack != null ? stack.getItemId() : "");
-
-            float fuelTime = fluidContainer.getCapacity() > 0
-                    ? (float) fluidContainer.getAmount() / fluidContainer.getCapacity()
-                    : 0.0f;
+        ItemContainer fuel = apbb.getFuel();
+        if (fuel == null) {
             windowData.addProperty("fuelTime", Float.valueOf(fuelTime));
-        } else {
-            fuelSlot.addProperty("icon", "");
+            windowData.add("fuel", fuelArr);
+            return;
         }
 
-        fuelArr.add(fuelSlot);
+        if (fuel instanceof FluidContainer fc) {
+            if (fc.getCapacity() > 0) {
+                int totalMb = 0;
+                for (short i = 0; i < fc.getCapacity(); i++) {
+                    FluidStack s = fc.getFluidStack(i);
+                    if (s != null)
+                        totalMb += s.getQuantity();
+                }
+                int maxMb = (int) fc.getCapacity() * fc.getCapacityMbPerSlot();
+                fuelTime = maxMb > 0 ? (float) totalMb / maxMb : 0.0f;
+
+                for (short i = 0; i < fc.getCapacity(); i++) {
+                    FluidStack stack = fc.getFluidStack(i);
+                    JsonObject fuelSlot = new JsonObject();
+                    fuelSlot.addProperty("resourceTypeId", "");
+                    fuelSlot.addProperty("icon", stack != null ? stack.getFluidId() : "");
+                    fuelArr.add(fuelSlot);
+                }
+            }
+        } else {
+            short capacity = fuel.getCapacity();
+            for (short i = 0; i < capacity; i++) {
+                ItemStack stack = fuel.getItemStack(i);
+                JsonObject fuelSlot = new JsonObject();
+                fuelSlot.addProperty("resourceTypeId", "");
+                fuelSlot.addProperty("icon", stack != null ? stack.getItemId() : "");
+                fuelArr.add(fuelSlot);
+            }
+        }
+
+        windowData.addProperty("fuelTime", Float.valueOf(fuelTime));
         windowData.add("fuel", fuelArr);
     }
 
@@ -220,14 +288,19 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     }
 
     private void buildOutputWindowData(@Nonnull BlockType blockType, int tierLevel) {
-        if (!(blockType.getBench() instanceof ProcessingBench pb))
-            return;
-        windowData.addProperty("outputSlotsCount", Integer.valueOf(pb.getOutputSlotsCount(tierLevel)));
+        ItemContainer output = apbb.getOutput();
+        int outputSlotsCount = output != null ? output.getCapacity() : 0;
+        windowData.addProperty("outputSlotsCount", Integer.valueOf(outputSlotsCount));
     }
 
-    private static ItemContainer buildDummyFuelContainer() {
-        ItemContainer dummy = SimpleItemContainer.getNewContainer((short) 1);
-        dummy.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
-        return dummy;
+    @Nullable
+    private static FluidContainer buildDeniedFluidCopy(@Nullable FluidContainer source) {
+        if (source == null) {
+            return null;
+        }
+
+        FluidContainer copy = source.clone();
+        copy.setGlobalFilter(FilterType.DENY_ALL);
+        return copy;
     }
 }

@@ -15,7 +15,6 @@ import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.ResourceQuantity;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
-import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MaterialSlotTransaction;
@@ -72,7 +71,6 @@ public class FluidContainer extends SimpleItemContainer {
                     c.items = new ItemStack[c.capacity];
                     c.itemsCount = 0;
                 }
-                c.applyFilters();
             })
             .build();
 
@@ -81,19 +79,16 @@ public class FluidContainer extends SimpleItemContainer {
     public FluidContainer() {
         super((short) 1);
         this.capacityMbPerSlot = 1000;
-        applyFilters();
     }
 
     public FluidContainer(short slotCount, int capacityMbPerSlot) {
         super(slotCount);
         this.capacityMbPerSlot = capacityMbPerSlot;
-        applyFilters();
     }
 
     public FluidContainer(@Nonnull FluidContainer other) {
         super(other);
         this.capacityMbPerSlot = other.capacityMbPerSlot;
-        applyFilters();
     }
 
     @Override
@@ -294,11 +289,5 @@ public class FluidContainer extends SimpleItemContainer {
                     "FluidContainer only accepts FluidStack, got: " + itemStack.getClass().getSimpleName());
         }
         return super.internal_setSlot(slot, itemStack);
-    }
-
-    // -------------------------------------------------------------------------
-
-    private void applyFilters() {
-        setGlobalFilter(FilterType.DENY_ALL);
     }
 }
