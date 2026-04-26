@@ -1,0 +1,31 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name"
+  },
+  "Quality": "Debug",
+  "Categories": ["Glyphworks_Test.Crafting"],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "HitboxType": "Tank",
+    "Textures": [{"All": "BlockTextures/Rock_Stone.png", "Weight": 1}],
+    "Bench": {
+      "Type": "Processing",
+      "Id": "Tannery",
+      "Input": [{"FilterValidIngredients": true}],
+      "Fuel": [
+        {"ResourceTypeId": "Fuel",              "Icon": "Icons/Processing/FuelSlotIcon.png"},
+        {"ResourceTypeId": "Glyphworks_Essence", "Icon": "Icons/Processing/FuelSlotIcon.png"}
+      ],
+      "OutputSlotsCount": 1
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_FuelPolicy": "All"
+        }
+      }
+    }
+  }
+}

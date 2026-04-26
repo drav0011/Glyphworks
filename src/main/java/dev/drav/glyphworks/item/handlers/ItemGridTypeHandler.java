@@ -498,16 +498,17 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
             return switch (key) {
-                case "input" -> apbb.getInputContainer();
-                case "output" -> apbb.getOutputContainer();
+                case "fuel", "itemfuel" -> apbb.getItemFuelContainer();
+                case "input" -> apbb.getItemInputContainer();
+                case "output" -> apbb.getItemOutputContainer();
                 default -> null;
             };
         }
         AutoCraftingBenchBlock acbb = store.getComponent(ref, AutoCraftingBenchBlock.getComponentType());
         if (acbb != null) {
             return switch (key) {
-                case "input" -> acbb.getInputContainer();
-                case "output" -> acbb.getOutputContainer();
+                case "input" -> acbb.getItemInputContainer();
+                case "output" -> acbb.getItemOutputContainer();
                 default -> null;
             };
         }

@@ -30,23 +30,24 @@ import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.BlockModule.BlockStateInfo;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
-import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class AutoProcessingBenchSystems {
 
-    private AutoProcessingBenchSystems() {}
+    private AutoProcessingBenchSystems() {
+    }
 
     public static final class Setup extends RefSystem<ChunkStore> {
 
-        private final ComponentType<ChunkStore, BlockStateInfo> blockStateInfoType =
-                BlockModule.BlockStateInfo.getComponentType();
+        private final ComponentType<ChunkStore, BlockStateInfo> blockStateInfoType = BlockModule.BlockStateInfo
+                .getComponentType();
 
         @Override
         public Query<ChunkStore> getQuery() {
@@ -60,7 +61,8 @@ public final class AutoProcessingBenchSystems {
                 @Nonnull Store<ChunkStore> store,
                 @Nonnull CommandBuffer<ChunkStore> commandBuffer) {
 
-            AutoProcessingBenchBlock apbb = commandBuffer.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
+            AutoProcessingBenchBlock apbb = commandBuffer.getComponent(ref,
+                    AutoProcessingBenchBlock.getComponentType());
             BlockStateInfo blockStateInfo = commandBuffer.getComponent(ref, blockStateInfoType);
             if (apbb == null || blockStateInfo == null)
                 return;
@@ -91,7 +93,12 @@ public final class AutoProcessingBenchSystems {
                 return;
 
             World world = commandBuffer.getExternalData().getWorld();
-            apbb.setupContainers(blockStateInfo, benchBlock, world, blockX, localY, blockZ, blockType);
+            WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(blockX, blockZ));
+            if (worldChunk == null)
+                return;
+
+            int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, blockX, localY, blockZ);
+            apbb.setupSlots(world, benchBlock, blockStateInfo, blockX, localY, blockZ, blockType, rotationIndex);
         }
 
         @Override
@@ -109,7 +116,8 @@ public final class AutoProcessingBenchSystems {
                 return;
             }
 
-            AutoProcessingBenchBlock apbb = commandBuffer.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
+            AutoProcessingBenchBlock apbb = commandBuffer.getComponent(ref,
+                    AutoProcessingBenchBlock.getComponentType());
             if (apbb == null || blockStateInfo == null)
                 return;
 
@@ -142,15 +150,14 @@ public final class AutoProcessingBenchSystems {
             Store<EntityStore> entityStore = world.getEntityStore().getStore();
             Vector3d dropPos = new Vector3d(blockX + 0.5d, localY, blockZ + 0.5d);
 
-            Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, items, dropPos, Rotation3f.ZERO);
+            Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, items, dropPos,
+                    Rotation3f.ZERO);
             if (holders.length > 0)
                 world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
         }
     }
 
     public static final class Tick extends EntityTickingSystem<ChunkStore> {
-
-        private static final String MANA_FLUID_ID = "Mana_Source";
 
         @Override
         public Query<ChunkStore> getQuery() {
@@ -165,7 +172,8 @@ public final class AutoProcessingBenchSystems {
                 @Nonnull Store<ChunkStore> store,
                 @Nonnull CommandBuffer<ChunkStore> commandBuffer) throws MatchException {
 
-            AutoProcessingBenchBlock apbb = archetypeChunk.getComponent(index, AutoProcessingBenchBlock.getComponentType());
+            AutoProcessingBenchBlock apbb = archetypeChunk.getComponent(index,
+                    AutoProcessingBenchBlock.getComponentType());
             if (apbb == null)
                 return;
 
@@ -173,10 +181,7 @@ public final class AutoProcessingBenchSystems {
             if (benchBlock == null)
                 return;
 
-            FluidContainerComponent fcc = archetypeChunk.getComponent(
-                    index, FluidContainerComponent.getComponentType());
-
-            CraftingRecipe recipe = resolveRecipe(apbb, benchBlock.getTierLevel(), fcc);
+            CraftingRecipe recipe = resolveRecipe(apbb, benchBlock);
             if (recipe == null) {
                 resetProgress(apbb);
                 return;
@@ -199,33 +204,27 @@ public final class AutoProcessingBenchSystems {
             int blockY = coords[1];
             int blockZ = coords[2];
 
-            if (apbb.getCraftingProgress() >= recipeTime) {
-                if (apbb.isReadyToCraft(recipe, fcc) && apbb.canFitOutput(recipe, fcc)) {
+            if (apbb.getInputProgress() >= recipeTime) {
+                if (apbb.isReadyToCraft(recipe) && apbb.canFitOutput(recipe)) {
                     World world = store.getExternalData().getWorld();
-                    apbb.completeCraft(recipe, fcc, world.getEntityStore().getStore(), blockX, blockY, blockZ);
+                    apbb.completeCraft(recipe, world.getEntityStore().getStore(), blockX, blockY, blockZ);
                 }
                 return;
             }
 
-            if (apbb.isReadyToCraft(recipe, fcc)) {
-                float manaRate = apbb.getManaConsumptionRate();
-                if (manaRate > 0.0f) {
-                    if (fcc == null || fcc.isEmpty() || !MANA_FLUID_ID.equals(fcc.getFluidId()))
-                        return;
-                    int cost = Math.max(1, Math.round(manaRate));
-                    if (fcc.getAmount() < cost)
-                        return;
-                    fcc.drain(cost);
+            if (apbb.isReadyToCraft(recipe)) {
+                if (!apbb.consumeFuelForDuration(dt)) {
+                    return;
                 }
 
-                apbb.setCrafting(true);
-                float newProgress = Math.min(apbb.getCraftingProgress() + dt, recipeTime);
-                apbb.setCraftingProgress(newProgress);
+                apbb.setActive(true);
+                float newProgress = Math.min(apbb.getInputProgress() + dt, recipeTime);
+                apbb.setInputProgress(newProgress);
                 apbb.sendProgress(newProgress / recipeTime);
 
-                if (newProgress >= recipeTime && apbb.canFitOutput(recipe, fcc) && apbb.isReadyToCraft(recipe, fcc)) {
+                if (newProgress >= recipeTime && apbb.canFitOutput(recipe) && apbb.isReadyToCraft(recipe)) {
                     World world = store.getExternalData().getWorld();
-                    apbb.completeCraft(recipe, fcc, world.getEntityStore().getStore(), blockX, blockY, blockZ);
+                    apbb.completeCraft(recipe, world.getEntityStore().getStore(), blockX, blockY, blockZ);
                     apbb.sendProgress(0.0f);
                 }
             } else {
@@ -236,21 +235,18 @@ public final class AutoProcessingBenchSystems {
         @Nullable
         private CraftingRecipe resolveRecipe(
                 @Nonnull AutoProcessingBenchBlock apbb,
-                int tierLevel,
-                @Nullable FluidContainerComponent fcc) {
-            CraftingRecipe current = apbb.getCurrentRecipe();
-            if (current != null && apbb.isReadyToCraft(current, fcc))
+                @Nonnull BenchBlock benchBlock) {
+            CraftingRecipe current = apbb.getRecipe();
+            if (current != null && apbb.isReadyToCraft(current))
                 return current;
-            CraftingRecipe found = apbb.findMatchingRecipe(tierLevel, fcc);
-            if (found != current)
-                apbb.setCurrentRecipe(found);
-            return found;
+            apbb.updateRecipe(benchBlock);
+            return apbb.getRecipe();
         }
 
         private void resetProgress(@Nonnull AutoProcessingBenchBlock apbb) {
-            if (apbb.getCraftingProgress() > 0.0f) {
-                apbb.setCraftingProgress(0.0f);
-                apbb.setCrafting(false);
+            if (apbb.getInputProgress() > 0.0f) {
+                apbb.setInputProgress(0.0f);
+                apbb.setActive(false);
                 apbb.sendProgress(0.0f);
             }
         }
@@ -270,9 +266,9 @@ public final class AutoProcessingBenchSystems {
             int localY = ChunkUtil.yFromBlockInColumn(idx);
             int localZ = ChunkUtil.zFromBlockInColumn(idx);
             return new int[] {
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
-                localY,
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ)
+                    ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
+                    localY,
+                    ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ)
             };
         }
     }

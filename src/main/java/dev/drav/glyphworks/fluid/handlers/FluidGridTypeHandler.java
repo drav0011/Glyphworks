@@ -447,9 +447,9 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
             return switch (key) {
+                case "fluidfuel", "mana" -> apbb.getFluidFuelContainer();
                 case "fluidinput" -> apbb.getFluidInputContainer();
                 case "fluidoutput" -> apbb.getFluidOutputContainer();
-                case "mana" -> mode.allowOutput() ? apbb.getFluidOutputContainer() : apbb.getFluidInputContainer();
                 default -> null;
             };
         }

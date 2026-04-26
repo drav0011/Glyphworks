@@ -62,6 +62,12 @@
           "FilterValidIngredients": true
         }
       ],
+      "Fuel": [
+        {
+          "ResourceTypeId": "Fuel",
+          "Icon": "Icons/Processing/FuelSlotIcon.png"
+        }
+      ],
       "OutputSlotsCount": 1,
       "Id": "Glyphworks_ManaLiquifier",
       "TierLevels": [
@@ -74,10 +80,12 @@
       "Components": {
         "BenchBlock": {},
         "Glyphworks_AutoProcessingBenchBlock": {
-          "Glyphworks_AutoProcessingBenchBlock_ManaConsumptionRate": 0.0
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 10000
+          "Glyphworks_AutoProcessingBenchBlock_FuelPolicy": "Any",
+          "Glyphworks_AutoProcessingBenchBlock_FluidOutputSlots": [
+            {
+              "Glyphworks_FluidSlot_CapacityMbPerSlot": 4000
+            }
+          ]
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -87,13 +95,23 @@
               "Glyphworks_GridTypeEntry_Faces": [
                 {
                   "Glyphworks_FacePlane_Position": {
-                    "X": 0,
+                    "X": -1,
                     "Y": 0,
                     "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
                   "Glyphworks_FacePlane_ContainerKey": "input"
+                },
+                {
+                  "Glyphworks_FacePlane_Position": {
+                    "X": 1,
+                    "Y": 0,
+                    "Z": 1
+                  },
+                  "Glyphworks_FacePlane_Normal": "South",
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 }
               ]
             },
@@ -109,7 +127,7 @@
                   },
                   "Glyphworks_FacePlane_Normal": "North",
                   "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                  "Glyphworks_FacePlane_ContainerKey": "fluidoutput"
                 }
               ]
             }

@@ -155,7 +155,10 @@
           "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
         },
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 4000
+          "Glyphworks_FluidContainerComponent_Container": {
+            "Glyphworks_FluidContainer_Capacity": 1,
+            "Glyphworks_FluidContainer_CapacityMbPerSlot": 4000
+          }
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -197,7 +200,7 @@
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                  "Glyphworks_FacePlane_ContainerKey": "fluidfuel"
                 }
               ]
             }

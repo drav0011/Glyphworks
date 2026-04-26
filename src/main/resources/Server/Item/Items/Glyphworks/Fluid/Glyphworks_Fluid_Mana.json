@@ -26,11 +26,9 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Fluid_Mana",
-        "Quantity": 1,
-        "Metadata": {
-          "FluidMb": 250
-        }
+        "ResourceTypeId": "Mana_Source",
+        
+        "Quantity": 250
       }
     ],
     "BenchRequirement": [
@@ -66,6 +64,12 @@
     "CubeShadingMode": "Flat"
   },
   "PlayerAnimationsId": "Block",
+  "ResourceTypes": [
+    {
+      "Id": "Glyphworks_Fluid_Fuel"
+    }
+  ],
+  "FuelQuality": 1.0,
   "Tags": {
     "Material": [
       "Fluid"

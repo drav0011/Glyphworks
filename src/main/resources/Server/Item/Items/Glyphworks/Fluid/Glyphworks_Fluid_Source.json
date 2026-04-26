@@ -25,7 +25,10 @@
       "Components": {
         "Glyphworks_FluidSourceComponent": {},
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 16000
+          "Glyphworks_FluidContainerComponent_Container": {
+            "Glyphworks_FluidContainer_Capacity": 1,
+            "Glyphworks_FluidContainer_CapacityMbPerSlot": 16000
+          }
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

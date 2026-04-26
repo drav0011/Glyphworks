@@ -6,36 +6,26 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 
 public final class FluidRecipeUtil {
 
     private FluidRecipeUtil() {}
 
     public static boolean isFluidIngredient(@Nonnull MaterialQuantity mat) {
-        return mat.getItemId() != null && FluidItemRegistry.resolveFluidId(mat.getItemId()) != null;
+        String resourceTypeId = mat.getResourceTypeId();
+        return resourceTypeId != null && FluidItemRegistry.resolveItemId(resourceTypeId) != null;
     }
 
     @Nullable
     public static String fluidId(@Nonnull MaterialQuantity mat) {
-        return mat.getItemId() != null ? FluidItemRegistry.resolveFluidId(mat.getItemId()) : null;
+        return isFluidIngredient(mat) ? mat.getResourceTypeId() : null;
     }
 
     public static int fluidMb(@Nonnull MaterialQuantity mat) {
-        BsonDocument meta = mat.getMetadata();
-        if (meta != null) {
-            BsonValue v = meta.get("FluidMb");
-            if (v != null && v.isNumber()) {
-                int override = v.asNumber().intValue();
-                if (override > 0) return override;
-            }
-        }
-        return Math.max(1, mat.getQuantity()) * 1000;
+        return Math.max(1, mat.getQuantity());
     }
 
     @Nonnull

@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
 import dev.drav.glyphworks.grid.component.GridComponent;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Holds the result of resolving a {@link GridComponent} and its entity
@@ -57,7 +58,7 @@ public record GridLookup(
             if (worldChunk == null)
                 return null;
 
-            int filler = worldChunk.getFiller(pos.x(), pos.y(), pos.z());
+            int filler = DeprecatedChunkAccess.getFiller(worldChunk, pos.x(), pos.y(), pos.z());
             if (filler == FillerBlockUtil.NO_FILLER)
                 return null;
 
@@ -91,7 +92,7 @@ public record GridLookup(
         WorldChunk originWorldChunk = chunkStore.getWorld().getChunkIfLoaded(originChunkIdx);
         RotationTuple rotation = RotationTuple.NONE;
         if (originWorldChunk != null) {
-            rotation = RotationTuple.get(originWorldChunk.getRotationIndex(originPos.x, originPos.y, originPos.z));
+            rotation = RotationTuple.get(DeprecatedChunkAccess.getRotationIndex(originWorldChunk, originPos.x, originPos.y, originPos.z));
         }
 
         return new GridLookup(component, blockRef, originPos, rotation);
