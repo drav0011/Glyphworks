@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.crafting.system;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -25,7 +26,7 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.WindowManager;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.BlockModule.BlockStateInfo;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
@@ -37,6 +38,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
+import dev.drav.glyphworks.util.BlockCoordsUtil;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class AutoProcessingBenchSystems {
@@ -121,13 +123,12 @@ public final class AutoProcessingBenchSystems {
             if (apbb == null || blockStateInfo == null)
                 return;
 
-            CombinedItemContainer combined = apbb.getItemContainer();
-            if (combined == null)
-                return;
-
             WindowManager.closeAndRemoveAll(apbb.getWindows());
 
-            List<ItemStack> items = combined.dropAllItemStacks();
+            List<ItemStack> items = new ArrayList<>();
+            collectDrops(apbb.getItemFuelContainer(), items);
+            collectDrops(apbb.getItemInputContainer(), items);
+            collectDrops(apbb.getItemOutputContainer(), items);
             if (items.isEmpty())
                 return;
 
@@ -154,6 +155,13 @@ public final class AutoProcessingBenchSystems {
                     Rotation3f.ZERO);
             if (holders.length > 0)
                 world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
+        }
+
+        private static void collectDrops(@Nullable ItemContainer container, @Nonnull List<ItemStack> drops) {
+            if (container == null) {
+                return;
+            }
+            drops.addAll(container.dropAllItemStacks());
         }
     }
 
@@ -196,7 +204,7 @@ public final class AutoProcessingBenchSystems {
             if (blockStateInfo == null)
                 return;
 
-            int[] coords = resolveCoords(store, blockStateInfo);
+            int[] coords = BlockCoordsUtil.resolveCoords(store, blockStateInfo);
             if (coords == null)
                 return;
 
@@ -220,7 +228,8 @@ public final class AutoProcessingBenchSystems {
                 apbb.setActive(true);
                 float newProgress = Math.min(apbb.getInputProgress() + dt, recipeTime);
                 apbb.setInputProgress(newProgress);
-                apbb.sendProgress(newProgress / recipeTime);
+                float normalizedProgress = newProgress / recipeTime;
+                apbb.sendProgress(normalizedProgress);
 
                 if (newProgress >= recipeTime && apbb.canFitOutput(recipe) && apbb.isReadyToCraft(recipe)) {
                     World world = store.getExternalData().getWorld();
@@ -236,11 +245,7 @@ public final class AutoProcessingBenchSystems {
         private CraftingRecipe resolveRecipe(
                 @Nonnull AutoProcessingBenchBlock apbb,
                 @Nonnull BenchBlock benchBlock) {
-            CraftingRecipe current = apbb.getRecipe();
-            if (current != null && apbb.isReadyToCraft(current))
-                return current;
-            apbb.updateRecipe(benchBlock);
-            return apbb.getRecipe();
+            return apbb.resolveCurrentRecipe(benchBlock);
         }
 
         private void resetProgress(@Nonnull AutoProcessingBenchBlock apbb) {
@@ -251,25 +256,5 @@ public final class AutoProcessingBenchSystems {
             }
         }
 
-        @Nullable
-        private int[] resolveCoords(
-                @Nonnull Store<ChunkStore> store,
-                @Nonnull BlockModule.BlockStateInfo blockStateInfo) {
-            Ref<ChunkStore> chunkRef = blockStateInfo.getChunkRef();
-            if (!chunkRef.isValid())
-                return null;
-            BlockChunk blockChunk = store.getComponent(chunkRef, BlockChunk.getComponentType());
-            if (blockChunk == null)
-                return null;
-            int idx = blockStateInfo.getIndex();
-            int localX = ChunkUtil.xFromBlockInColumn(idx);
-            int localY = ChunkUtil.yFromBlockInColumn(idx);
-            int localZ = ChunkUtil.zFromBlockInColumn(idx);
-            return new int[] {
-                    ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
-                    localY,
-                    ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ)
-            };
-        }
     }
 }

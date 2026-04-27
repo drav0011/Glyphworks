@@ -72,6 +72,7 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
     private static final String DEFAULT_ITEM_FUEL_RESOURCE_TYPE_ID = "Fuel";
     private static final String FLUID_FUEL_RESOURCE_TYPE_ID = "Glyphworks_Fluid_Fuel";
     private static final int BASE_FLUID_FUEL_MB_PER_TICK = 10;
+    private static final short DEFAULT_SELECTOR_OUTPUT_SLOTS = 4;
 
     // ── CODEC ──────────────────────────────────────────────────────────────────
 
@@ -183,6 +184,8 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
     @Nullable
     private transient CraftingRecipe recipe;
     @Nullable
+    private transient String externalRecipeId;
+    @Nullable
     private transient CombinedItemContainer itemContainer;
     @Nullable
     private transient CombinedItemContainer windowContainer;
@@ -231,22 +234,19 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
             int blockX, int blockY, int blockZ,
             @Nonnull BlockType blockType,
             int rotationIndex) {
-
-        if (!initializeBenchConfig(blockType)) {
-            return;
-        }
-
+        initializeBenchConfig(blockType);
         ProcessingBench pb = processingBench;
-        if (pb == null) {
-            return;
-        }
-
         int tierLevel = benchBlock.getTierLevel();
-        ProcessingBench.ProcessingSlot[] benchFuelSlots = pb.getFuel();
-        short benchFuelSlotCount = (short) (benchFuelSlots != null ? benchFuelSlots.length : 0);
-        short itemFuelSlots = benchFuelSlotCount;
-        short inputSlots = (short) pb.getInput(tierLevel).length;
-        short outputSlots = (short) pb.getOutputSlotsCount(tierLevel);
+        short itemFuelSlots = 0;
+        short inputSlots = 0;
+        short outputSlots = DEFAULT_SELECTOR_OUTPUT_SLOTS;
+
+        if (pb != null) {
+            ProcessingBench.ProcessingSlot[] benchFuelSlots = pb.getFuel();
+            itemFuelSlots = (short) (benchFuelSlots != null ? benchFuelSlots.length : 0);
+            inputSlots = (short) pb.getInput(tierLevel).length;
+            outputSlots = (short) pb.getOutputSlotsCount(tierLevel);
+        }
 
         short configuredFluidFuelSlots = (short) Math.max(0, fluidFuelSlots.length);
         short configuredFluidInputSlots = (short) Math.max(0, fluidInputSlots.length);
@@ -254,15 +254,20 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
 
         List<ItemStack> ejected = new ArrayList<>();
 
-        itemFuelContainer = ItemContainer.ensureContainerCapacity(
+        if (itemFuelSlots > 0) {
+            itemFuelContainer = ItemContainer.ensureContainerCapacity(
                 itemFuelContainer, itemFuelSlots, SimpleItemContainer::getNewContainer, ejected);
-        itemFuelContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
-        for (short i = 0; i < itemFuelContainer.getCapacity(); i++) {
+            itemFuelContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+            for (short i = 0; i < itemFuelContainer.getCapacity(); i++) {
             String requiredResourceTypeId = getFuelSlotResourceTypeId(i, DEFAULT_ITEM_FUEL_RESOURCE_TYPE_ID);
             itemFuelContainer.setSlotFilter(
-                    FilterActionType.ADD,
-                    i,
-                    new ResourceFilter(new ResourceQuantity(requiredResourceTypeId, 1)));
+                FilterActionType.ADD,
+                i,
+                new ResourceFilter(new ResourceQuantity(requiredResourceTypeId, 1)));
+            }
+        } else {
+            ejectAndClearContainer(itemFuelContainer, ejected);
+            itemFuelContainer = null;
         }
 
         itemOutputContainer = ItemContainer.ensureContainerCapacity(
@@ -270,10 +275,15 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
         itemOutputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
         itemOutputContainer.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
 
-        itemInputContainer = ItemContainer.ensureContainerCapacity(
+        if (inputSlots > 0) {
+            itemInputContainer = ItemContainer.ensureContainerCapacity(
                 itemInputContainer, inputSlots, SimpleItemContainer::getNewContainer, ejected);
-        itemInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
-        applyInputFilters(pb, tierLevel);
+            itemInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+            applyInputFilters(pb, tierLevel);
+        } else {
+            ejectAndClearContainer(itemInputContainer, ejected);
+            itemInputContainer = null;
+        }
 
         if (configuredFluidFuelSlots > 0) {
             fluidFuelContainer = (FluidContainer) ItemContainer.ensureContainerCapacity(
@@ -345,8 +355,8 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
             fluidOutputContainer = null;
         }
 
-        itemContainer = new CombinedItemContainer(itemFuelContainer, itemInputContainer, itemOutputContainer);
-        windowContainer = new CombinedItemContainer(
+        itemContainer = buildNullableCombined(itemFuelContainer, itemInputContainer, itemOutputContainer);
+        windowContainer = buildNullableCombined(
                 fluidFuelContainer,
                 itemFuelContainer,
                 fluidInputContainer,
@@ -392,11 +402,159 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
         }
     }
 
+    /**
+     * Applies selector-owned recipe slot layout to this runtime component.
+     *
+     * <p>
+     * Used by {@link AutoCraftingBenchBlock} so recipe selection and slot
+     * filters live in the selector component while container ownership stays
+     * exclusively in the processing component.
+     */
+    public void applyExternalRecipeLayout(
+            @Nullable CraftingRecipe selectedRecipe,
+            @Nonnull BlockModule.BlockStateInfo blockStateInfo,
+            @Nonnull World world,
+            int blockX,
+            int blockY,
+            int blockZ) {
+
+        List<ItemStack> ejected = new ArrayList<>();
+        List<MaterialQuantity> inputMaterials = selectedRecipe != null
+                ? CraftingManager.getInputMaterials(selectedRecipe)
+                : List.of();
+        List<MaterialQuantity> outputMaterials = selectedRecipe != null && selectedRecipe.getOutputs() != null
+                ? Arrays.asList(selectedRecipe.getOutputs())
+                : List.of();
+
+        List<MaterialQuantity> itemInputs = FluidRecipeUtil.itemParts(inputMaterials);
+        List<MaterialQuantity> fluidInputs = FluidRecipeUtil.fluidParts(inputMaterials);
+        List<MaterialQuantity> fluidOutputs = FluidRecipeUtil.fluidParts(outputMaterials);
+
+        short itemInputSlots = (short) itemInputs.size();
+        short fluidInputSlots = (short) fluidInputs.size();
+        short fluidOutputSlots = (short) fluidOutputs.size();
+
+        if (itemInputSlots > 0) {
+            itemInputContainer = ItemContainer.ensureContainerCapacity(
+                    itemInputContainer,
+                    itemInputSlots,
+                    SimpleItemContainer::getNewContainer,
+                    ejected);
+            itemInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+
+            for (short i = 0; i < itemInputs.size(); i++) {
+                MaterialQuantity mat = itemInputs.get(i);
+                itemInputContainer.setSlotFilter(FilterActionType.ADD, i,
+                        (actionType, container, slotIndex, stack) -> {
+                            if (stack == null) {
+                                return true;
+                            }
+                            return CraftingManager.matches(mat, stack);
+                        });
+            }
+        } else {
+            ejectAndClearContainer(itemInputContainer, ejected);
+            itemInputContainer = null;
+        }
+
+        short outputSlots = itemOutputContainer != null
+                ? itemOutputContainer.getCapacity()
+                : DEFAULT_SELECTOR_OUTPUT_SLOTS;
+        itemOutputContainer = ItemContainer.ensureContainerCapacity(
+                itemOutputContainer,
+                outputSlots,
+                SimpleItemContainer::getNewContainer,
+                ejected);
+        itemOutputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+        itemOutputContainer.setGlobalFilter(FilterType.ALLOW_OUTPUT_ONLY);
+
+        if (fluidInputSlots > 0) {
+            fluidInputContainer = (FluidContainer) ItemContainer.ensureContainerCapacity(
+                    fluidInputContainer,
+                    fluidInputSlots,
+                    s -> new FluidContainer(s, getMaxSlotCapacityMb(this.fluidInputSlots)),
+                    ejected);
+            fluidInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+
+            for (short i = 0; i < fluidInputs.size(); i++) {
+                MaterialQuantity mat = fluidInputs.get(i);
+                String requiredResourceTypeId = mat.getResourceTypeId();
+                if (requiredResourceTypeId == null || requiredResourceTypeId.isBlank()) {
+                    continue;
+                }
+                fluidInputContainer.setSlotFilter(FilterActionType.ADD,
+                        i,
+                        (actionType, container, slotIndex, stack) -> {
+                            if (!(stack instanceof FluidStack fluidStack)) {
+                                return stack == null;
+                            }
+                            Item fluidItem = fluidStack.getItem();
+                            if (fluidItem == null || !hasResourceType(fluidItem, requiredResourceTypeId)) {
+                                return false;
+                            }
+                            int existing = getExistingFluidAmount(container, slotIndex, fluidStack.getFluidId());
+                            int slotCapacity = ((FluidContainer) container).getCapacityMbPerSlot();
+                            return existing + fluidStack.getQuantity() <= slotCapacity;
+                        });
+            }
+        } else {
+            fluidInputContainer = null;
+        }
+
+        if (fluidOutputSlots > 0) {
+            fluidOutputContainer = (FluidContainer) ItemContainer.ensureContainerCapacity(
+                    fluidOutputContainer,
+                    fluidOutputSlots,
+                    s -> new FluidContainer(s, getMaxSlotCapacityMb(this.fluidOutputSlots)),
+                    ejected);
+            fluidOutputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
+        } else {
+            fluidOutputContainer = null;
+        }
+
+        itemContainer = buildNullableCombined(itemFuelContainer, itemInputContainer, itemOutputContainer);
+        windowContainer = buildNullableCombined(
+                fluidFuelContainer,
+                itemFuelContainer,
+                fluidInputContainer,
+                itemInputContainer,
+                itemOutputContainer,
+                fluidOutputContainer);
+
+        if (!ejected.isEmpty()) {
+            Store<EntityStore> entityStore = world.getEntityStore().getStore();
+            Holder<EntityStore>[] holders = ejectItems(entityStore, ejected, blockX, blockY, blockZ);
+            if (holders.length > 0) {
+                world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
+            }
+        }
+
+        blockStateInfo.markNeedsSaving();
+    }
+
     // ── Recipe detection ───────────────────────────────────────────────────────
 
     public void updateRecipe(@Nonnull BenchBlock benchBlock) {
         recipe = findMatchingRecipe(benchBlock.getTierLevel());
         recipeId = recipe != null ? recipe.getId() : null;
+    }
+
+    @Nullable
+    public CraftingRecipe resolveCurrentRecipe(@Nonnull BenchBlock benchBlock) {
+        if (isExternalRecipeMode()) {
+            if (recipe == null || !externalRecipeId.equals(recipe.getId())) {
+                recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(externalRecipeId);
+                recipeId = recipe != null ? recipe.getId() : null;
+            }
+            return recipe;
+        }
+
+        if (recipe != null && isReadyToCraft(recipe)) {
+            return recipe;
+        }
+
+        updateRecipe(benchBlock);
+        return recipe;
     }
 
     @Nullable
@@ -1031,6 +1189,31 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
         return existing.getQuantity();
     }
 
+    @Nullable
+    private static CombinedItemContainer buildNullableCombined(@Nullable ItemContainer... containers) {
+        List<ItemContainer> present = new ArrayList<>(containers.length);
+        for (ItemContainer container : containers) {
+            if (container != null) {
+                present.add(container);
+            }
+        }
+        if (present.isEmpty()) {
+            return null;
+        }
+        return new CombinedItemContainer(present.toArray(ItemContainer[]::new));
+    }
+
+    private static void ejectAndClearContainer(@Nullable ItemContainer container, @Nonnull List<ItemStack> ejected) {
+        if (container == null) {
+            return;
+        }
+        if (container instanceof FluidContainer) {
+            container.clear();
+            return;
+        }
+        ejected.addAll(container.dropAllItemStacks());
+    }
+
     // ── Progress / windows ─────────────────────────────────────────────────────
 
     public void sendProgress(float normalised) {
@@ -1180,6 +1363,33 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
 
     public void clearCurrentRecipe() {
         setRecipe(null);
+    }
+
+    @Nullable
+    public String getExternalRecipeId() {
+        return externalRecipeId;
+    }
+
+    public void setExternalRecipeId(@Nullable String externalRecipeId) {
+        if (externalRecipeId == null || externalRecipeId.isBlank()) {
+            clearExternalRecipeId();
+            return;
+        }
+
+        this.externalRecipeId = externalRecipeId;
+        this.recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(externalRecipeId);
+        this.recipeId = this.recipe != null ? this.recipe.getId() : null;
+    }
+
+    public void clearExternalRecipeId() {
+        this.externalRecipeId = null;
+        clearCurrentRecipe();
+        this.inputProgress = 0.0f;
+        this.active = false;
+    }
+
+    public boolean isExternalRecipeMode() {
+        return externalRecipeId != null && !externalRecipeId.isBlank();
     }
 
     @Nullable

@@ -191,14 +191,16 @@
     "BlockEntity": {
       "Components": {
         "BenchBlock": {},
-        "Glyphworks_AutoCraftingBenchBlock": {
-          "Glyphworks_AutoCraftingBenchBlock_ManaConsumptionRate": 25.0
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_Container": {
-            "Glyphworks_FluidContainer_Capacity": 1,
-            "Glyphworks_FluidContainer_CapacityMbPerSlot": 4000
-          }
+        "Glyphworks_AutoCraftingBenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_FuelPolicy": "Any",
+          "Glyphworks_AutoProcessingBenchBlock_FluidFuelSlots": [
+            {
+              "Glyphworks_FluidSlot_ResourceTypeId": "Glyphworks_Fluid_Fuel",
+              "Glyphworks_FluidSlot_Icon": "Icons/Processing/FuelSlotIcon.png",
+              "Glyphworks_FluidSlot_CapacityMbPerSlot": 4000
+            }
+          ]
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

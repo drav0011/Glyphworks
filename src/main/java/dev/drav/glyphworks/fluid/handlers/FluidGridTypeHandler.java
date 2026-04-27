@@ -21,7 +21,6 @@ import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -69,7 +68,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         final List<Ref<ChunkStore>> pipeRefs = new ArrayList<>();
         final List<MachineNode> producers = new ArrayList<>();
         final List<MachineNode> consumers = new ArrayList<>();
-        @Nullable String poolFluidId = null;
+        @Nullable
+        String poolFluidId = null;
         int poolAmount = 0;
         int poolCapacity = 0;
     }
@@ -438,6 +438,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         return null;
     }
 
+    // TODO: better expansible resolution for containers, cannot be adding component
+    // types to this class every time we add a new block with a container.
     @Nullable
     private static FluidContainer resolveFluidContainer(
             @Nonnull Store<ChunkStore> store,
@@ -447,19 +449,9 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
             return switch (key) {
-                case "fluidfuel", "mana" -> apbb.getFluidFuelContainer();
+                case "fluidfuel" -> apbb.getFluidFuelContainer();
                 case "fluidinput" -> apbb.getFluidInputContainer();
                 case "fluidoutput" -> apbb.getFluidOutputContainer();
-                default -> null;
-            };
-        }
-
-        AutoCraftingBenchBlock acbb = store.getComponent(ref, AutoCraftingBenchBlock.getComponentType());
-        if (acbb != null) {
-            return switch (key) {
-                case "fluidinput" -> acbb.getFluidInputContainer();
-                case "fluidoutput" -> acbb.getFluidOutputContainer();
-                case "mana" -> mode.allowOutput() ? acbb.getFluidOutputContainer() : acbb.getFluidInputContainer();
                 default -> null;
             };
         }

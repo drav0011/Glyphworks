@@ -35,7 +35,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
-import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
@@ -112,12 +111,9 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();
 
-        FluidContainerComponent fluidContainer = (FluidContainerComponent) chunkStoreStore.getComponent(
-                blockEntityRef, FluidContainerComponent.getComponentType());
-
         AutoProcessingBenchWindow window = new AutoProcessingBenchWindow(
                 apbb, benchBlock, blockStateInfo,
-                pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer);
+            pos.x, pos.y, pos.z, rotationIndex, blockType, null);
 
         Map<UUID, AutoProcessingBenchWindow> windows = apbb.getWindows();
         if (windows.putIfAbsent(uuid, window) != null)

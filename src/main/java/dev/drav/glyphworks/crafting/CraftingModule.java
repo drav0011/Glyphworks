@@ -76,7 +76,6 @@ public final class CraftingModule extends GlyphworksModule {
 
     @Override
     public void start(@Nonnull GlyphworksPlugin plugin) {
-        plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystems.Setup());
         plugin.getChunkStoreRegistry().registerSystem(new AutoCraftingBenchSystems.Tick());
         plugin.getChunkStoreRegistry().registerSystem(new AutoProcessingBenchSystems.Setup());
         plugin.getChunkStoreRegistry().registerSystem(new AutoProcessingBenchSystems.Tick());

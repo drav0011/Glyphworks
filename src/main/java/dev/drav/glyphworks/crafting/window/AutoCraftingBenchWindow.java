@@ -14,7 +14,6 @@ import com.hypixel.hytale.protocol.packets.window.WindowAction;
 import com.hypixel.hytale.protocol.packets.window.WindowType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
-import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -29,26 +28,21 @@ import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
  * full workbench recipe browser. When the player clicks any recipe,
  * {@link AutoCraftingBenchBlock#setLockedRecipe} is called to lock it into the
  * bench and this window is closed automatically. The player can then re-open
- * the
- * bench to see the {@link AutoCraftingBenchMonitorWindow}.
+ * the bench to see the {@link AutoProcessingBenchWindow}.
  */
-public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
+public final class AutoCraftingBenchWindow extends CraftingWindow {
 
     @Nonnull
     private final AutoCraftingBenchBlock acbb;
 
     @Nonnull
-    private final BlockModule.BlockStateInfo blockStateInfo;
-
-    public AutoCraftingBenchSelectWindow(
+    public AutoCraftingBenchWindow(
             @Nonnull AutoCraftingBenchBlock acbb,
             @Nonnull BenchBlock benchBlock,
-            @Nonnull BlockModule.BlockStateInfo blockStateInfo,
             int x, int y, int z, int rotationIndex,
             @Nonnull BlockType blockType) {
         super(WindowType.BasicCrafting, x, y, z, rotationIndex, blockType, benchBlock);
         this.acbb = acbb;
-        this.blockStateInfo = blockStateInfo;
     }
 
     /**
@@ -62,43 +56,49 @@ public final class AutoCraftingBenchSelectWindow extends CraftingWindow {
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
-        if (action instanceof TierUpgradeAction) {
-            CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
-                    CraftingManager.getComponentType());
-            if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
-                World world = store.getExternalData().getWorld();
-                setBlockInteractionState(BENCH_UPGRADING, world);
-                if (bench.getBenchUpgradeSoundEventIndex() != 0) {
-                    SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI, store);
+        switch (action) {
+            case TierUpgradeAction _ -> {
+                CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
+                        CraftingManager.getComponentType());
+
+                if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
+                    World world = store.getExternalData().getWorld();
+
+                    setBlockInteractionState(BENCH_UPGRADING, world);
+
+                    if (bench.getBenchUpgradeSoundEventIndex() != 0) {
+                        SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI,
+                                store);
+                    }
                 }
             }
-            return;
+            case CraftRecipeAction craftAction -> {
+                String recipeId = craftAction.recipeId;
+                if (recipeId == null)
+                    return;
+
+                CraftingRecipe recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(recipeId);
+                if (recipe == null)
+                    return;
+
+                World world = store.getExternalData().getWorld();
+                acbb.setLockedRecipe(recipeId);
+
+                // Signal the client's crafting state machine that the "craft" was accepted,
+                // preventing a NullReferenceException when the window is closed immediately
+                // after. Vanilla SimpleCraftingWindow always sends this before any state
+                // change.
+                setBlockInteractionState(CRAFT_COMPLETED, world);
+
+                if (bench.getCompletedSoundEventIndex() != 0) {
+                    SoundUtil.playSoundEvent2d(ref, bench.getCompletedSoundEventIndex(), SoundCategory.UI, store);
+                }
+
+                // Close the selector; the next open shows the shared processing window.
+                this.close(ref, store);
+            }
+            default -> {
+            }
         }
-        if (!(action instanceof CraftRecipeAction))
-            return;
-        CraftRecipeAction craftAction = (CraftRecipeAction) action;
-        String recipeId = craftAction.recipeId;
-        if (recipeId == null)
-            return;
-
-        CraftingRecipe recipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(recipeId);
-        if (recipe == null)
-            return;
-
-        World world = store.getExternalData().getWorld();
-        acbb.setLockedRecipe(recipeId, blockStateInfo, world, x, y, z, blockType, rotationIndex);
-
-        // Signal the client's crafting state machine that the "craft" was accepted,
-        // preventing a NullReferenceException when the window is closed immediately
-        // after. Vanilla SimpleCraftingWindow always sends this before any state
-        // change.
-        setBlockInteractionState(CRAFT_COMPLETED, world);
-
-        if (bench.getCompletedSoundEventIndex() != 0) {
-            SoundUtil.playSoundEvent2d(ref, bench.getCompletedSoundEventIndex(), SoundCategory.UI, store);
-        }
-
-        // Close the selector — player can re-open the bench to see the monitor window.
-        this.close(ref, store);
     }
 }

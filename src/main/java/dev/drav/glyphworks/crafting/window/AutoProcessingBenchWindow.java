@@ -16,25 +16,29 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.event.EventRegistration;
 import com.hypixel.hytale.protocol.SoundCategory;
+import com.hypixel.hytale.protocol.packets.window.SetActiveAction;
 import com.hypixel.hytale.protocol.packets.window.TierUpgradeAction;
 import com.hypixel.hytale.protocol.packets.window.WindowAction;
 import com.hypixel.hytale.protocol.packets.window.WindowType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.bench.ProcessingBench;
+import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContainerWindow;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.fluid.FluidStack;
-import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
 
 /**
@@ -54,6 +58,9 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     @Nonnull
     private final AutoProcessingBenchBlock apbb;
 
+    @Nullable
+    private final AutoCraftingBenchBlock acbb;
+
     @Nonnull
     private final BlockModule.BlockStateInfo blockStateInfo;
 
@@ -61,7 +68,13 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     private final CombinedItemContainer itemContainer;
 
     @Nullable
-    private final FluidContainerComponent fluidContainer;
+    private final FluidContainer displayFluidFuelContainer;
+
+    @Nullable
+    private final FluidContainer displayFluidInputContainer;
+
+    @Nullable
+    private final FluidContainer displayFluidOutputContainer;
 
     @Nullable
     private EventRegistration<?, ?> inventoryRegistration;
@@ -72,6 +85,15 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
     @Nullable
     private EventRegistration<?, ?> outputRegistration;
 
+    @Nullable
+    private EventRegistration<?, ?> fluidFuelRegistration;
+
+    @Nullable
+    private EventRegistration<?, ?> fluidInputRegistration;
+
+    @Nullable
+    private EventRegistration<?, ?> fluidOutputRegistration;
+
     private float progress;
 
     public AutoProcessingBenchWindow(
@@ -80,16 +102,16 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             @Nonnull BlockModule.BlockStateInfo blockStateInfo,
             int x, int y, int z, int rotationIndex,
             @Nonnull BlockType blockType,
-            @Nullable FluidContainerComponent fluidContainer) {
+            @Nullable AutoCraftingBenchBlock acbb) {
         super(WindowType.Processing, x, y, z, rotationIndex, blockType, benchBlock);
         this.apbb = apbb;
+        this.acbb = acbb;
         this.blockStateInfo = blockStateInfo;
-        this.fluidContainer = fluidContainer;
 
         List<ItemContainer> containers = new ArrayList<>();
-        FluidContainer fluidFuelCopy = buildDeniedFluidCopy(apbb.getFluidFuelContainer());
-        if (fluidFuelCopy != null) {
-            containers.add(fluidFuelCopy);
+        this.displayFluidFuelContainer = buildDeniedFluidCopy(apbb.getFluidFuelContainer());
+        if (displayFluidFuelContainer != null) {
+            containers.add(displayFluidFuelContainer);
         }
 
         ItemContainer itemFuel = apbb.getItemFuelContainer();
@@ -97,9 +119,9 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             containers.add(itemFuel);
         }
 
-        FluidContainer fluidInputCopy = buildDeniedFluidCopy(apbb.getFluidInputContainer());
-        if (fluidInputCopy != null) {
-            containers.add(fluidInputCopy);
+        this.displayFluidInputContainer = buildDeniedFluidCopy(apbb.getFluidInputContainer());
+        if (displayFluidInputContainer != null) {
+            containers.add(displayFluidInputContainer);
         }
 
         ItemContainer itemInput = apbb.getItemInputContainer();
@@ -112,14 +134,14 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             containers.add(itemOutput);
         }
 
-        FluidContainer fluidOutputCopy = buildDeniedFluidCopy(apbb.getFluidOutputContainer());
-        if (fluidOutputCopy != null) {
-            containers.add(fluidOutputCopy);
+        this.displayFluidOutputContainer = buildDeniedFluidCopy(apbb.getFluidOutputContainer());
+        if (displayFluidOutputContainer != null) {
+            containers.add(displayFluidOutputContainer);
         }
 
         this.itemContainer = new CombinedItemContainer(containers.toArray(ItemContainer[]::new));
 
-        this.progress = apbb.getInputProgress();
+        this.progress = computeInitialProgress(apbb, acbb, benchBlock);
 
         windowData.addProperty("active", Boolean.TRUE);
         windowData.addProperty("progress", Float.valueOf(this.progress));
@@ -130,7 +152,15 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
                 Integer.valueOf(apbb.getFuel() != null ? apbb.getFuel().getCapacity() : 0));
 
         buildFuelWindowData();
-        buildInputWindowData(blockType, benchBlock.getTierLevel());
+        if (acbb != null) {
+            String lockedRecipeId = acbb.getLockedRecipeId();
+            if (lockedRecipeId != null) {
+                windowData.addProperty("lockedRecipeId", lockedRecipeId);
+            }
+            buildInputWindowDataForLockedRecipe(acbb);
+        } else {
+            buildInputWindowData(blockType, benchBlock.getTierLevel());
+        }
         buildOutputWindowData(blockType, benchBlock.getTierLevel());
     }
 
@@ -168,6 +198,10 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             });
         }
 
+        fluidFuelRegistration = registerFluidMirror(apbb.getFluidFuelContainer(), displayFluidFuelContainer);
+        fluidInputRegistration = registerFluidMirror(apbb.getFluidInputContainer(), displayFluidInputContainer);
+        fluidOutputRegistration = registerFluidMirror(apbb.getFluidOutputContainer(), displayFluidOutputContainer);
+
         return true;
     }
 
@@ -185,6 +219,18 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
         if (outputRegistration != null) {
             outputRegistration.unregister();
             outputRegistration = null;
+        }
+        if (fluidFuelRegistration != null) {
+            fluidFuelRegistration.unregister();
+            fluidFuelRegistration = null;
+        }
+        if (fluidInputRegistration != null) {
+            fluidInputRegistration.unregister();
+            fluidInputRegistration = null;
+        }
+        if (fluidOutputRegistration != null) {
+            fluidOutputRegistration.unregister();
+            fluidOutputRegistration = null;
         }
     }
 
@@ -213,13 +259,40 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             @Nonnull Ref<EntityStore> ref,
             @Nonnull Store<EntityStore> store,
             @Nonnull WindowAction action) {
-        if (!(action instanceof TierUpgradeAction))
-            return;
-        CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
-                CraftingManager.getComponentType());
-        if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
-            if (bench.getBenchUpgradeSoundEventIndex() != 0) {
-                SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI, store);
+        switch (action) {
+            case TierUpgradeAction _ -> {
+                CraftingManager craftingManager = (CraftingManager) store.getComponent(ref,
+                        CraftingManager.getComponentType());
+
+                if (craftingManager != null && craftingManager.startTierUpgrade(ref, store, this)) {
+                    World world = store.getExternalData().getWorld();
+
+                    setBlockInteractionState(BENCH_UPGRADING, world);
+
+                    if (bench.getBenchUpgradeSoundEventIndex() != 0) {
+                        SoundUtil.playSoundEvent2d(ref, bench.getBenchUpgradeSoundEventIndex(), SoundCategory.UI,
+                                store);
+                    }
+                }
+            }
+            case SetActiveAction setActive -> {
+                if (setActive.state || acbb == null) {
+                    return;
+                }
+
+                acbb.setLockedRecipe(null);
+                apbb.clearExternalRecipeId();
+
+                windowData.addProperty("active", Boolean.FALSE);
+                invalidate();
+
+                if (bench.getFailedSoundEventIndex() != 0) {
+                    SoundUtil.playSoundEvent2d(ref, bench.getFailedSoundEventIndex(), SoundCategory.UI, store);
+                }
+
+                this.close(ref, store);
+            }
+            default -> {
             }
         }
     }
@@ -287,10 +360,83 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
         windowData.add("input", inputArr);
     }
 
+    private void buildInputWindowDataForLockedRecipe(@Nonnull AutoCraftingBenchBlock acbb) {
+        JsonArray inputArr = new JsonArray();
+
+        CraftingRecipe lockedRecipe = acbb.getLockedRecipe();
+        if (lockedRecipe != null) {
+            List<MaterialQuantity> inputs = CraftingManager.getInputMaterials(lockedRecipe);
+            for (MaterialQuantity input : inputs) {
+                JsonObject slotObj = new JsonObject();
+                String icon = input.getItemId() != null
+                        ? input.getItemId()
+                        : (input.getResourceTypeId() != null ? input.getResourceTypeId() : "");
+                slotObj.addProperty("icon", icon);
+                inputArr.add(slotObj);
+            }
+        }
+
+        windowData.add("input", inputArr);
+    }
+
     private void buildOutputWindowData(@Nonnull BlockType blockType, int tierLevel) {
         ItemContainer output = apbb.getOutput();
         int outputSlotsCount = output != null ? output.getCapacity() : 0;
         windowData.addProperty("outputSlotsCount", Integer.valueOf(outputSlotsCount));
+    }
+
+    private static float computeInitialProgress(
+            @Nonnull AutoProcessingBenchBlock apbb,
+            @Nullable AutoCraftingBenchBlock acbb,
+            @Nonnull BenchBlock benchBlock) {
+        float progress = apbb.getInputProgress();
+        float recipeTime = 1.0f;
+
+        if (acbb != null) {
+            CraftingRecipe recipe = acbb.getLockedRecipe();
+            if (recipe != null && recipe.getTimeSeconds() > 0.0f) {
+                recipeTime = recipe.getTimeSeconds();
+            }
+        } else {
+            CraftingRecipe recipe = apbb.resolveCurrentRecipe(benchBlock);
+            if (recipe != null && recipe.getTimeSeconds() > 0.0f) {
+                recipeTime = recipe.getTimeSeconds();
+            }
+        }
+
+        return Math.min(progress / recipeTime, 1.0f);
+    }
+
+    @Nullable
+    private EventRegistration<?, ?> registerFluidMirror(
+            @Nullable FluidContainer source,
+            @Nullable FluidContainer display) {
+        if (source == null || display == null) {
+            return null;
+        }
+
+        syncDisplayFluidContainer(source, display);
+        return source.registerChangeEvent(event -> {
+            syncDisplayFluidContainer(source, display);
+            buildFuelWindowData();
+            invalidate();
+        });
+    }
+
+    private static void syncDisplayFluidContainer(@Nonnull FluidContainer source, @Nonnull FluidContainer display) {
+        display.clear();
+        short capacity = source.getCapacity();
+        for (short i = 0; i < capacity; i++) {
+            FluidStack stack = source.getFluidStack(i);
+            if (stack == null || stack.getFluidId() == null) {
+                continue;
+            }
+            display.addFluidStackToSlot(
+                    i,
+                    new FluidStack(stack.getFluidId(), stack.getQuantity(), stack.getCapacityMb()),
+                    true,
+                    false);
+        }
     }
 
     @Nullable

@@ -31,7 +31,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
@@ -470,10 +469,6 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (apbb != null)
             return apbb.getItemContainer();
 
-        AutoCraftingBenchBlock acbb = worldStore.getComponent(blockRef, AutoCraftingBenchBlock.getComponentType());
-        if (acbb != null)
-            return acbb.getItemContainer();
-
         ItemContainerBlock icb = worldStore.getComponent(blockRef, ItemContainerBlock.getComponentType());
         if (icb != null)
             return icb.getItemContainer();
@@ -498,17 +493,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
             return switch (key) {
-                case "fuel", "itemfuel" -> apbb.getItemFuelContainer();
+                case "fuel" -> apbb.getItemFuelContainer();
                 case "input" -> apbb.getItemInputContainer();
                 case "output" -> apbb.getItemOutputContainer();
-                default -> null;
-            };
-        }
-        AutoCraftingBenchBlock acbb = store.getComponent(ref, AutoCraftingBenchBlock.getComponentType());
-        if (acbb != null) {
-            return switch (key) {
-                case "input" -> acbb.getItemInputContainer();
-                case "output" -> acbb.getItemOutputContainer();
                 default -> null;
             };
         }
