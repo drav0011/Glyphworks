@@ -46,14 +46,14 @@ if (oldHitboxFiles.length) console.log(`Deleted ${oldHitboxFiles.length} old hit
 
 // ─── Bit layout: bit5=N, bit4=S, bit3=E, bit2=W, bit1=U, bit0=D ─────────────
 // N = world North = -Z;  S = world South = +Z
-// nodeIdx 3 is the -Z arm in the template model; nodeIdx 2 is the +Z arm.
+// Template node order: 0=center, 1=up, 2=down, 3=north, 4=south, 5=east, 6=west
 const DIRECTIONS = [
   { name: 'N', bit: 5, position: { X: 0, Y: 0, Z: -1 }, nodeIdx: 3 },
-  { name: 'S', bit: 4, position: { X: 0, Y: 0, Z: 1 }, nodeIdx: 2 },
-  { name: 'E', bit: 3, position: { X: 1, Y: 0, Z: 0 }, nodeIdx: 5 },
-  { name: 'W', bit: 2, position: { X: -1, Y: 0, Z: 0 }, nodeIdx: 4 },
+  { name: 'S', bit: 4, position: { X: 0, Y: 0, Z: 1 }, nodeIdx: 4 },
+  { name: 'E', bit: 3, position: { X: 1, Y: 0, Z: 0 }, nodeIdx: 6 },
+  { name: 'W', bit: 2, position: { X: -1, Y: 0, Z: 0 }, nodeIdx: 5 },
   { name: 'U', bit: 1, position: { X: 0, Y: 1, Z: 0 }, nodeIdx: 1 },
-  { name: 'D', bit: 0, position: { X: 0, Y: -1, Z: 0 }, nodeIdx: 6 },
+  { name: 'D', bit: 0, position: { X: 0, Y: -1, Z: 0 }, nodeIdx: 2 },
 ];
 
 const templateModel = JSON.parse(fs.readFileSync(TEMPLATE_MODEL, 'utf8'));
@@ -95,11 +95,43 @@ for (let mask = 0; mask < 64; mask++) {
 console.log(`Generated ${Object.keys(itemStateDefs).length} .blockymodel files in Item/Pipe and Fluid/Pipe`);
 
 // ─── Build pipe JSON for a given grid type ───────────────────────────────────
-function buildPipeItem(gridType, transferRate, translationName, modelBasePath, stateDefs) {
-  const modelTexture = [{ Texture: `${modelBasePath}/Pipe.png`, Weight: 1 }];
+function buildGridFaces() {
+  return ['South', 'North', 'East', 'West', 'Up', 'Down'].map(normal => ({
+    "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 },
+    "Glyphworks_FacePlane_Normal": normal,
+    "Glyphworks_FacePlane_Mode": "AllowAll"
+  }));
+}
+
+function buildPipeItem(config, stateDefs) {
+  const { gridType, transferRate, itemId, category, benchCategory, modelBasePath, extraComponents } = config;
+
+  const components = {
+    ...extraComponents,
+    "Glyphworks_GridComponent": {
+      "Glyphworks_GridComponent_Entries": [
+        {
+          "Glyphworks_GridTypeEntry_Type": gridType,
+          "Glyphworks_GridTypeEntry_TransferRate": transferRate,
+          "Glyphworks_GridTypeEntry_Faces": buildGridFaces()
+        }
+      ]
+    }
+  };
+
   return {
-    TranslationProperties: { Name: translationName },
-    Categories: ['Blocks.Deco'],
+    TranslationProperties: {
+      Name: `server.items.${itemId}.name`,
+      Description: `server.items.${itemId}.description`
+    },
+    Categories: [category],
+    Recipe: {
+      Input: [{ ResourceTypeId: "Glyphworks_Empty_Rune", Quantity: 6 }],
+      Output: [{ ItemId: itemId, Quantity: 10 }],
+      OutputQuantity: 10,
+      BenchRequirement: [{ Id: "GlyphImprinter", Type: "Crafting", Categories: [benchCategory] }],
+      TimeSeconds: 3
+    },
     BlockType: {
       Material: 'Solid',
       DrawType: 'Model',
@@ -107,40 +139,51 @@ function buildPipeItem(gridType, transferRate, translationName, modelBasePath, s
       Opacity: 'Transparent',
       ConnectedBlockRuleSet: { Type: 'Pipe' },
       CustomModel: `${modelBasePath}/Pipe_Single.blockymodel`,
-      CustomModelTexture: modelTexture,
-      BlockEntity: {
-        Components: {
-          "Glyphworks_GridComponent": {
-            "Glyphworks_GridComponent_Entries": [
-              {
-                "Glyphworks_GridTypeEntry_Type": gridType,
-                "Glyphworks_GridTypeEntry_TransferRate": transferRate,
-                "Glyphworks_GridTypeEntry_Faces": [
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "South", "Glyphworks_FacePlane_Mode": "Bidirectional" },
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "North", "Glyphworks_FacePlane_Mode": "Bidirectional" },
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "East",  "Glyphworks_FacePlane_Mode": "Bidirectional" },
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "West",  "Glyphworks_FacePlane_Mode": "Bidirectional" },
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "Up",    "Glyphworks_FacePlane_Mode": "Bidirectional" },
-                  { "Glyphworks_FacePlane_Position": { "X": 0, "Y": 0, "Z": 0 }, "Glyphworks_FacePlane_Normal": "Down",  "Glyphworks_FacePlane_Mode": "Bidirectional" }
-                ]
-              }
-            ]
-          }
-        },
-      },
+      CustomModelTexture: [{ Texture: `${modelBasePath}/Pipe.png`, Weight: 1 }],
+      BlockEntity: { Components: components },
       CustomModelScale: 1,
       HitboxType: 'Pipe',
       Flags: {},
       State: { Definitions: stateDefs },
+      Gathering: { Breaking: { GatherType: 'Benches' } }
     },
     PlayerAnimationsId: 'Block',
-    Icon: 'Icons/ItemsGenerated/Deco_Cauldron_Big.png',
+    Icon: `Icons/ItemsGenerated/${itemId}.png`,
     Scale: 1,
+    IconProperties: {
+      Scale: 0.58823,
+      Rotation: [22.5, 45, 22.5],
+      Translation: [0, -13.5]
+    }
   };
 }
 
-fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem('Fluid', 25,  'server.items.Glyphworks_Fluid_Pipe.name', 'Blocks/Glyphworks/Fluid/Pipe', fluidStateDefs), null, 2), 'utf8');
+fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem({
+  gridType: 'Fluid',
+  transferRate: 25,
+  itemId: 'Glyphworks_Fluid_Pipe',
+  category: 'Glyphworks.Fluid',
+  benchCategory: 'GlyphImprinter_Fluid',
+  modelBasePath: 'Blocks/Glyphworks/Fluid/Pipe',
+  extraComponents: {
+    "Glyphworks_FluidPipeComponent": {},
+    "Glyphworks_FluidContainerComponent": {
+      "Glyphworks_FluidContainerComponent_Container": {
+        "Glyphworks_FluidContainer_Capacity": 1,
+        "Glyphworks_FluidContainer_CapacityMbPerSlot": 500
+      }
+    }
+  }
+}, fluidStateDefs), null, 2), 'utf8');
 console.log(`Wrote Glyphworks_Fluid_Pipe.json`);
 
-fs.writeFileSync(ITEM_PIPE_PATH,  JSON.stringify(buildPipeItem('Item',  0.2, 'server.items.Glyphworks_Item_Pipe.name',  'Blocks/Glyphworks/Item/Pipe',  itemStateDefs),  null, 2), 'utf8');
+fs.writeFileSync(ITEM_PIPE_PATH, JSON.stringify(buildPipeItem({
+  gridType: 'Item',
+  transferRate: 0.2,
+  itemId: 'Glyphworks_Item_Pipe',
+  category: 'Glyphworks.Items',
+  benchCategory: 'GlyphImprinter_Items',
+  modelBasePath: 'Blocks/Glyphworks/Item/Pipe',
+  extraComponents: {}
+}, itemStateDefs), null, 2), 'utf8');
 console.log(`Wrote Glyphworks_Item_Pipe.json with ${Object.keys(itemStateDefs).length} state definitions`);
