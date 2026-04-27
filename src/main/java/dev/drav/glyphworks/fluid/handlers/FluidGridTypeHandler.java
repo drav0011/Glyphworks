@@ -126,6 +126,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
         PoolState pool = new PoolState();
 
+        // Pass 1: register nodes; collect pipe locks to determine pool fluid type
+        // before counting fluid so incompatible fluid is not absorbed into the pool.
         for (Vector3i pos : networkMembers(originPos, gridGraph)) {
             GridLookup lookup = GridLookup.resolve(chunkStore, pos);
             if (lookup == null)
@@ -135,38 +137,35 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 continue;
 
             if (isPipeNode(memberEntry)) {
-                addPipeToPool(pool, lookup, store);
+                pool.pipeRefs.add(lookup.blockRef());
+                FluidContainerComponent fcc = store.getComponent(lookup.blockRef(),
+                        FluidContainerComponent.getComponentType());
+                if (fcc != null)
+                    pool.pipeContainers.add(fcc.getFluidContainer());
+                if (pool.poolFluidId == null) {
+                    FluidPipeComponent fpc = store.getComponent(lookup.blockRef(),
+                            FluidPipeComponent.getComponentType());
+                    if (fpc != null)
+                        pool.poolFluidId = fpc.getFluidId();
+                }
             } else {
                 addMachineToPool(pool, lookup, memberEntry, store);
             }
         }
 
-        if (pool.poolFluidId == null && pool.poolAmount > 0)
+        // If no pipe is locked, derive fluid type from content.
+        if (pool.poolFluidId == null)
             pool.poolFluidId = deriveFluidId(pool.pipeContainers);
 
-        return pool;
-    }
-
-    private static void addPipeToPool(
-            @Nonnull PoolState pool,
-            @Nonnull GridLookup lookup,
-            @Nonnull Store<ChunkStore> store) {
-
-        pool.pipeRefs.add(lookup.blockRef());
-
-        FluidContainerComponent fcc = store.getComponent(lookup.blockRef(), FluidContainerComponent.getComponentType());
-        if (fcc != null) {
-            FluidContainer container = fcc.getFluidContainer();
-            pool.pipeContainers.add(container);
+        // Pass 2: count fluid and capacity now that the pool type is known.
+        for (FluidContainer container : pool.pipeContainers) {
             pool.poolCapacity += containerTotalCapacity(container);
-            pool.poolAmount += containerFluidAmount(container);
+            pool.poolAmount += pool.poolFluidId != null
+                    ? fluidAmountOf(container, pool.poolFluidId)
+                    : containerFluidAmount(container);
         }
 
-        if (pool.poolFluidId == null) {
-            FluidPipeComponent fpc = store.getComponent(lookup.blockRef(), FluidPipeComponent.getComponentType());
-            if (fpc != null)
-                pool.poolFluidId = fpc.getFluidId();
-        }
+        return pool;
     }
 
     private static void addMachineToPool(
@@ -176,12 +175,8 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             @Nonnull Store<ChunkStore> store) {
 
         for (FacePlane face : memberEntry.getFaces()) {
-            String key = face.getContainerKey();
-            if (key == null)
-                continue;
-
             FilterType mode = face.getMode();
-            FluidContainer container = resolveFluidContainer(store, lookup.blockRef(), key, mode);
+            FluidContainer container = resolveFluidContainer(store, lookup.blockRef(), face.getContainerKey(), mode);
             if (container == null)
                 continue;
 
@@ -273,23 +268,46 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     // -------------------------------------------------------------------------
 
     private static void redistributePool(@Nonnull PoolState pool) {
-        for (FluidContainer pipe : pool.pipeContainers) {
-            pipe.clear();
-        }
-
-        if (pool.poolAmount <= 0 || pool.poolFluidId == null || pool.pipeContainers.isEmpty())
+        if (pool.poolFluidId == null)
             return;
 
-        int pipeCount = pool.pipeContainers.size();
-        int base = pool.poolAmount / pipeCount;
-        int remainder = pool.poolAmount % pipeCount;
+        // Drain only pool-typed fluid; incompatible fluid in a container is left
+        // intact.
+        for (FluidContainer pipe : pool.pipeContainers) {
+            int amount = fluidAmountOf(pipe, pool.poolFluidId);
+            if (amount > 0)
+                drainFromContainer(pipe, pool.poolFluidId, amount);
+        }
 
-        for (int i = 0; i < pipeCount; i++) {
-            int amount = base + (i < remainder ? 1 : 0);
-            if (amount <= 0)
+        if (pool.poolAmount <= 0 || pool.pipeContainers.isEmpty())
+            return;
+
+        // Only redistribute to containers that can accept the pool fluid type.
+        List<FluidContainer> eligible = new ArrayList<>();
+        long eligibleCapacity = 0;
+        for (FluidContainer pipe : pool.pipeContainers) {
+            if (spaceForFluid(pipe, pool.poolFluidId) > 0) {
+                eligible.add(pipe);
+                eligibleCapacity += containerTotalCapacity(pipe);
+            }
+        }
+
+        if (eligible.isEmpty() || eligibleCapacity <= 0)
+            return;
+
+        int distributed = 0;
+        for (int i = 0; i < eligible.size(); i++) {
+            FluidContainer pipe = eligible.get(i);
+            int share;
+            if (i == eligible.size() - 1) {
+                share = pool.poolAmount - distributed;
+            } else {
+                share = (int) ((long) pool.poolAmount * containerTotalCapacity(pipe) / eligibleCapacity);
+            }
+            if (share <= 0)
                 continue;
-            FluidContainer pipe = pool.pipeContainers.get(i);
-            pipe.addFluidStack(new FluidStack(pool.poolFluidId, amount, pipe.getCapacityMbPerSlot()), false, false);
+            pipe.addFluidStack(new FluidStack(pool.poolFluidId, share, pipe.getCapacityMbPerSlot()), false, false);
+            distributed += share;
         }
     }
 
@@ -352,9 +370,10 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
 
     private static boolean isPipeNode(@Nonnull GridTypeEntry entry) {
         for (FacePlane face : entry.getFaces()) {
-            if (face.getMode() != FilterType.ALLOW_ALL || face.getContainerKey() != null)
+            if (face.getMode() != FilterType.ALLOW_ALL)
                 return false;
         }
+
         return true;
     }
 
@@ -444,10 +463,12 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
     private static FluidContainer resolveFluidContainer(
             @Nonnull Store<ChunkStore> store,
             @Nonnull Ref<ChunkStore> ref,
-            @Nonnull String key,
+            @Nullable String key,
             @Nonnull FilterType mode) {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
+            if (key == null)
+                return null;
             return switch (key) {
                 case "fluidfuel" -> apbb.getFluidFuelContainer();
                 case "fluidinput" -> apbb.getFluidInputContainer();

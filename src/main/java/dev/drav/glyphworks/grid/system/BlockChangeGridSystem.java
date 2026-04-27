@@ -28,6 +28,7 @@ import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
+import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
@@ -136,7 +137,8 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
                     }
                     // Do NOT break — a position may belong to multiple grid types.
                 }
-                // Deferred rebuild: clear all entries' neighbors on each survivor and reconnect.
+                // Deferred rebuild: clear all entries' neighbors on each survivor and
+                // reconnect.
                 if (!allSurvivors.isEmpty()) {
                     commandBuffer.run(_ -> {
                         for (Vector3i n : allSurvivors) {
@@ -153,8 +155,7 @@ public final class BlockChangeGridSystem extends EntityTickingSystem<ChunkStore>
             }
 
             // Restore the index so ReplicateChanges still sends this block to clients.
-            blockSection.invalidateBlock(wx, wy, wz);
+            DeprecatedChunkAccess.invalidateBlock(blockSection, wx, wy, wz);
         }
     }
 }
-

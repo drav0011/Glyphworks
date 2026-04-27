@@ -91,8 +91,8 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             int distance, Vector3i originPos) {
     }
 
-        private record ItemSourceEntry(ItemContainer container, FacePlane sourceFace, GridTypeEntry entry) {
-        }
+    private record ItemSourceEntry(ItemContainer container, FacePlane sourceFace, GridTypeEntry entry) {
+    }
 
     // -------------------------------------------------------------------------
     // Tick
@@ -118,7 +118,8 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sourceEntries.isEmpty())
             return;
 
-        GridGraph gridGraph = GlyphworksPlugin.get().getGridModule().getGridGraph(chunkStore.getWorld(), entry.getGridType());
+        GridGraph gridGraph = GlyphworksPlugin.get().getGridModule().getGridGraph(chunkStore.getWorld(),
+                entry.getGridType());
         originPos = resolveOriginPosition(originPos, entry, chunkStore, blockRef, gridGraph);
 
         List<ItemSinkEntry> sinks = findItemSinks(
@@ -483,15 +484,18 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
      * {@link AutoProcessingBenchBlock}; returns the single container for
      * {@link ItemContainerBlock}.
      * 
-     * TODO: better expansible resolution for containers, cannot be adding component types to this class every time we add a new block with a container.
+     * TODO: better expansible resolution for containers, cannot be adding component
+     * types to this class every time we add a new block with a container.
      */
     @Nullable
     private static ItemContainer resolveContainer(
             @Nonnull Store<ChunkStore> store,
             @Nonnull Ref<ChunkStore> ref,
-            @Nonnull String key) {
+            @Nullable String key) {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
+            if (key == null)
+                return null;
             return switch (key) {
                 case "fuel" -> apbb.getItemFuelContainer();
                 case "input" -> apbb.getItemInputContainer();
@@ -499,10 +503,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                 default -> null;
             };
         }
+
         ItemContainerBlock icb = store.getComponent(ref, ItemContainerBlock.getComponentType());
-        if (icb != null)
-            return icb.getItemContainer();
-        return null;
+        return icb != null ? icb.getItemContainer() : null;
     }
 
     /**
@@ -546,4 +549,3 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     }
 
 }
-

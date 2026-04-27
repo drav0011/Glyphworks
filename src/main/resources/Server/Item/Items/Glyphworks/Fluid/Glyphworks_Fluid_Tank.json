@@ -72,8 +72,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "AllowAll",
-                  "Glyphworks_FacePlane_ContainerKey": "tank"
+                  "Glyphworks_FacePlane_Mode": "AllowAll"
                 }
               ]
             }

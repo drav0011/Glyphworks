@@ -27,6 +27,9 @@ import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
  * Reads each node's {@link GridType} and delegates to the matching
  * {@link GridTypeHandler} registered in {@link GridTypeHandlerRegistry}.
  * Nodes whose type has no registered handler are skipped with a warning.
+ * 
+ * TODO: Does this execute for each node every tick? If so we are calling the
+ * handler multiple times per grid rather than a single one Should be a TickingSystem instead of EntityTickingSystem?
  */
 public final class GridSystem extends EntityTickingSystem<ChunkStore> {
 
