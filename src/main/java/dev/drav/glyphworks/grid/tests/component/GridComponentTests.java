@@ -44,9 +44,9 @@ public final class GridComponentTests {
                 .test(placeSetsOriginPosition())
                 .test(placeUpdatesNeighborSet())
                 .test(breakRemovesFromNeighborSet())
-            .test(faceTransferAccumulatorWhole())
-            .test(faceTransferAccumulatorSubTick())
-            .test(faceTransferAccumulatorIndependentPerFace())
+                .test(faceTransferAccumulatorWhole())
+                .test(faceTransferAccumulatorSubTick())
+                .test(faceTransferAccumulatorIndependentPerFace())
                 .test(cloneDeepCopyFaces())
                 .test(cloneDeepCopyNeighbors())
                 .test(facePlaneEqualsIgnoresContainerKey());

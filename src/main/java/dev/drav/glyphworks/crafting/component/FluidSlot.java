@@ -8,6 +8,8 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
+
 public final class FluidSlot {
 
     @Nonnull
@@ -29,10 +31,10 @@ public final class FluidSlot {
                     s -> s.icon)
             .add()
             .append(
-                    new KeyedCodec<>("Glyphworks_FluidSlot_CapacityMbPerSlot", Codec.INTEGER),
+                    new KeyedCodec<>("Glyphworks_FluidSlot_CapacityMbPerSlot", Codec.SHORT),
                     (s, v) -> s.capacityMbPerSlot = v,
                     s -> s.capacityMbPerSlot)
-            .addValidator(Validators.greaterThan(0))
+            .addValidator(Validators.greaterThan((short) 0))
             .add()
             .build();
 
@@ -44,7 +46,7 @@ public final class FluidSlot {
     @Nullable
     private String icon;
 
-    private int capacityMbPerSlot = 4000;
+        private short capacityMbPerSlot = (short) FluidUtil.MB_PER_BLOCK;
 
     public FluidSlot() {
     }
@@ -54,7 +56,7 @@ public final class FluidSlot {
         return resourceTypeId;
     }
 
-    public int getCapacityMbPerSlot() {
+        public short getCapacityMbPerSlot() {
         return capacityMbPerSlot;
     }
 }

@@ -1,0 +1,65 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Glyphworks_Test_Crafting_Bench_Selector.name"
+  },
+  "Quality": "Debug",
+  "Categories": [
+    "Glyphworks_Test.Crafting"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "HitboxType": "Tank",
+    "Textures": [
+      {
+        "All": "BlockTextures/Rock_Stone.png",
+        "Weight": 1
+      }
+    ],
+    "Bench": {
+      "Type": "Crafting",
+      "Id": "Workbench",
+      "Categories": [
+        {
+          "Id": "Workbench_Survival",
+          "Icon": "Icons/CraftingCategories/Workbench/WeaponsCrude.png",
+          "Name": "server.benchCategories.workbench.survival"
+        },
+        {
+          "Id": "Workbench_Tools",
+          "Icon": "Icons/CraftingCategories/Workbench/Tools.png",
+          "Name": "server.benchCategories.workbench.tools"
+        },
+        {
+          "Id": "Workbench_Crafting",
+          "Icon": "Icons/CraftingCategories/Workbench/Processing.png",
+          "Name": "server.benchCategories.workbench.crafting"
+        },
+        {
+          "Id": "Workbench_Tinkering",
+          "Icon": "Icons/CraftingCategories/Workbench/Deco_Target.png",
+          "Name": "server.benchCategories.workbench.tinkering"
+        }
+      ]
+    },
+    "BlockEntity": {
+      "Components": {
+        "BenchBlock": {},
+        "Glyphworks_AutoCraftingBenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_FuelPolicy": "Any",
+          "Glyphworks_AutoProcessingBenchBlock_FluidFuelSlots": [
+            {
+              "Glyphworks_FluidSlot_ResourceTypeId": "Glyphworks_Fluid_Fuel",
+              "Glyphworks_FluidSlot_Icon": "Icons/Processing/FuelSlotIcon.png",
+              "Glyphworks_FluidSlot_CapacityMbPerSlot": 4000
+            }
+          ]
+        }
+      }
+    },
+    "Interactions": {
+      "Use": "Open_Auto_Crafting_Bench"
+    }
+  }
+}

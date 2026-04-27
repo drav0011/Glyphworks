@@ -123,18 +123,21 @@ public final class FluidRemoverSystemTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
+                    // Remover outputs Up → Pipe1; Pipe1 connects East → Pipe2; Tank below Pipe2.
                     w.setBlock(rx, ry, rz, BLOCK_ID);
                     w.setBlock(rx, ry + 1, rz, PIPE_ID);
-                    w.setBlock(rx, ry + 1, rz + 1, TANK_ID);
+                    w.setBlock(rx + 1, ry + 1, rz, PIPE_ID);
+                    w.setBlock(rx + 1, ry, rz, TANK_ID);
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry, rz));
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz));
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz + 1));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry + 1, rz));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry, rz));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
-                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
+                            ctx.getWorld(), new Vector3i(rx + 1, ry, rz));
                     return tankFcc != null && tankFcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "fluid remover does not fill the tank when no world fluid is present"));
     }
@@ -144,9 +147,12 @@ public final class FluidRemoverSystemTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
+                    // Remover outputs Up → Pipe1; Pipe1 connects East → Pipe2; Tank below Pipe2.
+                    // This mirrors placeTankLayout: remover takes TankA's slot.
                     w.setBlock(rx, ry, rz, BLOCK_ID);
                     w.setBlock(rx, ry + 1, rz, PIPE_ID);
-                    w.setBlock(rx, ry + 1, rz + 1, TANK_ID);
+                    w.setBlock(rx + 1, ry + 1, rz, PIPE_ID);
+                    w.setBlock(rx + 1, ry, rz, TANK_ID);
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
@@ -154,7 +160,8 @@ public final class FluidRemoverSystemTests {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry, rz));
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz));
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz + 1));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry + 1, rz));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry, rz));
                     FluidTestUtil.placeFluid(w, rx, ry - 1, rz, FLUID_ID);
                 }))
                 .step(Steps.waitUntil(ctx -> {
@@ -168,20 +175,38 @@ public final class FluidRemoverSystemTests {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
+                    FluidContainerComponent pipe1Fcc = FluidTestUtil.getContainer(
+                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz));
+                    FluidContainerComponent pipe2Fcc = FluidTestUtil.getContainer(
+                            ctx.getWorld(), new Vector3i(rx + 1, ry + 1, rz));
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
-                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
+                            ctx.getWorld(), new Vector3i(rx + 1, ry, rz));
                     FluidStack removerSlot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
-                    int tankTotal = 0;
+                    int networkTotal = 0;
+                    if (pipe1Fcc != null) {
+                        for (short slot = 0; slot < pipe1Fcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = pipe1Fcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                networkTotal += stack.getQuantity();
+                        }
+                    }
+                    if (pipe2Fcc != null) {
+                        for (short slot = 0; slot < pipe2Fcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = pipe2Fcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                networkTotal += stack.getQuantity();
+                        }
+                    }
                     if (tankFcc != null) {
                         for (short slot = 0; slot < tankFcc.getFluidContainer().getCapacity(); slot++) {
                             FluidStack stack = tankFcc.getFluidContainer().getFluidStack(slot);
                             if (stack != null)
-                                tankTotal += stack.getQuantity();
+                                networkTotal += stack.getQuantity();
                         }
                     }
-                    return removerSlot0 == null && tankFcc != null && tankTotal == FluidUtil.MB_PER_BLOCK;
+                    return removerSlot0 == null && networkTotal == FluidUtil.MB_PER_BLOCK;
                 }, ctx -> 10 * ctx.getWorld().getTps(),
-                        "remover drains to zero and tank holds all " + FluidUtil.MB_PER_BLOCK + " mB"));
+                        "remover drains to zero and pipes+tank together hold all " + FluidUtil.MB_PER_BLOCK + " mB"));
     }
 
     private static TestCase removerSkipsWhenContainerFull() {

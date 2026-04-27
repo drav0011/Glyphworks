@@ -42,7 +42,6 @@
     "DrawType": "Model",
     "BlockSoundSetId": "Stone",
     "Opacity": "Transparent",
-    "VariantRotation": "NESW",
     "HitboxType": "Tank",
     "CustomModel": "Blocks/Glyphworks/Fluid/Tank/Default.blockymodel",
     "CustomModelTexture": [
@@ -53,6 +52,7 @@
     ],
     "BlockEntity": {
       "Components": {
+        "Glyphworks_FluidPipeComponent": {},
         "Glyphworks_FluidContainerComponent": {
           "Glyphworks_FluidContainerComponent_Container": {
             "Glyphworks_FluidContainer_Capacity": 1,
@@ -71,18 +71,8 @@
                     "Y": 0,
                     "Z": 0
                   },
-                  "Glyphworks_FacePlane_Normal": "North",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "tank"
-                },
-                {
-                  "Glyphworks_FacePlane_Position": {
-                    "X": 0,
-                    "Y": 0,
-                    "Z": 0
-                  },
-                  "Glyphworks_FacePlane_Normal": "South",
-                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
+                  "Glyphworks_FacePlane_Normal": "Up",
+                  "Glyphworks_FacePlane_Mode": "AllowAll",
                   "Glyphworks_FacePlane_ContainerKey": "tank"
                 }
               ]

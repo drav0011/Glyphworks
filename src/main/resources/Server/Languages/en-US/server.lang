@@ -55,7 +55,7 @@ items.Glyphworks_Test_Crafting_Bench_BothFuel_Any.name=Test Bench Item And Fluid
 items.Glyphworks_Test_Crafting_Bench_BothFuel_All.name=Test Bench Item And Fluid All
 items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_Any.name=Test Bench Two Item Fuel Any
 items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name=Test Bench Two Item Fuel All
-
+items.Glyphworks_Test_Crafting_Bench_Selector.name=Test Bench Selector
 # Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
 items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.\nAutomatically pulls <color is="#003DD5">input</color> and pushes <color is="#00D4D5">output</color>.
