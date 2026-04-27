@@ -84,8 +84,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
-                  "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "container"
+                  "Glyphworks_FacePlane_Mode": "AllowInputOnly"
                 }
               ]
             }

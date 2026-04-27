@@ -27,7 +27,6 @@
     "Output": [
       {
         "ResourceTypeId": "Mana_Source",
-        
         "Quantity": 250
       }
     ],

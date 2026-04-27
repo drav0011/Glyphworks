@@ -6,37 +6,7 @@
   "Categories": [
     "Glyphworks.Items"
   ],
-  "Recipe": {
-    "Input": [
-      {
-        "ItemId": "Ingredient_Bar_Iron",
-        "Quantity": 4
-      },
-      {
-        "ResourceTypeId": "Rock",
-        "Quantity": 2
-      },
-      {
-        "ItemId": "Glyphworks_Rune_Void",
-        "Quantity": 1
-      }
-    ],
-    "Output": [
-      {
-        "ItemId": "Glyphworks_Item_Sink"
-      }
-    ],
-    "BenchRequirement": [
-      {
-        "Id": "GlyphImprinter",
-        "Type": "Crafting",
-        "Categories": [
-          "GlyphImprinter_Items"
-        ]
-      }
-    ],
-    "TimeSeconds": 3
-  },
+  "Quality": "Tool",
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Model",
