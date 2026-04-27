@@ -13,7 +13,7 @@ import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 
 /**
  * Marks a block as a creative fluid source.

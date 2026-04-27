@@ -15,7 +15,8 @@
     ],
     "Output": [
       {
-        "ItemId": "Glyphworks_Fluid_Pipe"
+        "ItemId": "Glyphworks_Fluid_Pipe",
+        "Quantity": 10
       }
     ],
     "OutputQuantity": 10,
@@ -48,6 +49,12 @@
     "BlockEntity": {
       "Components": {
         "Glyphworks_FluidPipeComponent": {},
+        "Glyphworks_FluidContainerComponent": {
+          "Glyphworks_FluidContainerComponent_Container": {
+            "Glyphworks_FluidContainer_Capacity": 1,
+            "Glyphworks_FluidContainer_CapacityMbPerSlot": 500
+          }
+        },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
             {

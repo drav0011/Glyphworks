@@ -5,9 +5,10 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.World;
 
-import dev.drav.glyphworks.fluid.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -66,9 +67,22 @@ public final class FluidSourceSystemTests {
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null
-                            && fcc.getAmount() == fcc.getCapacity()
-                            && FLUID_ID.equals(fcc.getFluidId());
+                    if (fcc == null)
+                        return false;
+                    int total = 0;
+                    int matching = 0;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
+                        if (stack != null) {
+                            total += stack.getQuantity();
+                            if (FLUID_ID.equals(stack.getFluidId())) {
+                                matching += stack.getQuantity();
+                            }
+                        }
+                    }
+                    int expectedTotal = fcc.getFluidContainer().getCapacityMbPerSlot()
+                            * fcc.getFluidContainer().getCapacity();
+                    return total == expectedTotal && matching == expectedTotal;
                 }, "FluidSourceSystem fills container to capacity with the correct fluid each tick"));
     }
 
@@ -97,17 +111,31 @@ public final class FluidSourceSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
-                        fcc.drain(fcc.getAmount());
-                        fcc.fill(FLUID_ID, 1);
+                        fcc.getFluidContainer().clear();
+                        FluidStack stale = new FluidStack(FLUID_ID, 1, fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, stale, true, false);
                     }
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null
-                            && fcc.getAmount() == fcc.getCapacity()
-                            && FLUID_ID.equals(fcc.getFluidId());
+                    if (fcc == null)
+                        return false;
+                    int total = 0;
+                    int matching = 0;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
+                        if (stack != null) {
+                            total += stack.getQuantity();
+                            if (FLUID_ID.equals(stack.getFluidId())) {
+                                matching += stack.getQuantity();
+                            }
+                        }
+                    }
+                    int expectedTotal = fcc.getFluidContainer().getCapacityMbPerSlot()
+                            * fcc.getFluidContainer().getCapacity();
+                    return total == expectedTotal && matching == expectedTotal;
                 }, "FluidSourceSystem tops up a partially-filled container to capacity on the next tick"));
     }
 
@@ -122,3 +150,4 @@ public final class FluidSourceSystemTests {
         return world.getChunkStore().getStore().getComponent(lu.blockRef(), FluidSourceComponent.getComponentType());
     }
 }
+

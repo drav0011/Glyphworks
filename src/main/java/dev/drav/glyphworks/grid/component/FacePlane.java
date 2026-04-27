@@ -66,6 +66,13 @@ public class FacePlane {
     private String containerKey;
 
     /**
+     * Runtime-only fractional carry-over for sub-tick transfer rates.
+     * Each face accumulates independently so that input and output faces on the
+     * same block (e.g. a tank acting as a valve) cannot deplete each other's budget.
+     */
+    private transient float transferAccumulator = 0.0f;
+
+    /**
      * No-arg constructor required by {@link #CODEC}.
      */
     public FacePlane() {
@@ -148,6 +155,18 @@ public class FacePlane {
         result = 31 * result + normal.hashCode();
         result = 31 * result + mode.hashCode();
         return result;
+    }
+
+    /**
+     * Adds {@code amount} to this face's accumulator and returns the number of
+     * whole units that have accumulated. The fractional remainder is retained
+     * for the next tick.
+     */
+    public int drainAccumulator(float amount) {
+        transferAccumulator += amount;
+        int whole = (int) transferAccumulator;
+        transferAccumulator -= whole;
+        return whole;
     }
 
     public FacePlane clone() {

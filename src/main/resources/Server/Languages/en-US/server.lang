@@ -45,6 +45,17 @@ items.Glyphworks_Crafting_Machine_Weapon.description=Used to fashion basic weapo
 items.Glyphworks_Crafting_Machine_WorkBench.name=Workbench Machine
 items.Glyphworks_Crafting_Machine_WorkBench.description=A workstation enabling the crafting of more complex tools and items.\nAutomatically pulls <color is="#47D500">input</color> and pushes <color is="#FF0000">output</color>.\nRequires liquid <color is="#35c1f1">mana</color>.\n\n<i>No artisan is born a creator. Even Avatars need time to hone their craft, particularly when bound by the rules of another's domain.</i>
 
+# Crafting fuel test benches
+items.Glyphworks_Test_Crafting_Bench_NoFuel.name=Test Bench No Fuel
+items.Glyphworks_Test_Crafting_Bench_ItemFuel_Any.name=Test Bench Item Fuel Any
+items.Glyphworks_Test_Crafting_Bench_ItemFuel_All.name=Test Bench Item Fuel All
+items.Glyphworks_Test_Crafting_Bench_FluidFuel_Any.name=Test Bench Fluid Fuel Any
+items.Glyphworks_Test_Crafting_Bench_FluidFuel_All.name=Test Bench Fluid Fuel All
+items.Glyphworks_Test_Crafting_Bench_BothFuel_Any.name=Test Bench Item And Fluid Any
+items.Glyphworks_Test_Crafting_Bench_BothFuel_All.name=Test Bench Item And Fluid All
+items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_Any.name=Test Bench Two Item Fuel Any
+items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name=Test Bench Two Item Fuel All
+items.Glyphworks_Test_Crafting_Bench_Selector.name=Test Bench Selector
 # Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
 items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.\nAutomatically pulls <color is="#003DD5">input</color> and pushes <color is="#00D4D5">output</color>.
@@ -118,8 +129,10 @@ benchCategories.glyphimprinter.components=Components
 benchCategories.glyphimbuer.runes=Rune Imbuing
 
 # Resource types
-resourceType.Glyphworks_Empty_Rune.name=Empty Rune
-resourceType.Glyphworks_Filled_Rune.name=Filled Rune
+resourceType.Glyphworks_Empty_Rune.name=Any Empty Rune
+resourceType.Glyphworks_Filled_Rune.name=Any Filled Rune
+resourceType.Glyphworks_Essence.name=Any Essence
+resourceType.Glyphworks_Fluid_Fuel.name=Any Fluid Fuel
 
 # Item categories
 ui.itemcategory.glyphworks=Glyphworks

@@ -31,9 +31,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
-import dev.drav.glyphworks.crafting.component.ManaLiquifierBlock;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -93,6 +91,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             int distance, Vector3i originPos) {
     }
 
+        private record ItemSourceEntry(ItemContainer container, FacePlane sourceFace, GridTypeEntry entry) {
+        }
+
     // -------------------------------------------------------------------------
     // Tick
     // -------------------------------------------------------------------------
@@ -112,9 +113,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         String typeId = entry.getGridType().id();
         Vector3i originPos = component.getOriginPosition();
 
-        List<ItemContainer> sourceContainers = collectSourceContainers(
+        List<ItemSourceEntry> sourceEntries = collectSourceEntries(
                 entry, originPos, store, blockRef, chunkStore);
-        if (sourceContainers.isEmpty())
+        if (sourceEntries.isEmpty())
             return;
 
         GridGraph gridGraph = GlyphworksPlugin.get().getGridModule().getGridGraph(chunkStore.getWorld(), entry.getGridType());
@@ -125,20 +126,20 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sinks.isEmpty())
             return;
 
-        pushItemsToSinks(sourceContainers, sinks, entry, store, chunkStore, dt);
+        pushItemsToSinks(sourceEntries, sinks, store, chunkStore, dt);
     }
 
     // -------------------------------------------------------------------------
     // Transfer pipeline
     // -------------------------------------------------------------------------
 
-    private static List<ItemContainer> collectSourceContainers(
+    private static List<ItemSourceEntry> collectSourceEntries(
             @Nonnull GridTypeEntry entry,
             @Nullable Vector3i originPos,
             @Nonnull Store<ChunkStore> store,
             @Nonnull Ref<ChunkStore> blockRef,
             @Nonnull ChunkStore chunkStore) {
-        List<ItemContainer> sourceContainers = new ArrayList<>();
+        List<ItemSourceEntry> sourceEntries = new ArrayList<>();
         for (FacePlane face : entry.getFaces()) {
             FilterType mode = face.getMode();
             if (!mode.allowOutput())
@@ -148,16 +149,16 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             if (key != null) {
                 ItemContainer c = resolveContainer(store, blockRef, key);
                 if (c != null && hasItems(c))
-                    sourceContainers.add(c);
+                    sourceEntries.add(new ItemSourceEntry(c, face, entry));
             } else if (mode == FilterType.ALLOW_OUTPUT_ONLY) {
                 if (originPos == null)
                     continue;
                 ItemContainer c = resolveAdjacentContainer(chunkStore, originPos, face);
                 if (c != null && hasItems(c))
-                    sourceContainers.add(c);
+                    sourceEntries.add(new ItemSourceEntry(c, face, entry));
             }
         }
-        return sourceContainers;
+        return sourceEntries;
     }
 
     @Nullable
@@ -297,16 +298,16 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     }
 
     private static void pushItemsToSinks(
-            @Nonnull List<ItemContainer> sourceContainers,
+            @Nonnull List<ItemSourceEntry> sourceEntries,
             @Nonnull List<ItemSinkEntry> sinks,
-            @Nonnull GridTypeEntry entry,
             @Nonnull Store<ChunkStore> store,
             @Nonnull ChunkStore chunkStore,
             float dt) {
         sinks.sort(Comparator.comparingInt(ItemSinkEntry::distance));
 
-        for (ItemContainer srcContainer : sourceContainers) {
-            int toTransfer = entry.drainAccumulator(entry.getTransferRate() * dt * chunkStore.getWorld().getTps());
+        for (ItemSourceEntry source : sourceEntries) {
+            int toTransfer = source.sourceFace().drainAccumulator(
+                    source.entry().getTransferRate() * dt * chunkStore.getWorld().getTps());
             if (toTransfer < 1)
                 continue;
 
@@ -317,7 +318,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
                         sink, store, chunkStore);
                 if (sinkContainer == null)
                     continue;
-                toTransfer -= moveItems(srcContainer, sinkContainer, toTransfer);
+                toTransfer -= moveItems(source.container(), sinkContainer, toTransfer);
             }
         }
     }
@@ -468,14 +469,6 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (apbb != null)
             return apbb.getItemContainer();
 
-        AutoCraftingBenchBlock acbb = worldStore.getComponent(blockRef, AutoCraftingBenchBlock.getComponentType());
-        if (acbb != null)
-            return acbb.getItemContainer();
-
-        ManaLiquifierBlock mlb = worldStore.getComponent(blockRef, ManaLiquifierBlock.getComponentType());
-        if (mlb != null)
-            return mlb.getInputContainer();
-
         ItemContainerBlock icb = worldStore.getComponent(blockRef, ItemContainerBlock.getComponentType());
         if (icb != null)
             return icb.getItemContainer();
@@ -500,24 +493,9 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         AutoProcessingBenchBlock apbb = store.getComponent(ref, AutoProcessingBenchBlock.getComponentType());
         if (apbb != null) {
             return switch (key) {
-                case "input" -> apbb.getInputContainer();
-                case "output" -> apbb.getOutputContainer();
-                default -> null;
-            };
-        }
-        AutoCraftingBenchBlock acbb = store.getComponent(ref, AutoCraftingBenchBlock.getComponentType());
-        if (acbb != null) {
-            return switch (key) {
-                case "input" -> acbb.getInputContainer();
-                case "output" -> acbb.getOutputContainer();
-                default -> null;
-            };
-        }
-        ManaLiquifierBlock mlb = store.getComponent(ref, ManaLiquifierBlock.getComponentType());
-        if (mlb != null) {
-            return switch (key) {
-                case "input" -> mlb.getInputContainer();
-                case "fuel" -> mlb.getFuelContainer();
+                case "fuel" -> apbb.getItemFuelContainer();
+                case "input" -> apbb.getItemInputContainer();
+                case "output" -> apbb.getItemOutputContainer();
                 default -> null;
             };
         }

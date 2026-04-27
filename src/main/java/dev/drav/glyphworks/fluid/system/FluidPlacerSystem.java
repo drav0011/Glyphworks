@@ -16,14 +16,17 @@ import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 /**
@@ -45,6 +48,8 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  */
 public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
+    private static final short SLOT_INDEX = 0;
+
     @Override
     public Query<ChunkStore> getQuery() {
         return Query.and(
@@ -64,10 +69,14 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.getAmount() < FluidUtil.LITERS_PER_BLOCK) {
+        FluidContainer fc = fcc.getFluidContainer();
+        FluidStack slotStack = fc.getFluidStack(SLOT_INDEX);
+        if (slotStack == null || slotStack.getQuantity() < FluidUtil.MB_PER_BLOCK) {
             return;
         }
-        if (fcc.getFluidId() == null) {
+
+        String placerFluidId = slotStack.getFluidId();
+        if (placerFluidId == null) {
             return;
         }
 
@@ -130,7 +139,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int indexedId = Fluid.getAssetMap().getIndex(fcc.getFluidId());
+        int indexedId = Fluid.getAssetMap().getIndex(placerFluidId);
         if (indexedId <= FluidUtil.EMPTY_FLUID_ID) {
             return;
         }
@@ -140,8 +149,9 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int drained = fcc.drain(FluidUtil.LITERS_PER_BLOCK);
-        if (drained > 0) {
+        ItemStackSlotTransaction drainTx = fc.removeFluidStackFromSlot(SLOT_INDEX, FluidUtil.MB_PER_BLOCK, true,
+                false);
+        if (drainTx.succeeded()) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, indexedId, (byte) fluid.getMaxFluidLevel());
             Ref<ChunkStore> adjChunkRef = chunkStore
                     .getChunkReference(ChunkUtil.indexChunkFromBlock(adjacent.x, adjacent.z));

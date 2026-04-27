@@ -1,4 +1,4 @@
-package dev.drav.glyphworks.fluid;
+package dev.drav.glyphworks.fluid.event;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public final class FluidItemRegistry {
     private FluidItemRegistry() {
     }
 
-    static void onItemsLoaded(@Nonnull LoadedAssetsEvent<String, Item, DefaultAssetMap<String, Item>> event) {
+    public static void onItemsLoaded(@Nonnull LoadedAssetsEvent<String, Item, DefaultAssetMap<String, Item>> event) {
         for (Map.Entry<String, Item> entry : event.getLoadedAssets().entrySet()) {
             String fluidKey = extractFluidKey(entry.getValue());
             if (fluidKey != null) {

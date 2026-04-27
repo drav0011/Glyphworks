@@ -19,8 +19,9 @@ import dev.drav.glyphworks.test.tests.TestFrameworkTests;
 
 /**
  * Sub-plugin that owns the in-game test framework: the runner component,
- * all registered test suites, the {@code /gtest} command, and the runner
+ * all registered test suites, the commands, and the runner
  * system.
+ * TODO: "Initial prefab" for tests, assert as prefab (checks the existing area of a test is equal to a prefab)
  */
 public final class TestModule extends GlyphworksModule {
 

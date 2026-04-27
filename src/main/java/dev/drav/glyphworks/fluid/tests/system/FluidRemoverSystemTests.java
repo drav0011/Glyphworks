@@ -2,12 +2,14 @@ package dev.drav.glyphworks.fluid.tests.system;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.protocol.BlockFace;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.test.framework.Steps;
 import dev.drav.glyphworks.test.framework.TestCase;
@@ -28,10 +30,8 @@ public final class FluidRemoverSystemTests {
 
     private static final String FLUID_ID = "Water_Source";
     private static final String BLOCK_ID = "Glyphworks_Fluid_Remover";
-    private static final String PIPE_ID  = "Glyphworks_Fluid_Pipe";
-    private static final String TANK_ID  = "Glyphworks_Fluid_Tank";
-    private static final int LITERS_PER_BLOCK = 1_000;
-    
+    private static final String PIPE_ID = "Glyphworks_Fluid_Pipe";
+    private static final String TANK_ID = "Glyphworks_Fluid_Tank";
 
     private FluidRemoverSystemTests() {
     }
@@ -43,12 +43,12 @@ public final class FluidRemoverSystemTests {
     private static TestSuite buildSuite() {
         return new TestSuite("fluid_remover_system")
                 // Direction tests — one per cardinal face
-                .test(removerPicksUpFluidFrom(BlockFace.Down,  FluidTestUtil.ROTATION_DOWN))
-                .test(removerPicksUpFluidFrom(BlockFace.Up,    FluidTestUtil.ROTATION_UP))
+                .test(removerPicksUpFluidFrom(BlockFace.Down, FluidTestUtil.ROTATION_DOWN))
+                .test(removerPicksUpFluidFrom(BlockFace.Up, FluidTestUtil.ROTATION_UP))
                 .test(removerPicksUpFluidFrom(BlockFace.North, FluidTestUtil.ROTATION_NORTH))
                 .test(removerPicksUpFluidFrom(BlockFace.South, FluidTestUtil.ROTATION_SOUTH))
-                .test(removerPicksUpFluidFrom(BlockFace.East,  FluidTestUtil.ROTATION_EAST))
-                .test(removerPicksUpFluidFrom(BlockFace.West,  FluidTestUtil.ROTATION_WEST))
+                .test(removerPicksUpFluidFrom(BlockFace.East, FluidTestUtil.ROTATION_EAST))
+                .test(removerPicksUpFluidFrom(BlockFace.West, FluidTestUtil.ROTATION_WEST))
                 // Guard-logic tests (direction-independent — tested with Down)
                 .test(removerSkipsWhenCellEmpty())
                 .test(removerSkipsWhenContainerFull())
@@ -60,7 +60,7 @@ public final class FluidRemoverSystemTests {
     // Direction tests: one TestCase per cardinal face
     //
     // Layout: block at centre of 3×3×3 area (ox+1, oy+1, oz+1);
-    //         fluid is placed one step in the given direction from the block.
+    // fluid is placed one step in the given direction from the block.
     // -------------------------------------------------------------------------
 
     private static TestCase removerPicksUpFluidFrom(BlockFace direction, int rotationIndex) {
@@ -85,12 +85,16 @@ public final class FluidRemoverSystemTests {
                     // World cell must be cleared.
                     if (FluidTestUtil.getFluidId(w, tx, ty, tz) != 0)
                         return false;
-                    // Container must hold exactly 1 000 L of the correct fluid.
+                    // Container must hold exactly 1 000 mB of the correct fluid in slot 0.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(w, new Vector3i(bx, by, bz));
-                    return fcc != null
-                            && fcc.getAmount() == LITERS_PER_BLOCK
-                            && FLUID_ID.equals(fcc.getFluidId());
-                }, "FluidRemoverSystem picks up fluid from " + direction.name().toLowerCase() + " and fills container"));
+                    if (fcc == null)
+                        return false;
+                    FluidStack slot0 = fcc.getFluidContainer().getFluidStack((short) 0);
+                    return slot0 != null
+                            && FLUID_ID.equals(slot0.getFluidId())
+                            && slot0.getQuantity() == FluidUtil.MB_PER_BLOCK;
+                }, "FluidRemoverSystem picks up fluid from " + direction.name().toLowerCase()
+                        + " and fills container"));
     }
 
     // -------------------------------------------------------------------------
@@ -110,7 +114,7 @@ public final class FluidRemoverSystemTests {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    return fcc != null && fcc.isEmpty();
+                    return fcc != null && fcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "FluidRemoverSystem leaves container empty when target cell has no fluid"));
     }
 
@@ -119,19 +123,22 @@ public final class FluidRemoverSystemTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
+                    // Remover outputs Up → Pipe1; Pipe1 connects East → Pipe2; Tank below Pipe2.
                     w.setBlock(rx, ry, rz, BLOCK_ID);
                     w.setBlock(rx, ry + 1, rz, PIPE_ID);
-                    w.setBlock(rx, ry + 1, rz + 1, TANK_ID);
+                    w.setBlock(rx + 1, ry + 1, rz, PIPE_ID);
+                    w.setBlock(rx + 1, ry, rz, TANK_ID);
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry, rz));
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz));
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz + 1));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry + 1, rz));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry, rz));
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.assertThat(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
-                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
-                    return tankFcc != null && tankFcc.isEmpty();
+                            ctx.getWorld(), new Vector3i(rx + 1, ry, rz));
+                    return tankFcc != null && tankFcc.getFluidContainer().getFluidStack((short) 0) == null;
                 }, "fluid remover does not fill the tank when no world fluid is present"));
     }
 
@@ -140,9 +147,12 @@ public final class FluidRemoverSystemTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
+                    // Remover outputs Up → Pipe1; Pipe1 connects East → Pipe2; Tank below Pipe2.
+                    // This mirrors placeTankLayout: remover takes TankA's slot.
                     w.setBlock(rx, ry, rz, BLOCK_ID);
                     w.setBlock(rx, ry + 1, rz, PIPE_ID);
-                    w.setBlock(rx, ry + 1, rz + 1, TANK_ID);
+                    w.setBlock(rx + 1, ry + 1, rz, PIPE_ID);
+                    w.setBlock(rx + 1, ry, rz, TANK_ID);
                 }))
                 .step(Steps.wait(ctx -> 2 * ctx.getWorld().getTps()))
                 .step(Steps.run(ctx -> {
@@ -150,25 +160,53 @@ public final class FluidRemoverSystemTests {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry, rz));
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz));
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx, ry + 1, rz + 1));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry + 1, rz));
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry, rz));
                     FluidTestUtil.placeFluid(w, rx, ry - 1, rz, FLUID_ID);
                 }))
                 .step(Steps.waitUntil(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
-                    return removerFcc != null && !removerFcc.isEmpty();
+                    FluidStack slot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    return slot0 != null && slot0.getQuantity() > 0;
                 }, ctx -> 5 * ctx.getWorld().getTps(), "remover picks up world fluid into container"))
                 .step(Steps.waitUntil(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
+                    FluidContainerComponent pipe1Fcc = FluidTestUtil.getContainer(
+                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz));
+                    FluidContainerComponent pipe2Fcc = FluidTestUtil.getContainer(
+                            ctx.getWorld(), new Vector3i(rx + 1, ry + 1, rz));
                     FluidContainerComponent tankFcc = FluidTestUtil.getContainer(
-                            ctx.getWorld(), new Vector3i(rx, ry + 1, rz + 1));
-                    return removerFcc != null && removerFcc.isEmpty()
-                            && tankFcc != null && tankFcc.getAmount() == LITERS_PER_BLOCK;
+                            ctx.getWorld(), new Vector3i(rx + 1, ry, rz));
+                    FluidStack removerSlot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
+                    int networkTotal = 0;
+                    if (pipe1Fcc != null) {
+                        for (short slot = 0; slot < pipe1Fcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = pipe1Fcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                networkTotal += stack.getQuantity();
+                        }
+                    }
+                    if (pipe2Fcc != null) {
+                        for (short slot = 0; slot < pipe2Fcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = pipe2Fcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                networkTotal += stack.getQuantity();
+                        }
+                    }
+                    if (tankFcc != null) {
+                        for (short slot = 0; slot < tankFcc.getFluidContainer().getCapacity(); slot++) {
+                            FluidStack stack = tankFcc.getFluidContainer().getFluidStack(slot);
+                            if (stack != null)
+                                networkTotal += stack.getQuantity();
+                        }
+                    }
+                    return removerSlot0 == null && networkTotal == FluidUtil.MB_PER_BLOCK;
                 }, ctx -> 10 * ctx.getWorld().getTps(),
-                        "remover drains to zero and tank holds all " + LITERS_PER_BLOCK + " L"));
+                        "remover drains to zero and pipes+tank together hold all " + FluidUtil.MB_PER_BLOCK + " mB"));
     }
 
     private static TestCase removerSkipsWhenContainerFull() {
@@ -184,8 +222,12 @@ public final class FluidRemoverSystemTests {
                     // Fill the container to capacity — system must skip.
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
-                    if (fcc != null)
-                        fcc.fill(FLUID_ID, fcc.getCapacity());
+                    if (fcc != null) {
+                        FluidStack full = new FluidStack(FLUID_ID,
+                                fcc.getFluidContainer().getCapacityMbPerSlot(),
+                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, full, true, false);
+                    }
                     // Place fluid at the Down target cell.
                     FluidTestUtil.placeFluid(ctx.getWorld(), bx, by - 1, bz, FLUID_ID);
                 }))
@@ -198,3 +240,4 @@ public final class FluidRemoverSystemTests {
                 }, "FluidRemoverSystem does not consume world fluid when container has no available space"));
     }
 }
+

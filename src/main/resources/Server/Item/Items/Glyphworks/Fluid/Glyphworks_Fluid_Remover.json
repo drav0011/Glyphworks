@@ -58,7 +58,10 @@
     "BlockEntity": {
       "Components": {
         "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 1000
+          "Glyphworks_FluidContainerComponent_Container": {
+            "Glyphworks_FluidContainer_Capacity": 1,
+            "Glyphworks_FluidContainer_CapacityMbPerSlot": 1000
+          }
         },
         "Glyphworks_FluidRemoverComponent": {
           "Glyphworks_FluidRemoverComponent_TargetNormal": "Down",

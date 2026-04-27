@@ -11,6 +11,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.FluidStack;
 
 /**
  * Ticking system for creative fluid source blocks.
@@ -48,15 +50,18 @@ public final class FluidSourceSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
+        FluidContainer fc = fcc.getFluidContainer();
+        fc.clear();
+
         String selectedFluidId = source.getSelectedFluidId();
         if (selectedFluidId == null) {
-            fcc.drain(fcc.getAmount());
             return;
         }
 
-        if (!selectedFluidId.equals(fcc.getFluidId())) {
-            fcc.drain(fcc.getAmount());
+        int slotCapacityMb = fc.getCapacityMbPerSlot();
+        for (short slot = 0; slot < fc.getCapacity(); slot++) {
+            FluidStack maxStack = new FluidStack(selectedFluidId, slotCapacityMb, slotCapacityMb);
+            fc.addFluidStackToSlot(slot, maxStack, true, false);
         }
-        fcc.fill(selectedFluidId, fcc.availableSpace());
     }
 }

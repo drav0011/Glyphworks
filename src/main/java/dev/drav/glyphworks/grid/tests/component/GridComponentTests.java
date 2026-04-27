@@ -44,8 +44,9 @@ public final class GridComponentTests {
                 .test(placeSetsOriginPosition())
                 .test(placeUpdatesNeighborSet())
                 .test(breakRemovesFromNeighborSet())
-                .test(transferAccumulatorWhole())
-                .test(transferAccumulatorSubTick())
+                .test(faceTransferAccumulatorWhole())
+                .test(faceTransferAccumulatorSubTick())
+                .test(faceTransferAccumulatorIndependentPerFace())
                 .test(cloneDeepCopyFaces())
                 .test(cloneDeepCopyNeighbors())
                 .test(facePlaneEqualsIgnoresContainerKey());
@@ -157,45 +158,68 @@ public final class GridComponentTests {
     }
 
     // -------------------------------------------------------------------------
-    // Test 4: drainAccumulator correctly tracks fractional carry-over (whole units)
+    // Test 4: FacePlane.drainAccumulator correctly tracks fractional carry-over
+    // (whole units)
     //
     // Instantiates GridComponent directly to test pure accumulator logic
     // without any ECS ticking interference.
     // -------------------------------------------------------------------------
 
-    private static TestCase transferAccumulatorWhole() {
-        return new TestCase("transfer_accumulator_whole", 1, 1, 1)
+    private static TestCase faceTransferAccumulatorWhole() {
+        return new TestCase("face_transfer_accumulator_whole", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridTypeEntry gte = new GridTypeEntry();
+                    FacePlane face = new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL);
                     // 1.5 added → whole=1, remainder=0.5
-                    int r1 = gte.drainAccumulator(1.5f);
+                    int r1 = face.drainAccumulator(1.5f);
                     // 0.0 added → whole=0, remainder=0.5
-                    int r2 = gte.drainAccumulator(0.0f);
+                    int r2 = face.drainAccumulator(0.0f);
                     // 0.5 added → total=1.0, whole=1, remainder=0.0
-                    int r3 = gte.drainAccumulator(0.5f);
+                    int r3 = face.drainAccumulator(0.5f);
                     return r1 == 1 && r2 == 0 && r3 == 1;
                 }, "drainAccumulator(1.5) → 1; drainAccumulator(0.0) → 0; drainAccumulator(0.5) → 1"));
     }
 
     // -------------------------------------------------------------------------
-    // Test 5: drainAccumulator sub-tick rate crosses 1.0 on the 4th call of 0.3
+    // Test 5: FacePlane.drainAccumulator sub-tick rate crosses 1.0 on the 4th
+    // call of 0.3
     // -------------------------------------------------------------------------
 
-    private static TestCase transferAccumulatorSubTick() {
-        return new TestCase("transfer_accumulator_sub_tick", 1, 1, 1)
+    private static TestCase faceTransferAccumulatorSubTick() {
+        return new TestCase("face_transfer_accumulator_sub_tick", 1, 1, 1)
                 .step(Steps.assertThat(ctx -> {
-                    GridTypeEntry gte = new GridTypeEntry();
+                    FacePlane face = new FacePlane(new Vector3i(0, 0, 0), BlockFace.East, FilterType.ALLOW_ALL);
                     // Each call adds 0.3; after 3 calls accumulator=0.9 (< 1.0 → 0 each time).
-                    int r1 = gte.drainAccumulator(0.3f);
-                    int r2 = gte.drainAccumulator(0.3f);
-                    int r3 = gte.drainAccumulator(0.3f);
+                    int r1 = face.drainAccumulator(0.3f);
+                    int r2 = face.drainAccumulator(0.3f);
+                    int r3 = face.drainAccumulator(0.3f);
                     // 4th call: 0.9 + 0.3 = 1.2 → whole=1, remainder=0.2
-                    int r4 = gte.drainAccumulator(0.3f);
+                    int r4 = face.drainAccumulator(0.3f);
                     return r1 == 0 && r2 == 0 && r3 == 0 && r4 == 1;
                 }, "drainAccumulator(0.3) x 3 → 0 each; 4th call crosses 1.0 and returns 1"));
     }
+
     // -------------------------------------------------------------------------
-    // Test 6: clone() creates a deep copy of the faces set
+    // Test 6: accumulators are independent per FacePlane on the same entry
+    // -------------------------------------------------------------------------
+
+    private static TestCase faceTransferAccumulatorIndependentPerFace() {
+        return new TestCase("face_transfer_accumulator_independent_per_face", 1, 1, 1)
+                .step(Steps.assertThat(ctx -> {
+                    FacePlane inputFace = new FacePlane(new Vector3i(0, 0, 0), BlockFace.North,
+                            FilterType.ALLOW_INPUT_ONLY, "tank");
+                    FacePlane outputFace = new FacePlane(new Vector3i(0, 0, 0), BlockFace.South,
+                            FilterType.ALLOW_OUTPUT_ONLY, "tank");
+
+                    int in1 = inputFace.drainAccumulator(0.6f);
+                    int out1 = outputFace.drainAccumulator(0.6f);
+                    int in2 = inputFace.drainAccumulator(0.6f);
+                    int out2 = outputFace.drainAccumulator(0.6f);
+
+                    return in1 == 0 && out1 == 0 && in2 == 1 && out2 == 1;
+                }, "input and output faces keep independent accumulators on the same block"));
+    }
+    // -------------------------------------------------------------------------
+    // Test 7: clone() creates a deep copy of the faces set
     //
     // Mutating a FacePlane obtained from the clone must not affect the original
     // because each FacePlane is cloned individually in the copy constructor.
@@ -217,7 +241,7 @@ public final class GridComponentTests {
     }
 
     // -------------------------------------------------------------------------
-    // Test 7: clone() creates an independent neighbor set
+    // Test 8: clone() creates an independent neighbor set
     //
     // Adding a neighbor to the clone must not appear in the original's set
     // because the copy constructor builds a new HashSet.
@@ -235,7 +259,7 @@ public final class GridComponentTests {
     }
 
     // -------------------------------------------------------------------------
-    // Test 8: FacePlane.equals ignores containerKey
+    // Test 9: FacePlane.equals ignores containerKey
     //
     // Two FacePlanes with the same position, normal, and mode must be equal
     // regardless of containerKey, and must share the same hashCode.

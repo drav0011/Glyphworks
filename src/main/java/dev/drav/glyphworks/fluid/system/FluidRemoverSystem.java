@@ -15,15 +15,18 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
+import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 /**
@@ -44,6 +47,9 @@ import dev.drav.glyphworks.grid.util.GridFaceUtil;
  */
 public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
 
+    // Remover should only have one slot
+    private static final short SLOT_INDEX = 0;
+
     @Override
     public Query<ChunkStore> getQuery() {
         return Query.and(
@@ -63,7 +69,14 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        if (fcc.availableSpace() < FluidUtil.LITERS_PER_BLOCK) {
+        
+        FluidContainer fc = fcc.getFluidContainer();
+        FluidStack slotStack = fc.getFluidStack(SLOT_INDEX);
+        int availableSpace = fc.getCapacityMbPerSlot() - (slotStack != null ? slotStack.getQuantity() : 0);
+        if (availableSpace < FluidUtil.MB_PER_BLOCK) {
+            return;
+        }
+        if (slotStack != null && slotStack.getFluidId() == null) {
             return;
         }
 
@@ -122,8 +135,15 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        int filled = fcc.fill(fluid.getId(), FluidUtil.LITERS_PER_BLOCK);
-        if (filled > 0) {
+        String worldFluidId = fluid.getId();
+        String slotFluidId = slotStack != null ? slotStack.getFluidId() : null;
+        if (slotFluidId != null && !slotFluidId.equals(worldFluidId)) {
+            return;
+        }
+
+        FluidStack fillQuery = new FluidStack(fluid.getId(), FluidUtil.MB_PER_BLOCK, fc.getCapacityMbPerSlot());
+        ItemStackSlotTransaction fillTx = fc.addFluidStackToSlot(SLOT_INDEX, fillQuery, true, false);
+        if (fillTx.succeeded()) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, FluidUtil.EMPTY_FLUID_ID, (byte) 0);
             Ref<ChunkStore> adjChunkRef = chunkStore
                     .getChunkReference(ChunkUtil.indexChunkFromBlock(adjacent.x, adjacent.z));
@@ -162,6 +182,4 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
                 originPos, GridFaceUtil.rotateFacePosition(remover.getTargetPosition(), rotation));
         return GridFaceUtil.addOffset(worldFaceCell, worldNormal);
     }
-
 }
-

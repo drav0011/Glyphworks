@@ -34,18 +34,18 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
-import dev.drav.glyphworks.crafting.window.AutoCraftingBenchMonitorWindow;
-import dev.drav.glyphworks.crafting.window.AutoCraftingBenchSelectWindow;
-import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
+import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
+import dev.drav.glyphworks.crafting.window.AutoCraftingBenchWindow;
+import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens the automated crafting bench UI.
  *
  * <ul>
- * <li>If no recipe is locked → opens {@link AutoCraftingBenchSelectWindow}
+ * <li>If no recipe is locked → opens {@link AutoCraftingBenchWindow}
  * (basic crafting browser) so the player can pick a recipe.</li>
- * <li>If a recipe is locked → opens {@link AutoCraftingBenchMonitorWindow}
+ * <li>If a recipe is locked → opens {@link AutoProcessingBenchWindow}
  * (processing-style view) showing live progress and the item containers.
  * The "Change Recipe" button (SetActive=false) clears the lock.</li>
  * </ul>
@@ -95,16 +95,15 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
 
         AutoCraftingBenchBlock acbb = (AutoCraftingBenchBlock) chunkStoreStore.getComponent(
                 blockEntityRef, AutoCraftingBenchBlock.getComponentType());
+        AutoProcessingBenchBlock apbb = (AutoProcessingBenchBlock) chunkStoreStore.getComponent(
+                blockEntityRef, AutoProcessingBenchBlock.getComponentType());
         BenchBlock benchBlock = (BenchBlock) chunkStoreStore.getComponent(
                 blockEntityRef, BenchBlock.getComponentType());
         BlockModule.BlockStateInfo blockStateInfo = (BlockModule.BlockStateInfo) chunkStoreStore.getComponent(
                 blockEntityRef, BlockModule.BlockStateInfo.getComponentType());
 
-        if (acbb == null || benchBlock == null || blockStateInfo == null)
+        if (acbb == null || apbb == null || benchBlock == null || blockStateInfo == null)
             return;
-
-        FluidContainerComponent fluidContainer = (FluidContainerComponent) chunkStoreStore.getComponent(
-                blockEntityRef, FluidContainerComponent.getComponentType());
 
         BlockType blockType = world.getBlockType(pos.x, pos.y, pos.z);
         if (blockType == null)
@@ -125,17 +124,17 @@ public class OpenAutoCraftingBenchInteraction extends SimpleBlockInteraction {
 
         if (acbb.getLockedRecipeId() == null) {
             // ── No recipe locked: open recipe selector ────────────────────────
-            AutoCraftingBenchSelectWindow selectWindow = new AutoCraftingBenchSelectWindow(
-                    acbb, benchBlock, blockStateInfo,
+            AutoCraftingBenchWindow selectWindow = new AutoCraftingBenchWindow(
+                    acbb, benchBlock,
                     pos.x, pos.y, pos.z, rotationIndex, blockType);
             openBenchPage(playerComponent, ref, store, selectWindow,
                     openSoundIndex, closeSoundIndex, commandBuffer, null);
         } else {
-            // ── Recipe locked: open monitor window ────────────────────────────
-            Map<UUID, AutoCraftingBenchMonitorWindow> windows = acbb.getWindows();
-            AutoCraftingBenchMonitorWindow monitorWindow = new AutoCraftingBenchMonitorWindow(
-                    acbb, benchBlock, blockStateInfo,
-                    pos.x, pos.y, pos.z, rotationIndex, blockType, fluidContainer);
+            // ── Recipe locked: open processing window ────────────────────────────
+            Map<UUID, AutoProcessingBenchWindow> windows = apbb.getWindows();
+            AutoProcessingBenchWindow monitorWindow = new AutoProcessingBenchWindow(
+                    apbb, benchBlock, blockStateInfo,
+                    pos.x, pos.y, pos.z, rotationIndex, blockType, acbb);
 
             if (windows.putIfAbsent(uuid, monitorWindow) == null) {
                 if (!openBenchPage(playerComponent, ref, store, monitorWindow,

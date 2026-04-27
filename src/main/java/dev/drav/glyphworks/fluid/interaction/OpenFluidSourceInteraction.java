@@ -9,6 +9,7 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.event.EventRegistration;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -18,6 +19,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ContainerBlockWindow;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.CombinedItemContainer;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -28,15 +30,17 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidSourceComponent;
+import dev.drav.glyphworks.fluid.FluidStack;
+import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens a two-slot window for the fluid source block:
  * <ol>
- *   <li>The selector slot — player places a fluid item here to choose what the
- *       source produces; fully writable ({@code ALLOW_ALL}).</li>
- *   <li>The display slot — shows the internal fluid container, always full with
- *       the selected fluid; read-only ({@code DENY_ALL}).</li>
+ * <li>The selector slot — player places a fluid item here to choose what the
+ * source produces; fully writable ({@code ALLOW_ALL}).</li>
+ * <li>The display slot — shows the internal fluid container, always full with
+ * the selected fluid; read-only ({@code DENY_ALL}).</li>
  * </ol>
  */
 public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
@@ -46,7 +50,8 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
             OpenFluidSourceInteraction.class,
             OpenFluidSourceInteraction::new,
             SimpleBlockInteraction.CODEC)
-            .documentation("Opens the fluid source UI: a selector slot for choosing the fluid and a read-only display showing the container state.")
+            .documentation(
+                    "Opens the fluid source UI: a selector slot for choosing the fluid and a read-only display showing the container state.")
             .build();
 
     @Override
@@ -91,12 +96,22 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
             return;
 
         int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
+        FluidContainer sourceContainer = fcc.getFluidContainer();
+        FluidContainer displayContainer = sourceContainer.clone();
+        displayContainer.setGlobalFilter(FilterType.DENY_ALL);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType,
-                new CombinedItemContainer(source.getSelectorContainer(), fcc.getItemContainer()));
+                new CombinedItemContainer(source.getSelectorContainer(), displayContainer));
 
-        playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
+        if (!playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window)) {
+            return;
+        }
+
+        EventRegistration<?, ?> displaySyncRegistration = sourceContainer.registerChangeEvent(event ->
+            syncDisplayFluidContainer(sourceContainer, displayContainer));
+
+        window.registerCloseEvent(event -> displaySyncRegistration.unregister());
     }
 
     @Nullable
@@ -125,5 +140,21 @@ public final class OpenFluidSourceInteraction extends SimpleBlockInteraction {
             @Nullable ItemStack itemInHand,
             @Nonnull World world,
             @Nonnull Vector3i targetBlock) {
+    }
+
+    private static void syncDisplayFluidContainer(@Nonnull FluidContainer source, @Nonnull FluidContainer display) {
+        display.clear();
+        short capacity = source.getCapacity();
+        for (short i = 0; i < capacity; i++) {
+            FluidStack stack = source.getFluidStack(i);
+            if (stack == null || stack.getFluidId() == null) {
+                continue;
+            }
+            display.addFluidStackToSlot(
+                    i,
+                    new FluidStack(stack.getFluidId(), stack.getQuantity(), stack.getCapacityMb()),
+                    true,
+                    false);
+        }
     }
 }

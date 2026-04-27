@@ -2,6 +2,7 @@ package dev.drav.glyphworks.fluid.tests.component;
 
 import org.joml.Vector3i;
 
+import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.tests.FluidTestUtil;
 import dev.drav.glyphworks.test.framework.Steps;
@@ -62,13 +63,24 @@ public final class FluidContainerComponentTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
-                        fcc.fill(FLUID_ID, AMOUNT);
+                        int slotCapacity = fcc.getFluidContainer().getCapacityMbPerSlot();
+                        FluidStack stack = new FluidStack(FLUID_ID, AMOUNT, slotCapacity);
+                        fcc.getFluidContainer().addFluidStackToSlot((short) 0, stack, true, false);
                     }
                 }))
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null && fcc.getAmount() == AMOUNT && FLUID_ID.equals(fcc.getFluidId());
+                    if (fcc == null)
+                        return false;
+                    int amount = 0;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
+                        if (stack != null && FLUID_ID.equals(stack.getFluidId())) {
+                            amount += stack.getQuantity();
+                        }
+                    }
+                    return amount == AMOUNT;
                 }, "baseline: container holds " + AMOUNT + "L of " + FLUID_ID + " before server stop"));
     }
 
@@ -90,7 +102,17 @@ public final class FluidContainerComponentTests {
                 .step(Steps.assertThat(ctx -> {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
-                    return fcc != null && fcc.getAmount() == AMOUNT && FLUID_ID.equals(fcc.getFluidId());
+                    if (fcc == null)
+                        return false;
+                    int amount = 0;
+                    for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
+                        FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
+                        if (stack != null && FLUID_ID.equals(stack.getFluidId())) {
+                            amount += stack.getQuantity();
+                        }
+                    }
+                    return amount == AMOUNT;
                 }, "FluidContainerComponent persists amount and fluidId across server restart"));
     }
 }
+

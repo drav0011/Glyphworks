@@ -54,16 +54,38 @@
     ],
     "HitboxType": "Glyphworks_Crafting_Machine_Mana_Liquifier",
     "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Processing",
+      "AllowNoInputProcessing": false,
+      "Input": [
+        {
+          "FilterValidIngredients": true
+        }
+      ],
+      "Fuel": [
+        {
+          "ResourceTypeId": "Fuel",
+          "Icon": "Icons/Processing/FuelSlotIcon.png"
+        }
+      ],
+      "OutputSlotsCount": 1,
+      "Id": "Glyphworks_ManaLiquifier",
+      "TierLevels": [
+        {
+          "CraftingTimeReductionModifier": 0
+        }
+      ]
+    },
     "BlockEntity": {
       "Components": {
-        "Glyphworks_ManaLiquifierBlock": {
-          "Glyphworks_ManaLiquifierBlock_InputContainer": null,
-          "Glyphworks_ManaLiquifierBlock_FuelContainer": null,
-          "Glyphworks_ManaLiquifierBlock_Progress": 0.0,
-          "Glyphworks_ManaLiquifierBlock_FuelEnergy": 0.0
-        },
-        "Glyphworks_FluidContainerComponent": {
-          "Glyphworks_FluidContainerComponent_CapacityMb": 10000
+        "BenchBlock": {},
+        "Glyphworks_AutoProcessingBenchBlock": {
+          "Glyphworks_AutoProcessingBenchBlock_FuelPolicy": "Any",
+          "Glyphworks_AutoProcessingBenchBlock_FluidOutputSlots": [
+            {
+              "Glyphworks_FluidSlot_CapacityMbPerSlot": 4000
+            }
+          ]
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -105,7 +127,7 @@
                   },
                   "Glyphworks_FacePlane_Normal": "North",
                   "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "mana"
+                  "Glyphworks_FacePlane_ContainerKey": "fluidoutput"
                 }
               ]
             }
@@ -128,7 +150,7 @@
     },
     "BlockSoundSetId": "Stone",
     "Interactions": {
-      "Use": "Open_Container"
+      "Use": "Open_Auto_Processing_Bench"
     }
   },
   "PlayerAnimationsId": "Block",

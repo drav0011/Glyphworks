@@ -17,6 +17,28 @@
       ]
     }
   },
+  "Recipe": {
+    "Input": [
+      {
+        "ResourceTypeId": "Glyphworks_Essence",
+        "Quantity": 1
+      }
+    ],
+    "Output": [
+      {
+        "ResourceTypeId": "Mana_Source",
+        
+        "Quantity": 250
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Processing",
+        "Id": "Glyphworks_ManaLiquifier"
+      }
+    ],
+    "TimeSeconds": 3.0
+  },
   "BlockType": {
     "Material": "Solid",
     "DrawType": "Cube",
@@ -42,6 +64,12 @@
     "CubeShadingMode": "Flat"
   },
   "PlayerAnimationsId": "Block",
+  "ResourceTypes": [
+    {
+      "Id": "Glyphworks_Fluid_Fuel"
+    }
+  ],
+  "FuelQuality": 1.0,
   "Tags": {
     "Material": [
       "Fluid"
