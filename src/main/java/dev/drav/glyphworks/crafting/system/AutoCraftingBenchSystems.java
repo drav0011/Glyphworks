@@ -5,6 +5,8 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Store;
@@ -51,9 +53,15 @@ public final class AutoCraftingBenchSystems {
             }
 
             String desiredRecipeId = normalizeRecipeId(acbb.getLockedRecipeId());
-            String currentRecipeId = normalizeRecipeId(apbb.getExternalRecipeId());
+            String currentRecipeId = normalizeRecipeId(apbb.getRecipeId());
             if (Objects.equals(desiredRecipeId, currentRecipeId)) {
-                return;
+                if (desiredRecipeId != null) {
+                    return;
+                }
+                ItemContainer inputContainer = apbb.getItemInputContainer();
+                if (inputContainer == null || inputContainer.getCapacity() == 0) {
+                    return;
+                }
             }
 
             int[] coords = BlockCoordsUtil.resolveCoords(store, blockStateInfo);
@@ -67,17 +75,31 @@ public final class AutoCraftingBenchSystems {
             int blockZ = coords[2];
 
             if (desiredRecipeId == null) {
-                apbb.clearExternalRecipeId();
-                apbb.applyExternalRecipeLayout(null, blockStateInfo, world, blockX, blockY, blockZ);
+                apbb.clearCurrentRecipe();
+                AutoProcessingBenchSystems.applyExternalRecipeLayout(
+                        apbb,
+                        null,
+                        blockStateInfo,
+                        world,
+                        blockX,
+                        blockY,
+                        blockZ);
                 return;
             }
 
-            apbb.setExternalRecipeId(desiredRecipeId);
+            apbb.setRecipeId(desiredRecipeId);
             CraftingRecipe selectedRecipe = acbb.getLockedRecipe();
             if (selectedRecipe == null || !desiredRecipeId.equals(selectedRecipe.getId())) {
                 selectedRecipe = (CraftingRecipe) CraftingRecipe.getAssetMap().getAsset(desiredRecipeId);
             }
-            apbb.applyExternalRecipeLayout(selectedRecipe, blockStateInfo, world, blockX, blockY, blockZ);
+            AutoProcessingBenchSystems.applyExternalRecipeLayout(
+                    apbb,
+                    selectedRecipe,
+                    blockStateInfo,
+                    world,
+                    blockX,
+                    blockY,
+                    blockZ);
         }
 
         @Nullable

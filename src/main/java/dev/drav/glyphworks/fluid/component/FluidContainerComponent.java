@@ -27,7 +27,7 @@ public class FluidContainerComponent implements Component<ChunkStore> {
         return GlyphworksPlugin.get().getFluidModule().getFluidContainerComponentType();
     }
 
-    @Nonnull
+    @Nullable
     private FluidContainer fluidContainer;
 
     public FluidContainerComponent() {

@@ -62,14 +62,6 @@
           "FilterValidIngredients": true
         }
       ],
-      "ExtraOutput": {
-        "Outputs": [
-          {
-            "ItemId": "Ingredient_Charcoal"
-          }
-        ],
-        "PerFuelItemsConsumed": 2
-      },
       "OutputSlotsCount": 4,
       "LocalOpenSoundEventId": "SFX_Furnace_Bench_Open",
       "LocalCloseSoundEventId": "SFX_Furnace_Bench_Close",

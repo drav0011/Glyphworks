@@ -281,7 +281,7 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
                 }
 
                 acbb.setLockedRecipe(null);
-                apbb.clearExternalRecipeId();
+                apbb.clearCurrentRecipe();
 
                 windowData.addProperty("active", Boolean.FALSE);
                 invalidate();

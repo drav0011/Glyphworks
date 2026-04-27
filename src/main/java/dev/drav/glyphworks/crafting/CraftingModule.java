@@ -18,11 +18,11 @@ import dev.drav.glyphworks.crafting.interaction.OpenAutoCraftingBenchInteraction
 import dev.drav.glyphworks.crafting.interaction.OpenAutoProcessingBenchInteraction;
 import dev.drav.glyphworks.crafting.system.AutoCraftingBenchSystems;
 import dev.drav.glyphworks.crafting.system.AutoProcessingBenchSystems;
-import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchFlowTests;
-import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchGridTests;
-import dev.drav.glyphworks.crafting.tests.AutoCraftingBenchTests;
-import dev.drav.glyphworks.crafting.tests.component.AutoProcessingBenchBlockTests;
+import dev.drav.glyphworks.crafting.tests.system.AutoCraftingBenchRecipeLockTests;
+import dev.drav.glyphworks.crafting.tests.system.AutoProcessingBenchFlowTests;
 import dev.drav.glyphworks.crafting.tests.system.AutoProcessingBenchFuelTests;
+import dev.drav.glyphworks.crafting.tests.system.AutoProcessingBenchGridTests;
+import dev.drav.glyphworks.crafting.tests.system.AutoProcessingBenchSetupTests;
 
 /**
  * Sub-plugin that owns the auto-crafting bench component,
@@ -83,10 +83,10 @@ public final class CraftingModule extends GlyphworksModule {
 
     @Override
     public void setupTests() {
-        AutoCraftingBenchTests.register("crafting");
-        AutoCraftingBenchFlowTests.register("crafting");
-        AutoCraftingBenchGridTests.register("crafting");
-        AutoProcessingBenchBlockTests.register("crafting");
+        AutoProcessingBenchSetupTests.register("crafting");
+        AutoProcessingBenchFlowTests.register("crafting");
+        AutoCraftingBenchRecipeLockTests.register("crafting");
+        AutoProcessingBenchGridTests.register("crafting");
         AutoProcessingBenchFuelTests.register("crafting");
     }
 }
