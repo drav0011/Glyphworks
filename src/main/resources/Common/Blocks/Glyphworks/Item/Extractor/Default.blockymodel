@@ -11,37 +11,37 @@
         "stretch": {"x": 1, "y": 1, "z": 1},
         "settings": {
           "isPiece": false,
-          "size": {"x": 12, "y": 12, "z": 12},
+          "size": {"x": 16, "y": 12, "z": 16},
           "isStaticBox": true
         },
         "textureLayout": {
           "back": {
-            "offset": {"x": 12, "y": 42},
+            "offset": {"x": 0, "y": 40},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "right": {
-            "offset": {"x": 0, "y": 42},
+            "offset": {"x": 40, "y": 30},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "front": {
-            "offset": {"x": 36, "y": 42},
+            "offset": {"x": 16, "y": 42},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "left": {
-            "offset": {"x": 24, "y": 42},
+            "offset": {"x": 32, "y": 42},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "top": {
-            "offset": {"x": 24, "y": 42},
+            "offset": {"x": 36, "y": 16},
             "mirror": {"x": true, "y": true},
             "angle": 0
           },
           "bottom": {
-            "offset": {"x": 36, "y": 30},
+            "offset": {"x": 36, "y": 16},
             "mirror": {"x": true, "y": false},
             "angle": 0
           }
@@ -63,37 +63,37 @@
         "stretch": {"x": 1, "y": 1, "z": 1},
         "settings": {
           "isPiece": false,
-          "size": {"x": 8, "y": 10, "z": 8},
+          "size": {"x": 12, "y": 10, "z": 12},
           "isStaticBox": true
         },
         "textureLayout": {
           "back": {
-            "offset": {"x": 56, "y": 38},
+            "offset": {"x": 12, "y": 54},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "right": {
-            "offset": {"x": 48, "y": 38},
+            "offset": {"x": 24, "y": 54},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "front": {
-            "offset": {"x": 72, "y": 38},
+            "offset": {"x": 36, "y": 54},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "left": {
-            "offset": {"x": 64, "y": 38},
+            "offset": {"x": 48, "y": 54},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "top": {
-            "offset": {"x": 64, "y": 38},
+            "offset": {"x": 60, "y": 54},
             "mirror": {"x": true, "y": true},
             "angle": 0
           },
           "bottom": {
-            "offset": {"x": 72, "y": 30},
+            "offset": {"x": 12, "y": 52},
             "mirror": {"x": true, "y": false},
             "angle": 0
           }
@@ -120,32 +120,32 @@
         },
         "textureLayout": {
           "back": {
-            "offset": {"x": 20, "y": 20},
+            "offset": {"x": 20, "y": 32},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "right": {
-            "offset": {"x": 0, "y": 20},
+            "offset": {"x": 36, "y": 0},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "front": {
-            "offset": {"x": 60, "y": 20},
+            "offset": {"x": 36, "y": 10},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "left": {
-            "offset": {"x": 40, "y": 20},
+            "offset": {"x": 36, "y": 20},
             "mirror": {"x": false, "y": false},
             "angle": 0
           },
           "top": {
-            "offset": {"x": 40, "y": 20},
+            "offset": {"x": 20, "y": 20},
             "mirror": {"x": true, "y": true},
             "angle": 0
           },
           "bottom": {
-            "offset": {"x": 60, "y": 0},
+            "offset": {"x": 20, "y": 20},
             "mirror": {"x": true, "y": false},
             "angle": 0
           }
