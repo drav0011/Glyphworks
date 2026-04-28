@@ -73,7 +73,7 @@
             {
               "id": "3",
               "name": "paper",
-              "position": {"x": 16, "y": 3, "z": 16.5},
+              "position": {"x": 16, "y": 3.1, "z": 16.5},
               "orientation": {"x": 0, "y": 0.0654, "z": 0, "w": 0.99786},
               "shape": {
                 "type": "box",
