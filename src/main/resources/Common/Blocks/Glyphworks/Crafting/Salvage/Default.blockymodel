@@ -1084,8 +1084,8 @@
                 {
                   "id": "23",
                   "name": "top",
-                  "position": {"x": -2, "y": -4, "z": -23},
-                  "orientation": {"x": 0, "y": 0, "z": -0.04362, "w": 0.99905},
+                  "position": {"x": -4, "y": -2, "z": -23},
+                  "orientation": {"x": 0, "y": 0, "z": -0.21644, "w": 0.9763},
                   "shape": {
                     "type": "box",
                     "offset": {"x": 0, "y": 0, "z": 27},
@@ -1136,7 +1136,7 @@
                       "id": "24",
                       "name": "left_wall--C1",
                       "position": {"x": 0, "y": 0, "z": -12},
-                      "orientation": {"x": 0, "y": 0, "z": -0.17365, "w": 0.98481},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1188,7 +1188,7 @@
                       "id": "25",
                       "name": "left_wall--C2",
                       "position": {"x": 0, "y": 0, "z": -36},
-                      "orientation": {"x": 0, "y": 0, "z": -0.5, "w": 0.86603},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1240,7 +1240,7 @@
                       "id": "26",
                       "name": "left_wall--C3",
                       "position": {"x": 0, "y": 0, "z": -48},
-                      "orientation": {"x": 0, "y": 0, "z": -0.64279, "w": 0.76604},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1292,7 +1292,7 @@
                       "id": "27",
                       "name": "left_wall--C4",
                       "position": {"x": 0, "y": 0, "z": -24},
-                      "orientation": {"x": 0, "y": 0, "z": -0.34202, "w": 0.93969},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1345,8 +1345,8 @@
                 {
                   "id": "28",
                   "name": "bottom",
-                  "position": {"x": 6, "y": -6, "z": -25},
-                  "orientation": {"x": 0, "y": 0, "z": -0.10887, "w": 0.99406},
+                  "position": {"x": 5, "y": -8, "z": -25},
+                  "orientation": {"x": 0, "y": 0, "z": 0.17365, "w": 0.98481},
                   "shape": {
                     "type": "box",
                     "offset": {"x": 0, "y": 0, "z": 23},
@@ -1397,7 +1397,7 @@
                       "id": "29",
                       "name": "left_wall--C1",
                       "position": {"x": 0, "y": 0, "z": -12},
-                      "orientation": {"x": 0, "y": 0, "z": 0.17365, "w": 0.98481},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1449,7 +1449,7 @@
                       "id": "30",
                       "name": "left_wall--C2",
                       "position": {"x": 0, "y": 0, "z": -36},
-                      "orientation": {"x": 0, "y": 0, "z": 0.5, "w": 0.86603},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1501,7 +1501,7 @@
                       "id": "31",
                       "name": "left_wall--C3",
                       "position": {"x": 0, "y": 0, "z": -48},
-                      "orientation": {"x": 0, "y": 0, "z": 0.64279, "w": 0.76604},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -1553,7 +1553,7 @@
                       "id": "32",
                       "name": "left_wall--C4",
                       "position": {"x": 0, "y": 0, "z": -24},
-                      "orientation": {"x": 0, "y": 0, "z": 0.34202, "w": 0.93969},
+                      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                       "shape": {
                         "type": "box",
                         "offset": {"x": 0, "y": 0, "z": 0},
@@ -2393,7 +2393,7 @@
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
                   "shape": {
                     "type": "box",
-                    "offset": {"x": 0, "y": -7, "z": 18},
+                    "offset": {"x": 0, "y": -6.9, "z": 18},
                     "stretch": {"x": 1, "y": 1, "z": 1},
                     "settings": {
                       "isPiece": false,
