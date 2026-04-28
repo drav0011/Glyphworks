@@ -762,7 +762,7 @@
             },
             "textureLayout": {
               "back": {
-                "offset": {"x": 188, "y": 199},
+                "offset": {"x": 170, "y": 308},
                 "mirror": {"x": false, "y": false},
                 "angle": 0
               },

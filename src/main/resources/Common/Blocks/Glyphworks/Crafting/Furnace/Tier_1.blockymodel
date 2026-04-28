@@ -564,58 +564,6 @@
     },
     {
       "id": "13",
-      "name": "cube",
-      "position": {"x": -47, "y": 0, "z": -79},
-      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
-      "shape": {
-        "type": "box",
-        "offset": {"x": 47, "y": 48, "z": 79},
-        "stretch": {"x": 1, "y": 1, "z": 1},
-        "settings": {
-          "isPiece": false,
-          "size": {"x": 96, "y": 96, "z": 96},
-          "isStaticBox": true
-        },
-        "textureLayout": {
-          "back": {
-            "offset": {"x": 128, "y": 128},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "right": {
-            "offset": {"x": 0, "y": 128},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "front": {
-            "offset": {"x": 352, "y": 128},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "left": {
-            "offset": {"x": 256, "y": 128},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "top": {
-            "offset": {"x": 224, "y": 96},
-            "mirror": {"x": true, "y": true},
-            "angle": 0
-          },
-          "bottom": {
-            "offset": {"x": 320, "y": 0},
-            "mirror": {"x": true, "y": false},
-            "angle": 0
-          }
-        },
-        "unwrapMode": "custom",
-        "visible": false,
-        "doubleSided": false,
-        "shadingMode": "flat"
-      }
-    },
-    {
-      "id": "14",
       "name": "Ports",
       "position": {"x": 0, "y": 0, "z": 0},
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -660,13 +608,13 @@
           }
         },
         "unwrapMode": "custom",
-        "visible": false,
+        "visible": true,
         "doubleSided": false,
         "shadingMode": "flat"
       },
       "children": [
         {
-          "id": "15",
+          "id": "14",
           "name": "input--C1",
           "position": {"x": 0, "y": 80, "z": -63},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -712,13 +660,13 @@
               }
             },
             "unwrapMode": "custom",
-            "visible": false,
+            "visible": true,
             "doubleSided": false,
             "shadingMode": "flat"
           }
         },
         {
-          "id": "16",
+          "id": "15",
           "name": "Ports--C2",
           "position": {"x": 0, "y": 0, "z": -101},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -764,7 +712,7 @@
               }
             },
             "unwrapMode": "custom",
-            "visible": false,
+            "visible": true,
             "doubleSided": false,
             "shadingMode": "flat"
           }
