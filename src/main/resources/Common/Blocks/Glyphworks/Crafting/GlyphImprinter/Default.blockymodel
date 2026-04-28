@@ -305,7 +305,7 @@
                             "angle": 0
                           },
                           "bottom": {
-                            "offset": {"x": 142, "y": 26},
+                            "offset": {"x": 141, "y": 84},
                             "mirror": {"x": true, "y": false},
                             "angle": 0
                           }
@@ -357,7 +357,7 @@
                             "angle": 0
                           },
                           "bottom": {
-                            "offset": {"x": 118, "y": 35},
+                            "offset": {"x": 74, "y": 90},
                             "mirror": {"x": true, "y": false},
                             "angle": 0
                           }
@@ -636,7 +636,7 @@
                   "id": "15",
                   "name": "embudo",
                   "position": {"x": -33, "y": 37.5, "z": -1},
-                  "orientation": {"x": -0.08068, "y": 0.15875, "z": 0.43809, "w": 0.88111},
+                  "orientation": {"x": -0.08068, "y": 0.15875, "z": 0.43809, "w": 0.88112},
                   "shape": {
                     "type": "box",
                     "offset": {"x": 0, "y": -7, "z": 0},
@@ -1206,8 +1206,8 @@
                             "angle": 0
                           },
                           "left": {
-                            "offset": {"x": 154, "y": 16},
-                            "mirror": {"x": false, "y": false},
+                            "offset": {"x": 172, "y": 0},
+                            "mirror": {"x": true, "y": false},
                             "angle": 0
                           },
                           "top": {
@@ -1243,8 +1243,8 @@
                         },
                         "textureLayout": {
                           "back": {
-                            "offset": {"x": 173, "y": 16},
-                            "mirror": {"x": false, "y": false},
+                            "offset": {"x": 189, "y": 0},
+                            "mirror": {"x": true, "y": false},
                             "angle": 0
                           },
                           "right": {
