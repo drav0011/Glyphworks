@@ -1248,7 +1248,7 @@
                   "shape": {
                     "type": "box",
                     "offset": {"x": 17, "y": 19, "z": -9.5},
-                    "stretch": {"x": 0.999, "y": 0.999, "z": 0.999},
+                    "stretch": {"x": 0.99, "y": 0.99, "z": 0.99},
                     "settings": {
                       "isPiece": false,
                       "size": {"x": 36, "y": 6, "z": 27},
@@ -1373,7 +1373,7 @@
                   "shape": {
                     "type": "box",
                     "offset": {"x": 17, "y": 19, "z": 9.5},
-                    "stretch": {"x": 0.999, "y": 0.999, "z": 0.999},
+                    "stretch": {"x": 0.99, "y": 0.99, "z": 0.99},
                     "settings": {
                       "isPiece": false,
                       "size": {"x": 36, "y": 6, "z": 27},
@@ -1498,7 +1498,7 @@
                   "shape": {
                     "type": "box",
                     "offset": {"x": -17, "y": 19, "z": 9.5},
-                    "stretch": {"x": 0.999, "y": 0.999, "z": 0.999},
+                    "stretch": {"x": 0.99, "y": 0.99, "z": 0.99},
                     "settings": {
                       "isPiece": false,
                       "size": {"x": 36, "y": 6, "z": 27},
@@ -1833,7 +1833,7 @@
                   "shape": {
                     "type": "box",
                     "offset": {"x": -17, "y": 19, "z": -9.5},
-                    "stretch": {"x": 0.999, "y": 0.999, "z": 0.999},
+                    "stretch": {"x": 0.99, "y": 0.99, "z": 0.99},
                     "settings": {
                       "isPiece": false,
                       "size": {"x": 36, "y": 6, "z": 27},
