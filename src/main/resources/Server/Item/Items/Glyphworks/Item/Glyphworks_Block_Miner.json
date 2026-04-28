@@ -58,10 +58,6 @@
     "BlockEntity": {
       "Components": {
         "ItemContainerBlock": {
-          "ItemContainer": {
-            "Capacity": 3,
-            "Items": {}
-          },
           "Capacity": 3
         },
         "Glyphworks_BlockMinerComponent": {

@@ -116,13 +116,16 @@ public final class ItemPickerSystem extends EntityTickingSystem<ChunkStore> {
                     if (ItemStack.isEmpty(stack)) {
                         continue;
                     }
-                    if (!container.canAddItemStack(stack)) {
-                        continue;
-                    }
 
                     ItemStackTransaction tx = container.addItemStack(stack);
-                    if (tx.succeeded()) {
+                    if (!tx.succeeded()) {
+                        continue;
+                    }
+                    ItemStack remainder = tx.getRemainder();
+                    if (ItemStack.isEmpty(remainder)) {
                         itemBuf.removeEntity(itemChunk.getReferenceTo(i), RemoveReason.REMOVE);
+                    } else {
+                        ic.setItemStack(remainder);
                     }
                 }
             });

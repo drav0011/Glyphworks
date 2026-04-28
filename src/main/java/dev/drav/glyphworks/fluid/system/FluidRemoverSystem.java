@@ -23,6 +23,7 @@ import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.fluid.FluidStack;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
@@ -138,6 +139,10 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         String worldFluidId = fluid.getId();
         String slotFluidId = slotStack != null ? slotStack.getFluidId() : null;
         if (slotFluidId != null && !slotFluidId.equals(worldFluidId)) {
+            return;
+        }
+
+        if (FluidItemRegistry.resolveItemId(worldFluidId) == null) {
             return;
         }
 
