@@ -2,7 +2,7 @@ package dev.drav.glyphworks.item.tests.system;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
@@ -520,7 +520,7 @@ public final class ItemGridTransferTests {
                     ItemContainerBlock sinkB = getBox(w, new Vector3i(ox + 3, oy, oz + 2));
                     return sinkA != null && countItems(sinkA.getItemContainer()) == SEED_AMOUNT
                             && sinkB != null && countItems(sinkB.getItemContainer()) == 0;
-                }, "Network A’s items reached SinkA; Network B’s sink stayed empty"));
+                }, "Network A's items reached SinkA; Network B’s sink stayed empty"));
     }
 
     /**

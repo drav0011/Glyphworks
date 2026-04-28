@@ -2,8 +2,7 @@ package dev.drav.glyphworks.crafting.tests.system;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
-
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
@@ -54,7 +53,6 @@ public final class AutoProcessingBenchGridTests {
 
     private static final String BENCH_ID = "Glyphworks_Crafting_Machine_WorkBench";
     private static final String FLUID_PIPE_ID = "Glyphworks_Fluid_Pipe";
-    private static final String FLUID_TANK_ID = "Glyphworks_Fluid_Tank";
     private static final String ITEM_PIPE_ID = "Glyphworks_Item_Pipe";
     private static final String ITEM_CONTAINER_ID = "Glyphworks_Item_Container";
     private static final String ITEM_EXTRACTOR_ID = "Glyphworks_Item_Extractor";

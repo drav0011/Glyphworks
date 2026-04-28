@@ -2,7 +2,7 @@ package dev.drav.glyphworks.item.system;
 
 import javax.annotation.Nonnull;
 
-import org.joml.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;

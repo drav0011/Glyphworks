@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;

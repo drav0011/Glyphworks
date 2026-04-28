@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import dev.drav.glyphworks.grid.type.GridType;
 

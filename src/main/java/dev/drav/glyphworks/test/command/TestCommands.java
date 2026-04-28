@@ -18,7 +18,7 @@ public final class TestCommands extends AbstractCommandCollection {
     public TestCommands() {
         super("glyphworks:test", "Glyphworks test framework commands");
         addAliases("gw:test");
-        setPermissionGroups(HytalePermissionsProvider.GROUP_ADMIN);
+        setPermissionGroups(HytalePermissionsProvider.OP_GROUP);
         addSubCommand(new TestRunCommand());
         addSubCommand(new TestPurgeCommand());
     }

@@ -1,6 +1,6 @@
 package dev.drav.glyphworks.item.tests.component;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.World;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.joml.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -14,7 +14,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
@@ -112,7 +112,7 @@ public final class ItemDropperSystem extends EntityTickingSystem<ChunkStore> {
         Store<EntityStore> entityStore = world.getEntityStore().getStore();
 
         Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(
-                entityStore, items, dropPos, Rotation3f.ZERO);
+                entityStore, items, dropPos, Vector3f.ZERO);
         if (holders.length > 0) {
             world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
         }

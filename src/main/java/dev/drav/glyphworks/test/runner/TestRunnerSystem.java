@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.joml.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -182,7 +182,7 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
                         MovementStatesComponent msComp = playerStore.getComponent(playerRef,
                                 MovementStatesComponent.getComponentType());
                         if (playerComp != null && msComp != null) {
-                            Player.applyMovementStates(playerRef, new SavedMovementStates(true),
+                            playerComp.applyMovementStates(playerRef, new SavedMovementStates(true),
                                     msComp.getMovementStates(), playerStore);
                         }
                         playerStore.addComponent(playerRef, Teleport.getComponentType(),

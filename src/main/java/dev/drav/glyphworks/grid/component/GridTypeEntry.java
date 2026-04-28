@@ -7,13 +7,13 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.set.SetCodec;
-import com.hypixel.hytale.math.vector.Vector3iUtil;
+
 
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
@@ -43,7 +43,7 @@ public class GridTypeEntry {
             .add()
             .append(
                     new KeyedCodec<>("Glyphworks_GridTypeEntry_Neighbors",
-                            new SetCodec<>(Vector3iUtil.CODEC, HashSet::new, false)),
+                            new SetCodec<>(Vector3i.CODEC, HashSet::new, false)),
                     (c, v) -> c.neighbors = v,
                     c -> c.neighbors)
             .add()

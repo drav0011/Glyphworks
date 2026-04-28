@@ -1,7 +1,6 @@
 package dev.drav.glyphworks.fluid.tests.system;
 
-import org.joml.Vector3i;
-
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.universe.world.World;

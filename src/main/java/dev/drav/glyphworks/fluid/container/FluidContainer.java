@@ -45,21 +45,21 @@ public class FluidContainer extends SimpleItemContainer {
                     new KeyedCodec<>("Glyphworks_FluidContainer_Items",
                             new Short2ObjectMapCodec<>(FluidStack.CODEC, Short2ObjectOpenHashMap::new, false)),
                     (c, map) -> {
-                        c.items = new ItemStack[c.capacity];
-                        c.itemsCount = 0;
+                        c.items = new Short2ObjectOpenHashMap<>(c.capacity);
                         for (Short2ObjectMap.Entry<FluidStack> entry : map.short2ObjectEntrySet()) {
                             short slot = entry.getShortKey();
                             FluidStack stack = entry.getValue();
                             if (slot >= 0 && slot < c.capacity && !ItemStack.isEmpty(stack)) {
-                                c.items[slot] = stack;
-                                c.itemsCount++;
+                                c.items.put(slot, stack);
                             }
                         }
                     },
                     c -> {
                         Short2ObjectOpenHashMap<FluidStack> map = new Short2ObjectOpenHashMap<>();
-                        for (short i = 0; i < c.capacity; i++) {
-                            if (c.items[i] instanceof FluidStack fs && !ItemStack.isEmpty(fs)) {
+                        for (Short2ObjectMap.Entry<ItemStack> entry : c.items.short2ObjectEntrySet()) {
+                            short i = entry.getShortKey();
+                            ItemStack stack = entry.getValue();
+                            if (stack instanceof FluidStack fs && !ItemStack.isEmpty(fs)) {
                                 map.put(i, fs);
                             }
                         }
@@ -68,8 +68,7 @@ public class FluidContainer extends SimpleItemContainer {
             .add()
             .afterDecode(c -> {
                 if (c.items == null) {
-                    c.items = new ItemStack[c.capacity];
-                    c.itemsCount = 0;
+                    c.items = new Short2ObjectOpenHashMap<>(c.capacity);
                 }
             })
             .build();

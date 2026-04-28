@@ -4,15 +4,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3d;
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
@@ -112,7 +112,7 @@ public final class ItemTestUtil {
             String itemId, int qty) {
         List<ItemStack> items = List.of(new ItemStack(itemId, qty));
         Vector3d pos = new Vector3d(x, y, z);
-        Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, items, pos, Rotation3f.ZERO);
+        Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, items, pos, Vector3f.ZERO);
         if (holders.length > 0) {
             world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
         }

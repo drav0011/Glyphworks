@@ -9,17 +9,16 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
-import org.joml.Vector3ic;
-
 import com.hypixel.hytale.assetstore.map.BlockTypeAssetMap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlockRuleSet;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlocksUtil;
-import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
+
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -110,8 +109,8 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
 
     @Override
     public Optional<ConnectedBlocksUtil.ConnectedBlockResult> getConnectedBlockType(
-            World world, Vector3ic coordinate, BlockType currentBlockType,
-            int rotation, Vector3ic placementNormal, boolean isPlacement) {
+            World world, Vector3i coordinate, BlockType currentBlockType,
+            int rotation, Vector3i placementNormal, boolean isPlacement) {
 
         if (stateToBlockKey == null) {
             LOGGER.warning("[PipeRuleSet] stateToBlockKey is null — updateCachedBlockTypes was never called for "

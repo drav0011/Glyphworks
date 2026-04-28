@@ -2,7 +2,7 @@ package dev.drav.glyphworks.grid.tests.system;
 
 import java.util.Set;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.server.core.universe.world.World;
 

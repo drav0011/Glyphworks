@@ -2,7 +2,7 @@ package dev.drav.glyphworks.grid.event;
 
 import javax.annotation.Nonnull;
 
-import org.joml.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.math.util.ChunkUtil;

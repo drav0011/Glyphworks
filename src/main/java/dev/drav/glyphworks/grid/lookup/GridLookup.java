@@ -3,8 +3,7 @@ package dev.drav.glyphworks.grid.lookup;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.joml.Vector3i;
-import org.joml.Vector3ic;
+import com.hypixel.hytale.math.vector.Vector3i;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
@@ -35,8 +34,8 @@ public record GridLookup(
         @Nonnull RotationTuple rotation) {
 
     @Nullable
-    public static GridLookup resolve(@Nonnull ChunkStore chunkStore, @Nonnull Vector3ic pos) {
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x(), pos.z());
+    public static GridLookup resolve(@Nonnull ChunkStore chunkStore, @Nonnull Vector3i pos) {
+        long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
 
         Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(chunkIndex);
         if (chunkRef == null || !chunkRef.isValid())
@@ -48,7 +47,7 @@ public record GridLookup(
             return null;
 
         Ref<ChunkStore> blockRef = bcc.getEntityReference(
-                ChunkUtil.indexBlockInColumn(pos.x(), pos.y(), pos.z()));
+            ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
 
         Vector3i originPos = new Vector3i(pos);
 
@@ -58,14 +57,14 @@ public record GridLookup(
             if (worldChunk == null)
                 return null;
 
-            int filler = DeprecatedChunkAccess.getFiller(worldChunk, pos.x(), pos.y(), pos.z());
+            int filler = DeprecatedChunkAccess.getFiller(worldChunk, pos.x, pos.y, pos.z);
             if (filler == FillerBlockUtil.NO_FILLER)
                 return null;
 
             originPos = new Vector3i(
-                    pos.x() - FillerBlockUtil.unpackX(filler),
-                    pos.y() - FillerBlockUtil.unpackY(filler),
-                    pos.z() - FillerBlockUtil.unpackZ(filler));
+                    pos.x - FillerBlockUtil.unpackX(filler),
+                    pos.y - FillerBlockUtil.unpackY(filler),
+                    pos.z - FillerBlockUtil.unpackZ(filler));
 
             long originChunkIndex = ChunkUtil.indexChunkFromBlock(originPos.x, originPos.z);
             Ref<ChunkStore> originChunkRef = chunkStore.getChunkReference(originChunkIndex);

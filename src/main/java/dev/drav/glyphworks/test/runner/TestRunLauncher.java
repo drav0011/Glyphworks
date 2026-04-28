@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import org.joml.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import com.hypixel.hytale.component.AddReason;
 import com.hypixel.hytale.component.Holder;
@@ -17,7 +17,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.shape.Box2D;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -131,7 +131,7 @@ public final class TestRunLauncher {
                                 TransformComponent.getComponentType(),
                                 new TransformComponent(
                                         new Vector3d(0, 64, 0),
-                                        Rotation3f.IDENTITY));
+                                        Vector3f.ZERO));
 
                         Ref<EntityStore> runnerRef = testStore.addEntity(holder, AddReason.SPAWN);
 
@@ -286,7 +286,7 @@ public final class TestRunLauncher {
         Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
         holder.addComponent(
                 TransformComponent.getComponentType(),
-                new TransformComponent(new Vector3d(0, 64, 0), Rotation3f.IDENTITY));
+                new TransformComponent(new Vector3d(0, 64, 0), Vector3f.ZERO));
 
         Ref<EntityStore> runnerRef = testStore.addEntity(holder, AddReason.SPAWN);
 

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.joml.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3d;
 
 import com.hypixel.hytale.builtin.crafting.CraftingPlugin;
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
@@ -23,7 +23,7 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.bench.ProcessingBench;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
@@ -241,7 +241,7 @@ public final class AutoProcessingBenchSystems {
             Store<EntityStore> entityStore = world.getEntityStore().getStore();
             Vector3d dropPos = new Vector3d(blockX + 0.5, blockY + 0.5, blockZ + 0.5);
             Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, ejected, dropPos,
-                    Rotation3f.ZERO);
+                    Vector3f.ZERO);
             if (holders.length > 0) {
                 world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
             }
@@ -376,7 +376,7 @@ public final class AutoProcessingBenchSystems {
             Store<EntityStore> entityStore = world.getEntityStore().getStore();
             Vector3d dropPos = new Vector3d(blockX + 0.5, blockY + 0.5, blockZ + 0.5);
             Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, ejected, dropPos,
-                    Rotation3f.ZERO);
+                    Vector3f.ZERO);
             if (holders.length > 0) {
                 world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
             }
@@ -492,7 +492,7 @@ public final class AutoProcessingBenchSystems {
             Vector3d dropPos = new Vector3d(blockX + 0.5d, localY, blockZ + 0.5d);
 
             Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, items, dropPos,
-                    Rotation3f.ZERO);
+                    Vector3f.ZERO);
             if (holders.length > 0)
                 world.execute(() -> entityStore.addEntities(holders, AddReason.SPAWN));
         }
@@ -852,7 +852,7 @@ public final class AutoProcessingBenchSystems {
                 if (!remainder.isEmpty()) {
                     Vector3d dropPos = new Vector3d(blockX + 0.5, blockY + 0.5, blockZ + 0.5);
                     Holder<EntityStore>[] holders = ItemComponent.generateItemDrops(entityStore, remainder, dropPos,
-                            Rotation3f.ZERO);
+                            Vector3f.ZERO);
                     if (holders.length > 0) {
                         entityStore.addEntities(holders, AddReason.SPAWN);
                     }

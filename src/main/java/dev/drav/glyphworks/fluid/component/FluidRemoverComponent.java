@@ -2,14 +2,12 @@ package dev.drav.glyphworks.fluid.component;
 
 import javax.annotation.Nonnull;
 
-import org.joml.Vector3i;
-
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
-import com.hypixel.hytale.math.vector.Vector3iUtil;
+import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -32,7 +30,7 @@ public final class FluidRemoverComponent implements Component<ChunkStore> {
     public static final BuilderCodec<FluidRemoverComponent> CODEC = BuilderCodec
             .builder(FluidRemoverComponent.class, () -> new FluidRemoverComponent())
             .append(
-                    new KeyedCodec<>("Glyphworks_FluidRemoverComponent_TargetPosition", Vector3iUtil.CODEC),
+                    new KeyedCodec<>("Glyphworks_FluidRemoverComponent_TargetPosition", Vector3i.CODEC),
                     (c, v) -> c.targetPosition = v,
                     c -> c.targetPosition)
             .add()

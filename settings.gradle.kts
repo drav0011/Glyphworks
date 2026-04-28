@@ -6,7 +6,7 @@ plugins {
     id("dev.scaffoldit") version "0.2.+"
 }
 hytale {
-    usePatchline("pre-release")
+    usePatchline("release")
     useVersion("latest")
 
     manifest {
