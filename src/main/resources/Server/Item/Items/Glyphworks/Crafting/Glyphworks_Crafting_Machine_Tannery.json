@@ -163,38 +163,6 @@
         }
       }
     },
-    "State": {
-      "Definitions": {
-        "Processing": {
-          "Looping": true,
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Tannery/Default.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Tannery/Processing.blockyanim"
-        },
-        "ProcessCompleted": {
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Tannery/Default.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "Looping": true,
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Tannery/Processing.blockyanim"
-        }
-      }
-    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"

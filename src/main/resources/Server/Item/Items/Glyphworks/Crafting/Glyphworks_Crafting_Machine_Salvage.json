@@ -49,7 +49,7 @@
     "CustomModel": "Blocks/Glyphworks/Crafting/Salvage/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Salvage/Off.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Salvage/Default.png",
         "Weight": 1
       }
     ],
@@ -128,38 +128,6 @@
               ]
             }
           ]
-        }
-      }
-    },
-    "State": {
-      "Definitions": {
-        "Processing": {
-          "Looping": true,
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Salvage/On.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Salvage/Processing.blockyanim"
-        },
-        "ProcessCompleted": {
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Salvage/On.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "Looping": true,
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Salvage/Processing.blockyanim"
         }
       }
     },

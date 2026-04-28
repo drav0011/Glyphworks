@@ -250,17 +250,6 @@
         }
       }
     },
-    "State": {
-      "Definitions": {
-        "CraftCompleted": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Alchemy/Crafting.blockyanim",
-          "Looping": true
-        },
-        "CraftCompletedInstant": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Alchemy/Crafting.blockyanim"
-        }
-      }
-    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"

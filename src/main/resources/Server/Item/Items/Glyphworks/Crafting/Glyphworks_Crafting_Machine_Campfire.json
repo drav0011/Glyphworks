@@ -129,50 +129,6 @@
         }
       }
     },
-    "State": {
-      "Definitions": {
-        "Processing": {
-          "Looping": true,
-          "Light": {
-            "Color": "#ecb"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Campfire_Processing",
-          "Particles": [
-            {
-              "SystemId": "Campfire_New_Cartoon",
-              "Scale": 1
-            }
-          ],
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
-        },
-        "ProcessCompleted": {
-          "Light": {
-            "Color": "#ecb"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Benches/Furnace_Texture.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Campfire_Processing",
-          "Looping": true,
-          "Particles": [
-            {
-              "SystemId": "Campfire_New_Cartoon",
-              "Scale": 1
-            }
-          ],
-          "CustomModelAnimation": "Blocks/Benches/Furnace_Smelting.blockyanim"
-        }
-      }
-    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"

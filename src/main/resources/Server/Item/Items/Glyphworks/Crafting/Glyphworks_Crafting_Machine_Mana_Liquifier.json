@@ -101,7 +101,7 @@
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "input"
+                  "Glyphworks_FacePlane_ContainerKey": "fuel"
                 },
                 {
                   "Glyphworks_FacePlane_Position": {
@@ -111,7 +111,7 @@
                   },
                   "Glyphworks_FacePlane_Normal": "South",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "fuel"
+                  "Glyphworks_FacePlane_ContainerKey": "input"
                 }
               ]
             },

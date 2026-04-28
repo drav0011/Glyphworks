@@ -160,7 +160,7 @@
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
-                    "Z": -2
+                    "Z": -1
                   },
                   "Glyphworks_FacePlane_Normal": "North",
                   "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
@@ -186,7 +186,7 @@
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 2,
-                    "Z": -1
+                    "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
@@ -200,13 +200,6 @@
     },
     "State": {
       "Definitions": {
-        "CraftCompleted": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_1_Crafting.blockyanim",
-          "Looping": true
-        },
-        "CraftCompletedInstant": {
-          "CustomModelAnimation": "Blocks/Benches/Workbench_Crafting.blockyanim"
-        },
         "Tier2": {
           "CustomModel": "Blocks/Glyphworks/Crafting/Workbench/Tier_2.blockymodel",
           "CustomModelTexture": [
@@ -214,15 +207,7 @@
               "Texture": "Blocks/Glyphworks/Crafting/Workbench/Tier_2.png",
               "Weight": 1
             }
-          ],
-          "HitboxType": "Glyphworks_Crafting_Machine_WorkBench",
-          "State": {
-            "Definitions": {
-              "CraftCompleted": {
-                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_2_Crafting.blockyanim"
-              }
-            }
-          }
+          ]
         },
         "Tier3": {
           "CustomModel": "Blocks/Glyphworks/Crafting/Workbench/Tier_3.blockymodel",
@@ -231,15 +216,7 @@
               "Texture": "Blocks/Glyphworks/Crafting/Workbench/Tier_3.png",
               "Weight": 1
             }
-          ],
-          "HitboxType": "Glyphworks_Crafting_Machine_WorkBench",
-          "State": {
-            "Definitions": {
-              "CraftCompleted": {
-                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Workbench/Tier_3_Crafting.blockyanim"
-              }
-            }
-          }
+          ]
         }
       }
     },

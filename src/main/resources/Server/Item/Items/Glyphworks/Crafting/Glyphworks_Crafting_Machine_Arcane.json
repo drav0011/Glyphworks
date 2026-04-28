@@ -49,7 +49,7 @@
     "CustomModel": "Blocks/Glyphworks/Crafting/Arcane/Default.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Arcane/Off.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Arcane/Default.png",
         "Weight": 1
       }
     ],
@@ -131,29 +131,6 @@
                   "Glyphworks_FacePlane_ContainerKey": "fluidfuel"
                 }
               ]
-            }
-          ]
-        }
-      }
-    },
-    "State": {
-      "Definitions": {
-        "CraftCompleted": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Arcane/Idle.blockyanim",
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Arcane/On.png",
-              "Weight": 1
-            }
-          ],
-          "Looping": true
-        },
-        "CraftCompletedInstant": {
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Arcane/Idle.blockyanim",
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Arcane/On.png",
-              "Weight": 1
             }
           ]
         }

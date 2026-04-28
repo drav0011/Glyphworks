@@ -45,7 +45,7 @@
     "CustomModel": "Blocks/Glyphworks/Crafting/Furnace/Tier_1.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_1_Off.png",
+        "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_1.png",
         "Weight": 1
       }
     ],
@@ -165,97 +165,14 @@
     },
     "State": {
       "Definitions": {
-        "Processing": {
-          "Looping": true,
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_1_On.png",
-              "Weight": 1
-            }
-          ],
-          "Particles": [
-            {
-              "SystemId": "Fire_Furnace_On",
-              "TargetNodeName": "Fire",
-              "Scale": 0.7,
-              "PositionOffset": {
-                "X": 0,
-                "Z": 0.3
-              }
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Furnace/Tier_1_Smelting.blockyanim"
-        },
-        "ProcessCompleted": {
-          "Light": {
-            "Color": "#B72"
-          },
-          "CustomModelTexture": [
-            {
-              "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_1_On.png",
-              "Weight": 1
-            }
-          ],
-          "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-          "Looping": true,
-          "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Furnace/Tier_1_Smelting.blockyanim"
-        },
         "Tier2": {
           "CustomModel": "Blocks/Glyphworks/Crafting/Furnace/Tier_2.blockymodel",
           "CustomModelTexture": [
             {
-              "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_2_Off.png",
+              "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_2.png",
               "Weight": 1
             }
-          ],
-          "HitboxType": "Glyphworks_Crafting_Machine_Furnace",
-          "State": {
-            "Definitions": {
-              "Processing": {
-                "Looping": true,
-                "Light": {
-                  "Color": "#B72"
-                },
-                "CustomModelTexture": [
-                  {
-                    "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_2_On.png",
-                    "Weight": 1
-                  }
-                ],
-                "Particles": [
-                  {
-                    "SystemId": "Fire_Furnace_On",
-                    "TargetNodeName": "Fire",
-                    "Scale": 1.2,
-                    "PositionOffset": {
-                      "X": 0,
-                      "Z": 0.3
-                    }
-                  }
-                ],
-                "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Furnace/Tier_2_Smelting.blockyanim"
-              },
-              "ProcessCompleted": {
-                "Light": {
-                  "Color": "#B72"
-                },
-                "CustomModelTexture": [
-                  {
-                    "Texture": "Blocks/Glyphworks/Crafting/Furnace/Tier_2_On.png",
-                    "Weight": 1
-                  }
-                ],
-                "AmbientSoundEventId": "SFX_Furnace_Bench_Processing",
-                "Looping": true,
-                "CustomModelAnimation": "Blocks/Glyphworks/Crafting/Furnace/Tier_2_Smelting.blockyanim"
-              }
-            }
-          }
+          ]
         }
       }
     },

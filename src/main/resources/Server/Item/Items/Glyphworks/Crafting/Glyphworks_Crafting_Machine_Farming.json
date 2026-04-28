@@ -321,11 +321,6 @@
         }
       }
     },
-    "State": {
-      "Definitions": {
-        "CraftCompleted": {}
-      }
-    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"
