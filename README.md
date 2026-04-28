@@ -1,6 +1,6 @@
 <div align="center">
 
-![Glyphworks](assets/images/logo.png)
+![Glyphworks](assets/images/title.png)
 
 #### Rune inscribed - mana powered automation
 
