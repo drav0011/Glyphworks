@@ -2,25 +2,6 @@
   "nodes": [
     {
       "id": "1",
-      "name": "R-Attachment",
-      "position": {"x": -16, "y": 0, "z": 0},
-      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
-      "shape": {
-        "type": "none",
-        "offset": {"x": 0, "y": 0, "z": 0},
-        "stretch": {"x": 1, "y": 1, "z": 1},
-        "settings": {
-          "isPiece": true
-        },
-        "textureLayout": {},
-        "unwrapMode": "custom",
-        "visible": true,
-        "doubleSided": false,
-        "shadingMode": "flat"
-      }
-    },
-    {
-      "id": "2",
       "name": "base",
       "position": {"x": 0, "y": 0, "z": 0},
       "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -71,7 +52,7 @@
       },
       "children": [
         {
-          "id": "3",
+          "id": "2",
           "name": "base--C1",
           "position": {"x": -80, "y": 0, "z": 0},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -123,7 +104,7 @@
           }
         },
         {
-          "id": "4",
+          "id": "3",
           "name": "base--C2",
           "position": {"x": 0, "y": 0, "z": -110},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -175,7 +156,7 @@
           }
         },
         {
-          "id": "5",
+          "id": "4",
           "name": "base--C3",
           "position": {"x": -80, "y": 0, "z": -110},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -227,7 +208,7 @@
           }
         },
         {
-          "id": "6",
+          "id": "5",
           "name": "cube--C4",
           "position": {"x": -12, "y": -36, "z": -26},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -279,7 +260,7 @@
           }
         },
         {
-          "id": "7",
+          "id": "6",
           "name": "cube--C5",
           "position": {"x": -68, "y": -36, "z": -26},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -331,7 +312,7 @@
           }
         },
         {
-          "id": "8",
+          "id": "7",
           "name": "cube--C6",
           "position": {"x": -68, "y": -36, "z": -84},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -383,7 +364,7 @@
           }
         },
         {
-          "id": "9",
+          "id": "8",
           "name": "cube--C7",
           "position": {"x": -12, "y": -36, "z": -84},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -435,7 +416,7 @@
           }
         },
         {
-          "id": "10",
+          "id": "9",
           "name": "cube--C8",
           "position": {"x": -26, "y": -28, "z": -30},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -487,7 +468,7 @@
           }
         },
         {
-          "id": "11",
+          "id": "10",
           "name": "cube--C9",
           "position": {"x": 21, "y": -28, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -539,7 +520,7 @@
           }
         },
         {
-          "id": "12",
+          "id": "11",
           "name": "cube--C10",
           "position": {"x": -102, "y": -42, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -591,7 +572,7 @@
           }
         },
         {
-          "id": "13",
+          "id": "12",
           "name": "cube--C11",
           "position": {"x": 22, "y": -42, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -643,7 +624,7 @@
           }
         },
         {
-          "id": "14",
+          "id": "13",
           "name": "cube--C12",
           "position": {"x": -26, "y": -42, "z": -30},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -695,7 +676,7 @@
           }
         },
         {
-          "id": "15",
+          "id": "14",
           "name": "cube--C13",
           "position": {"x": -42, "y": -35, "z": -24},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -747,7 +728,7 @@
           }
         },
         {
-          "id": "16",
+          "id": "15",
           "name": "cube--C14",
           "position": {"x": -42, "y": -35, "z": -86},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -799,7 +780,7 @@
           }
         },
         {
-          "id": "17",
+          "id": "16",
           "name": "cube--C15",
           "position": {"x": -12, "y": 28, "z": -26},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -851,7 +832,7 @@
           }
         },
         {
-          "id": "18",
+          "id": "17",
           "name": "cube--C16",
           "position": {"x": -54, "y": -28, "z": -30},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -903,7 +884,7 @@
           }
         },
         {
-          "id": "19",
+          "id": "18",
           "name": "cube--C17",
           "position": {"x": -54, "y": -42, "z": -30},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -955,7 +936,7 @@
           }
         },
         {
-          "id": "20",
+          "id": "19",
           "name": "cube--C18",
           "position": {"x": -68, "y": 28, "z": -26},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1007,7 +988,7 @@
           }
         },
         {
-          "id": "21",
+          "id": "20",
           "name": "cube--C19",
           "position": {"x": -54, "y": -28, "z": -80},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1059,7 +1040,7 @@
           }
         },
         {
-          "id": "22",
+          "id": "21",
           "name": "cube--C20",
           "position": {"x": -54, "y": -42, "z": -80},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1111,7 +1092,7 @@
           }
         },
         {
-          "id": "23",
+          "id": "22",
           "name": "cube--C21",
           "position": {"x": -26, "y": -42, "z": -80},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1163,7 +1144,7 @@
           }
         },
         {
-          "id": "24",
+          "id": "23",
           "name": "cube--C22",
           "position": {"x": -26, "y": -28, "z": -80},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1215,7 +1196,7 @@
           }
         },
         {
-          "id": "25",
+          "id": "24",
           "name": "cube--C23",
           "position": {"x": -68, "y": 28, "z": -84},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1267,7 +1248,7 @@
           }
         },
         {
-          "id": "26",
+          "id": "25",
           "name": "cube--C24",
           "position": {"x": -12, "y": 28, "z": -84},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1319,7 +1300,7 @@
           }
         },
         {
-          "id": "27",
+          "id": "26",
           "name": "cube--C25",
           "position": {"x": -101, "y": -28, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1371,7 +1352,7 @@
           }
         },
         {
-          "id": "28",
+          "id": "27",
           "name": "cube--C26",
           "position": {"x": -24, "y": 43, "z": -72},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1423,7 +1404,7 @@
           }
         },
         {
-          "id": "29",
+          "id": "28",
           "name": "cube--C27",
           "position": {"x": -26, "y": 28, "z": -26},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1475,7 +1456,7 @@
           }
         },
         {
-          "id": "30",
+          "id": "29",
           "name": "cube--C28",
           "position": {"x": -26, "y": 28, "z": -84},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1527,7 +1508,7 @@
           }
         },
         {
-          "id": "31",
+          "id": "30",
           "name": "cube--C29",
           "position": {"x": 25, "y": 28, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1579,7 +1560,7 @@
           }
         },
         {
-          "id": "32",
+          "id": "31",
           "name": "cube--C30",
           "position": {"x": -105, "y": 28, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1631,7 +1612,7 @@
           }
         },
         {
-          "id": "33",
+          "id": "32",
           "name": "maceta1",
           "position": {"x": 15, "y": -19, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1682,7 +1663,7 @@
           },
           "children": [
             {
-              "id": "34",
+              "id": "33",
               "name": "cube--C1",
               "position": {"x": 33, "y": 8.5, "z": 30.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1734,7 +1715,7 @@
               }
             },
             {
-              "id": "35",
+              "id": "34",
               "name": "planta1",
               "position": {"x": 0, "y": 22, "z": 31.5},
               "orientation": {"x": 0, "y": 0.13053, "z": 0, "w": 0.99144},
@@ -1785,7 +1766,7 @@
               },
               "children": [
                 {
-                  "id": "36",
+                  "id": "35",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1839,7 +1820,7 @@
               ]
             },
             {
-              "id": "37",
+              "id": "36",
               "name": "planta2",
               "position": {"x": 0, "y": 22, "z": 10.5},
               "orientation": {"x": 0, "y": -0.13053, "z": 0, "w": 0.99144},
@@ -1890,7 +1871,7 @@
               },
               "children": [
                 {
-                  "id": "38",
+                  "id": "37",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -1944,7 +1925,7 @@
               ]
             },
             {
-              "id": "39",
+              "id": "38",
               "name": "planta3",
               "position": {"x": 0, "y": 22, "z": -10.5},
               "orientation": {"x": 0, "y": 0.08716, "z": 0, "w": 0.99619},
@@ -1995,7 +1976,7 @@
               },
               "children": [
                 {
-                  "id": "40",
+                  "id": "39",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2049,7 +2030,7 @@
               ]
             },
             {
-              "id": "41",
+              "id": "40",
               "name": "planta4",
               "position": {"x": 0, "y": 22, "z": -31.5},
               "orientation": {"x": 0, "y": 0.19509, "z": 0, "w": 0.98079},
@@ -2100,7 +2081,7 @@
               },
               "children": [
                 {
-                  "id": "42",
+                  "id": "41",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2156,7 +2137,7 @@
           ]
         },
         {
-          "id": "43",
+          "id": "42",
           "name": "maceta2",
           "position": {"x": -29, "y": -7, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2207,7 +2188,7 @@
           },
           "children": [
             {
-              "id": "44",
+              "id": "43",
               "name": "cube--C1",
               "position": {"x": 33, "y": 8.5, "z": 30.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2259,7 +2240,7 @@
               }
             },
             {
-              "id": "45",
+              "id": "44",
               "name": "planta5",
               "position": {"x": 0, "y": 22, "z": 31.5},
               "orientation": {"x": 0, "y": 0.13053, "z": 0, "w": 0.99144},
@@ -2310,7 +2291,7 @@
               },
               "children": [
                 {
-                  "id": "46",
+                  "id": "45",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2364,7 +2345,7 @@
               ]
             },
             {
-              "id": "47",
+              "id": "46",
               "name": "planta6",
               "position": {"x": 0, "y": 22, "z": 10.5},
               "orientation": {"x": 0, "y": -0.13053, "z": 0, "w": 0.99144},
@@ -2415,7 +2396,7 @@
               },
               "children": [
                 {
-                  "id": "48",
+                  "id": "47",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2469,7 +2450,7 @@
               ]
             },
             {
-              "id": "49",
+              "id": "48",
               "name": "planta7",
               "position": {"x": 0, "y": 22, "z": -10.5},
               "orientation": {"x": 0, "y": 0.08716, "z": 0, "w": 0.99619},
@@ -2520,7 +2501,7 @@
               },
               "children": [
                 {
-                  "id": "50",
+                  "id": "49",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2574,7 +2555,7 @@
               ]
             },
             {
-              "id": "51",
+              "id": "50",
               "name": "planta8",
               "position": {"x": 0, "y": 22, "z": -31.5},
               "orientation": {"x": 0, "y": 0.19509, "z": 0, "w": 0.98079},
@@ -2625,7 +2606,7 @@
               },
               "children": [
                 {
-                  "id": "52",
+                  "id": "51",
                   "name": "cube--C1",
                   "position": {"x": 0, "y": 0, "z": 0},
                   "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2681,7 +2662,7 @@
           ]
         },
         {
-          "id": "53",
+          "id": "52",
           "name": "banca1",
           "position": {"x": 15, "y": -32, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2732,7 +2713,7 @@
           },
           "children": [
             {
-              "id": "54",
+              "id": "53",
               "name": "cube--C1",
               "position": {"x": 31, "y": 0, "z": 29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2784,7 +2765,7 @@
               }
             },
             {
-              "id": "55",
+              "id": "54",
               "name": "cube--C2",
               "position": {"x": 20, "y": 0, "z": 29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2836,7 +2817,7 @@
               }
             },
             {
-              "id": "56",
+              "id": "55",
               "name": "cube--C3",
               "position": {"x": 31, "y": 0, "z": -29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2888,7 +2869,7 @@
               }
             },
             {
-              "id": "57",
+              "id": "56",
               "name": "cube--C4",
               "position": {"x": 20, "y": 0, "z": -29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2942,7 +2923,7 @@
           ]
         },
         {
-          "id": "58",
+          "id": "57",
           "name": "banca2",
           "position": {"x": -28, "y": -20, "z": -25},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -2993,7 +2974,7 @@
           },
           "children": [
             {
-              "id": "59",
+              "id": "58",
               "name": "cube--C1",
               "position": {"x": 31, "y": 0, "z": 29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3045,7 +3026,7 @@
               }
             },
             {
-              "id": "60",
+              "id": "59",
               "name": "cube--C2",
               "position": {"x": 20, "y": 0, "z": 29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3097,7 +3078,7 @@
               }
             },
             {
-              "id": "61",
+              "id": "60",
               "name": "cube--C3",
               "position": {"x": 31, "y": 0, "z": -29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3149,7 +3130,7 @@
               }
             },
             {
-              "id": "62",
+              "id": "61",
               "name": "cube--C4",
               "position": {"x": 20, "y": 0, "z": -29.5},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3203,7 +3184,7 @@
           ]
         },
         {
-          "id": "63",
+          "id": "62",
           "name": "fluido",
           "position": {"x": -40, "y": 39, "z": -71},
           "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3254,7 +3235,7 @@
           },
           "children": [
             {
-              "id": "64",
+              "id": "63",
               "name": "input--C1",
               "position": {"x": 0, "y": -4, "z": 0},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3306,7 +3287,7 @@
               }
             },
             {
-              "id": "65",
+              "id": "64",
               "name": "input--C2",
               "position": {"x": 0, "y": -10, "z": 0},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3358,7 +3339,7 @@
               }
             },
             {
-              "id": "66",
+              "id": "65",
               "name": "input--C3",
               "position": {"x": 0, "y": -16, "z": 0},
               "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
@@ -3410,7 +3391,7 @@
               }
             },
             {
-              "id": "67",
+              "id": "66",
               "name": "input--C4",
               "position": {"x": 3, "y": -16, "z": -18},
               "orientation": {"x": 0, "y": 0, "z": -0.30071, "w": 0.95372},
@@ -3462,7 +3443,7 @@
               }
             },
             {
-              "id": "68",
+              "id": "67",
               "name": "input--C5",
               "position": {"x": 3, "y": -16, "z": 3},
               "orientation": {"x": 0, "y": 0, "z": -0.30071, "w": 0.95372},
@@ -3514,7 +3495,7 @@
               }
             },
             {
-              "id": "69",
+              "id": "68",
               "name": "input--C6",
               "position": {"x": 3, "y": -16, "z": 28},
               "orientation": {"x": 0, "y": 0, "z": -0.30071, "w": 0.95372},
@@ -3566,7 +3547,7 @@
               }
             },
             {
-              "id": "70",
+              "id": "69",
               "name": "input--C7",
               "position": {"x": 3, "y": -16, "z": 50},
               "orientation": {"x": 0, "y": 0, "z": -0.30071, "w": 0.95372},
@@ -3618,7 +3599,7 @@
               }
             },
             {
-              "id": "71",
+              "id": "70",
               "name": "input--C8",
               "position": {"x": -3, "y": -16, "z": 50},
               "orientation": {"x": 0, "y": 0, "z": 0.30071, "w": 0.95372},
@@ -3670,7 +3651,7 @@
               }
             },
             {
-              "id": "72",
+              "id": "71",
               "name": "input--C9",
               "position": {"x": -3, "y": -16, "z": 28},
               "orientation": {"x": 0, "y": 0, "z": 0.30071, "w": 0.95372},
@@ -3722,7 +3703,7 @@
               }
             },
             {
-              "id": "73",
+              "id": "72",
               "name": "input--C10",
               "position": {"x": -3, "y": -16, "z": 3},
               "orientation": {"x": 0, "y": 0, "z": 0.30071, "w": 0.95372},
@@ -3774,7 +3755,7 @@
               }
             },
             {
-              "id": "74",
+              "id": "73",
               "name": "input--C11",
               "position": {"x": -3, "y": -16, "z": -18},
               "orientation": {"x": 0, "y": 0, "z": 0.30071, "w": 0.95372},
@@ -3826,163 +3807,6 @@
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": "75",
-      "name": "Ports",
-      "position": {"x": 0, "y": 0, "z": 0},
-      "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
-      "shape": {
-        "type": "box",
-        "offset": {"x": 0, "y": 16, "z": -81.5},
-        "stretch": {"x": 1, "y": 1, "z": 1},
-        "settings": {
-          "isPiece": false,
-          "size": {"x": 10, "y": 10, "z": 3}
-        },
-        "textureLayout": {
-          "back": {
-            "offset": {"x": 171, "y": 178},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "right": {
-            "offset": {"x": 272, "y": 292},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "front": {
-            "offset": {"x": 183, "y": 11},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "left": {
-            "offset": {"x": 113, "y": 296},
-            "mirror": {"x": false, "y": false},
-            "angle": 0
-          },
-          "top": {
-            "offset": {"x": 307, "y": 96},
-            "mirror": {"x": true, "y": true},
-            "angle": 0
-          },
-          "bottom": {
-            "offset": {"x": 309, "y": 176},
-            "mirror": {"x": true, "y": false},
-            "angle": 0
-          }
-        },
-        "unwrapMode": "custom",
-        "visible": true,
-        "doubleSided": false,
-        "shadingMode": "flat"
-      },
-      "children": [
-        {
-          "id": "76",
-          "name": "input--C1",
-          "position": {"x": 0, "y": -16, "z": 132.5},
-          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
-          "shape": {
-            "type": "box",
-            "offset": {"x": 0, "y": 16, "z": -1.5},
-            "stretch": {"x": 1, "y": 1, "z": 1},
-            "settings": {
-              "isPiece": false,
-              "size": {"x": 10, "y": 10, "z": 3},
-              "isStaticBox": true
-            },
-            "textureLayout": {
-              "back": {
-                "offset": {"x": 183, "y": 43},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "right": {
-                "offset": {"x": 119, "y": 297},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "front": {
-                "offset": {"x": 11, "y": 198},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "left": {
-                "offset": {"x": 58, "y": 298},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "top": {
-                "offset": {"x": 299, "y": 297},
-                "mirror": {"x": true, "y": true},
-                "angle": 0
-              },
-              "bottom": {
-                "offset": {"x": 314, "y": 102},
-                "mirror": {"x": true, "y": false},
-                "angle": 0
-              }
-            },
-            "unwrapMode": "custom",
-            "visible": true,
-            "doubleSided": false,
-            "shadingMode": "flat"
-          }
-        },
-        {
-          "id": "77",
-          "name": "input--C2",
-          "position": {"x": 0, "y": 80, "z": 36.5},
-          "orientation": {"x": 0, "y": 0, "z": 0, "w": 1},
-          "shape": {
-            "type": "box",
-            "offset": {"x": 0, "y": 2, "z": 13},
-            "stretch": {"x": 1, "y": 1, "z": 1},
-            "settings": {
-              "isPiece": false,
-              "size": {"x": 10, "y": 4, "z": 10},
-              "isStaticBox": true
-            },
-            "textureLayout": {
-              "back": {
-                "offset": {"x": 304, "y": 107},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "right": {
-                "offset": {"x": 304, "y": 113},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "front": {
-                "offset": {"x": 304, "y": 119},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "left": {
-                "offset": {"x": 304, "y": 125},
-                "mirror": {"x": false, "y": false},
-                "angle": 0
-              },
-              "top": {
-                "offset": {"x": 145, "y": 208},
-                "mirror": {"x": true, "y": true},
-                "angle": 0
-              },
-              "bottom": {
-                "offset": {"x": 53, "y": 200},
-                "mirror": {"x": true, "y": false},
-                "angle": 0
-              }
-            },
-            "unwrapMode": "custom",
-            "visible": true,
-            "doubleSided": false,
-            "shadingMode": "flat"
-          }
         }
       ]
     }
