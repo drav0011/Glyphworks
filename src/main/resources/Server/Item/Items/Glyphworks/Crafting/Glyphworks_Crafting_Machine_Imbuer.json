@@ -3,7 +3,6 @@
     "Name": "server.items.Glyphworks_Crafting_Machine_Imbuer.name",
     "Description": "server.items.Glyphworks_Crafting_Machine_Imbuer.description"
   },
-  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Imbuer.png",
   "Categories": [
     "Glyphworks.Machines"
   ],
@@ -94,7 +93,7 @@
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 0,
-                    "Z": -2
+                    "Z": -1
                   },
                   "Glyphworks_FacePlane_Normal": "North",
                   "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
@@ -120,7 +119,7 @@
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 2,
-                    "Z": -1
+                    "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
@@ -152,15 +151,15 @@
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
-    "Scale": 0.58823,
+    "Scale": 0.2,
     "Rotation": [
-      22.5,
-      45,
-      22.5
+      337.5,
+      225,
+      337.5
     ],
     "Translation": [
-      0,
-      -13.5
+      -11,
+      -48
     ]
   },
   "Tags": {
@@ -169,5 +168,6 @@
     ]
   },
   "MaxStack": 1,
-  "ItemSoundSetId": "ISS_Blocks_Wood"
+  "ItemSoundSetId": "ISS_Blocks_Wood",
+  "Icon": "Icons/ItemsGenerated/Glyphworks_Crafting_Machine_Imbuer.png"
 }

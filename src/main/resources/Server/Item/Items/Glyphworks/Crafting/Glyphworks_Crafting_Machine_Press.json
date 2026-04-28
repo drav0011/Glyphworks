@@ -123,7 +123,7 @@
                   "Glyphworks_FacePlane_Position": {
                     "X": 0,
                     "Y": 2,
-                    "Z": -1
+                    "Z": 1
                   },
                   "Glyphworks_FacePlane_Normal": "Up",
                   "Glyphworks_FacePlane_Mode": "AllowInputOnly",
@@ -155,15 +155,15 @@
   },
   "PlayerAnimationsId": "Block",
   "IconProperties": {
-    "Scale": 0.58823,
+    "Scale": 0.2,
     "Rotation": [
-      22.5,
-      45,
-      22.5
+      337.5,
+      225,
+      337.5
     ],
     "Translation": [
-      0,
-      -13.5
+      -11,
+      -33
     ]
   },
   "Tags": {

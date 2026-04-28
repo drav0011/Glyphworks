@@ -58,9 +58,9 @@ items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name=Test Bench Two Item Fu
 items.Glyphworks_Test_Crafting_Bench_Selector.name=Test Bench Selector
 # Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
-items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.\nAutomatically pulls <color is="#003DD5">input</color> and pushes <color is="#00D4D5">output</color>.
+items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mb of any fluid.
 items.Glyphworks_Fluid_Pipe.name=Fluid Pipe
-items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes.\nAutomatically connects to adjacent pipes.
+items.Glyphworks_Fluid_Pipe.description=Stores up to 500 mb of fluid between interconnected network nodes.\nAutomatically connects to adjacent pipes.
 items.Glyphworks_Fluid_Placer.name=Fluid Placer
 items.Glyphworks_Fluid_Placer.description=Places the stored fluid as a block directly below.\nAutomatically pulls <color is="#003DD5">input</color>.
 items.Glyphworks_Fluid_Remover.name=Fluid Remover
@@ -70,7 +70,7 @@ items.Glyphworks_Fluid_Mana.description=<i>The universe's source of power</i>
 items.Glyphworks_Fluid_Source.name=Fluid Source
 items.Glyphworks_Fluid_Source.description=Generates an infinite supply of fluid.\nAutomatically pulls pushes <color is="#00D4D5">output</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Fluid_Sink.name=Fluid Sink
-items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.\nAutomatically pulls <color is="#003DD5">input</color>.
+items.Glyphworks_Fluid_Sink.description=Destroys any fluid piped into it.\nAutomatically pulls <color is="#003DD5">input</color>.\n<i>Intended for creative use.</i>
 
 # Item network
 items.Glyphworks_Item_Container.name=Item Container
@@ -80,7 +80,7 @@ items.Glyphworks_Item_Pipe.description=Transports items between network nodes.\n
 items.Glyphworks_Item_Source.name=Item Source
 items.Glyphworks_Item_Source.description=Generates an infinite supply of any item.\nAutomatically pulls pushes <color is="#FF0000">output</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Item_Sink.name=Item Sink
-items.Glyphworks_Item_Sink.description=Destroys any item piped into it.\nAutomatically pulls <color is="#47D500">input</color>.
+items.Glyphworks_Item_Sink.description=Destroys any item piped into it.\nAutomatically pulls <color is="#47D500">input</color>.\n<i>Intended for creative use.</i>
 items.Glyphworks_Item_Inserter.name=Item Inserter
 items.Glyphworks_Item_Inserter.description=Pushes items from the network into the inventories of the block directly below.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Item_Extractor.name=Item Extractor

@@ -80,8 +80,7 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Down",
-                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
-                  "Glyphworks_FacePlane_ContainerKey": "items"
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly"
                 }
               ]
             }
