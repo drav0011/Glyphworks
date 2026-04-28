@@ -58,9 +58,9 @@ items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name=Test Bench Two Item Fu
 items.Glyphworks_Test_Crafting_Bench_Selector.name=Test Bench Selector
 # Fluid network 
 items.Glyphworks_Fluid_Tank.name=Fluid Tank
-items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mL of any fluid.\nAutomatically pulls <color is="#003DD5">input</color> and pushes <color is="#00D4D5">output</color>.
+items.Glyphworks_Fluid_Tank.description=Stores up to 16,000 mb of any fluid.
 items.Glyphworks_Fluid_Pipe.name=Fluid Pipe
-items.Glyphworks_Fluid_Pipe.description=Transports fluids between network nodes.\nAutomatically connects to adjacent pipes.
+items.Glyphworks_Fluid_Pipe.description=Stores up to 500 mb of fluid between interconnected network nodes.\nAutomatically connects to adjacent pipes.
 items.Glyphworks_Fluid_Placer.name=Fluid Placer
 items.Glyphworks_Fluid_Placer.description=Places the stored fluid as a block directly below.\nAutomatically pulls <color is="#003DD5">input</color>.
 items.Glyphworks_Fluid_Remover.name=Fluid Remover
