@@ -2464,8 +2464,8 @@
                 },
                 "textureLayout": {
                   "back": {
-                    "offset": {"x": 266, "y": 50},
-                    "mirror": {"x": false, "y": false},
+                    "offset": {"x": 80, "y": 269},
+                    "mirror": {"x": true, "y": false},
                     "angle": 0
                   },
                   "right": {
@@ -2585,7 +2585,7 @@
                   },
                   "left": {
                     "offset": {"x": 184, "y": 271},
-                    "mirror": {"x": false, "y": false},
+                    "mirror": {"x": true, "y": false},
                     "angle": 0
                   },
                   "top": {
