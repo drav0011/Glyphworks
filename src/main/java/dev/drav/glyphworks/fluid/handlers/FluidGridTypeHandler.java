@@ -44,9 +44,11 @@ import dev.drav.glyphworks.grid.type.GridTypeHandler;
  * split leaves fluid balanced rather than concentrated at one end.
  *
  * <p>
- * Pipes are identified by having only {@code ALLOW_ALL} faces with no
- * {@code containerKey}. Any node with at least one face carrying a
- * {@code containerKey} is a machine node.
+ * Pool nodes are identified by having only {@code ALLOW_ALL} faces. Tanks and
+ * relay pipes both qualify: they participate in the shared virtual pool and
+ * their containers hold fluid in transit. Machine nodes (sources, sinks,
+ * benches) have at least one non-{@code ALLOW_ALL} face ({@code AllowOutput}
+ * or {@code AllowInput}) and interact with the pool via rate-limited push/pull.
  *
  * <p>
  * World-fluid interaction (Remover / Placer) is handled by separate systems
