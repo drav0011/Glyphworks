@@ -384,6 +384,9 @@
         }
       }
     },
+    "Interactions": {
+      "Use": "Open_Fluid_Container"
+    },
     "Gathering": {
       "Breaking": {
         "GatherType": "Benches"

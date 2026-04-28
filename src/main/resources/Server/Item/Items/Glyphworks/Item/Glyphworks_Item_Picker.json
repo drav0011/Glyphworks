@@ -65,7 +65,7 @@
           "Capacity": 1
         },
         "Glyphworks_ItemPickerComponent": {
-          "Glyphworks_ItemPickerComponent_Radius": 3
+          "Glyphworks_ItemPickerComponent_Radius": 1
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [

@@ -24,7 +24,34 @@ Richer fluid behavior and world interactions. Tanks, pipes, extractors, and inse
 ### Crafting
 Automated crafting benches that pull from and push to connected inventories. Full fluid support in recipes lets machines consume or produce fluids as part of a craft.
 
+---
 
+## Roadmap
+
+#### Beta *(current)*
+- Core grid network system
+- Item pipes, extractors, inserters, miners, and placers
+- Fluid tanks, pipes, extractors, and inserters
+- Automated crafting benches with fluid recipe support
+
+#### Update 1: Foundations
+- Fluid module and fluid grid polish
+    - Separate FluidStacks into it's own NetworkSerializable and decouple item logic while keeping similar
+    - Clearer indication pipes hold fluids (currently it might seems some fluid is lost when actually is in the pipe)
+- Item transfer rework — pipes stay, but transfer logic gets more control and cleaner gameplay
+    - Directionality, filters, splitters, mergers
+- More animations and textures
+- Testing infrastructure extracted from the release build
+- UI? (Would prefer to wait until noesis)
+
+#### Update 2: Assembly
+- ???
+
+#### Update 3: ???
+- ???
+
+#### Beyond: ???
+- ???
 
 ---
 

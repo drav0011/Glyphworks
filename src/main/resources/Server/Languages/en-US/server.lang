@@ -86,7 +86,7 @@ items.Glyphworks_Item_Inserter.description=Pushes items from the network into th
 items.Glyphworks_Item_Extractor.name=Item Extractor
 items.Glyphworks_Item_Extractor.description=Pulls items out of the inventories of the block directly below into the network.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Item_Picker.name=Item Picker
-items.Glyphworks_Item_Picker.description=Collects items dropped on the ground within a 3-block radius.\nAutomatically pushes <color is="#FF0000">output</color>.
+items.Glyphworks_Item_Picker.description=Collects items dropped on the ground within a 1-block radius.\nAutomatically pushes <color is="#FF0000">output</color>.
 items.Glyphworks_Item_Dropper.name=Item Dropper
 items.Glyphworks_Item_Dropper.description=Ejects items from the network as dropped entities on the ground.\nAutomatically pulls <color is="#47D500">input</color>.
 items.Glyphworks_Block_Miner.name=Block Miner
