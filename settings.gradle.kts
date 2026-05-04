@@ -12,7 +12,7 @@ hytale {
     manifest {
         Group = "drav.dev"
         Name = "Glyphworks"
-        Version = "0.1.0"
+        Version = "0.2.0"
         Main = "dev.drav.glyphworks.GlyphworksPlugin"
         IncludesAssetPack = true
         DisabledByDefault = false

@@ -24,10 +24,6 @@
     "BlockEntity": {
       "Components": {
         "ItemContainerBlock": {
-          "ItemContainer": {
-            "Capacity": 20,
-            "Items": {}
-          },
           "Capacity": 20
         },
         "Glyphworks_GridComponent": {

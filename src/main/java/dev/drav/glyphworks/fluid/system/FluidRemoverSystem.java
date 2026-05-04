@@ -27,6 +27,7 @@ import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 /**
@@ -69,7 +70,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         if (fcc == null) {
             return;
         }
-        
+
         FluidContainer fc = fcc.getFluidContainer();
         FluidStack slotStack = fc.getFluidStack(SLOT_INDEX);
         int availableSpace = fc.getCapacityMbPerSlot() - (slotStack != null ? slotStack.getQuantity() : 0);
@@ -138,6 +139,10 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         String worldFluidId = fluid.getId();
         String slotFluidId = slotStack != null ? slotStack.getFluidId() : null;
         if (slotFluidId != null && !slotFluidId.equals(worldFluidId)) {
+            return;
+        }
+
+        if (FluidItemRegistry.resolveItemId(worldFluidId) == null) {
             return;
         }
 

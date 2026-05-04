@@ -34,7 +34,7 @@ import dev.drav.glyphworks.item.component.ItemPickerComponent;
  * cubic radius and attempts to pick up each one into the block's container.
  *
  * <p>
- * An item entity is only collected if the container has room for it.  The
+ * An item entity is only collected if the container has room for it. The
  * entity is removed from the world once the transfer succeeds.
  */
 public final class ItemPickerSystem extends EntityTickingSystem<ChunkStore> {
@@ -96,36 +96,40 @@ public final class ItemPickerSystem extends EntityTickingSystem<ChunkStore> {
         world.execute(() -> {
             entityStore.forEachChunk(ItemComponent.getComponentType(),
                     (ArchetypeChunk<EntityStore> itemChunk, CommandBuffer<EntityStore> itemBuf) -> {
-                for (int i = 0; i < itemChunk.size(); i++) {
-                    TransformComponent tc = itemChunk.getComponent(i, TransformComponent.getComponentType());
-                    if (tc == null) {
-                        continue;
-                    }
-                    Vector3d pos = tc.getPosition();
-                    if (Math.abs(pos.x - cx) > halfRange
-                            || Math.abs(pos.y - cy) > halfRange
-                            || Math.abs(pos.z - cz) > halfRange) {
-                        continue;
-                    }
+                        for (int i = 0; i < itemChunk.size(); i++) {
+                            TransformComponent tc = itemChunk.getComponent(i, TransformComponent.getComponentType());
+                            if (tc == null) {
+                                continue;
+                            }
 
-                    ItemComponent ic = itemChunk.getComponent(i, ItemComponent.getComponentType());
-                    if (ic == null) {
-                        continue;
-                    }
-                    ItemStack stack = ic.getItemStack();
-                    if (ItemStack.isEmpty(stack)) {
-                        continue;
-                    }
-                    if (!container.canAddItemStack(stack)) {
-                        continue;
-                    }
+                            Vector3d pos = tc.getPosition();
+                            if (Math.abs(pos.x - cx) > halfRange
+                                    || Math.abs(pos.y - cy) > halfRange
+                                    || Math.abs(pos.z - cz) > halfRange) {
+                                continue;
+                            }
 
-                    ItemStackTransaction tx = container.addItemStack(stack);
-                    if (tx.succeeded()) {
-                        itemBuf.removeEntity(itemChunk.getReferenceTo(i), RemoveReason.REMOVE);
-                    }
-                }
-            });
+                            ItemComponent ic = itemChunk.getComponent(i, ItemComponent.getComponentType());
+                            if (ic == null) {
+                                continue;
+                            }
+                            ItemStack stack = ic.getItemStack();
+                            if (ItemStack.isEmpty(stack)) {
+                                continue;
+                            }
+
+                            ItemStackTransaction tx = container.addItemStack(stack);
+                            if (!tx.succeeded()) {
+                                continue;
+                            }
+                            ItemStack remainder = tx.getRemainder();
+                            if (ItemStack.isEmpty(remainder)) {
+                                itemBuf.removeEntity(itemChunk.getReferenceTo(i), RemoveReason.REMOVE);
+                            } else {
+                                ic.setItemStack(remainder);
+                            }
+                        }
+                    });
         });
     }
 }

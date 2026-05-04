@@ -58,14 +58,10 @@
     "BlockEntity": {
       "Components": {
         "ItemContainerBlock": {
-          "ItemContainer": {
-            "Capacity": 1,
-            "Items": {}
-          },
           "Capacity": 1
         },
         "Glyphworks_ItemPickerComponent": {
-          "Glyphworks_ItemPickerComponent_Radius": 3
+          "Glyphworks_ItemPickerComponent_Radius": 1
         },
         "Glyphworks_GridComponent": {
           "Glyphworks_GridComponent_Entries": [
@@ -80,7 +76,8 @@
                     "Z": 0
                   },
                   "Glyphworks_FacePlane_Normal": "Down",
-                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly"
+                  "Glyphworks_FacePlane_Mode": "AllowOutputOnly",
+                  "Glyphworks_FacePlane_ContainerKey": "items"
                 }
               ]
             }

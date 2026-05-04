@@ -54,7 +54,6 @@ public final class AutoProcessingBenchGridTests {
 
     private static final String BENCH_ID = "Glyphworks_Crafting_Machine_WorkBench";
     private static final String FLUID_PIPE_ID = "Glyphworks_Fluid_Pipe";
-    private static final String FLUID_TANK_ID = "Glyphworks_Fluid_Tank";
     private static final String ITEM_PIPE_ID = "Glyphworks_Item_Pipe";
     private static final String ITEM_CONTAINER_ID = "Glyphworks_Item_Container";
     private static final String ITEM_EXTRACTOR_ID = "Glyphworks_Item_Extractor";

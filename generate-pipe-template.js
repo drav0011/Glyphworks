@@ -104,7 +104,7 @@ function buildGridFaces() {
 }
 
 function buildPipeItem(config, stateDefs) {
-  const { gridType, transferRate, itemId, category, benchCategory, modelBasePath, extraComponents } = config;
+  const { gridType, transferRate, itemId, category, benchCategory, modelBasePath, extraComponents, interactions } = config;
 
   const components = {
     ...extraComponents,
@@ -145,6 +145,7 @@ function buildPipeItem(config, stateDefs) {
       HitboxType: 'Pipe',
       Flags: {},
       State: { Definitions: stateDefs },
+      ...(interactions ? { Interactions: interactions } : {}),
       Gathering: { Breaking: { GatherType: 'Benches' } }
     },
     PlayerAnimationsId: 'Block',
@@ -165,6 +166,7 @@ fs.writeFileSync(FLUID_PIPE_PATH, JSON.stringify(buildPipeItem({
   category: 'Glyphworks.Fluid',
   benchCategory: 'GlyphImprinter_Fluid',
   modelBasePath: 'Blocks/Glyphworks/Fluid/Pipe',
+  interactions: { Use: "Open_Fluid_Container" },
   extraComponents: {
     "Glyphworks_FluidPipeComponent": {},
     "Glyphworks_FluidContainerComponent": {
