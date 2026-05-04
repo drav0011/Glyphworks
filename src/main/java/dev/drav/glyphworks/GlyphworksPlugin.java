@@ -12,7 +12,6 @@ import dev.drav.glyphworks.crafting.CraftingModule;
 import dev.drav.glyphworks.fluid.FluidModule;
 import dev.drav.glyphworks.grid.GridModule;
 import dev.drav.glyphworks.item.ItemModule;
-import dev.drav.glyphworks.test.TestModule;
 
 public class GlyphworksPlugin extends JavaPlugin {
     private static final Logger LOGGER = Logger.getLogger(GlyphworksPlugin.class.getName());
@@ -22,7 +21,6 @@ public class GlyphworksPlugin extends JavaPlugin {
     private FluidModule fluidModule;
     private ItemModule itemModule;
     private CraftingModule craftingModule;
-    private TestModule testModule;
 
     private List<GlyphworksModule> modules;
 
@@ -43,8 +41,7 @@ public class GlyphworksPlugin extends JavaPlugin {
         fluidModule = new FluidModule();
         itemModule = new ItemModule();
         craftingModule = new CraftingModule();
-        testModule = new TestModule();
-        modules = List.of(gridModule, fluidModule, itemModule, craftingModule, testModule);
+        modules = List.of(gridModule, fluidModule, itemModule, craftingModule);
 
         for (GlyphworksModule module : modules) {
             module.setup(this);
@@ -62,20 +59,12 @@ public class GlyphworksPlugin extends JavaPlugin {
     }
 
     // -------------------------------------------------------------------------
-    // Grid graph state — delegated to GridModule
+    // Module accessors
     // -------------------------------------------------------------------------
 
-    /**
-     * Returns all registered modules. Used by
-     * {@link dev.drav.glyphworks.test.TestModule} to call setupTests().
-     */
     public List<GlyphworksModule> getModules() {
         return modules;
     }
-
-    // -------------------------------------------------------------------------
-    // Module accessors
-    // -------------------------------------------------------------------------
 
     public GridModule getGridModule() {
         return gridModule;
@@ -91,9 +80,5 @@ public class GlyphworksPlugin extends JavaPlugin {
 
     public CraftingModule getCraftingModule() {
         return craftingModule;
-    }
-
-    public TestModule getTestModule() {
-        return testModule;
     }
 }

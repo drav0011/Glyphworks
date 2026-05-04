@@ -24,16 +24,6 @@ import dev.drav.glyphworks.fluid.system.FluidPlacerSystem;
 import dev.drav.glyphworks.fluid.system.FluidRemoverSystem;
 import dev.drav.glyphworks.fluid.system.FluidSinkSystem;
 import dev.drav.glyphworks.fluid.system.FluidSourceSystem;
-import dev.drav.glyphworks.fluid.tests.component.FluidContainerComponentTests;
-import dev.drav.glyphworks.fluid.tests.component.FluidPipeComponentTests;
-import dev.drav.glyphworks.fluid.tests.component.FluidPlacerComponentTests;
-import dev.drav.glyphworks.fluid.tests.component.FluidRemoverComponentTests;
-import dev.drav.glyphworks.fluid.tests.component.FluidSourceComponentTests;
-import dev.drav.glyphworks.fluid.tests.system.FluidGridTransferTests;
-import dev.drav.glyphworks.fluid.tests.system.FluidPlacerSystemTests;
-import dev.drav.glyphworks.fluid.tests.system.FluidRemoverSystemTests;
-import dev.drav.glyphworks.fluid.tests.system.FluidSinkSystemTests;
-import dev.drav.glyphworks.fluid.tests.system.FluidSourceSystemTests;
 import dev.drav.glyphworks.grid.type.GridType;
 import dev.drav.glyphworks.grid.type.GridTypeHandlerRegistry;
 import dev.drav.glyphworks.grid.type.GridTypeRegistry;
@@ -117,19 +107,5 @@ public final class FluidModule extends GlyphworksModule {
         plugin.getChunkStoreRegistry().registerSystem(new FluidPlacerSystem());
         plugin.getChunkStoreRegistry().registerSystem(new FluidSourceSystem());
         plugin.getChunkStoreRegistry().registerSystem(new FluidSinkSystem());
-    }
-
-    @Override
-    public void setupTests() {
-        FluidGridTransferTests.register("fluid");
-        FluidSourceSystemTests.register("fluid");
-        FluidSinkSystemTests.register("fluid");
-        FluidPlacerSystemTests.register("fluid");
-        FluidRemoverSystemTests.register("fluid");
-        FluidContainerComponentTests.register("fluid");
-        FluidPipeComponentTests.register("fluid");
-        FluidSourceComponentTests.register("fluid");
-        FluidPlacerComponentTests.register("fluid");
-        FluidRemoverComponentTests.register("fluid");
     }
 }
