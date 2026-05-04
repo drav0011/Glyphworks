@@ -10,7 +10,6 @@ import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBloc
 import com.hypixel.hytale.server.core.universe.world.World;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
-import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
@@ -30,29 +29,20 @@ import dev.drav.glyphworks.test.framework.TestSuite;
 
 /**
  * Suite {@code "auto_processing_bench_grid"} — verifies grid connectivity and
- * resource flow through the {@code Glyphworks_Crafting_Machine_WorkBench}
- * multi-block structure.
+ * resource flow through a dedicated single-block test bench.
  *
- * <h3>WorkBench face geometry (rotation 0, South-facing)</h3>
+ * <h3>Grid test bench face geometry</h3>
  * <ul>
- * <li><b>Fluid in</b> — face cell {@code (+0, +2, -1)}, normal Up →
- * grid neighbor at {@code (bx, by+3, bz-1)}.</li>
- * <li><b>Item in</b> — face cell {@code (+0, +0, +1)}, normal South →
- * grid neighbor at {@code (bx, by, bz+2)}.</li>
- * <li><b>Item out</b> — face cell {@code (+0, +0, -2)}, normal North →
- * grid neighbor at {@code (bx, by, bz-3)}.</li>
+ * <li><b>Fluid in</b> — top face → grid neighbor at {@code (bx, by+1, bz)}.</li>
+ * <li><b>Item in</b> — south face → grid neighbor at {@code (bx, by, bz+1)}.</li>
+ * <li><b>Item out</b> — north face → grid neighbor at {@code (bx, by, bz-1)}.</li>
  * </ul>
- *
- * <p>
- * Bench is placed at {@code (ox, oy, oz+4)} within a {@code 3×10×9}
- * test area, leaving room for the fluid tank above/north and item
- * containers to the south/north.
  */
 public final class AutoProcessingBenchGridTests {
 
     // ── Block IDs ─────────────────────────────────────────────────────────────
 
-    private static final String BENCH_ID = "Glyphworks_Crafting_Machine_WorkBench";
+    private static final String BENCH_ID = "Glyphworks_Test_Crafting_Bench_Grid";
     private static final String FLUID_PIPE_ID = "Glyphworks_Fluid_Pipe";
     private static final String ITEM_PIPE_ID = "Glyphworks_Item_Pipe";
     private static final String ITEM_CONTAINER_ID = "Glyphworks_Item_Container";
@@ -61,8 +51,7 @@ public final class AutoProcessingBenchGridTests {
 
     // ── Recipe / ingredient constants ─────────────────────────────────────────
 
-    private static final String RECIPE_ID = "Deco_Target_Recipe_Generated_0";
-    private static final String RECIPE_INPUT = "Ingredient_Fibre";
+    private static final String INPUT_ITEM = "Ingredient_Hide_Light";
     private static final String MANA_FLUID_ITEM = "Glyphworks_Fluid_Mana";
     private static final int FLUID_AMOUNT_MB = 4000;
 
@@ -91,8 +80,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // fluid neighbor: (bx, by+3, bz-1)
-                    placeBlock(w, bx, by + 3, bz - 1, FLUID_PIPE_ID);
+                    placeBlock(w, bx, by + 1, bz, FLUID_PIPE_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> getProcessingBench(ctx.getWorld(),
@@ -103,7 +91,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     Vector3i benchPos = new Vector3i(bx, by, bz);
-                    Vector3i pipePos = new Vector3i(bx, by + 3, bz - 1);
+                    Vector3i pipePos = new Vector3i(bx, by + 1, bz);
                     return isConnected(w, "Fluid", benchPos, pipePos);
                 }, "bench is connected to fluid pipe in Fluid grid"));
     }
@@ -114,8 +102,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // item input neighbor: (bx, by, bz+2)
-                    placeBlock(w, bx, by, bz + 2, ITEM_PIPE_ID);
+                    placeBlock(w, bx, by, bz + 1, ITEM_PIPE_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> getProcessingBench(ctx.getWorld(),
@@ -126,7 +113,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     Vector3i benchPos = new Vector3i(bx, by, bz);
-                    Vector3i pipePos = new Vector3i(bx, by, bz + 2);
+                    Vector3i pipePos = new Vector3i(bx, by, bz + 1);
                     return isConnected(w, "Item", benchPos, pipePos);
                 }, "bench is connected to item pipe at input face in Item grid"));
     }
@@ -137,8 +124,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // item output neighbor: (bx, by, bz-3)
-                    placeBlock(w, bx, by, bz - 3, ITEM_PIPE_ID);
+                    placeBlock(w, bx, by, bz - 1, ITEM_PIPE_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> getProcessingBench(ctx.getWorld(),
@@ -149,7 +135,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     Vector3i benchPos = new Vector3i(bx, by, bz);
-                    Vector3i pipePos = new Vector3i(bx, by, bz - 3);
+                    Vector3i pipePos = new Vector3i(bx, by, bz - 1);
                     return isConnected(w, "Item", benchPos, pipePos);
                 }, "bench is connected to item pipe at output face in Item grid"));
     }
@@ -162,18 +148,17 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // pipe connects to bench fluid face; seed the pipe as the fluid source
-                    placeBlock(w, bx, by + 3, bz - 1, FLUID_PIPE_ID);
+                        placeBlock(w, bx, by + 1, bz, FLUID_PIPE_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> isFluidSourceFilled(ctx.getWorld(),
-                                ctx.getOriginX(), ctx.getOriginY() + 3, ctx.getOriginZ() + 3),
+                            ctx.getOriginX(), ctx.getOriginY() + 1, ctx.getOriginZ() + 4),
                         ctx -> 5 * ctx.getWorld().getTps(),
                         "fluid pipe container initialised"))
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
-                    seedFluidSource(w, bx, by + 3, bz - 1);
+                        seedFluidSource(w, bx, by + 1, bz);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> {
@@ -204,10 +189,9 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // extractor (South-facing) at bz+2 pulls from container at bz+3 and outputs toward bench
-                    FluidTestUtil.setBlockWithRotation(w, bx, by, bz + 2, ITEM_EXTRACTOR_ID, FluidTestUtil.ROTATION_SOUTH);
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz + 2));
-                    placeBlock(w, bx, by, bz + 3, ITEM_CONTAINER_ID);
+                    FluidTestUtil.setBlockWithRotation(w, bx, by, bz + 1, ITEM_EXTRACTOR_ID, FluidTestUtil.ROTATION_SOUTH);
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz + 1));
+                    placeBlock(w, bx, by, bz + 2, ITEM_CONTAINER_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> {
@@ -221,21 +205,7 @@ public final class AutoProcessingBenchGridTests {
                 .step(Steps.run(ctx -> {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
-                    lockRecipe(w, bx, by, bz);
-                }))
-                .step(Steps.waitUntil(
-                        ctx -> {
-                            World w = ctx.getWorld();
-                            int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
-                            AutoProcessingBenchBlock apbb = getProcessingBench(w, bx, by, bz);
-                            return apbb != null && apbb.getItemInputContainer() != null;
-                        },
-                        ctx -> 3 * ctx.getWorld().getTps(),
-                        "bench item input container ready"))
-                .step(Steps.run(ctx -> {
-                    World w = ctx.getWorld();
-                    int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
-                    seedItemContainer(w, bx, by, bz + 3, RECIPE_INPUT, 3);
+                    seedItemContainer(w, bx, by, bz + 2, INPUT_ITEM, 3);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> {
@@ -266,10 +236,9 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     placeBench(w, bx, by, bz);
-                    // inserter (North-facing) at bz-3 receives from bench output and pushes to container at bz-4
-                    FluidTestUtil.setBlockWithRotation(w, bx, by, bz - 3, ITEM_INSERTER_ID, FluidTestUtil.ROTATION_NORTH);
-                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz - 3));
-                    placeBlock(w, bx, by, bz - 4, ITEM_CONTAINER_ID);
+                    FluidTestUtil.setBlockWithRotation(w, bx, by, bz - 1, ITEM_INSERTER_ID, FluidTestUtil.ROTATION_NORTH);
+                    PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz - 1));
+                    placeBlock(w, bx, by, bz - 2, ITEM_CONTAINER_ID);
                 }))
                 .step(Steps.waitUntil(
                         ctx -> {
@@ -287,7 +256,7 @@ public final class AutoProcessingBenchGridTests {
                     if (apbb != null) {
                         ItemContainer output = apbb.getItemOutputContainer();
                         if (output != null)
-                            output.setItemStackForSlot((short) 0, new ItemStack(RECIPE_INPUT, 3), false);
+                            output.setItemStackForSlot((short) 0, new ItemStack(INPUT_ITEM, 3), false);
                     }
                 }))
                 .step(Steps.waitUntil(
@@ -295,7 +264,7 @@ public final class AutoProcessingBenchGridTests {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                             ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(w,
-                                    new Vector3i(bx, by, bz - 4));
+                                    new Vector3i(bx, by, bz - 2));
                             if (icb == null)
                                 return false;
                             return ItemTestUtil.countItems(icb.getItemContainer()) > 0;
@@ -306,7 +275,7 @@ public final class AutoProcessingBenchGridTests {
                     World w = ctx.getWorld();
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(w,
-                            new Vector3i(bx, by, bz - 4));
+                            new Vector3i(bx, by, bz - 2));
                     if (icb == null)
                         return false;
                     return ItemTestUtil.countItems(icb.getItemContainer()) > 0;
@@ -323,12 +292,6 @@ public final class AutoProcessingBenchGridTests {
     private static void placeBlock(World w, int x, int y, int z, String blockId) {
         w.setBlock(x, y, z, blockId);
         PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
-    }
-
-    private static void lockRecipe(World w, int x, int y, int z) {
-        AutoCraftingBenchBlock acbb = getSelectorBench(w, x, y, z);
-        if (acbb != null)
-            acbb.setLockedRecipe(RECIPE_ID);
     }
 
     private static boolean isFluidSourceFilled(World w, int x, int y, int z) {
@@ -380,15 +343,6 @@ public final class AutoProcessingBenchGridTests {
         if (graph == null)
             return false;
         return graph.getNeighbors(a).contains(b);
-    }
-
-    @Nullable
-    private static AutoCraftingBenchBlock getSelectorBench(World w, int x, int y, int z) {
-        GridLookup lu = GridLookup.resolve(w.getChunkStore(), new Vector3i(x, y, z));
-        if (lu == null)
-            return null;
-        return w.getChunkStore().getStore().getComponent(lu.blockRef(),
-                AutoCraftingBenchBlock.getComponentType());
     }
 
     @Nullable
