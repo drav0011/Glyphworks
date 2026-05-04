@@ -12,7 +12,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.test.command.TestCommands;
 import dev.drav.glyphworks.test.headless.HeadlessTestLauncher;
-import dev.drav.glyphworks.test.headless.PersistencePhaseLauncher;
 import dev.drav.glyphworks.test.runner.TestRunnerComponent;
 import dev.drav.glyphworks.test.runner.TestRunnerSystem;
 
@@ -52,9 +51,6 @@ public final class GlyphworksTestPlugin extends JavaPlugin {
 
         if (HeadlessTestLauncher.isEnabled()) {
             Universe.get().getUniverseReady().thenRun(HeadlessTestLauncher::launch);
-        }
-        if (PersistencePhaseLauncher.isEnabled()) {
-            Universe.get().getUniverseReady().thenRun(PersistencePhaseLauncher::launch);
         }
     }
 

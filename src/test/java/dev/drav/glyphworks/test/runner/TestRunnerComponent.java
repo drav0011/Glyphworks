@@ -32,7 +32,6 @@ public final class TestRunnerComponent implements Component<EntityStore> {
     int[] originYs;
     int[] originZs;
     boolean cleanupAfterRun = true;
-    boolean saveBeforeExit = false;
     String testWorldName;
     @Nullable
     PlayerRef playerRef;
@@ -49,7 +48,6 @@ public final class TestRunnerComponent implements Component<EntityStore> {
             @Nonnull int[] originYs,
             @Nonnull int[] originZs,
             boolean cleanupAfterRun,
-            boolean saveBeforeExit,
             @Nonnull String testWorldName,
             @Nullable PlayerRef playerRef,
             boolean headless) {
@@ -59,7 +57,6 @@ public final class TestRunnerComponent implements Component<EntityStore> {
         this.originYs = Arrays.copyOf(originYs, originYs.length);
         this.originZs = Arrays.copyOf(originZs, originZs.length);
         this.cleanupAfterRun = cleanupAfterRun;
-        this.saveBeforeExit = saveBeforeExit;
         this.testWorldName = testWorldName;
         this.playerRef = playerRef;
         this.headless = headless;

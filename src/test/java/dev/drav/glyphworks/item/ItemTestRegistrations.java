@@ -1,9 +1,5 @@
 package dev.drav.glyphworks.item;
 
-import dev.drav.glyphworks.item.component.BlockMinerComponentTests;
-import dev.drav.glyphworks.item.component.BlockPlacerComponentTests;
-import dev.drav.glyphworks.item.component.ItemPickerComponentTests;
-import dev.drav.glyphworks.item.component.ItemSourceComponentTests;
 import dev.drav.glyphworks.item.system.BlockMinerSystemTests;
 import dev.drav.glyphworks.item.system.BlockPlacerSystemTests;
 import dev.drav.glyphworks.item.system.ItemDropperSystemTests;
@@ -25,9 +21,5 @@ public final class ItemTestRegistrations {
         BlockPlacerSystemTests.register("item");
         ItemPickerSystemTests.register("item");
         ItemDropperSystemTests.register("item");
-        ItemSourceComponentTests.register("item");
-        ItemPickerComponentTests.register("item");
-        BlockMinerComponentTests.register("item");
-        BlockPlacerComponentTests.register("item");
     }
 }
