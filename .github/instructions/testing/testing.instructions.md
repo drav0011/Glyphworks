@@ -54,9 +54,10 @@ Apply these principles consistently when writing, reviewing, or suggesting code 
 - Fixed tick counts break silently if the TPS changes; TPS-relative waits adapt automatically.
 - Use fixed tick counts only when the exact tick count matters (e.g., testing a 2-tick delay component).
 
-### Group tests into TestSuites, register via TestRegistry
+### Group tests into TestSuites, register via TestRegistrations
 - A `TestSuite` is a named collection of `TestCase`s: `new TestSuite("suite_id").test(case1).test(case2)`.
-- Register suites in the module's `setupTests()` method via `TestRegistry.register(moduleId, suite)`.
+- Each module gets a `*TestRegistrations` class (e.g., `FluidTestRegistrations`) with a `registerAll()` method that calls `TestCase.register(moduleId, suite)` for each suite.
+- The central `TestRegistrations.registerAll()` in the test plugin calls each module's `*TestRegistrations.registerAll()`.
 - Suite IDs use `snake_case`, test names use `snake_case`.
 
 ### One test class per domain concern
@@ -131,20 +132,38 @@ public final class FluidSourceSystemTests {
 }
 ```
 
-### Registering tests in a module
+### Registering tests for a module
+
+Each module gets its own `*TestRegistrations` class that collects all suite registrations:
 
 ```java
-public class FluidModule extends GlyphworksModule {
+public final class FluidTestRegistrations {
 
-    @Override
-    public void setupTests() {
-        // system behavior
+    private FluidTestRegistrations() {
+    }
+
+    public static void registerAll() {
         FluidSourceSystemTests.register("fluid");
         FluidGridTransferTests.register("fluid");
         FluidSinkSystemTests.register("fluid");
+    }
+}
+```
 
-        // component behavior (when present)
-        FluidComponentBehaviorTests.register("fluid");
+The central `TestRegistrations` in the test plugin calls each module in one place:
+
+```java
+public final class TestRegistrations {
+
+    private TestRegistrations() {
+    }
+
+    public static void registerAll() {
+        TestFrameworkTests.register("smoke");
+        GridTestRegistrations.registerAll();
+        FluidTestRegistrations.registerAll();
+        ItemTestRegistrations.registerAll();
+        CraftingTestRegistrations.registerAll();
     }
 }
 ```
