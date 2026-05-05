@@ -171,21 +171,27 @@ public final class TestRegistrations {
 ### Directory and package layout
 
 ```
-fluid/tests/
+src/test/java/dev/drav/glyphworks/
+
+fluid/
+    FluidTestRegistrations.java
     FluidTestUtil.java              ← public
     system/
         FluidGridTransferTests.java
         FluidSourceSystemTests.java
+        FluidSinkSystemTests.java
         ...
 
-item/tests/
+item/
+    ItemTestRegistrations.java
     ItemTestUtil.java               ← public
     system/
         ItemGridTransferTests.java
         ItemSourceSystemTests.java
         ...
 
-grid/tests/
+grid/
+    GridTestRegistrations.java
     GridTestUtil.java               ← public
     system/
         GridGraphTests.java
@@ -195,6 +201,21 @@ grid/tests/
     component/
         GridComponentTests.java
         GridFaceUtilTests.java
+
+crafting/
+    CraftingTestRegistrations.java
+    system/
+        AutoProcessingBenchFlowTests.java
+        ...
+
+test/
+    TestRegistrations.java          ← central entry point
+    GlyphworksTestPlugin.java
+    framework/
+        TestCase.java
+        TestSuite.java
+        Steps.java
+        ...
 ```
 
 ### Using succeedWhen for async system convergence
@@ -216,7 +237,9 @@ private static TestCase pipeTransfersFluid() {
 }
 ```
 
-### Using succeedWhen and failIf for bounded convergence
+### Verifying a final state invariant after succeedWhen
+
+`failIf` is a single-tick step — it runs *after* `succeedWhen` has already passed, not during polling. To check that a system converged to *exactly* the right value (not merely a truthy condition), follow `succeedWhen` with `assertThat`:
 
 ```java
 private static TestCase tankDoesNotOverfill() {
@@ -231,11 +254,11 @@ private static TestCase tankDoesNotOverfill() {
                         new Vector3i(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ()));
                 return tank != null && tank.isFull();
             }, ctx -> 10 * ctx.getWorld().getTps(), "tank fills to capacity"))
-            .step(Steps.failIf(ctx -> {
+            .step(Steps.assertThat(ctx -> {
                 FluidContainerComponent tank = getContainer(ctx.getWorld(),
                         new Vector3i(ctx.getOriginX() + 1, ctx.getOriginY(), ctx.getOriginZ()));
-                return tank != null && tank.getAmount() > tank.getCapacity();
-            }, "tank exceeded capacity"));
+                return tank != null && tank.getAmount() == tank.getCapacity();
+            }, "tank is exactly at capacity, not overfilled"));
 }
 ```
 
