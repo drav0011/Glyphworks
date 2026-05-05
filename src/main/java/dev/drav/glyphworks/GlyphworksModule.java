@@ -25,11 +25,4 @@ public abstract class GlyphworksModule {
      */
     public void start(@Nonnull GlyphworksPlugin plugin) {
     }
-
-    /**
-     * Override to register module-specific test suites. Called from
-     * {@link dev.drav.glyphworks.test.TestModule}.
-     */
-    public void setupTests() {
-    }
 }

@@ -5,6 +5,18 @@ repositories {
 dependencies {
 }
 
+fun resolveServerJar() = configurations.getByName("compileClasspath")
+    .resolvedConfiguration
+    .resolvedArtifacts
+    .first { it.moduleVersion.id.module.group == "com.hypixel.hytale" }
+    .file
+
+tasks.register<Jar>("testJar") {
+    dependsOn("testClasses")
+    archiveClassifier.set("tests")
+    from(sourceSets["test"].output)
+}
+
 tasks.register<Exec>("generateAssetSchemas") {
     val appData = System.getenv("APPDATA") ?: throw GradleException("APPDATA environment variable is not set")
     val assetsZip = file("$appData/Hytale/install/pre-release/package/game/latest/Assets.zip")
@@ -19,11 +31,7 @@ tasks.register<Exec>("generateAssetSchemas") {
     workingDir = devServerDir
     executable = "java"
     argumentProviders.add(CommandLineArgumentProvider {
-        val serverJar = configurations.getByName("compileClasspath")
-            .resolvedConfiguration
-            .resolvedArtifacts
-            .first { it.moduleVersion.id.module.group == "com.hypixel.hytale" }
-            .file
+        val serverJar = resolveServerJar()
 
         listOf(
             "-jar",
@@ -43,5 +51,50 @@ tasks.register<Exec>("generateAssetSchemas") {
         require(modsSourceDir.exists()) { "Mods source directory not found: ${modsSourceDir.absolutePath}" }
 
         schemaAssetsDir.mkdirs()
+    }
+}
+
+tasks.register<Sync>("prepareTestMods") {
+    dependsOn("jar", "testJar")
+
+    from(layout.buildDirectory.dir("libs")) {
+        include("dev.drav.glyphworks.jar")
+        include("dev.drav.glyphworks-tests.jar")
+    }
+    into(layout.buildDirectory.dir("test-mods"))
+}
+
+tasks.register<Exec>("runTestServer") {
+    dependsOn("prepareTestMods")
+
+    val appData = System.getenv("APPDATA") ?: throw GradleException("APPDATA environment variable is not set")
+    val assetsZip = file("$appData/Hytale/install/pre-release/package/game/latest/Assets.zip")
+    val devServerDir = layout.projectDirectory.dir("devserver").asFile
+    val modsDir = layout.buildDirectory.dir("test-mods").get().asFile
+
+    inputs.file(assetsZip)
+    inputs.dir(modsDir)
+
+    workingDir = devServerDir
+    executable = "java"
+    argumentProviders.add(CommandLineArgumentProvider {
+        val serverJar = resolveServerJar()
+
+        listOf(
+            "-jar",
+            serverJar.absolutePath,
+            "--allow-op",
+            "--disable-sentry",
+            "--assets",
+            assetsZip.absolutePath,
+            "--mods",
+            modsDir.absolutePath,
+        )
+    })
+
+    doFirst {
+        require(assetsZip.exists()) { "Hytale assets zip not found: ${assetsZip.absolutePath}" }
+        require(devServerDir.exists()) { "Devserver directory not found: ${devServerDir.absolutePath}" }
+        require(modsDir.exists()) { "Test mods directory not found: ${modsDir.absolutePath}" }
     }
 }

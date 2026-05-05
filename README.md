@@ -64,16 +64,18 @@ Aliases: `gw:test run`, `gw:test purge`. Operator-only.
 
 Set `JAVA_TOOL_OPTIONS` before launching. The server exits automatically when the run finishes (`0` = all passed, `1` = any failure).
 
+Tests in a run advance concurrently. Keep each test self-contained and avoid cross-test state dependencies.
+
 ```powershell
 # Run all tests
-$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.all=true" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
+$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.all=true" ; ./gradlew runTestServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
 
 # Run a specific module
-$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
+$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke" ; ./gradlew runTestServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
 
 # Run a specific suite within a module
-$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke -Dglyphworks.test.suite=mySuite" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
+$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke -Dglyphworks.test.suite=mySuite" ; ./gradlew runTestServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
 
 # Run a single test
-$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke -Dglyphworks.test.suite=mySuite -Dglyphworks.test.name=myTest" ; ./gradlew runServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
+$env:JAVA_TOOL_OPTIONS="-Dglyphworks.test.module=smoke -Dglyphworks.test.suite=mySuite -Dglyphworks.test.name=myTest" ; ./gradlew runTestServer ; Remove-Item Env:JAVA_TOOL_OPTIONS
 ```

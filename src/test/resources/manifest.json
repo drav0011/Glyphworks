@@ -1,0 +1,21 @@
+{
+    "Group": "drav.dev",
+    "Name": "Glyphworks_Tests",
+    "Version": "0.2.0",
+    "Authors": [
+        {
+            "Name": "DrAv0011",
+            "Email": "",
+            "Url": "https://drav.dev"
+        }
+    ],
+    "DisabledByDefault": false,
+    "IncludesAssetPack": true,
+    "Dependencies": {
+        "drav.dev:Glyphworks": "*",
+        "Hytale:EntityModule": "*",
+        "Hytale:BlockModule": "*"
+    },
+    "ServerVersion": "*",
+    "Main": "dev.drav.glyphworks.test.GlyphworksTestPlugin"
+}

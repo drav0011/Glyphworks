@@ -127,7 +127,7 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
         if (sinks.isEmpty())
             return;
 
-        pushItemsToSinks(sourceEntries, sinks, store, chunkStore, dt);
+        pushItemsToSinks(sourceEntries, sinks, store, chunkStore);
     }
 
     // -------------------------------------------------------------------------
@@ -302,13 +302,12 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
             @Nonnull List<ItemSourceEntry> sourceEntries,
             @Nonnull List<ItemSinkEntry> sinks,
             @Nonnull Store<ChunkStore> store,
-            @Nonnull ChunkStore chunkStore,
-            float dt) {
+            @Nonnull ChunkStore chunkStore) {
         sinks.sort(Comparator.comparingInt(ItemSinkEntry::distance));
 
         for (ItemSourceEntry source : sourceEntries) {
             int toTransfer = source.sourceFace().drainAccumulator(
-                    source.entry().getTransferRate() * dt * chunkStore.getWorld().getTps());
+                    source.entry().getTransferRate());
             if (toTransfer < 1)
                 continue;
 
