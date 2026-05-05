@@ -10,13 +10,15 @@ import dev.drav.glyphworks.test.framework.TestSuite;
  *
  * <p>
  * These tests verify that {@link Steps#run}, {@link Steps#wait},
- * {@link Steps#waitUntil}, and {@link Steps#assertThat} all behave correctly,
+ * {@link Steps#succeedWhen}, and {@link Steps#assertThat} all behave correctly,
  * and that the auto-pass path for zero-step tests works without crashing.
  *
  * <p>
  * No Hytale world API is exercised here — all tests use a 1×1×1 area.
  */
 public final class TestFrameworkTests {
+
+    private static final int EXPECTED_FRAMEWORK_TEST_COUNT = 9;
 
     private TestFrameworkTests() {
     }
@@ -31,12 +33,30 @@ public final class TestFrameworkTests {
     }
 
     private static TestSuite buildSuite() {
+        int[] beforeAllRuns = { 0 };
+        int[] beforeEachRuns = { 0 };
+        int[] afterEachRuns = { 0 };
+        boolean[] afterFinishRan = { false };
+
         return new TestSuite("framework")
+                .beforeAll(Steps.run(ctx -> beforeAllRuns[0]++))
+                .beforeEach(Steps.run(ctx -> beforeEachRuns[0]++))
+                .afterEach(Steps.run(ctx -> afterEachRuns[0]++))
+                .afterAll(Steps.failIf(ctx -> beforeAllRuns[0] != 1,
+                        "beforeAll should run exactly once"))
+                .afterAll(Steps.failIf(ctx -> beforeEachRuns[0] < EXPECTED_FRAMEWORK_TEST_COUNT,
+                        "beforeEach should run for each test"))
+                .afterAll(Steps.failIf(ctx -> afterEachRuns[0] < EXPECTED_FRAMEWORK_TEST_COUNT,
+                        "afterEach should run for each test"))
+                .afterAll(Steps.failIf(ctx -> !afterFinishRan[0], "afterFinish hook should run"))
                 .test(runStepExecutes())
                 .test(stepOrderingPreserved())
                 .test(waitStepDelays())
-                .test(waitUntilResolves())
+                .test(succeedWhenResolves())
                 .test(assertPassesOnTrue())
+                .test(failIfDoesNotFailWhenFalse())
+                .test(succeedIfPassesWhenTrue())
+                .test(afterFinishRuns(afterFinishRan))
                 .test(autoPassEmptyTest());
     }
 
@@ -90,16 +110,16 @@ public final class TestFrameworkTests {
     }
 
     // -------------------------------------------------------------------------
-    // Test d: Steps.waitUntil polls its predicate per tick
+    // Test d: Steps.succeedWhen polls its predicate per tick
     // -------------------------------------------------------------------------
 
-    private static TestCase waitUntilResolves() {
+    private static TestCase succeedWhenResolves() {
         int[] count = { 0 };
 
-        return new TestCase("wait_until_resolves", 1, 1, 1)
-                .step(Steps.waitUntil(ctx -> ++count[0] >= 5, ctx -> ctx.getWorld().getTps(), "counted 5 ticks"))
+        return new TestCase("succeed_when_resolves", 1, 1, 1)
+                .step(Steps.succeedWhen(ctx -> ++count[0] >= 5, ctx -> ctx.getWorld().getTps(), "counted 5 ticks"))
                 .step(Steps.assertThat(ctx -> count[0] >= 5,
-                        "waitUntil predicate was polled at least 5 times"));
+                        "succeedWhen predicate was polled at least 5 times"));
     }
 
     // -------------------------------------------------------------------------
@@ -112,7 +132,36 @@ public final class TestFrameworkTests {
     }
 
     // -------------------------------------------------------------------------
-    // Test f: zero-step TestCase auto-passes without crashing
+    // Test f: Steps.failIf does not fail when predicate is false
+    // -------------------------------------------------------------------------
+
+    private static TestCase failIfDoesNotFailWhenFalse() {
+        return new TestCase("fail_if_does_not_fail_when_false", 1, 1, 1)
+                .step(Steps.failIf(ctx -> false, "predicate false should not fail"))
+                .step(Steps.succeed());
+    }
+
+    // -------------------------------------------------------------------------
+    // Test g: Steps.succeedIf returns DONE when predicate is true
+    // -------------------------------------------------------------------------
+
+    private static TestCase succeedIfPassesWhenTrue() {
+        return new TestCase("succeed_if_passes_when_true", 1, 1, 1)
+                .step(Steps.succeedIf(ctx -> true, "predicate true should pass"));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test h: afterFinish hook runs after test steps
+    // -------------------------------------------------------------------------
+
+    private static TestCase afterFinishRuns(boolean[] finalizerRan) {
+        return new TestCase("after_finish_runs", 1, 1, 1)
+                .step(Steps.succeed())
+                .afterFinish(Steps.afterFinish(ctx -> finalizerRan[0] = true));
+    }
+
+    // -------------------------------------------------------------------------
+    // Test i: zero-step TestCase auto-passes without crashing
     // -------------------------------------------------------------------------
 
     private static TestCase autoPassEmptyTest() {

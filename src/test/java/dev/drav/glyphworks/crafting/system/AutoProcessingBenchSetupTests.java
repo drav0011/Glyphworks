@@ -56,7 +56,7 @@ public final class AutoProcessingBenchSetupTests {
         return new TestCase("fluid_fuel_container_initialised_with_correct_capacity", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), FLUID_FUEL_ANY_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -77,7 +77,7 @@ public final class AutoProcessingBenchSetupTests {
         return new TestCase("item_output_container_is_output_only", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), NO_FUEL_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isItemOutputInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -103,7 +103,7 @@ public final class AutoProcessingBenchSetupTests {
                     w.setBlock(x, y, z, FURNACE_ID);
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> getGridComponent(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -123,7 +123,7 @@ public final class AutoProcessingBenchSetupTests {
                     w.setBlock(x, y, z, FURNACE_ID);
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(x, y, z));
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> getGridComponent(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(),

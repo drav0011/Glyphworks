@@ -50,7 +50,7 @@ public final class ItemSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
+                .step(Steps.succeedWhen(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(), "source block entity initialised"))
                 .step(Steps.run(ctx -> {
                     ItemSourceComponent isc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -74,7 +74,7 @@ public final class ItemSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
+                .step(Steps.succeedWhen(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(), "source block entity initialised"))
                 .step(Steps.run(ctx -> {
                     ItemSourceComponent isc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());

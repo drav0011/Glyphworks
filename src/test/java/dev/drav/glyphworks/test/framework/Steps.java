@@ -14,6 +14,12 @@ import dev.drav.glyphworks.test.runner.TestRunnerContext;
  * done inline by test authors via the
  * {@link dev.drav.glyphworks.test.runner.TestRunnerContext}
  * passed to each step.
+ *
+ * <p>
+ * The primitives are intentionally small and composable:
+ * {@link #run}, {@link #wait}, {@link #succeedWhen}, {@link #assertThat},
+ * {@link #succeed}, {@link #succeedIf}, {@link #fail}, {@link #failIf},
+ * and {@link #afterFinish}.
  */
 public final class Steps {
 
@@ -66,10 +72,11 @@ public final class Steps {
      * {@code maxTicks}
      * ticks have elapsed, then fails with {@code description}.
      */
-    public static TestStep waitUntil(Predicate<TestRunnerContext> predicate, int maxTicks, String description) {
+    public static TestStep succeedWhen(Predicate<TestRunnerContext> predicate, int maxTicks, String description) {
         return ctx -> {
-            if (predicate.test(ctx))
+            if (predicate.test(ctx)) {
                 return StepResult.DONE;
+            }
             if (ctx.getTicksRemaining() < 0) {
                 ctx.setTicksRemaining(maxTicks);
             }
@@ -92,14 +99,15 @@ public final class Steps {
      * Example:
      *
      * <pre>
-     * Steps.waitUntil(pred, ctx -&gt; 5 * ctx.getWorld().getTps(), "description")
+     * Steps.succeedWhen(pred, ctx -&gt; 5 * ctx.getWorld().getTps(), "description")
      * </pre>
      */
-    public static TestStep waitUntil(Predicate<TestRunnerContext> predicate,
+    public static TestStep succeedWhen(Predicate<TestRunnerContext> predicate,
             ToIntFunction<TestRunnerContext> maxTicksSupplier, String description) {
         return ctx -> {
-            if (predicate.test(ctx))
+            if (predicate.test(ctx)) {
                 return StepResult.DONE;
+            }
             if (ctx.getTicksRemaining() < 0) {
                 ctx.setTicksRemaining(maxTicksSupplier.applyAsInt(ctx));
             }
@@ -111,40 +119,46 @@ public final class Steps {
     }
 
     /**
-     * Polls each tick, checking both a success and a fail predicate atomically.
-     *
-     * <ul>
-     * <li>If {@code failPredicate} is true the step immediately returns a failure
-     * result (the expected value was overshot).</li>
-     * <li>If {@code successPredicate} is true the step returns DONE.</li>
-     * <li>Otherwise the step returns PENDING and tries again next tick.</li>
-     * </ul>
-     *
-     * Example usage:
-     *
-     * <pre>
-     * Steps.waitUntilOrFail(
-     *         ctx -&gt; getSink(ctx).getAmount() == RATE, // success
-     *         ctx -&gt; getSink(ctx).getAmount() &gt; RATE, // overshot → immediate fail
-     *         ctx -&gt; ctx.getWorld().getTps(),
-     *         "exactly RATE litres transferred in first grid tick")
-     * </pre>
+     * Immediately fails with the provided reason.
      */
-    public static TestStep waitUntilOrFail(Predicate<TestRunnerContext> successPredicate,
-            Predicate<TestRunnerContext> failPredicate,
-            ToIntFunction<TestRunnerContext> maxTicksSupplier,
-            String description) {
+    public static TestStep fail(String reason) {
+        return ctx -> StepResult.failed(reason);
+    }
+
+    /**
+     * Fails when {@code predicate} evaluates to {@code true}; otherwise succeeds.
+     */
+    public static TestStep failIf(Predicate<TestRunnerContext> predicate, String reason) {
+        return ctx -> predicate.test(ctx) ? StepResult.failed(reason) : StepResult.DONE;
+    }
+
+    /**
+     * Immediately succeeds.
+     */
+    public static TestStep succeed() {
+        return ctx -> StepResult.DONE;
+    }
+
+    /**
+     * Succeeds only when {@code predicate} is {@code true}; otherwise fails.
+     */
+    public static TestStep succeedIf(Predicate<TestRunnerContext> predicate, String description) {
+        return ctx -> predicate.test(ctx)
+                ? StepResult.DONE
+                : StepResult.failed("succeedIf failed: " + description);
+    }
+
+    /**
+     * Executes once in the test's after-finish phase.
+     *
+     * <p>
+     * This runs after the main step list completes (pass or fail), but before
+     * suite-level afterEach hooks.
+     */
+    public static TestStep afterFinish(Consumer<TestRunnerContext> action) {
         return ctx -> {
-            if (failPredicate.test(ctx))
-                return StepResult.failed("Transfer exceeded expected amount waiting for: " + description);
-            if (successPredicate.test(ctx))
-                return StepResult.DONE;
-            if (ctx.getTicksRemaining() < 0)
-                ctx.setTicksRemaining(maxTicksSupplier.applyAsInt(ctx));
-            ctx.setTicksRemaining(ctx.getTicksRemaining() - 1);
-            return ctx.getTicksRemaining() > 0
-                    ? StepResult.PENDING
-                    : StepResult.failed("Timed out waiting for: " + description);
+            action.accept(ctx);
+            return StepResult.DONE;
         };
     }
 

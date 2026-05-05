@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;
+import dev.drav.glyphworks.test.framework.TestRunEntry;
 import dev.drav.glyphworks.test.runner.TestRunLauncher;
 import dev.drav.glyphworks.test.world.TestWorldManager;
 
@@ -74,7 +74,7 @@ public final class HeadlessTestLauncher {
         String testName = System.getProperty(PROP_TEST_NAME);
         boolean cleanupAfterRun = true;
 
-        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
+        List<TestRunEntry> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
                 msg -> LOGGER.severe("[GlyphTest] Headless: " + msg));
         if (queue == null) {
             System.exit(1);

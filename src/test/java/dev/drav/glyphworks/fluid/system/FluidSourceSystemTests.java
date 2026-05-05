@@ -52,7 +52,7 @@ public final class FluidSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
+                .step(Steps.succeedWhen(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(), "source block entity initialised"))
                 .step(Steps.run(ctx -> {
                     FluidSourceComponent fsc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -95,7 +95,7 @@ public final class FluidSourceSystemTests {
                 .step(Steps.run(ctx -> {
                     ctx.getWorld().setBlock(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SOURCE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
+                .step(Steps.succeedWhen(ctx -> getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) != null,
                         ctx -> 5 * ctx.getWorld().getTps(), "source block entity initialised"))
                 .step(Steps.run(ctx -> {
                     FluidSourceComponent fsc = getSource(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());

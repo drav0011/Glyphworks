@@ -85,7 +85,7 @@ public final class GridBlockChangeTests {
                     w.setBlock(ox + 1, oy, oz, PIPE_ID);
                 }))
                 // Wait until the system auto-detects and connects them.
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     Vector3i pa = v(ox, oy, oz);
@@ -111,7 +111,7 @@ public final class GridBlockChangeTests {
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
                 }))
                 // Wait until connected.
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
@@ -123,7 +123,7 @@ public final class GridBlockChangeTests {
                     w.setBlock(ox + 1, oy, oz, "Empty");
                 }))
                 // Wait until the system auto-detects the removal and removes the node.
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return !graph(w).contains(v(ox + 1, oy, oz));
@@ -143,7 +143,7 @@ public final class GridBlockChangeTests {
                     w.setBlock(ox, oy, oz, PIPE_ID);
                     w.setBlock(ox + 1, oy, oz, PIPE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
@@ -154,7 +154,7 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     w.setBlock(ox + 1, oy, oz, "Empty");
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return !graph(w).contains(v(ox + 1, oy, oz));
@@ -165,7 +165,7 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     w.setBlock(ox + 1, oy, oz, PIPE_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     Vector3i pa = v(ox, oy, oz);
@@ -194,7 +194,7 @@ public final class GridBlockChangeTests {
                     PlaceGridBlockEvent.connectBlock(w, v(ox, oy, oz));
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz));
@@ -206,7 +206,7 @@ public final class GridBlockChangeTests {
                     w.setBlock(ox + 1, oy, oz, "Empty");
                 }))
                 // Wait until the survivor's component.neighbors is empty.
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridLookup lu = GridLookup.resolve(w.getChunkStore(), v(ox, oy, oz));
@@ -232,7 +232,7 @@ public final class GridBlockChangeTests {
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 1, oy, oz));
                     PlaceGridBlockEvent.connectBlock(w, v(ox + 2, oy, oz));
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     return connected(w, v(ox, oy, oz), v(ox + 1, oy, oz))
@@ -244,7 +244,7 @@ public final class GridBlockChangeTests {
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     w.setBlock(ox + 1, oy, oz, "Empty");
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     GridGraph g = graph(w);

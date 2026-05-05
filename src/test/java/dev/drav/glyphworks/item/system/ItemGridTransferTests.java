@@ -376,7 +376,7 @@ public final class ItemGridTransferTests {
                     if (src != null)
                         seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     ItemContainerBlock sinkA = getBox(w, new Vector3i(ox, oy, oz + 2));
@@ -424,7 +424,7 @@ public final class ItemGridTransferTests {
                     if (src != null)
                         seed(src.getItemContainer(), SEED_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     ItemContainerBlock sinkB = getBox(w, new Vector3i(ox + 1, oy, oz + 2));

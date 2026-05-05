@@ -66,7 +66,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                 .step(Steps.run(ctx -> {
                     placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SELECTOR_BLOCK);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -77,7 +77,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(RECIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -103,7 +103,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                 .step(Steps.run(ctx -> {
                     placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SELECTOR_BLOCK);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -114,7 +114,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(RECIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -146,7 +146,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                 .step(Steps.run(ctx -> {
                     placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SELECTOR_BLOCK);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -157,7 +157,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(RECIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -176,7 +176,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                         input.addItemStack(new ItemStack(RECIPE_INPUT, 1), false, false, false);
                     seedFluidFuel(apbb);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -196,7 +196,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                 .step(Steps.run(ctx -> {
                     placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SELECTOR_BLOCK);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -207,7 +207,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(RECIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -222,7 +222,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(null);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());
@@ -248,7 +248,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                 .step(Steps.run(ctx -> {
                     placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), SELECTOR_BLOCK);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -259,7 +259,7 @@ public final class AutoCraftingBenchRecipeLockTests {
                     if (acbb != null)
                         acbb.setLockedRecipe(RECIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             AutoProcessingBenchBlock apbb = getProcessingBench(ctx.getWorld(),
                                     ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ());

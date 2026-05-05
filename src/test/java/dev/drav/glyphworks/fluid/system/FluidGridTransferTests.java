@@ -226,7 +226,7 @@ public final class FluidGridTransferTests {
                     if (tankA != null)
                         seedFluid(tankA, WATER_ID, FILL_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent tankB = getContainer(w, ox + 1, oy, oz);
@@ -434,7 +434,7 @@ public final class FluidGridTransferTests {
                     if (tankA != null)
                         seedFluid(tankA, WATER_ID, FILL_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent tankB = getContainer(w, ox + 1, oy, oz);
@@ -517,7 +517,7 @@ public final class FluidGridTransferTests {
                     if (srcB != null)
                         seedFluid(srcB, LAVA_ID, FILL_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidContainerComponent tankA2 = getContainer(w, ox + 1, oy, oz);
@@ -655,7 +655,7 @@ public final class FluidGridTransferTests {
                     if (srcB != null)
                         seedFluid(srcB, LAVA_ID, FILL_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidPipeComponent pipeA = getPipe(w, ox, oy + 1, oz);
@@ -735,7 +735,7 @@ public final class FluidGridTransferTests {
                     if (srcB != null)
                         seedFluid(srcB, LAVA_ID, FILL_AMOUNT);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     World w = ctx.getWorld();
                     int ox = ctx.getOriginX(), oy = ctx.getOriginY(), oz = ctx.getOriginZ();
                     FluidPipeComponent pipeA = getPipe(w, ox, oy + 1, oz);

@@ -1,5 +1,8 @@
 package dev.drav.glyphworks.test.runner;
 
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -24,19 +27,31 @@ public final class TestRunnerContext {
     private final Ref<EntityStore> runnerRef;
     @Nullable
     private final PlayerRef player;
-    final TestRunnerComponent component;
+    private final int originX;
+    private final int originY;
+    private final int originZ;
+    private final IntSupplier ticksRemainingGetter;
+    private final IntConsumer ticksRemainingSetter;
 
     TestRunnerContext(
             @Nonnull World world,
             @Nonnull Store<EntityStore> store,
             @Nonnull Ref<EntityStore> runnerRef,
             @Nullable PlayerRef player,
-            @Nonnull TestRunnerComponent component) {
+            int originX,
+            int originY,
+            int originZ,
+            @Nonnull IntSupplier ticksRemainingGetter,
+            @Nonnull IntConsumer ticksRemainingSetter) {
         this.world = world;
         this.store = store;
         this.runnerRef = runnerRef;
         this.player = player;
-        this.component = component;
+        this.originX = originX;
+        this.originY = originY;
+        this.originZ = originZ;
+        this.ticksRemainingGetter = ticksRemainingGetter;
+        this.ticksRemainingSetter = ticksRemainingSetter;
     }
 
     @Nonnull
@@ -60,15 +75,15 @@ public final class TestRunnerContext {
     }
 
     public int getOriginX() {
-        return component.originXs[component.testIndex];
+        return originX;
     }
 
     public int getOriginY() {
-        return component.originYs[component.testIndex];
+        return originY;
     }
 
     public int getOriginZ() {
-        return component.originZs[component.testIndex];
+        return originZ;
     }
 
     /**
@@ -76,10 +91,10 @@ public final class TestRunnerContext {
      * tick counters.
      */
     public int getTicksRemaining() {
-        return component.ticksRemaining;
+        return ticksRemainingGetter.getAsInt();
     }
 
     public void setTicksRemaining(int t) {
-        component.ticksRemaining = t;
+        ticksRemainingSetter.accept(t);
     }
 }

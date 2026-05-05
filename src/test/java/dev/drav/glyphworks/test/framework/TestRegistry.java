@@ -82,7 +82,7 @@ public final class TestRegistry {
      * @return the queued tests, or {@code null} if an error was reported
      */
     @Nullable
-    public static List<TestCase> buildQueue(
+    public static List<TestRunEntry> buildQueue(
             @Nullable String moduleName,
             @Nullable String suiteName,
             @Nullable String testName,
@@ -132,11 +132,11 @@ public final class TestRegistry {
         // ── Step 3: filter by test name ──
         if (testName != null) {
             List<String> locations = new ArrayList<>();
-            List<TestCase> found = new ArrayList<>();
+            List<TestRunEntry> found = new ArrayList<>();
             for (Map.Entry<String, TestSuite> e : candidates) {
-                e.getValue().findTest(testName).ifPresent(tc -> {
+                e.getValue().findTest(testName).ifPresent(testCase -> {
                     locations.add(e.getKey() + "." + e.getValue().getId());
-                    found.add(tc);
+                    found.add(new TestRunEntry(e.getKey(), e.getValue(), testCase));
                 });
             }
             if (found.isEmpty()) {
@@ -159,9 +159,11 @@ public final class TestRegistry {
         }
 
         // ── Return all tests from the surviving candidates ──
-        List<TestCase> all = new ArrayList<>();
+        List<TestRunEntry> all = new ArrayList<>();
         for (Map.Entry<String, TestSuite> e : candidates) {
-            all.addAll(e.getValue().getTests());
+            for (TestCase testCase : e.getValue().getTests()) {
+                all.add(new TestRunEntry(e.getKey(), e.getValue(), testCase));
+            }
         }
         return all;
     }

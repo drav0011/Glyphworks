@@ -1,6 +1,7 @@
 package dev.drav.glyphworks.test.runner;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -29,7 +30,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.test.framework.StepResult;
-import dev.drav.glyphworks.test.framework.TestCase;
+import dev.drav.glyphworks.test.framework.TestRunEntry;
 import dev.drav.glyphworks.test.framework.TestStep;
 import dev.drav.glyphworks.test.world.TestWorldManager;
 
@@ -65,66 +66,414 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
 
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
 
-        if (component.testIndex >= component.queue.size()) {
-            reportAndFinish(ref, component, store, commandBuffer);
+        if (component.reported) {
             return;
         }
 
         World world = store.getExternalData().getWorld();
 
-        TestCase currentTest = component.queue.get(component.testIndex);
-        List<TestStep> steps = currentTest.getSteps();
+        runSuiteBeforeAllHooks(world, store, ref, component);
+        runTests(world, store, ref, component);
+        runSuiteAfterAllHooks(world, store, ref, component);
 
-        if (steps.isEmpty()) {
-            component.results.add("PASS  " + currentTest.getName());
-            advanceTest(component);
-            if (component.testIndex >= component.queue.size()) {
-                reportAndFinish(ref, component, store, commandBuffer);
-            }
-            return;
-        }
-
-        TestStep step = steps.get(component.stepIndex);
-        TestRunnerContext ctx = new TestRunnerContext(world, store, ref, component.playerRef, component);
-
-        StepResult result;
-        try {
-            result = step.execute(ctx);
-        } catch (Exception e) {
-            LOGGER.warning("[GlyphTest] Exception in \"" + currentTest.getName()
-                    + "\" step " + component.stepIndex + ": " + e);
-            result = StepResult.failed("Exception: " + e.getMessage());
-        }
-
-        if (result.isPending())
-            return;
-
-        if (result.isFailed()) {
-            String entry = "FAIL  " + currentTest.getName()
-                    + " [step " + component.stepIndex + "]: " + result.getFailReason();
-            component.results.add(entry);
-            LOGGER.info("[GlyphTest] " + entry);
-            advanceTest(component);
-        } else {
-            component.stepIndex++;
-            component.ticksRemaining = -1;
-            if (component.stepIndex >= steps.size()) {
-                String entry = "PASS  " + currentTest.getName();
-                component.results.add(entry);
-                LOGGER.info("[GlyphTest] " + entry);
-                advanceTest(component);
-            }
-        }
-
-        if (component.testIndex >= component.queue.size()) {
+        if (allTestsDone(component) && allSuitesTerminal(component)) {
             reportAndFinish(ref, component, store, commandBuffer);
         }
     }
 
-    private static void advanceTest(@Nonnull TestRunnerComponent component) {
-        component.testIndex++;
-        component.stepIndex = 0;
-        component.ticksRemaining = -1;
+    private static void runSuiteBeforeAllHooks(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component) {
+
+        for (TestRunnerComponent.SuiteExecutionState suiteState : component.suiteStates.values()) {
+            if (suiteState.beforeAllDone || suiteState.beforeAllFailed) {
+                continue;
+            }
+
+            StepResult result = executeStepFromList(
+                    suiteState.suite.getBeforeAllSteps(),
+                    suiteState.beforeAllStepIndex,
+                    contextForSuiteHook(world, store, ref, component, suiteState, true),
+                    suiteState.label + " beforeAll",
+                    suiteState.beforeAllStepIndex);
+
+            if (result.isPending()) {
+                continue;
+            }
+
+            if (result.isFailed()) {
+                suiteState.beforeAllFailed = true;
+                suiteState.suiteFailureReason = nullToUnknown(result.getFailReason());
+                String entry = "FAIL  SUITE " + suiteState.label + " [beforeAll]: " + suiteState.suiteFailureReason;
+                component.results.add(entry);
+                LOGGER.info("[GlyphTest] " + entry);
+                continue;
+            }
+
+            suiteState.beforeAllStepIndex++;
+            suiteState.beforeAllTicksRemaining = -1;
+            if (suiteState.beforeAllStepIndex >= suiteState.suite.getBeforeAllSteps().size()) {
+                suiteState.beforeAllDone = true;
+            }
+        }
+    }
+
+    private static void runTests(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component) {
+
+        for (int i = 0; i < component.queue.size(); i++) {
+            TestRunnerComponent.TestExecutionState state = component.testStates.get(i);
+            if (state.done) {
+                continue;
+            }
+
+            TestRunEntry entry = component.queue.get(i);
+            TestRunnerComponent.SuiteExecutionState suiteState = component.suiteStates.get(state.suiteLabel);
+            if (suiteState == null) {
+                continue;
+            }
+
+            if (suiteState.beforeAllFailed) {
+                state.passed = false;
+                state.failureReason = "suite beforeAll failed: " + suiteState.suiteFailureReason;
+                markTestDone(component, entry, state);
+                continue;
+            }
+
+            if (!suiteState.beforeAllDone) {
+                continue;
+            }
+
+            switch (state.phase) {
+                case TestRunnerComponent.PHASE_BEFORE_EACH ->
+                    runBeforeEach(world, store, ref, component, entry, state, i);
+                case TestRunnerComponent.PHASE_TEST -> runTestSteps(world, store, ref, component, entry, state, i);
+                case TestRunnerComponent.PHASE_AFTER_FINISH ->
+                    runAfterFinish(world, store, ref, component, entry, state, i);
+                case TestRunnerComponent.PHASE_AFTER_EACH ->
+                    runAfterEach(world, store, ref, component, entry, state, i);
+                default -> {
+                }
+            }
+        }
+    }
+
+    private static void runBeforeEach(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunEntry entry,
+            @Nonnull TestRunnerComponent.TestExecutionState state,
+            int testIndex) {
+
+        List<TestStep> hooks = entry.getSuite().getBeforeEachSteps();
+        StepResult result = executeStepFromList(
+                hooks,
+                state.hookStepIndex,
+                contextForTest(world, store, ref, component, state, testIndex),
+                entry.getTestLabel() + " beforeEach",
+                state.hookStepIndex);
+
+        if (result.isPending()) {
+            return;
+        }
+
+        if (result.isFailed()) {
+            state.passed = false;
+            state.failureReason = "beforeEach failed: " + nullToUnknown(result.getFailReason());
+            state.phase = TestRunnerComponent.PHASE_AFTER_FINISH;
+            state.hookStepIndex = 0;
+            state.ticksRemaining = -1;
+            return;
+        }
+
+        state.hookStepIndex++;
+        state.ticksRemaining = -1;
+        if (state.hookStepIndex >= hooks.size()) {
+            state.phase = TestRunnerComponent.PHASE_TEST;
+            state.stepIndex = 0;
+            state.hookStepIndex = 0;
+        }
+    }
+
+    private static void runTestSteps(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunEntry entry,
+            @Nonnull TestRunnerComponent.TestExecutionState state,
+            int testIndex) {
+
+        List<TestStep> steps = entry.getTestCase().getSteps();
+        StepResult result = executeStepFromList(
+                steps,
+                state.stepIndex,
+                contextForTest(world, store, ref, component, state, testIndex),
+                entry.getTestLabel(),
+                state.stepIndex);
+
+        if (result.isPending()) {
+            return;
+        }
+
+        if (result.isFailed()) {
+            state.passed = false;
+            state.failureReason = "step " + state.stepIndex + ": " + nullToUnknown(result.getFailReason());
+            state.phase = TestRunnerComponent.PHASE_AFTER_FINISH;
+            state.hookStepIndex = 0;
+            state.ticksRemaining = -1;
+            return;
+        }
+
+        state.stepIndex++;
+        state.ticksRemaining = -1;
+        if (state.stepIndex >= steps.size()) {
+            state.phase = TestRunnerComponent.PHASE_AFTER_FINISH;
+            state.hookStepIndex = 0;
+        }
+    }
+
+    private static void runAfterEach(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunEntry entry,
+            @Nonnull TestRunnerComponent.TestExecutionState state,
+            int testIndex) {
+
+        List<TestStep> hooks = entry.getSuite().getAfterEachSteps();
+        StepResult result = executeStepFromList(
+                hooks,
+                state.hookStepIndex,
+                contextForTest(world, store, ref, component, state, testIndex),
+                entry.getTestLabel() + " afterEach",
+                state.hookStepIndex);
+
+        if (result.isPending()) {
+            return;
+        }
+
+        if (result.isFailed() && state.passed) {
+            state.passed = false;
+            state.failureReason = "afterEach failed: " + nullToUnknown(result.getFailReason());
+        }
+
+        state.hookStepIndex++;
+        state.ticksRemaining = -1;
+        if (state.hookStepIndex >= hooks.size()) {
+            markTestDone(component, entry, state);
+        }
+    }
+
+    private static void runAfterFinish(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunEntry entry,
+            @Nonnull TestRunnerComponent.TestExecutionState state,
+            int testIndex) {
+
+        List<TestStep> hooks = entry.getTestCase().getAfterFinishSteps();
+        StepResult result = executeStepFromList(
+                hooks,
+                state.hookStepIndex,
+                contextForTest(world, store, ref, component, state, testIndex),
+                entry.getTestLabel() + " afterFinish",
+                state.hookStepIndex);
+
+        if (result.isPending()) {
+            return;
+        }
+
+        if (result.isFailed() && state.passed) {
+            state.passed = false;
+            state.failureReason = "afterFinish failed: " + nullToUnknown(result.getFailReason());
+        }
+
+        state.hookStepIndex++;
+        state.ticksRemaining = -1;
+        if (state.hookStepIndex >= hooks.size()) {
+            state.phase = TestRunnerComponent.PHASE_AFTER_EACH;
+            state.hookStepIndex = 0;
+        }
+    }
+
+    private static void runSuiteAfterAllHooks(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component) {
+
+        for (Map.Entry<String, TestRunnerComponent.SuiteExecutionState> mapEntry : component.suiteStates.entrySet()) {
+            TestRunnerComponent.SuiteExecutionState suiteState = mapEntry.getValue();
+            if (suiteState.beforeAllFailed || suiteState.afterAllDone || !suiteState.beforeAllDone) {
+                continue;
+            }
+            if (!areSuiteTestsDone(component, suiteState)) {
+                continue;
+            }
+
+            StepResult result = executeStepFromList(
+                    suiteState.suite.getAfterAllSteps(),
+                    suiteState.afterAllStepIndex,
+                    contextForSuiteHook(world, store, ref, component, suiteState, false),
+                    suiteState.label + " afterAll",
+                    suiteState.afterAllStepIndex);
+
+            if (result.isPending()) {
+                continue;
+            }
+
+            if (result.isFailed()) {
+                suiteState.afterAllDone = true;
+                suiteState.suiteFailureReason = nullToUnknown(result.getFailReason());
+                String entry = "FAIL  SUITE " + suiteState.label + " [afterAll]: " + suiteState.suiteFailureReason;
+                component.results.add(entry);
+                LOGGER.info("[GlyphTest] " + entry);
+                continue;
+            }
+
+            suiteState.afterAllStepIndex++;
+            suiteState.afterAllTicksRemaining = -1;
+            if (suiteState.afterAllStepIndex >= suiteState.suite.getAfterAllSteps().size()) {
+                suiteState.afterAllDone = true;
+            }
+        }
+    }
+
+    private static boolean areSuiteTestsDone(
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunnerComponent.SuiteExecutionState suiteState) {
+
+        for (int testIndex : suiteState.testIndices) {
+            if (!component.testStates.get(testIndex).done) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean allTestsDone(@Nonnull TestRunnerComponent component) {
+        for (TestRunnerComponent.TestExecutionState state : component.testStates) {
+            if (!state.done) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean allSuitesTerminal(@Nonnull TestRunnerComponent component) {
+        for (TestRunnerComponent.SuiteExecutionState suiteState : component.suiteStates.values()) {
+            if (suiteState.beforeAllFailed) {
+                continue;
+            }
+            if (!suiteState.beforeAllDone) {
+                return false;
+            }
+            if (!suiteState.afterAllDone) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void markTestDone(
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunEntry entry,
+            @Nonnull TestRunnerComponent.TestExecutionState state) {
+
+        state.done = true;
+        state.phase = TestRunnerComponent.PHASE_DONE;
+
+        String result = state.passed
+                ? "PASS  " + entry.getTestLabel()
+                : "FAIL  " + entry.getTestLabel() + ": " + nullToUnknown(state.failureReason);
+        component.results.add(result);
+        LOGGER.info("[GlyphTest] " + result);
+    }
+
+    @Nonnull
+    private static TestRunnerContext contextForTest(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunnerComponent.TestExecutionState state,
+            int testIndex) {
+
+        return new TestRunnerContext(
+                world,
+                store,
+                ref,
+                component.playerRef,
+                component.originXs[testIndex],
+                component.originYs[testIndex],
+                component.originZs[testIndex],
+                () -> state.ticksRemaining,
+                remaining -> state.ticksRemaining = remaining);
+    }
+
+    @Nonnull
+    private static TestRunnerContext contextForSuiteHook(
+            @Nonnull World world,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull TestRunnerComponent component,
+            @Nonnull TestRunnerComponent.SuiteExecutionState suiteState,
+            boolean beforeAll) {
+
+        int sampleIndex = suiteState.testIndices.isEmpty() ? 0 : suiteState.testIndices.get(0);
+        return new TestRunnerContext(
+                world,
+                store,
+                ref,
+                component.playerRef,
+                component.originXs[sampleIndex],
+                component.originYs[sampleIndex],
+                component.originZs[sampleIndex],
+                beforeAll ? () -> suiteState.beforeAllTicksRemaining : () -> suiteState.afterAllTicksRemaining,
+                remaining -> {
+                    if (beforeAll) {
+                        suiteState.beforeAllTicksRemaining = remaining;
+                    } else {
+                        suiteState.afterAllTicksRemaining = remaining;
+                    }
+                });
+    }
+
+    @Nonnull
+    private static StepResult executeStepFromList(
+            @Nonnull List<TestStep> steps,
+            int stepIndex,
+            @Nonnull TestRunnerContext ctx,
+            @Nonnull String label,
+            int visibleStepIndex) {
+
+        if (stepIndex >= steps.size()) {
+            return StepResult.DONE;
+        }
+
+        TestStep step = steps.get(stepIndex);
+        try {
+            return step.execute(ctx);
+        } catch (Exception e) {
+            LOGGER.warning("[GlyphTest] Exception in \"" + label + "\" step " + visibleStepIndex + ": " + e);
+            return StepResult.failed("Exception: " + e.getMessage());
+        }
+    }
+
+    @Nonnull
+    private static String nullToUnknown(@Nullable String reason) {
+        return reason == null || reason.isBlank() ? "unknown failure" : reason;
     }
 
     private static void reportAndFinish(
@@ -132,6 +481,8 @@ public final class TestRunnerSystem extends EntityTickingSystem<EntityStore> {
             @Nonnull TestRunnerComponent component,
             @Nonnull Store<EntityStore> store,
             @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+
+        component.reported = true;
 
         @Nullable
         PlayerRef player = component.playerRef;

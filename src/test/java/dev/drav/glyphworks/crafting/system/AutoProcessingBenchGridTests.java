@@ -82,7 +82,7 @@ public final class AutoProcessingBenchGridTests {
                     placeBench(w, bx, by, bz);
                     placeBlock(w, bx, by + 1, bz, FLUID_PIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> getProcessingBench(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ() + 4) != null,
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -104,7 +104,7 @@ public final class AutoProcessingBenchGridTests {
                     placeBench(w, bx, by, bz);
                     placeBlock(w, bx, by, bz + 1, ITEM_PIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> getProcessingBench(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ() + 4) != null,
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -126,7 +126,7 @@ public final class AutoProcessingBenchGridTests {
                     placeBench(w, bx, by, bz);
                     placeBlock(w, bx, by, bz - 1, ITEM_PIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> getProcessingBench(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ() + 4) != null,
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -150,7 +150,7 @@ public final class AutoProcessingBenchGridTests {
                     placeBench(w, bx, by, bz);
                         placeBlock(w, bx, by + 1, bz, FLUID_PIPE_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidSourceFilled(ctx.getWorld(),
                             ctx.getOriginX(), ctx.getOriginY() + 1, ctx.getOriginZ() + 4),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -160,7 +160,7 @@ public final class AutoProcessingBenchGridTests {
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                         seedFluidSource(w, bx, by + 1, bz);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
@@ -193,7 +193,7 @@ public final class AutoProcessingBenchGridTests {
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz + 1));
                     placeBlock(w, bx, by, bz + 2, ITEM_CONTAINER_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
@@ -207,7 +207,7 @@ public final class AutoProcessingBenchGridTests {
                     int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
                     seedItemContainer(w, bx, by, bz + 2, INPUT_ITEM, 3);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
@@ -240,7 +240,7 @@ public final class AutoProcessingBenchGridTests {
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(bx, by, bz - 1));
                     placeBlock(w, bx, by, bz - 2, ITEM_CONTAINER_ID);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;
@@ -259,7 +259,7 @@ public final class AutoProcessingBenchGridTests {
                             output.setItemStackForSlot((short) 0, new ItemStack(INPUT_ITEM, 3), false);
                     }
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             World w = ctx.getWorld();
                             int bx = ctx.getOriginX(), by = ctx.getOriginY(), bz = ctx.getOriginZ() + 4;

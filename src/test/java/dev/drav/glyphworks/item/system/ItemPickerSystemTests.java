@@ -61,7 +61,7 @@ public final class ItemPickerSystemTests {
                             bx + 0.5, by, bz + 0.5,
                             ITEM_ID, 1);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     int bx = ctx.getOriginX() + 1, by = ctx.getOriginY() + 1, bz = ctx.getOriginZ() + 1;
                     ItemContainerBlock icb = ItemTestUtil.getItemContainerBlock(
                             ctx.getWorld(), new Vector3i(bx, by, bz));

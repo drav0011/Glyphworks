@@ -62,7 +62,7 @@ public final class AutoProcessingBenchFlowTests {
         return new TestCase("bench_crafts_when_ingredient_and_mana_present", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), TEST_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -75,7 +75,7 @@ public final class AutoProcessingBenchFlowTests {
                     seedInput(apbb, INPUT_ITEM, 1);
                     seedFluidFuel(apbb);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> countOutput(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) > 0,
                         ctx -> 25 * ctx.getWorld().getTps(),
@@ -101,7 +101,7 @@ public final class AutoProcessingBenchFlowTests {
         return new TestCase("bench_resets_progress_when_input_removed", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), TEST_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -139,7 +139,7 @@ public final class AutoProcessingBenchFlowTests {
         return new TestCase("bench_holds_when_output_full", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), TEST_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -178,7 +178,7 @@ public final class AutoProcessingBenchFlowTests {
         return new TestCase("multiple_cycles_produce_multiple_outputs", 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(),
                         ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(), TEST_BLOCK)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> isFluidFuelInitialised(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()),
                         ctx -> 5 * ctx.getWorld().getTps(),
@@ -191,7 +191,7 @@ public final class AutoProcessingBenchFlowTests {
                     seedInput(apbb, INPUT_ITEM, 3);
                     seedFluidFuel(apbb);
                 }))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> countOutput(ctx.getWorld(),
                                 ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()) >= 3,
                         ctx -> 70 * ctx.getWorld().getTps(),

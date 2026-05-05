@@ -23,6 +23,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import dev.drav.glyphworks.test.framework.TestCase;
+import dev.drav.glyphworks.test.framework.TestRunEntry;
 import dev.drav.glyphworks.test.world.TestWorldManager;
 
 /**
@@ -55,18 +56,20 @@ public final class TestRunLauncher {
      *                        fails; the caller is responsible for logging / exiting
      */
     public static void launch(
-            List<TestCase> queue,
+            List<TestRunEntry> queue,
             boolean cleanupAfterRun,
             @Nullable PlayerRef player,
             boolean headless,
             String runId,
             Consumer<String> onError) {
 
+        List<TestCase> testCases = queue.stream().map(TestRunEntry::getTestCase).toList();
+
         // ── Grid layout ──
         int n = queue.size();
         int cols = (int) Math.ceil(Math.sqrt(n));
-        int maxWidth = queue.stream().mapToInt(TestCase::getAreaWidth).max().orElse(1);
-        int maxDepth = queue.stream().mapToInt(TestCase::getAreaDepth).max().orElse(1);
+        int maxWidth = testCases.stream().mapToInt(TestCase::getAreaWidth).max().orElse(1);
+        int maxDepth = testCases.stream().mapToInt(TestCase::getAreaDepth).max().orElse(1);
         int gap = 2;
 
         int[] originXs = new int[n];
@@ -84,12 +87,12 @@ public final class TestRunLauncher {
         int maxBlockX = 0;
         int maxBlockZ = 0;
         for (int i = 0; i < n; i++) {
-            maxBlockX = Math.max(maxBlockX, originXs[i] + queue.get(i).getAreaWidth() - 1);
-            maxBlockZ = Math.max(maxBlockZ, originZs[i] + queue.get(i).getAreaDepth() - 1);
+            maxBlockX = Math.max(maxBlockX, originXs[i] + testCases.get(i).getAreaWidth() - 1);
+            maxBlockZ = Math.max(maxBlockZ, originZs[i] + testCases.get(i).getAreaDepth() - 1);
         }
         Box2D keepLoaded = new Box2D(0.0, 0.0, (double) maxBlockX, (double) maxBlockZ);
 
-        final List<TestCase> finalQueue = queue;
+        final List<TestRunEntry> finalQueue = queue;
         final int[] finalXs = originXs;
         final int[] finalYs = originYs;
         final int[] finalZs = originZs;
@@ -99,7 +102,7 @@ public final class TestRunLauncher {
                 .thenCompose(testWorld -> {
                     Set<Long> indices = new HashSet<>();
                     for (int i = 0; i < finalQueue.size(); i++) {
-                        TestCase tc = finalQueue.get(i);
+                        TestCase tc = finalQueue.get(i).getTestCase();
                         int cMinX = ChunkUtil.chunkCoordinate(finalXs[i]);
                         int cMaxX = ChunkUtil.chunkCoordinate(finalXs[i] + tc.getAreaWidth() - 1);
                         int cMinZ = ChunkUtil.chunkCoordinate(finalZs[i]);

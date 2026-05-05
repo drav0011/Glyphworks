@@ -18,8 +18,8 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import dev.drav.glyphworks.test.framework.TestCase;
 import dev.drav.glyphworks.test.framework.TestRegistry;
+import dev.drav.glyphworks.test.framework.TestRunEntry;
 import dev.drav.glyphworks.test.runner.TestRunLauncher;
 import dev.drav.glyphworks.test.world.TestWorldManager;
 
@@ -80,7 +80,7 @@ public final class TestRunCommand extends AbstractAsyncCommand {
         String testName = testArg.get(context);
         boolean cleanupAfterRun = !noCleanupArg.get(context);
 
-        List<TestCase> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
+        List<TestRunEntry> queue = TestRegistry.buildQueue(moduleName, suiteName, testName,
                 msg -> context.sendMessage(Message.raw("[GlyphTest] " + msg)));
         if (queue == null)
             return;

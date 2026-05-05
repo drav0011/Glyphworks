@@ -275,7 +275,7 @@ public final class AutoProcessingBenchFuelTests {
         return new TestCase(id, 3, 3, 3)
                 .step(Steps.run(ctx -> placeBlock(ctx.getWorld(), ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ(),
                         blockId)))
-                .step(Steps.waitUntil(
+                .step(Steps.succeedWhen(
                         ctx -> {
                             int x = ctx.getOriginX(), y = ctx.getOriginY(), z = ctx.getOriginZ();
                             return needsFluidFuelContainer

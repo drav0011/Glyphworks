@@ -164,14 +164,14 @@ public final class FluidRemoverSystemTests {
                     PlaceGridBlockEvent.connectBlock(w, new Vector3i(rx + 1, ry, rz));
                     FluidTestUtil.placeFluid(w, rx, ry - 1, rz, FLUID_ID);
                 }))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
                     FluidStack slot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
                     return slot0 != null && slot0.getQuantity() > 0;
                 }, ctx -> 5 * ctx.getWorld().getTps(), "remover picks up world fluid into container"))
-                .step(Steps.waitUntil(ctx -> {
+                .step(Steps.succeedWhen(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));

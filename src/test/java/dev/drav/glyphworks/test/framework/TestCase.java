@@ -31,6 +31,7 @@ public final class TestCase {
     private final int areaHeight;
 
     private final List<TestStep> steps = new ArrayList<>();
+    private final List<TestStep> afterFinishSteps = new ArrayList<>();
 
     /**
      * @param name       unique test name within its suite
@@ -48,6 +49,12 @@ public final class TestCase {
     @Nonnull
     public TestCase step(@Nonnull TestStep step) {
         steps.add(step);
+        return this;
+    }
+
+    @Nonnull
+    public TestCase afterFinish(@Nonnull TestStep step) {
+        afterFinishSteps.add(step);
         return this;
     }
 
@@ -71,5 +78,10 @@ public final class TestCase {
     @Nonnull
     public List<TestStep> getSteps() {
         return Collections.unmodifiableList(steps);
+    }
+
+    @Nonnull
+    public List<TestStep> getAfterFinishSteps() {
+        return Collections.unmodifiableList(afterFinishSteps);
     }
 }
