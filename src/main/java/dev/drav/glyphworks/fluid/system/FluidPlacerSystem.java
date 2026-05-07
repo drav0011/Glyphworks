@@ -26,7 +26,7 @@ import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
-import dev.drav.glyphworks.fluid.container.FluidStackSlotTransaction;
+import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 /**

@@ -11,10 +11,13 @@ import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.map.Short2ObjectMapCodec;
 import com.hypixel.hytale.codec.validation.Validators;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterActionType;
 import com.hypixel.hytale.server.core.inventory.transaction.ClearTransaction;
+
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.container.filter.FluidSlotFilter;
@@ -139,6 +142,18 @@ public class FluidContainer extends SimpleItemContainer {
         return fluidStacks[slot];
     }
 
+    @Override
+    @Nullable
+    protected ItemStack internal_getSlot(short slot) {
+        FluidStack fluidStack = fluidStacks[slot];
+        if (FluidStack.isEmpty(fluidStack))
+            return null;
+        String itemId = FluidItemRegistry.resolveItemId(fluidStack.getFluidId());
+        if (itemId == null)
+            return null;
+        return new ItemStack(itemId, Math.max(1, fluidStack.getAmount()));
+    }
+
     // -------------------------------------------------------------------------
     // Fluid-native transaction API
     // -------------------------------------------------------------------------
@@ -152,7 +167,7 @@ public class FluidContainer extends SimpleItemContainer {
     public FluidStackTransaction addFluidStack(@Nonnull FluidStack fluidStack, boolean allOrNothing, boolean filter) {
         FluidStackTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStack(
                 this, fluidStack, allOrNothing, filter);
-        sendUpdate(null);
+        sendUpdate(transaction);
         return transaction;
     }
 
@@ -166,7 +181,7 @@ public class FluidContainer extends SimpleItemContainer {
             boolean allOrNothing, boolean filter) {
         FluidStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStackToSlot(
                 this, slot, fluidStack, allOrNothing, filter);
-        sendUpdate(null);
+        sendUpdate(transaction);
         return transaction;
     }
 
@@ -180,7 +195,7 @@ public class FluidContainer extends SimpleItemContainer {
             boolean filter) {
         FluidStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_removeFluidStackFromSlot(
                 this, slot, amountMb, allOrNothing, filter);
-        sendUpdate(null);
+        sendUpdate(transaction);
         return transaction;
     }
 
@@ -194,8 +209,8 @@ public class FluidContainer extends SimpleItemContainer {
             boolean allOrNothing, boolean filter) {
         MoveFluidStackTransaction transaction = InternalContainerUtilFluidStack
                 .internal_moveFluidStackFromSlot(this, slot, dest, allOrNothing, filter);
-        sendUpdate(null);
-        dest.sendUpdate(null);
+        sendUpdate(transaction);
+        dest.sendUpdate(transaction.getAddTransaction());
         return transaction;
     }
 
@@ -283,7 +298,7 @@ public class FluidContainer extends SimpleItemContainer {
             }
             return null;
         });
-        sendUpdate(null);
+        sendUpdate(ClearTransaction.EMPTY);
         return ClearTransaction.EMPTY;
     }
 }
