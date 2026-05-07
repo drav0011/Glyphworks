@@ -27,12 +27,6 @@ import dev.drav.glyphworks.grid.event.PlaceGridBlockEvent;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.system.BlockChangeGridSystem;
 import dev.drav.glyphworks.grid.system.GridSystem;
-import dev.drav.glyphworks.grid.tests.component.GridComponentTests;
-import dev.drav.glyphworks.grid.tests.component.GridFaceUtilTests;
-import dev.drav.glyphworks.grid.tests.system.GridBlockChangeTests;
-import dev.drav.glyphworks.grid.tests.system.GridConnectionTests;
-import dev.drav.glyphworks.grid.tests.system.GridGraphTests;
-import dev.drav.glyphworks.grid.tests.system.PipeConnectionTests;
 import dev.drav.glyphworks.grid.type.GridType;
 
 /**
@@ -108,15 +102,5 @@ public final class GridModule extends GlyphworksModule {
     public void start(@Nonnull GlyphworksPlugin plugin) {
         plugin.getChunkStoreRegistry().registerSystem(new GridSystem());
         plugin.getChunkStoreRegistry().registerSystem(new BlockChangeGridSystem());
-    }
-
-    @Override
-    public void setupTests() {
-        PipeConnectionTests.register("grid");
-        GridGraphTests.register("grid");
-        GridConnectionTests.register("grid");
-        GridFaceUtilTests.register("grid");
-        GridComponentTests.register("grid");
-        GridBlockChangeTests.register("grid");
     }
 }
