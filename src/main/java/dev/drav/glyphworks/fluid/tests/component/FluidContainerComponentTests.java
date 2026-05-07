@@ -64,7 +64,7 @@ public final class FluidContainerComponentTests {
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
                         int slotCapacity = fcc.getFluidContainer().getCapacityMbPerSlot();
-                        FluidStack stack = new FluidStack(FLUID_ID, AMOUNT, slotCapacity);
+                        FluidStack stack = new FluidStack(FLUID_ID, AMOUNT);
                         fcc.getFluidContainer().addFluidStackToSlot((short) 0, stack, true, false);
                     }
                 }))
@@ -77,7 +77,7 @@ public final class FluidContainerComponentTests {
                     for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
                         FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
                         if (stack != null && FLUID_ID.equals(stack.getFluidId())) {
-                            amount += stack.getQuantity();
+                            amount += stack.getAmount();
                         }
                     }
                     return amount == AMOUNT;
@@ -108,7 +108,7 @@ public final class FluidContainerComponentTests {
                     for (short slot = 0; slot < fcc.getFluidContainer().getCapacity(); slot++) {
                         FluidStack stack = fcc.getFluidContainer().getFluidStack(slot);
                         if (stack != null && FLUID_ID.equals(stack.getFluidId())) {
-                            amount += stack.getQuantity();
+                            amount += stack.getAmount();
                         }
                     }
                     return amount == AMOUNT;

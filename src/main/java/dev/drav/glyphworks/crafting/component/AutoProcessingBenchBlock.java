@@ -40,6 +40,7 @@ import dev.drav.glyphworks.crafting.util.FluidRecipeUtil;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 
 /**
  * Full state component for mana-powered automated processing benches.
@@ -347,7 +348,7 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
             for (short i = 0; i < fluidInputContainer.getCapacity(); i++) {
                 FluidStack s = fluidInputContainer.getFluidStack(i);
                 if (s != null && fluidId.equals(s.getFluidId()))
-                    totalMb += s.getQuantity();
+                    totalMb += s.getAmount();
             }
             if (totalMb < FluidRecipeUtil.fluidMb(required))
                 return false;
@@ -357,7 +358,8 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
 
     public boolean isFuelFluid(@Nonnull FluidStack fluidStack,
             @Nonnull String requiredResourceTypeId) {
-        Item item = fluidStack.getItem();
+        String itemId = FluidItemRegistry.resolveItemId(fluidStack.getFluidId());
+        Item item = itemId != null ? (Item) Item.getAssetMap().getAsset(itemId) : null;
         return item != null
                 && item.getFuelQuality() > 0.0
                 && hasResourceType(item, requiredResourceTypeId);
@@ -490,7 +492,7 @@ public final class AutoProcessingBenchBlock implements Component<ChunkStore> {
         if (existing == null || !fluidId.equals(existing.getFluidId())) {
             return 0;
         }
-        return existing.getQuantity();
+        return existing.getAmount();
     }
 
     @Nullable

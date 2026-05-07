@@ -16,7 +16,6 @@ import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.FluidSection;
@@ -27,6 +26,7 @@ import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.container.FluidStackSlotTransaction;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
 /**
@@ -71,7 +71,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         }
         FluidContainer fc = fcc.getFluidContainer();
         FluidStack slotStack = fc.getFluidStack(SLOT_INDEX);
-        if (slotStack == null || slotStack.getQuantity() < FluidUtil.MB_PER_BLOCK) {
+        if (slotStack == null || slotStack.getAmount() < FluidUtil.MB_PER_BLOCK) {
             return;
         }
 
@@ -149,7 +149,7 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        ItemStackSlotTransaction drainTx = fc.removeFluidStackFromSlot(SLOT_INDEX, FluidUtil.MB_PER_BLOCK, true,
+        FluidStackSlotTransaction drainTx = fc.removeFluidStackFromSlot(SLOT_INDEX, FluidUtil.MB_PER_BLOCK, true,
                 false);
         if (drainTx.succeeded()) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, indexedId, (byte) fluid.getMaxFluidLevel());

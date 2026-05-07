@@ -92,7 +92,7 @@ public final class FluidRemoverSystemTests {
                     FluidStack slot0 = fcc.getFluidContainer().getFluidStack((short) 0);
                     return slot0 != null
                             && FLUID_ID.equals(slot0.getFluidId())
-                            && slot0.getQuantity() == FluidUtil.MB_PER_BLOCK;
+                            && slot0.getAmount() == FluidUtil.MB_PER_BLOCK;
                 }, "FluidRemoverSystem picks up fluid from " + direction.name().toLowerCase()
                         + " and fills container"));
     }
@@ -169,7 +169,7 @@ public final class FluidRemoverSystemTests {
                     FluidContainerComponent removerFcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(rx, ry, rz));
                     FluidStack slot0 = removerFcc != null ? removerFcc.getFluidContainer().getFluidStack((short) 0) : null;
-                    return slot0 != null && slot0.getQuantity() > 0;
+                    return slot0 != null && slot0.getAmount() > 0;
                 }, ctx -> 5 * ctx.getWorld().getTps(), "remover picks up world fluid into container"))
                 .step(Steps.waitUntil(ctx -> {
                     int rx = ctx.getOriginX() + 1, ry = ctx.getOriginY() + 1, rz = ctx.getOriginZ() + 1;
@@ -187,21 +187,21 @@ public final class FluidRemoverSystemTests {
                         for (short slot = 0; slot < pipe1Fcc.getFluidContainer().getCapacity(); slot++) {
                             FluidStack stack = pipe1Fcc.getFluidContainer().getFluidStack(slot);
                             if (stack != null)
-                                networkTotal += stack.getQuantity();
+                                networkTotal += stack.getAmount();
                         }
                     }
                     if (pipe2Fcc != null) {
                         for (short slot = 0; slot < pipe2Fcc.getFluidContainer().getCapacity(); slot++) {
                             FluidStack stack = pipe2Fcc.getFluidContainer().getFluidStack(slot);
                             if (stack != null)
-                                networkTotal += stack.getQuantity();
+                                networkTotal += stack.getAmount();
                         }
                     }
                     if (tankFcc != null) {
                         for (short slot = 0; slot < tankFcc.getFluidContainer().getCapacity(); slot++) {
                             FluidStack stack = tankFcc.getFluidContainer().getFluidStack(slot);
                             if (stack != null)
-                                networkTotal += stack.getQuantity();
+                                networkTotal += stack.getAmount();
                         }
                     }
                     return removerSlot0 == null && networkTotal == FluidUtil.MB_PER_BLOCK;
@@ -223,9 +223,7 @@ public final class FluidRemoverSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(
                             ctx.getWorld(), new Vector3i(bx, by, bz));
                     if (fcc != null) {
-                        FluidStack full = new FluidStack(FLUID_ID,
-                                fcc.getFluidContainer().getCapacityMbPerSlot(),
-                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        FluidStack full = new FluidStack(FLUID_ID, fcc.getFluidContainer().getCapacityMbPerSlot());
                         fcc.getFluidContainer().addFluidStackToSlot((short) 0, full, true, false);
                     }
                     // Place fluid at the Down target cell.

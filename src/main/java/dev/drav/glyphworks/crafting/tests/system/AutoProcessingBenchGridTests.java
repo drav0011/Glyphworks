@@ -349,7 +349,7 @@ public final class AutoProcessingBenchGridTests {
         FluidContainer fc = fcc.getFluidContainer();
         if (fc == null)
             return;
-        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB, fc.getCapacityMbPerSlot()), false, false);
+        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB));
     }
 
     private static void seedItemContainer(World w, int x, int y, int z, String itemId, int qty) {
@@ -367,7 +367,7 @@ public final class AutoProcessingBenchGridTests {
         for (short i = 0; i < fc.getCapacity(); i++) {
             FluidStack s = fc.getFluidStack(i);
             if (s != null)
-                total += s.getQuantity();
+                total += s.getAmount();
         }
         return total;
     }

@@ -60,7 +60,7 @@ public final class FluidSourceSystem extends EntityTickingSystem<ChunkStore> {
 
         int slotCapacityMb = fc.getCapacityMbPerSlot();
         for (short slot = 0; slot < fc.getCapacity(); slot++) {
-            FluidStack maxStack = new FluidStack(selectedFluidId, slotCapacityMb, slotCapacityMb);
+            FluidStack maxStack = new FluidStack(selectedFluidId, slotCapacityMb);
             fc.addFluidStackToSlot(slot, maxStack, true, false);
         }
     }
