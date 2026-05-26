@@ -137,7 +137,7 @@ public final class OpenFluidContainerInteraction extends SimpleBlockInteraction 
             }
             display.addFluidStackToSlot(
                     i,
-                    new FluidStack(stack.getFluidId(), stack.getQuantity(), stack.getCapacityMb()),
+                    new FluidStack(stack.getFluidId(), stack.getAmount()),
                     true,
                     false);
         }

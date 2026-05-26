@@ -22,8 +22,10 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.protocol.ItemResourceType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.bench.ProcessingBench;
 import com.hypixel.hytale.server.core.asset.type.item.config.CraftingRecipe;
@@ -37,12 +39,10 @@ import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterActionType;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.inventory.container.filter.ResourceFilter;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.ListTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MaterialTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.ResourceTransaction;
-import com.hypixel.hytale.event.EventPriority;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.BlockModule.BlockStateInfo;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
@@ -52,13 +52,14 @@ import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.protocol.ItemResourceType;
 
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.component.FuelPolicy;
 import dev.drav.glyphworks.crafting.util.FluidRecipeUtil;
 import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
+import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
 import dev.drav.glyphworks.util.BlockCoordsUtil;
 import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
@@ -158,16 +159,13 @@ public final class AutoProcessingBenchSystems {
                 fluidFuelContainer.setSlotFilter(
                         FilterActionType.ADD,
                         i,
-                        (actionType, container, slotIndex, stack) -> {
-                            if (!(stack instanceof FluidStack fluidStack)) {
-                                return stack == null;
-                            }
-                            if (!bench.isFuelFluid(fluidStack, requiredType)) {
+                        (actionType, container, slot, incoming, existing) -> {
+                            if (incoming == null || !isFuelFluidForResource(incoming, requiredType)) {
                                 return false;
                             }
-                            int slotCapacity = bench.getConfiguredFluidFuelSlotCapacityMb(slotIndex);
-                            int existing = bench.getExistingFluidAmount(container, slotIndex, fluidStack.getFluidId());
-                            return existing + fluidStack.getQuantity() <= slotCapacity;
+                            int slotCapacity = bench.getConfiguredFluidFuelSlotCapacityMb(slot);
+                            int existingAmount = existing != null ? existing.getAmount() : 0;
+                            return existingAmount + incoming.getAmount() <= slotCapacity;
                         });
             }
             bench.setFluidFuelContainer(fluidFuelContainer);
@@ -182,27 +180,6 @@ public final class AutoProcessingBenchSystems {
                     s -> new FluidContainer(s, bench.getMaxFluidInputSlotCapacityMb()),
                     ejected);
             fluidInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
-            for (short i = 0; i < fluidInputContainer.getCapacity(); i++) {
-                String requiredType = bench.getConfiguredFluidInputSlotResourceTypeId(i);
-                if (requiredType == null || requiredType.isBlank()) {
-                    continue;
-                }
-                fluidInputContainer.setSlotFilter(
-                        FilterActionType.ADD,
-                        i,
-                        (actionType, container, slotIndex, stack) -> {
-                            if (!(stack instanceof FluidStack fluidStack)) {
-                                return stack == null;
-                            }
-                            Item item = fluidStack.getItem();
-                            if (item == null || !bench.hasResourceType(item, requiredType)) {
-                                return false;
-                            }
-                            int slotCapacity = bench.getConfiguredFluidInputSlotCapacityMb(slotIndex);
-                            int existing = bench.getExistingFluidAmount(container, slotIndex, fluidStack.getFluidId());
-                            return existing + fluidStack.getQuantity() <= slotCapacity;
-                        });
-            }
             bench.setFluidInputContainer(fluidInputContainer);
         } else {
             bench.setFluidInputContainer(null);
@@ -319,30 +296,6 @@ public final class AutoProcessingBenchSystems {
                     ejected);
             fluidInputContainer.registerChangeEvent(EventPriority.LAST, e -> blockStateInfo.markNeedsSaving());
 
-            for (short i = 0; i < fluidInputs.size(); i++) {
-                MaterialQuantity material = fluidInputs.get(i);
-                String requiredType = material.getResourceTypeId();
-                if (requiredType == null || requiredType.isBlank()) {
-                    continue;
-                }
-
-                fluidInputContainer.setSlotFilter(
-                        FilterActionType.ADD,
-                        i,
-                        (actionType, container, slotIndex, stack) -> {
-                            if (!(stack instanceof FluidStack fluidStack)) {
-                                return stack == null;
-                            }
-                            Item fluidItem = fluidStack.getItem();
-                            if (fluidItem == null || !bench.hasResourceType(fluidItem, requiredType)) {
-                                return false;
-                            }
-                            int existing = bench.getExistingFluidAmount(container, slotIndex, fluidStack.getFluidId());
-                            int slotCapacity = ((FluidContainer) container).getCapacityMbPerSlot();
-                            return existing + fluidStack.getQuantity() <= slotCapacity;
-                        });
-            }
-
             bench.setFluidInputContainer(fluidInputContainer);
         } else {
             bench.setFluidInputContainer(null);
@@ -383,6 +336,38 @@ public final class AutoProcessingBenchSystems {
         }
 
         blockStateInfo.markNeedsSaving();
+    }
+
+    private static boolean isFuelFluidForResource(
+            @Nonnull FluidStack fluidStack,
+            @Nonnull String requiredResourceTypeId) {
+        Item item = resolveFluidItem(fluidStack);
+        return item != null
+                && item.getFuelQuality() > 0.0
+                && hasResourceType(item, requiredResourceTypeId);
+    }
+
+    @Nullable
+    private static Item resolveFluidItem(@Nonnull FluidStack fluidStack) {
+        String itemId = FluidItemRegistry.resolveItemId(fluidStack.getFluidId());
+        return itemId == null ? null : (Item) Item.getAssetMap().getAsset(itemId);
+    }
+
+    private static boolean hasResourceType(
+            @Nonnull Item item,
+            @Nonnull String resourceTypeId) {
+        ItemResourceType[] resourceTypes = item.getResourceTypes();
+        if (resourceTypes == null || resourceTypes.length == 0) {
+            return false;
+        }
+
+        for (ItemResourceType resourceType : resourceTypes) {
+            if (resourceType != null && resourceTypeId.equals(resourceType.id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static final class Setup extends RefSystem<ChunkStore> {
@@ -690,7 +675,7 @@ public final class AutoProcessingBenchSystems {
                 for (short i = 0; i < fluidInputContainer.getCapacity(); i++) {
                     FluidStack fluidStack = fluidInputContainer.getFluidStack(i);
                     if (fluidStack != null && fluidId.equals(fluidStack.getFluidId())) {
-                        totalFluidAmount += fluidStack.getQuantity();
+                        totalFluidAmount += fluidStack.getAmount();
                     }
                 }
 
@@ -755,7 +740,7 @@ public final class AutoProcessingBenchSystems {
                     if (slot == null) {
                         available += apbb.getConfiguredFluidOutputSlotCapacityMb(i);
                     } else if (outputFluidId.equals(slot.getFluidId())) {
-                        available += apbb.getConfiguredFluidOutputSlotCapacityMb(i) - slot.getQuantity();
+                        available += apbb.getConfiguredFluidOutputSlotCapacityMb(i) - slot.getAmount();
                     }
                 }
 
@@ -817,7 +802,7 @@ public final class AutoProcessingBenchSystems {
                             continue;
                         }
 
-                        int consume = Math.min(remaining, slot.getQuantity());
+                        int consume = Math.min(remaining, slot.getAmount());
                         fluidInputContainer.removeFluidStackFromSlot(i, consume, false, false);
                         remaining -= consume;
                     }
@@ -892,16 +877,16 @@ public final class AutoProcessingBenchSystems {
                 }
 
                 int slotCapacity = apbb.getConfiguredFluidOutputSlotCapacityMb(i);
-                int existingAmount = existing != null ? existing.getQuantity() : 0;
+                int existingAmount = existing != null ? existing.getAmount() : 0;
                 int space = slotCapacity - existingAmount;
                 if (space <= 0) {
                     continue;
                 }
 
                 int toAdd = Math.min(space, remaining);
-                ItemStackSlotTransaction tx = fluidOutputContainer.addFluidStackToSlot(
+                FluidStackSlotTransaction tx = fluidOutputContainer.addFluidStackToSlot(
                         i,
-                        new FluidStack(fluidId, toAdd, slotCapacity),
+                        new FluidStack(fluidId, toAdd),
                         false,
                         false);
                 if (!tx.succeeded()) {
@@ -1029,7 +1014,7 @@ public final class AutoProcessingBenchSystems {
                 }
 
                 int requiredMb = fluidFuelCostMbPerTick(stack);
-                if (requiredMb <= 0 || stack.getQuantity() < requiredMb) {
+                if (requiredMb <= 0 || stack.getAmount() < requiredMb) {
                     return false;
                 }
             }
@@ -1163,11 +1148,11 @@ public final class AutoProcessingBenchSystems {
                 }
 
                 int requiredMb = fluidFuelCostMbPerTick(stack);
-                if (requiredMb <= 0 || stack.getQuantity() < requiredMb) {
+                if (requiredMb <= 0 || stack.getAmount() < requiredMb) {
                     continue;
                 }
 
-                ItemStackSlotTransaction tx = fluidFuelContainer.removeFluidStackFromSlot(i, requiredMb, true, false);
+                FluidStackSlotTransaction tx = fluidFuelContainer.removeFluidStackFromSlot(i, requiredMb, true, false);
                 if (!tx.succeeded()) {
                     continue;
                 }
@@ -1225,11 +1210,11 @@ public final class AutoProcessingBenchSystems {
             }
 
             int requiredMb = fluidFuelCostMbPerTick(stack);
-            if (requiredMb <= 0 || stack.getQuantity() < requiredMb) {
+            if (requiredMb <= 0 || stack.getAmount() < requiredMb) {
                 return 0.0f;
             }
 
-            ItemStackSlotTransaction tx = fluidFuelContainer.removeFluidStackFromSlot(slotIndex, requiredMb, true,
+            FluidStackSlotTransaction tx = fluidFuelContainer.removeFluidStackFromSlot(slotIndex, requiredMb, true,
                     false);
             if (!tx.succeeded()) {
                 return 0.0f;
@@ -1239,7 +1224,7 @@ public final class AutoProcessingBenchSystems {
         }
 
         private int fluidFuelCostMbPerTick(@Nonnull FluidStack fluidStack) {
-            Item item = fluidStack.getItem();
+            Item item = resolveFluidItem(fluidStack);
             double fuelQuality = item != null ? item.getFuelQuality() : 0.0;
             if (fuelQuality <= 0.0) {
                 return 10;
@@ -1250,27 +1235,19 @@ public final class AutoProcessingBenchSystems {
         private boolean isFuelFluid(
                 @Nonnull FluidStack fluidStack,
                 @Nonnull String requiredResourceTypeId) {
-            Item item = fluidStack.getItem();
-            return item != null
-                    && item.getFuelQuality() > 0.0
-                    && hasResourceType(item, requiredResourceTypeId);
+            return AutoProcessingBenchSystems.isFuelFluidForResource(fluidStack, requiredResourceTypeId);
+        }
+
+        @Nullable
+        private Item resolveFluidItem(@Nonnull FluidStack fluidStack) {
+            String itemId = FluidItemRegistry.resolveItemId(fluidStack.getFluidId());
+            return itemId == null ? null : (Item) Item.getAssetMap().getAsset(itemId);
         }
 
         private boolean hasResourceType(
                 @Nonnull Item item,
                 @Nonnull String resourceTypeId) {
-            ItemResourceType[] resourceTypes = item.getResourceTypes();
-            if (resourceTypes == null || resourceTypes.length == 0) {
-                return false;
-            }
-
-            for (ItemResourceType resourceType : resourceTypes) {
-                if (resourceType != null && resourceTypeId.equals(resourceType.id)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return AutoProcessingBenchSystems.hasResourceType(item, resourceTypeId);
         }
 
     }

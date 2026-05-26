@@ -15,7 +15,6 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.asset.type.fluid.Fluid;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
@@ -27,6 +26,7 @@ import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidRemoverComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
 import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 
@@ -73,7 +73,7 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
 
         FluidContainer fc = fcc.getFluidContainer();
         FluidStack slotStack = fc.getFluidStack(SLOT_INDEX);
-        int availableSpace = fc.getCapacityMbPerSlot() - (slotStack != null ? slotStack.getQuantity() : 0);
+        int availableSpace = fc.getCapacityMbPerSlot() - (slotStack != null ? slotStack.getAmount() : 0);
         if (availableSpace < FluidUtil.MB_PER_BLOCK) {
             return;
         }
@@ -146,8 +146,8 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
             return;
         }
 
-        FluidStack fillQuery = new FluidStack(fluid.getId(), FluidUtil.MB_PER_BLOCK, fc.getCapacityMbPerSlot());
-        ItemStackSlotTransaction fillTx = fc.addFluidStackToSlot(SLOT_INDEX, fillQuery, true, false);
+        FluidStack fillQuery = new FluidStack(fluid.getId(), FluidUtil.MB_PER_BLOCK);
+        FluidStackSlotTransaction fillTx = fc.addFluidStackToSlot(SLOT_INDEX, fillQuery, true, false);
         if (fillTx.succeeded()) {
             fs.setFluid(adjacent.x, adjacent.y, adjacent.z, FluidUtil.EMPTY_FLUID_ID, (byte) 0);
             Ref<ChunkStore> adjChunkRef = chunkStore

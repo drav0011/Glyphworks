@@ -16,8 +16,6 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.GlyphworksPlugin;
@@ -26,6 +24,8 @@ import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.component.FluidContainerComponent;
 import dev.drav.glyphworks.fluid.component.FluidPipeComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
+import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
+import dev.drav.glyphworks.fluid.transaction.FluidStackTransaction;
 import dev.drav.glyphworks.grid.component.FacePlane;
 import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
@@ -257,10 +257,10 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
                 continue;
 
             int toPull = Math.min(budget, Math.min(pool.poolAmount, space));
-            FluidStack toAdd = new FluidStack(pool.poolFluidId, toPull, consumer.container().getCapacityMbPerSlot());
-            ItemStackTransaction tx = consumer.container().addFluidStack(toAdd);
-            FluidStack remainder = tx.getRemainder() instanceof FluidStack fs ? fs : null;
-            int added = toPull - (remainder != null ? remainder.getQuantity() : 0);
+            FluidStack toAdd = new FluidStack(pool.poolFluidId, toPull);
+            FluidStackTransaction tx = consumer.container().addFluidStack(toAdd);
+            FluidStack remainder = tx.getRemainder();
+            int added = toPull - (remainder != null ? remainder.getAmount() : 0);
             pool.poolAmount -= added;
         }
     }
@@ -308,7 +308,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             }
             if (share <= 0)
                 continue;
-            pipe.addFluidStack(new FluidStack(pool.poolFluidId, share, pipe.getCapacityMbPerSlot()), false, false);
+            pipe.addFluidStack(new FluidStack(pool.poolFluidId, share), false, false);
             distributed += share;
         }
     }
@@ -392,7 +392,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         for (short slot = 0; slot < container.getCapacity(); slot++) {
             FluidStack stack = container.getFluidStack(slot);
             if (stack != null)
-                total += stack.getQuantity();
+                total += stack.getAmount();
         }
         return total;
     }
@@ -402,7 +402,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
         for (short slot = 0; slot < container.getCapacity(); slot++) {
             FluidStack stack = container.getFluidStack(slot);
             if (stack != null && fluidId.equals(stack.getFluidId()))
-                total += stack.getQuantity();
+                total += stack.getAmount();
         }
         return total;
     }
@@ -414,7 +414,7 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             if (stack == null) {
                 total += container.getCapacityMbPerSlot();
             } else if (fluidId.equals(stack.getFluidId())) {
-                total += Math.max(0, container.getCapacityMbPerSlot() - stack.getQuantity());
+                total += Math.max(0, container.getCapacityMbPerSlot() - stack.getAmount());
             }
         }
         return total;
@@ -429,11 +429,11 @@ public final class FluidGridTypeHandler implements GridTypeHandler {
             FluidStack stack = container.getFluidStack(slot);
             if (stack == null || !fluidId.equals(stack.getFluidId()))
                 continue;
-            ItemStackSlotTransaction tx = container.removeFluidStackFromSlot(slot, remaining, false, false);
+            FluidStackSlotTransaction tx = container.removeFluidStackFromSlot(slot, remaining, false, false);
             if (tx.succeeded()) {
-                FluidStack removed = tx.getOutput() instanceof FluidStack fs ? fs : null;
+                FluidStack removed = tx.getOutput();
                 if (removed != null)
-                    remaining -= removed.getQuantity();
+                    remaining -= removed.getAmount();
             }
         }
         return amount - remaining;

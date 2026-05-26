@@ -339,7 +339,7 @@ public final class AutoProcessingBenchFuelTests {
             return;
         }
 
-        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB, fc.getCapacityMbPerSlot()), false, false);
+        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB));
     }
 
     private static void seedInput(AutoProcessingBenchBlock apbb, String itemId, int qty) {

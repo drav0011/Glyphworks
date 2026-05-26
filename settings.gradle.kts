@@ -5,8 +5,9 @@ rootProject.name = "dev.drav.glyphworks"
 plugins {
     id("dev.scaffoldit") version "0.2.+"
 }
+
 hytale {
-    usePatchline("pre-release")
+    usePatchline("release")
     useVersion("latest")
 
     manifest {
@@ -16,7 +17,7 @@ hytale {
         Main = "dev.drav.glyphworks.GlyphworksPlugin"
         IncludesAssetPack = true
         DisabledByDefault = false
-        ServerVersion = "*"
+        ServerVersion = "0.5.0"
         
         Authors = listOf(
             HytaleManifest.Author("DrAv0011", "", "https://drav.dev")

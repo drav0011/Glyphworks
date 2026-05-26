@@ -174,7 +174,7 @@ public final class FluidGridTransferTests {
 
     private static void seedFluid(@Nonnull FluidContainerComponent fcc, @Nonnull String fluidId, int amountMb) {
         FluidContainer fc = fcc.getFluidContainer();
-        fc.addFluidStack(new FluidStack(fluidId, amountMb, fc.getCapacityMbPerSlot()), false, false);
+        fc.addFluidStack(new FluidStack(fluidId, amountMb), false, false);
     }
 
     private static int totalFluidMb(@Nonnull FluidContainerComponent fcc) {
@@ -182,7 +182,7 @@ public final class FluidGridTransferTests {
         int total = 0;
         for (short i = 0; i < fc.getCapacity(); i++) {
             FluidStack s = fc.getFluidStack(i);
-            if (s != null) total += s.getQuantity();
+            if (s != null) total += s.getAmount();
         }
         return total;
     }
@@ -205,7 +205,7 @@ public final class FluidGridTransferTests {
         int total = 0;
         for (short i = 0; i < fc.getCapacity(); i++) {
             FluidStack s = fc.getFluidStack(i);
-            if (s != null && fluidId.equals(s.getFluidId())) total += s.getQuantity();
+            if (s != null && fluidId.equals(s.getFluidId())) total += s.getAmount();
         }
         return total;
     }

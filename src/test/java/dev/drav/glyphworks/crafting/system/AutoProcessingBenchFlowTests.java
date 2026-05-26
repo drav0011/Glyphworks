@@ -229,7 +229,7 @@ public final class AutoProcessingBenchFlowTests {
         String fluidId = FluidItemRegistry.resolveFluidId(MANA_FLUID_ITEM);
         if (fluidId == null)
             return;
-        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB, fc.getCapacityMbPerSlot()), false, false);
+        fc.addFluidStack(new FluidStack(fluidId, FLUID_AMOUNT_MB));
     }
 
     private static void fillOutput(AutoProcessingBenchBlock apbb) {

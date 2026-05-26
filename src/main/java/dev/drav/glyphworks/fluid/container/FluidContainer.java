@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.fluid.container;
 
+import java.util.EnumMap;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -11,18 +12,18 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.map.Short2ObjectMapCodec;
 import com.hypixel.hytale.codec.validation.Validators;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
-import com.hypixel.hytale.server.core.inventory.ResourceQuantity;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackSlotTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.MaterialSlotTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.ResourceSlotTransaction;
-import com.hypixel.hytale.server.core.inventory.transaction.TagSlotTransaction;
+import com.hypixel.hytale.server.core.inventory.container.filter.FilterActionType;
+import com.hypixel.hytale.server.core.inventory.transaction.ClearTransaction;
+
+import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 
 import dev.drav.glyphworks.fluid.FluidStack;
+import dev.drav.glyphworks.fluid.container.filter.FluidSlotFilter;
+import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
+import dev.drav.glyphworks.fluid.transaction.FluidStackTransaction;
+import dev.drav.glyphworks.fluid.transaction.MoveFluidStackTransaction;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
@@ -45,21 +46,20 @@ public class FluidContainer extends SimpleItemContainer {
                     new KeyedCodec<>("Glyphworks_FluidContainer_Items",
                             new Short2ObjectMapCodec<>(FluidStack.CODEC, Short2ObjectOpenHashMap::new, false)),
                     (c, map) -> {
-                        c.items = new ItemStack[c.capacity];
-                        c.itemsCount = 0;
+                        c.fluidStacks = new FluidStack[c.capacity];
                         for (Short2ObjectMap.Entry<FluidStack> entry : map.short2ObjectEntrySet()) {
                             short slot = entry.getShortKey();
                             FluidStack stack = entry.getValue();
-                            if (slot >= 0 && slot < c.capacity && !ItemStack.isEmpty(stack)) {
-                                c.items[slot] = stack;
-                                c.itemsCount++;
+                            if (slot >= 0 && slot < c.capacity && !FluidStack.isEmpty(stack)) {
+                                c.fluidStacks[slot] = stack;
                             }
                         }
                     },
                     c -> {
                         Short2ObjectOpenHashMap<FluidStack> map = new Short2ObjectOpenHashMap<>();
                         for (short i = 0; i < c.capacity; i++) {
-                            if (c.items[i] instanceof FluidStack fs && !ItemStack.isEmpty(fs)) {
+                            FluidStack fs = c.fluidStacks[i];
+                            if (!FluidStack.isEmpty(fs)) {
                                 map.put(i, fs);
                             }
                         }
@@ -67,28 +67,41 @@ public class FluidContainer extends SimpleItemContainer {
                     })
             .add()
             .afterDecode(c -> {
-                if (c.items == null) {
-                    c.items = new ItemStack[c.capacity];
-                    c.itemsCount = 0;
+                if (c.fluidStacks == null || c.fluidStacks.length != c.capacity) {
+                    c.fluidStacks = new FluidStack[c.capacity];
                 }
             })
             .build();
 
+    private short capacity;
     private int capacityMbPerSlot;
+    private FluidStack[] fluidStacks;
+
+    @Nullable
+    private transient EnumMap<FilterActionType, FluidSlotFilter[]> fluidSlotFiltersByAction;
 
     public FluidContainer() {
         super((short) 1);
+        this.capacity = 1;
         this.capacityMbPerSlot = 1000;
+        this.fluidStacks = new FluidStack[1];
+        this.fluidSlotFiltersByAction = new EnumMap<>(FilterActionType.class);
     }
 
-    public FluidContainer(short slotCount, int capacityMbPerSlot) {
-        super(slotCount);
+    public FluidContainer(short capacity, int capacityMbPerSlot) {
+        super(capacity);
+        this.capacity = capacity;
         this.capacityMbPerSlot = capacityMbPerSlot;
+        this.fluidStacks = new FluidStack[capacity];
+        this.fluidSlotFiltersByAction = new EnumMap<>(FilterActionType.class);
     }
 
     public FluidContainer(@Nonnull FluidContainer other) {
         super(other);
+        this.capacity = other.capacity;
         this.capacityMbPerSlot = other.capacityMbPerSlot;
+        this.fluidStacks = other.fluidStacks.clone();
+        this.fluidSlotFiltersByAction = copyFilters(other.fluidSlotFiltersByAction);
     }
 
     @Override
@@ -96,14 +109,49 @@ public class FluidContainer extends SimpleItemContainer {
         return new FluidContainer(this);
     }
 
+    @Override
+    public short getCapacity() {
+        return capacity;
+    }
+
     public int getCapacityMbPerSlot() {
         return capacityMbPerSlot;
     }
 
+    public void setSlotFilter(short slot, @Nullable FluidSlotFilter filter) {
+        setSlotFilter(FilterActionType.ADD, slot, filter);
+    }
+
+    public void setSlotFilter(@Nonnull FilterActionType actionType, short slot, @Nullable FluidSlotFilter filter) {
+        ItemContainer.validateSlotIndex(slot, capacity);
+        if (fluidSlotFiltersByAction == null) {
+            fluidSlotFiltersByAction = new EnumMap<>(FilterActionType.class);
+        }
+        FluidSlotFilter[] filters = fluidSlotFiltersByAction.get(actionType);
+        if (filters == null || filters.length != capacity) {
+            filters = new FluidSlotFilter[capacity];
+            fluidSlotFiltersByAction.put(actionType, filters);
+        }
+        filters[slot] = filter;
+    }
+
     @Nullable
     public FluidStack getFluidStack(short slot) {
-        ItemStack stack = getItemStack(slot);
-        return stack instanceof FluidStack fs ? fs : null;
+        if (slot < 0 || slot >= capacity)
+            return null;
+        return fluidStacks[slot];
+    }
+
+    @Override
+    @Nullable
+    protected ItemStack internal_getSlot(short slot) {
+        FluidStack fluidStack = fluidStacks[slot];
+        if (FluidStack.isEmpty(fluidStack))
+            return null;
+        String itemId = FluidItemRegistry.resolveItemId(fluidStack.getFluidId());
+        if (itemId == null)
+            return null;
+        return new ItemStack(itemId, Math.max(1, fluidStack.getAmount()));
     }
 
     // -------------------------------------------------------------------------
@@ -111,183 +159,146 @@ public class FluidContainer extends SimpleItemContainer {
     // -------------------------------------------------------------------------
 
     @Nonnull
-    public ItemStackTransaction addFluidStack(@Nonnull FluidStack fluidStack) {
+    public FluidStackTransaction addFluidStack(@Nonnull FluidStack fluidStack) {
         return addFluidStack(fluidStack, false, true);
     }
 
     @Nonnull
-    public ItemStackTransaction addFluidStack(@Nonnull FluidStack fluidStack, boolean allOrNothing, boolean filter) {
-        ItemStackTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStack(this, fluidStack,
-                allOrNothing, filter);
+    public FluidStackTransaction addFluidStack(@Nonnull FluidStack fluidStack, boolean allOrNothing, boolean filter) {
+        FluidStackTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStack(
+                this, fluidStack, allOrNothing, filter);
         sendUpdate(transaction);
         return transaction;
     }
 
     @Nonnull
-    public ItemStackSlotTransaction addFluidStackToSlot(short slot, @Nonnull FluidStack fluidStack) {
+    public FluidStackSlotTransaction addFluidStackToSlot(short slot, @Nonnull FluidStack fluidStack) {
         return addFluidStackToSlot(slot, fluidStack, false, true);
     }
 
     @Nonnull
-    public ItemStackSlotTransaction addFluidStackToSlot(short slot, @Nonnull FluidStack fluidStack,
+    public FluidStackSlotTransaction addFluidStackToSlot(short slot, @Nonnull FluidStack fluidStack,
             boolean allOrNothing, boolean filter) {
-        ItemStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStackToSlot(this, slot,
-                fluidStack, allOrNothing, filter);
+        FluidStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_addFluidStackToSlot(
+                this, slot, fluidStack, allOrNothing, filter);
         sendUpdate(transaction);
         return transaction;
     }
 
     @Nonnull
-    public ItemStackSlotTransaction removeFluidStackFromSlot(short slot, int amountMb) {
+    public FluidStackSlotTransaction removeFluidStackFromSlot(short slot, int amountMb) {
         return removeFluidStackFromSlot(slot, amountMb, true, true);
     }
 
     @Nonnull
-    public ItemStackSlotTransaction removeFluidStackFromSlot(short slot, int amountMb, boolean allOrNothing,
+    public FluidStackSlotTransaction removeFluidStackFromSlot(short slot, int amountMb, boolean allOrNothing,
             boolean filter) {
-        ItemStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_removeFluidStackFromSlot(this,
-                slot, amountMb, allOrNothing, filter);
+        FluidStackSlotTransaction transaction = InternalContainerUtilFluidStack.internal_removeFluidStackFromSlot(
+                this, slot, amountMb, allOrNothing, filter);
         sendUpdate(transaction);
         return transaction;
     }
 
     @Nonnull
-    public MoveTransaction<ItemStackTransaction> moveFluidStackFromSlot(short slot, @Nonnull FluidContainer dest) {
+    public MoveFluidStackTransaction moveFluidStackFromSlot(short slot, @Nonnull FluidContainer dest) {
         return moveFluidStackFromSlot(slot, dest, false, true);
     }
 
     @Nonnull
-    public MoveTransaction<ItemStackTransaction> moveFluidStackFromSlot(short slot, @Nonnull FluidContainer dest,
+    public MoveFluidStackTransaction moveFluidStackFromSlot(short slot, @Nonnull FluidContainer dest,
             boolean allOrNothing, boolean filter) {
-        MoveTransaction<ItemStackTransaction> transaction = InternalContainerUtilFluidStack
+        MoveFluidStackTransaction transaction = InternalContainerUtilFluidStack
                 .internal_moveFluidStackFromSlot(this, slot, dest, allOrNothing, filter);
         sendUpdate(transaction);
-        dest.sendUpdate(transaction.toInverted(this));
+        dest.sendUpdate(transaction.getAddTransaction());
         return transaction;
     }
+
+    // -------------------------------------------------------------------------
+    // Package-private backing store access for InternalContainerUtilFluidStack
+    // -------------------------------------------------------------------------
 
     <T> T internalWriteAction(@Nonnull Supplier<T> action) {
         return writeAction(action);
     }
 
     @Nullable
-    ItemStack internalGetSlot(short slot) {
-        return internal_getSlot(slot);
+    FluidStack internalGetSlot(short slot) {
+        return fluidStacks[slot];
     }
 
     @Nullable
-    ItemStack internalSetSlot(short slot, @Nullable ItemStack itemStack) {
-        return internal_setSlot(slot, itemStack);
+    FluidStack internalSetSlot(short slot, @Nullable FluidStack fluidStack) {
+        FluidStack previous = fluidStacks[slot];
+        fluidStacks[slot] = FluidStack.isEmpty(fluidStack) ? null : fluidStack;
+        return previous;
     }
 
     @Nullable
-    ItemStack internalRemoveSlot(short slot) {
-        return internal_removeSlot(slot);
+    FluidStack internalRemoveSlot(short slot) {
+        FluidStack previous = fluidStacks[slot];
+        fluidStacks[slot] = null;
+        return previous;
     }
 
-    boolean internalCantAddToSlot(short slot, @Nonnull ItemStack itemStack, @Nullable ItemStack slotItemStack) {
-        return cantAddToSlot(slot, itemStack, slotItemStack);
+    boolean internalCantAddToSlot(short slot, @Nonnull FluidStack fluidStack,
+            @Nullable FluidStack slotFluidStack) {
+        FluidSlotFilter filter = getSlotFilter(FilterActionType.ADD, slot);
+        if (filter != null && !filter.test(FilterActionType.ADD, this, slot, fluidStack, slotFluidStack)) {
+            return true;
+        }
+        return cantAddToSlot(slot, null, null);
     }
 
     boolean internalCantRemoveFromSlot(short slot) {
+        FluidStack existing = internalGetSlot(slot);
+        FluidSlotFilter filter = getSlotFilter(FilterActionType.REMOVE, slot);
+        if (filter != null && !filter.test(FilterActionType.REMOVE, this, slot, null, existing)) {
+            return true;
+        }
         return cantRemoveFromSlot(slot);
     }
 
-    // -------------------------------------------------------------------------
-    // Vanilla item-stack methods — unsupported on FluidContainer
-    // -------------------------------------------------------------------------
-
-    @Override
-    public ItemStackSlotTransaction addItemStackToSlot(short slot, @Nonnull ItemStack itemStack) {
-        throw new UnsupportedOperationException("Use addFluidStackToSlot on FluidContainer");
-    }
-
-    @Override
-    public ItemStackSlotTransaction addItemStackToSlot(short slot, @Nonnull ItemStack itemStack, boolean allOrNothing,
-            boolean filter) {
-        throw new UnsupportedOperationException("Use addFluidStackToSlot on FluidContainer");
-    }
-
-    @Override
-    public ItemStackTransaction addItemStack(@Nonnull ItemStack itemStack) {
-        throw new UnsupportedOperationException("Use addFluidStack on FluidContainer");
-    }
-
-    @Override
-    public ItemStackTransaction addItemStack(@Nonnull ItemStack itemStack, boolean allOrNothing, boolean fullStacks,
-            boolean filter) {
-        throw new UnsupportedOperationException("Use addFluidStack on FluidContainer");
-    }
-
-    @Override
-    @Nonnull
-    public MaterialSlotTransaction removeMaterialFromSlot(short slot, @Nonnull MaterialQuantity material) {
-        throw new UnsupportedOperationException("FluidContainer does not support material transactions");
-    }
-
-    @Override
-    @Nonnull
-    public MaterialSlotTransaction removeMaterialFromSlot(short slot, @Nonnull MaterialQuantity material,
-            boolean allOrNothing, boolean exactAmount, boolean filter) {
-        throw new UnsupportedOperationException("FluidContainer does not support material transactions");
-    }
-
-    @Override
-    @Nonnull
-    public ResourceSlotTransaction removeResourceFromSlot(short slot, @Nonnull ResourceQuantity resource) {
-        throw new UnsupportedOperationException("FluidContainer does not support resource transactions");
-    }
-
-    @Override
-    @Nonnull
-    public ResourceSlotTransaction removeResourceFromSlot(short slot, @Nonnull ResourceQuantity resource,
-            boolean allOrNothing, boolean exactAmount, boolean filter) {
-        throw new UnsupportedOperationException("FluidContainer does not support resource transactions");
-    }
-
-    @Override
-    @Nonnull
-    public TagSlotTransaction removeTagFromSlot(short slot, int tagIndex, int quantity) {
-        throw new UnsupportedOperationException("FluidContainer does not support tag transactions");
-    }
-
-    @Override
-    @Nonnull
-    public TagSlotTransaction removeTagFromSlot(short slot, int tagIndex, int quantity, boolean allOrNothing,
-            boolean filter) {
-        throw new UnsupportedOperationException("FluidContainer does not support tag transactions");
-    }
-
-    @Override
-    @Nonnull
-    public MoveTransaction<ItemStackTransaction> moveItemStackFromSlot(short slot, @Nonnull ItemContainer containerTo) {
-        throw new UnsupportedOperationException("Use moveFluidStackFromSlot on FluidContainer");
-    }
-
-    @Override
-    @Nonnull
-    public MoveTransaction<ItemStackTransaction> moveItemStackFromSlot(short slot, @Nonnull ItemContainer containerTo,
-            boolean filter) {
-        throw new UnsupportedOperationException("Use moveFluidStackFromSlot on FluidContainer");
-    }
-
-    @Override
-    @Nonnull
-    public MoveTransaction<ItemStackTransaction> moveItemStackFromSlot(short slot, @Nonnull ItemContainer containerTo,
-            boolean allOrNothing, boolean filter) {
-        throw new UnsupportedOperationException("Use moveFluidStackFromSlot on FluidContainer");
-    }
-
-    // -------------------------------------------------------------------------
-    // Type-safety guard
-    // -------------------------------------------------------------------------
-
-    @Override
-    protected ItemStack internal_setSlot(short slot, ItemStack itemStack) {
-        if (itemStack != null && !(itemStack instanceof FluidStack)) {
-            throw new IllegalArgumentException(
-                    "FluidContainer only accepts FluidStack, got: " + itemStack.getClass().getSimpleName());
+    @Nullable
+    private FluidSlotFilter getSlotFilter(@Nonnull FilterActionType actionType, short slot) {
+        if (fluidSlotFiltersByAction == null) {
+            return null;
         }
-        return super.internal_setSlot(slot, itemStack);
+        FluidSlotFilter[] filters = fluidSlotFiltersByAction.get(actionType);
+        if (filters == null || slot < 0 || slot >= filters.length) {
+            return null;
+        }
+        return filters[slot];
+    }
+
+    @Nullable
+    private EnumMap<FilterActionType, FluidSlotFilter[]> copyFilters(
+            @Nullable EnumMap<FilterActionType, FluidSlotFilter[]> source) {
+        if (source == null || source.isEmpty()) {
+            return new EnumMap<>(FilterActionType.class);
+        }
+
+        EnumMap<FilterActionType, FluidSlotFilter[]> copy = new EnumMap<>(FilterActionType.class);
+        for (FilterActionType actionType : source.keySet()) {
+            FluidSlotFilter[] filters = source.get(actionType);
+            copy.put(actionType, filters != null ? filters.clone() : null);
+        }
+        return copy;
+    }
+
+    // -------------------------------------------------------------------------
+    // Clear
+    // -------------------------------------------------------------------------
+
+    @Override
+    public ClearTransaction clear() {
+        writeAction(() -> {
+            for (short i = 0; i < capacity; i++) {
+                fluidStacks[i] = null;
+            }
+            return null;
+        });
+        sendUpdate(ClearTransaction.EMPTY);
+        return ClearTransaction.EMPTY;
     }
 }

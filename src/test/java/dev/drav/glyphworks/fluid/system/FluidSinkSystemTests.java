@@ -51,10 +51,7 @@ public final class FluidSinkSystemTests {
                     FluidContainerComponent fcc = FluidTestUtil.getContainer(ctx.getWorld(),
                             new Vector3i(ctx.getOriginX(), ctx.getOriginY(), ctx.getOriginZ()));
                     if (fcc != null) {
-                        FluidStack stack = new FluidStack(
-                                FLUID_ID,
-                                fcc.getFluidContainer().getCapacityMbPerSlot(),
-                                fcc.getFluidContainer().getCapacityMbPerSlot());
+                        FluidStack stack = new FluidStack(FLUID_ID, fcc.getFluidContainer().getCapacityMbPerSlot());
                         fcc.getFluidContainer().addFluidStack(stack, true, false);
                     }
                 }))

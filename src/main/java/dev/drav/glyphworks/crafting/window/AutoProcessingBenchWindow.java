@@ -315,7 +315,7 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
                 for (short i = 0; i < fc.getCapacity(); i++) {
                     FluidStack s = fc.getFluidStack(i);
                     if (s != null)
-                        totalMb += s.getQuantity();
+                        totalMb += s.getAmount();
                 }
                 int maxMb = (int) fc.getCapacity() * fc.getCapacityMbPerSlot();
                 fuelTime = maxMb > 0 ? (float) totalMb / maxMb : 0.0f;
@@ -433,7 +433,7 @@ public final class AutoProcessingBenchWindow extends BenchWindow implements Item
             }
             display.addFluidStackToSlot(
                     i,
-                    new FluidStack(stack.getFluidId(), stack.getQuantity(), stack.getCapacityMb()),
+                    new FluidStack(stack.getFluidId(), stack.getAmount()),
                     true,
                     false);
         }
