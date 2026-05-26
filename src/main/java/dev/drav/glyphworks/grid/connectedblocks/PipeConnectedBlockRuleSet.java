@@ -10,14 +10,14 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
-import org.joml.Vector3ic;
+import org.joml.Vector3ic; 
 
 import com.hypixel.hytale.assetstore.map.BlockTypeAssetMap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlockRuleSet;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.connectedblocks.ConnectedBlocksUtil;
 import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -110,7 +110,7 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
 
     @Override
     public Optional<ConnectedBlocksUtil.ConnectedBlockResult> getConnectedBlockType(
-            World world, Vector3ic coordinate, BlockType currentBlockType,
+            ChunkStore chunkStore, Vector3ic coordinate, BlockType currentBlockType,
             int rotation, Vector3ic placementNormal, boolean isPlacement) {
 
         if (stateToBlockKey == null) {
@@ -119,7 +119,7 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
             return Optional.empty();
         }
 
-        GridLookup selfLookup = GridLookup.resolve(world.getChunkStore(), coordinate);
+        GridLookup selfLookup = GridLookup.resolve(chunkStore, coordinate);
         if (selfLookup == null) {
             LOGGER.warning("[PipeRuleSet] GridLookup.resolve returned null at " + coordinate);
             return Optional.empty();
@@ -156,7 +156,7 @@ public final class PipeConnectedBlockRuleSet extends ConnectedBlockRuleSet {
                         GridFaceUtil.addOffset(selfLookup.originPos(), worldFacePos),
                         worldNormal);
 
-                GridLookup neighborLookup = GridLookup.resolve(world.getChunkStore(), adjacentPos);
+                GridLookup neighborLookup = GridLookup.resolve(chunkStore, adjacentPos);
                 if (neighborLookup == null) {
                     continue;
                 }
