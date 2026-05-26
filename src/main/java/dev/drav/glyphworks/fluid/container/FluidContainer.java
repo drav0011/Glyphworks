@@ -67,7 +67,7 @@ public class FluidContainer extends SimpleItemContainer {
                     })
             .add()
             .afterDecode(c -> {
-                if (c.fluidStacks == null) {
+                if (c.fluidStacks == null || c.fluidStacks.length != c.capacity) {
                     c.fluidStacks = new FluidStack[c.capacity];
                 }
             })

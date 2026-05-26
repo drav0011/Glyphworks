@@ -159,8 +159,14 @@ public final class AutoProcessingBenchSystems {
                 fluidFuelContainer.setSlotFilter(
                         FilterActionType.ADD,
                         i,
-                        (actionType, container, slot, incoming, existing) -> incoming != null
-                                && isFuelFluidForResource(incoming, requiredType));
+                        (actionType, container, slot, incoming, existing) -> {
+                            if (incoming == null || !isFuelFluidForResource(incoming, requiredType)) {
+                                return false;
+                            }
+                            int slotCapacity = bench.getConfiguredFluidFuelSlotCapacityMb(slot);
+                            int existingAmount = existing != null ? existing.getAmount() : 0;
+                            return existingAmount + incoming.getAmount() <= slotCapacity;
+                        });
             }
             bench.setFluidFuelContainer(fluidFuelContainer);
         } else {

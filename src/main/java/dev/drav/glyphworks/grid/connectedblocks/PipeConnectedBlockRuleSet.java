@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
-import org.joml.Vector3ic; 
+import org.joml.Vector3ic;
 
 import com.hypixel.hytale.assetstore.map.BlockTypeAssetMap;
 import com.hypixel.hytale.codec.builder.BuilderCodec;

@@ -336,7 +336,7 @@ class InternalContainerUtilFluidStack {
             return ListTransaction.getEmptyTransaction(true);
         }
         ItemContainer.validateSlotIndex(offset, container.getCapacity());
-        ItemContainer.validateSlotIndex((short) (offset + fluidStacks.size()), container.getCapacity());
+        ItemContainer.validateSlotIndex((short) (offset + fluidStacks.size() - 1), container.getCapacity());
         return (ListTransaction<FluidStackSlotTransaction>) container.internalWriteAction(() -> {
             int capacityMb = container.getCapacityMbPerSlot();
             if (allOrNothing) {
@@ -344,14 +344,23 @@ class InternalContainerUtilFluidStack {
                     short slot = (short) (offset + i);
                     FluidStack fluidStack = fluidStacks.get(i);
                     int testAmountRemaining = fluidStack.getAmount();
-                    if (testAddToExistingSlot(container, slot, fluidStack, capacityMb, testAmountRemaining,
-                            filter) > 0) {
+                    FluidStack existingAtSlot = container.internalGetSlot(slot);
+                    if (FluidStack.isEmpty(existingAtSlot)) {
+                        if (!filter || !container.internalCantAddToSlot(slot, fluidStack, existingAtSlot)) {
+                            testAmountRemaining -= Math.min(capacityMb, testAmountRemaining);
+                        }
+                    } else {
+                        testAmountRemaining = testAddToExistingSlot(container, slot, fluidStack, capacityMb,
+                                testAmountRemaining, filter);
+                    }
+                    if (testAmountRemaining > 0) {
                         ObjectArrayList<FluidStackSlotTransaction> failedList = new ObjectArrayList<>();
                         for (short j = 0; j < fluidStacks.size(); j++) {
                             short failSlot = (short) (offset + j);
+                            FluidStack failStack = fluidStacks.get(j);
                             failedList.add(
                                     new FluidStackSlotTransaction(false, ActionType.ADD, failSlot, null, null, null,
-                                            allOrNothing, false, filter, false, fluidStack, fluidStack));
+                                            allOrNothing, false, filter, false, failStack, failStack));
                         }
                         return new ListTransaction<>(false, failedList);
                     }
