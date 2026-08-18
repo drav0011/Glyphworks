@@ -7,7 +7,7 @@ plugins {
 }
 
 hytale {
-    usePatchline("release")
+    usePatchline("pre-release")
     useVersion("latest")
 
     manifest {
@@ -17,7 +17,8 @@ hytale {
         Main = "dev.drav.glyphworks.GlyphworksPlugin"
         IncludesAssetPack = true
         DisabledByDefault = false
-        ServerVersion = "0.5.0"
+        // TODO: pin to "0.6.0" once Update 6 ships on the release patchline (Aug 27)
+        ServerVersion = "*"
         
         Authors = listOf(
             HytaleManifest.Author("DrAv0011", "", "https://drav.dev")

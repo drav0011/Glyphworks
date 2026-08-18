@@ -7,7 +7,8 @@ import org.joml.Vector3i;
 import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.ChunkColumn;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockComponentSection;
 import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -16,7 +17,7 @@ import dev.drav.glyphworks.grid.component.GridComponent;
 import dev.drav.glyphworks.grid.component.GridTypeEntry;
 import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.type.GridType;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 
 /**
  * Rebuilds the per-world, per-type {@link GridGraph} entries for every
@@ -40,42 +41,57 @@ public final class ChunkLoadGridGraphEvent {
         if (blockChunk == null)
             return;
 
-        BlockComponentChunk bcc = (BlockComponentChunk) event.getHolder().getComponent(
-                BlockComponentChunk.getComponentType());
-        if (bcc == null || bcc.getEntityHolders().isEmpty())
+        ChunkColumn column = (ChunkColumn) event.getHolder().getComponent(ChunkColumn.getComponentType());
+        if (column == null)
+            return;
+
+        Holder<ChunkStore>[] sections = column.getSectionHolders();
+        if (sections == null)
             return;
 
         int chunkOriginX = blockChunk.getX() << 5;
         int chunkOriginZ = blockChunk.getZ() << 5;
 
-        for (Int2ObjectMap.Entry<Holder<ChunkStore>> bccEntry : bcc.getEntityHolders().int2ObjectEntrySet()) {
-            int blockIndex = bccEntry.getIntKey();
-            GridComponent component = (GridComponent) bccEntry.getValue().getComponent(
-                    GridComponent.getComponentType());
-            if (component == null)
+        for (int sectionY = 0; sectionY < sections.length; sectionY++) {
+            Holder<ChunkStore> sectionHolder = sections[sectionY];
+            if (sectionHolder == null)
                 continue;
 
-            Vector3i pos = new Vector3i(
-                    chunkOriginX + ChunkUtil.xFromBlockInColumn(blockIndex),
-                    ChunkUtil.yFromBlockInColumn(blockIndex),
-                    chunkOriginZ + ChunkUtil.zFromBlockInColumn(blockIndex));
+            BlockComponentSection bcs = (BlockComponentSection) sectionHolder.getComponent(
+                    BlockComponentSection.getComponentType());
+            if (bcs == null || bcs.getBlockHolders().isEmpty())
+                continue;
 
-            component.setOriginPosition(pos);
+            int sectionOriginY = sectionY << 5;
 
-            for (GridTypeEntry entry : component.getEntries()) {
-                GridType type = entry.getGridType();
-                if (type == null)
+            for (Short2ObjectMap.Entry<Holder<ChunkStore>> bcsEntry : bcs.getBlockHolders().short2ObjectEntrySet()) {
+                int blockIndex = bcsEntry.getShortKey();
+                GridComponent component = (GridComponent) bcsEntry.getValue().getComponent(
+                        GridComponent.getComponentType());
+                if (component == null)
                     continue;
 
-                GridGraph graph = GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(event.getChunk().getWorld(), type);
-                graph.addNode(pos);
+                Vector3i pos = new Vector3i(
+                        chunkOriginX + ChunkUtil.xFromIndex(blockIndex),
+                        sectionOriginY + ChunkUtil.yFromIndex(blockIndex),
+                        chunkOriginZ + ChunkUtil.zFromIndex(blockIndex));
 
-                for (Vector3i neighborPos : entry.getNeighbors()) {
-                    graph.addNode(neighborPos);
-                    graph.addEdge(pos, neighborPos);
+                component.setOriginPosition(pos);
+
+                for (GridTypeEntry entry : component.getEntries()) {
+                    GridType type = entry.getGridType();
+                    if (type == null)
+                        continue;
+
+                    GridGraph graph = GlyphworksPlugin.get().getGridModule().getOrCreateGridGraph(event.getChunk().getWorld(), type);
+                    graph.addNode(pos);
+
+                    for (Vector3i neighborPos : entry.getNeighbors()) {
+                        graph.addNode(neighborPos);
+                        graph.addEdge(pos, neighborPos);
+                    }
                 }
             }
         }
     }
 }
-

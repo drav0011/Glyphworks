@@ -15,6 +15,6 @@
         "Hytale:EntityModule": "*",
         "Hytale:BlockModule": "*"
     },
-    "ServerVersion": "0.5.0",
+    "ServerVersion": "*",
     "Main": "dev.drav.glyphworks.GlyphworksPlugin"
 }

@@ -89,30 +89,18 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
         if (bsi == null) {
             return;
         }
-        if (!bsi.getChunkRef().isValid()) {
-            return;
-        }
 
         ChunkStore chunkStore = commandBuffer.getExternalData();
-        BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
-        if (blockChunk == null) {
+        Vector3i originPos = new Vector3i();
+        if (!bsi.fillWorldPos(store, originPos)) {
             return;
         }
-
-        int bi = bsi.getIndex();
-        int localX = ChunkUtil.xFromBlockInColumn(bi);
-        int localY = ChunkUtil.yFromBlockInColumn(bi);
-        int localZ = ChunkUtil.zFromBlockInColumn(bi);
-        Vector3i originPos = new Vector3i(
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
-                localY,
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ));
 
         BlockSection blockSection = FluidUtil.getBlockSection(chunkStore, store, originPos.x, originPos.y, originPos.z);
         if (blockSection == null) {
             return;
         }
-        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
+        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(originPos.x, originPos.y, originPos.z));
 
         Vector3i adjacent = resolveTargetCell(originPos, placer, rotation);
         if (adjacent == null) {

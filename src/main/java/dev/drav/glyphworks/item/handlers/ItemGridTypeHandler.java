@@ -13,11 +13,11 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.BlockFace;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
@@ -25,11 +25,11 @@ import com.hypixel.hytale.server.core.inventory.container.filter.FilterType;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.inventory.transaction.MoveTransaction;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.GlyphworksPlugin;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.grid.component.FacePlane;
@@ -39,7 +39,6 @@ import dev.drav.glyphworks.grid.graph.GridGraph;
 import dev.drav.glyphworks.grid.lookup.GridLookup;
 import dev.drav.glyphworks.grid.type.GridTypeHandler;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
-import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Per-tick handler for the {@code "Item"} grid type.
@@ -426,41 +425,24 @@ public final class ItemGridTypeHandler implements GridTypeHandler {
     private static ItemContainer resolveExternalInventory(
             @Nonnull ChunkStore chunkStore,
             @Nonnull Vector3i pos) {
-        long chunkIndex = ChunkUtil.indexChunkFromBlock(pos.x, pos.z);
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(chunkIndex);
-        if (chunkRef == null || !chunkRef.isValid())
-            return null;
-
         Store<ChunkStore> worldStore = chunkStore.getStore();
-        BlockComponentChunk bcc = worldStore.getComponent(chunkRef, BlockComponentChunk.getComponentType());
-        if (bcc == null)
-            return null;
-
-        Ref<ChunkStore> blockRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
+        Ref<ChunkStore> blockRef = BlockModule.getBlockEntity(chunkStore.getWorld(), pos.x, pos.y, pos.z);
 
         // pos may be a filler cell of a multi-block structure (e.g. a double chest that
         // occupies 2×1×1). Resolve to the origin block exactly as GridLookup does.
         if (blockRef == null) {
-            WorldChunk worldChunk = chunkStore.getWorld().getChunkIfLoaded(chunkIndex);
-            if (worldChunk == null)
+            BlockSection blockSection = FluidUtil.getBlockSection(chunkStore, worldStore, pos.x, pos.y, pos.z);
+            if (blockSection == null)
                 return null;
-            int filler = DeprecatedChunkAccess.getFiller(worldChunk, pos.x, pos.y, pos.z);
+            int filler = blockSection.getFiller(pos.x, pos.y, pos.z);
             if (filler == FillerBlockUtil.NO_FILLER)
                 return null;
             Vector3i originPos = new Vector3i(
                     pos.x - FillerBlockUtil.unpackX(filler),
                     pos.y - FillerBlockUtil.unpackY(filler),
                     pos.z - FillerBlockUtil.unpackZ(filler));
-            long originChunkIndex = ChunkUtil.indexChunkFromBlock(originPos.x, originPos.z);
-            Ref<ChunkStore> originChunkRef = chunkStore.getChunkReference(originChunkIndex);
-            if (originChunkRef == null || !originChunkRef.isValid())
-                return null;
-            BlockComponentChunk originBcc = worldStore.getComponent(originChunkRef,
-                    BlockComponentChunk.getComponentType());
-            if (originBcc == null)
-                return null;
-            blockRef = originBcc
-                    .getEntityReference(ChunkUtil.indexBlockInColumn(originPos.x, originPos.y, originPos.z));
+            blockRef = BlockModule.getBlockEntity(
+                    chunkStore.getWorld(), originPos.x, originPos.y, originPos.z);
             if (blockRef == null)
                 return null;
         }

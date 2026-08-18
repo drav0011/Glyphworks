@@ -24,7 +24,6 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.modules.interaction.BlockHarvestUtils;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
@@ -88,30 +87,21 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
         }
 
         BlockModule.BlockStateInfo bsi = chunk.getComponent(index, BlockModule.BlockStateInfo.getComponentType());
-        if (bsi == null || !bsi.getChunkRef().isValid()) {
+        if (bsi == null) {
             return;
         }
 
         ChunkStore chunkStore = commandBuffer.getExternalData();
-        BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
-        if (blockChunk == null) {
+        Vector3i originPos = new Vector3i();
+        if (!bsi.fillWorldPos(store, originPos)) {
             return;
         }
-
-        int bi = bsi.getIndex();
-        int localX = ChunkUtil.xFromBlockInColumn(bi);
-        int localY = ChunkUtil.yFromBlockInColumn(bi);
-        int localZ = ChunkUtil.zFromBlockInColumn(bi);
-        Vector3i originPos = new Vector3i(
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
-                localY,
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ));
 
         BlockSection blockSection = FluidUtil.getBlockSection(chunkStore, store, originPos.x, originPos.y, originPos.z);
         if (blockSection == null) {
             return;
         }
-        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
+        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(originPos.x, originPos.y, originPos.z));
 
         Vector3i adjacent = resolveTargetCell(originPos, miner, rotation);
         if (adjacent == null) {

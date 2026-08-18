@@ -8,12 +8,12 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -27,15 +27,12 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHa
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.accessor.BlockAccessor;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
 import dev.drav.glyphworks.crafting.window.AutoProcessingBenchWindow;
-import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 /**
  * Opens an {@link AutoProcessingBenchWindow} for mana-powered auto processing
@@ -68,20 +65,9 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
         if (playerComponent == null)
             return;
 
-        ChunkStore chunkStore = world.getChunkStore();
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (chunkRef == null || !chunkRef.isValid())
-            return;
-
-        Store<ChunkStore> chunkStoreStore = chunkStore.getStore();
-        BlockComponentChunk blockComponentChunk = (BlockComponentChunk) chunkStoreStore.getComponent(
-                chunkRef, BlockComponentChunk.getComponentType());
-        if (blockComponentChunk == null)
-            return;
-
-        Ref<ChunkStore> blockEntityRef = blockComponentChunk.getEntityReference(
-                ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-        if (blockEntityRef == null || !blockEntityRef.isValid())
+        Store<ChunkStore> chunkStoreStore = world.getChunkStore().getStore();
+        Ref<ChunkStore> blockEntityRef = BlockModule.getBlockEntity(world, pos.x, pos.y, pos.z);
+        if (blockEntityRef == null)
             return;
 
         AutoProcessingBenchBlock apbb = (AutoProcessingBenchBlock) chunkStoreStore.getComponent(
@@ -103,10 +89,11 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
             return;
         UUID uuid = uuidComponent.getUuid();
 
-        WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (worldChunk == null)
+        BlockSection blockSection = FluidUtil.getBlockSection(
+                world.getChunkStore(), chunkStoreStore, pos.x, pos.y, pos.z);
+        if (blockSection == null)
             return;
-        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
+        int rotationIndex = blockSection.getRotationIndex(pos.x, pos.y, pos.z);
 
         int openSoundIndex = blockType.getBench().getLocalOpenSoundEventIndex();
         int closeSoundIndex = blockType.getBench().getLocalCloseSoundEventIndex();
@@ -131,7 +118,7 @@ public class OpenAutoProcessingBenchInteraction extends SimpleBlockInteraction {
                     || currentBlockType == BlockType.EMPTY
                     || currentBlockType == BlockType.UNKNOWN)
                 return;
-            String interactionState = BlockAccessor.getCurrentInteractionState(currentBlockType);
+            String interactionState = currentBlockType.getCurrentInteractionState();
             if (windows.isEmpty()
                     && !"processing".equals(interactionState)
                     && !"process_completed".equals(interactionState)) {
