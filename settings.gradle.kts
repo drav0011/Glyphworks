@@ -7,18 +7,21 @@ plugins {
 }
 
 hytale {
-    usePatchline("pre-release")
-    useVersion("latest")
+    usePatchline("release")
+    useVersion("0.6.0")
 
     manifest {
         Group = "drav.dev"
         Name = "Glyphworks"
-        Version = "0.2.0"
+        Version = "0.3.0"
         Main = "dev.drav.glyphworks.GlyphworksPlugin"
         IncludesAssetPack = true
         DisabledByDefault = false
-        // TODO: pin to "0.6.0" once Update 6 ships on the release patchline (Aug 27)
-        ServerVersion = "*"
+        ServerVersion = "0.6.0"
+
+        // Machines consult this plugin's deny rules before mutating the world.
+        // Optional: without it the checks fail open and automation is unrestricted.
+        OptionalDependencies = mapOf("Hytale:TriggerVolumes" to "*")
         
         Authors = listOf(
             HytaleManifest.Author("DrAv0011", "", "https://drav.dev")

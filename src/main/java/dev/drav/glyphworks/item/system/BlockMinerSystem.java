@@ -30,6 +30,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import dev.drav.glyphworks.item.component.BlockMinerComponent;
+import dev.drav.glyphworks.util.TriggerVolumeGuard;
+
 /**
  * Ticking system for block miner machines.
  *
@@ -125,6 +127,15 @@ public final class BlockMinerSystem extends EntityTickingSystem<ChunkStore> {
 
         BlockType blockType = (BlockType) BlockType.getAssetMap().getAsset(targetBlockId);
         if (blockType == null) {
+            return;
+        }
+
+        String targetBlockKey = blockType.getId();
+        if (!TriggerVolumeGuard.canDestroy(chunkStore.getWorld(), adjacent, targetBlockKey)
+                || !TriggerVolumeGuard.canHarvest(chunkStore.getWorld(), adjacent, targetBlockKey)) {
+            // Protected region — drop progress like an unbreakable target.
+            miner.setMiningProgress(0);
+            miner.setLastSeenBlockId(targetBlockId);
             return;
         }
 

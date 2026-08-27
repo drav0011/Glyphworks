@@ -28,6 +28,7 @@ import dev.drav.glyphworks.fluid.component.FluidPlacerComponent;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
+import dev.drav.glyphworks.util.TriggerVolumeGuard;
 
 /**
  * Ticking system for fluid placer blocks.
@@ -134,6 +135,10 @@ public final class FluidPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
         Fluid fluid = Fluid.getAssetMap().getAsset(indexedId);
         if (fluid == null) {
+            return;
+        }
+
+        if (!TriggerVolumeGuard.canBuild(chunkStore.getWorld(), adjacent, placerFluidId)) {
             return;
         }
 

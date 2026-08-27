@@ -1,0 +1,12 @@
+# Test benches — fixtures for the crafting suites, never shipped in the mod jar.
+items.Glyphworks_Test_Crafting_Bench_Grid.name=Test Bench (Grid)
+items.Glyphworks_Test_Crafting_Bench_Selector.name=Test Bench (Selector)
+items.Glyphworks_Test_Crafting_Bench_NoFuel.name=Test Bench (No Fuel)
+items.Glyphworks_Test_Crafting_Bench_ItemFuel_Any.name=Test Bench (Item Fuel, Any)
+items.Glyphworks_Test_Crafting_Bench_ItemFuel_All.name=Test Bench (Item Fuel, All)
+items.Glyphworks_Test_Crafting_Bench_FluidFuel_Any.name=Test Bench (Fluid Fuel, Any)
+items.Glyphworks_Test_Crafting_Bench_FluidFuel_All.name=Test Bench (Fluid Fuel, All)
+items.Glyphworks_Test_Crafting_Bench_BothFuel_Any.name=Test Bench (Both Fuel, Any)
+items.Glyphworks_Test_Crafting_Bench_BothFuel_All.name=Test Bench (Both Fuel, All)
+items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_Any.name=Test Bench (Two Item Fuel, Any)
+items.Glyphworks_Test_Crafting_Bench_TwoItemFuel_All.name=Test Bench (Two Item Fuel, All)

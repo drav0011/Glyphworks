@@ -29,6 +29,7 @@ import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
 import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
+import dev.drav.glyphworks.util.TriggerVolumeGuard;
 
 /**
  * Ticking system for fluid remover blocks.
@@ -131,6 +132,10 @@ public final class FluidRemoverSystem extends EntityTickingSystem<ChunkStore> {
         }
 
         if (FluidItemRegistry.resolveItemId(worldFluidId) == null) {
+            return;
+        }
+
+        if (!TriggerVolumeGuard.canDestroy(chunkStore.getWorld(), adjacent, worldFluidId)) {
             return;
         }
 

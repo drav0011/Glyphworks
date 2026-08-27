@@ -24,6 +24,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import dev.drav.glyphworks.item.component.BlockPlacerComponent;
+import dev.drav.glyphworks.util.TriggerVolumeGuard;
 
 /**
  * Ticking system for block placer machines.
@@ -127,6 +128,9 @@ public final class BlockPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
             // Place the block and consume exactly one item from the slot.
             final String blockId = item.getBlockId();
+            if (!TriggerVolumeGuard.canBuild(chunkStore.getWorld(), adjacent, blockId)) {
+                continue; // Protected region — another slot may hold an excepted block.
+            }
             final int ax = adjacent.x, ay = adjacent.y, az = adjacent.z;
             commandBuffer.run(_ -> commandBuffer.getExternalData().getWorld().setBlock(ax, ay, az, blockId));
             container.removeItemStackFromSlot(slot, 1);
