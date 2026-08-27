@@ -1,7 +1,3 @@
-configurations.all {
-    resolutionStrategy.force("com.hypixel.hytale:Server:0.5.0")
-}
-
 repositories {
     
 }
@@ -84,7 +80,20 @@ tasks.register<Exec>("runTestServer") {
     argumentProviders.add(CommandLineArgumentProvider {
         val serverJar = resolveServerJar()
 
-        listOf(
+        // Headless test run: pass -Pglyphworks.test.all (or .module/.suite/.name)
+        // and the test plugin runs the suites on startup, then exits 0/1.
+        val testProps = listOf(
+            "glyphworks.test.all",
+            "glyphworks.test.module",
+            "glyphworks.test.suite",
+            "glyphworks.test.name",
+        ).mapNotNull { key ->
+            (project.findProperty(key) as String?)?.let { value ->
+                if (value.isEmpty()) "-D$key=true" else "-D$key=$value"
+            }
+        }
+
+        testProps + listOf(
             "-jar",
             serverJar.absolutePath,
             "--allow-op",

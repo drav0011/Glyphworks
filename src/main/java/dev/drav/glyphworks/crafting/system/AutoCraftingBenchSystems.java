@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.joml.Vector3i;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
@@ -20,7 +21,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
 import dev.drav.glyphworks.crafting.component.AutoProcessingBenchBlock;
-import dev.drav.glyphworks.util.BlockCoordsUtil;
 
 public final class AutoCraftingBenchSystems {
 
@@ -64,15 +64,15 @@ public final class AutoCraftingBenchSystems {
                 }
             }
 
-            int[] coords = BlockCoordsUtil.resolveCoords(store, blockStateInfo);
-            if (coords == null) {
+            Vector3i benchPos = new Vector3i();
+            if (!blockStateInfo.fillWorldPos(store, benchPos)) {
                 return;
             }
 
             World world = store.getExternalData().getWorld();
-            int blockX = coords[0];
-            int blockY = coords[1];
-            int blockZ = coords[2];
+            int blockX = benchPos.x;
+            int blockY = benchPos.y;
+            int blockZ = benchPos.z;
 
             if (desiredRecipeId == null) {
                 apbb.clearCurrentRecipe();

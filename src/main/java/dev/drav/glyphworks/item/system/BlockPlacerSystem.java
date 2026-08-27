@@ -18,13 +18,13 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.grid.util.GridFaceUtil;
 import dev.drav.glyphworks.item.component.BlockPlacerComponent;
+import dev.drav.glyphworks.util.TriggerVolumeGuard;
 
 /**
  * Ticking system for block placer machines.
@@ -80,30 +80,21 @@ public final class BlockPlacerSystem extends EntityTickingSystem<ChunkStore> {
         }
 
         BlockModule.BlockStateInfo bsi = chunk.getComponent(index, BlockModule.BlockStateInfo.getComponentType());
-        if (bsi == null || !bsi.getChunkRef().isValid()) {
+        if (bsi == null) {
             return;
         }
 
         ChunkStore chunkStore = commandBuffer.getExternalData();
-        BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
-        if (blockChunk == null) {
+        Vector3i originPos = new Vector3i();
+        if (!bsi.fillWorldPos(store, originPos)) {
             return;
         }
-
-        int bi = bsi.getIndex();
-        int localX = ChunkUtil.xFromBlockInColumn(bi);
-        int localY = ChunkUtil.yFromBlockInColumn(bi);
-        int localZ = ChunkUtil.zFromBlockInColumn(bi);
-        Vector3i originPos = new Vector3i(
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX),
-                localY,
-                ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ));
 
         BlockSection blockSection = FluidUtil.getBlockSection(chunkStore, store, originPos.x, originPos.y, originPos.z);
         if (blockSection == null) {
             return;
         }
-        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(localX, localY, localZ));
+        RotationTuple rotation = RotationTuple.get(blockSection.getRotationIndex(originPos.x, originPos.y, originPos.z));
 
         Vector3i adjacent = resolveTargetCell(originPos, placer, rotation);
         if (adjacent == null) {
@@ -137,6 +128,9 @@ public final class BlockPlacerSystem extends EntityTickingSystem<ChunkStore> {
 
             // Place the block and consume exactly one item from the slot.
             final String blockId = item.getBlockId();
+            if (!TriggerVolumeGuard.canBuild(chunkStore.getWorld(), adjacent, blockId)) {
+                continue; // Protected region — another slot may hold an excepted block.
+            }
             final int ax = adjacent.x, ay = adjacent.y, az = adjacent.z;
             commandBuffer.run(_ -> commandBuffer.getExternalData().getWorld().setBlock(ax, ay, az, blockId));
             container.removeItemStackFromSlot(slot, 1);

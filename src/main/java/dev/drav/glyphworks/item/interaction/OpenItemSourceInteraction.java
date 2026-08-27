@@ -5,11 +5,11 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3i;
 
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -22,13 +22,12 @@ import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBloc
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import dev.drav.glyphworks.fluid.util.FluidUtil;
 import dev.drav.glyphworks.item.component.ItemSourceComponent;
-import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class OpenItemSourceInteraction extends SimpleBlockInteraction {
 
@@ -57,7 +56,7 @@ public final class OpenItemSourceInteraction extends SimpleBlockInteraction {
         if (playerComponent == null)
             return;
 
-        Ref<ChunkStore> blockEntityRef = resolveBlockEntity(world, pos);
+        Ref<ChunkStore> blockEntityRef = BlockModule.getBlockEntity(world, pos.x, pos.y, pos.z);
         if (blockEntityRef == null)
             return;
 
@@ -77,36 +76,18 @@ public final class OpenItemSourceInteraction extends SimpleBlockInteraction {
         if (blockType == null)
             return;
 
-        WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (worldChunk == null)
+        BlockSection blockSection = FluidUtil.getBlockSection(
+                world.getChunkStore(), world.getChunkStore().getStore(), pos.x, pos.y, pos.z);
+        if (blockSection == null)
             return;
 
-        int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, pos.x, pos.y, pos.z);
+        int rotationIndex = blockSection.getRotationIndex(pos.x, pos.y, pos.z);
 
         ContainerBlockWindow window = new ContainerBlockWindow(
                 pos.x, pos.y, pos.z, rotationIndex, blockType,
                 new CombinedItemContainer(source.getSelectorContainer(), icb.getItemContainer()));
 
         playerComponent.getPageManager().setPageWithWindows(ref, store, Page.Inventory, true, window);
-    }
-
-    @Nullable
-    private static Ref<ChunkStore> resolveBlockEntity(@Nonnull World world, @Nonnull Vector3i pos) {
-        ChunkStore chunkStore = world.getChunkStore();
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-        if (chunkRef == null || !chunkRef.isValid())
-            return null;
-
-        BlockComponentChunk bcc = (BlockComponentChunk) chunkStore.getStore()
-                .getComponent(chunkRef, BlockComponentChunk.getComponentType());
-        if (bcc == null)
-            return null;
-
-        Ref<ChunkStore> blockEntityRef = bcc.getEntityReference(ChunkUtil.indexBlockInColumn(pos.x, pos.y, pos.z));
-        if (blockEntityRef == null || !blockEntityRef.isValid())
-            return null;
-
-        return blockEntityRef;
     }
 
     @Override

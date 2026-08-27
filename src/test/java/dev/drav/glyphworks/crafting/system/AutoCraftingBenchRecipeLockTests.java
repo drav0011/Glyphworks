@@ -5,12 +5,10 @@ import javax.annotation.Nullable;
 import org.joml.Vector3i;
 
 import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockComponentChunk;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 
 import dev.drav.glyphworks.crafting.component.AutoCraftingBenchBlock;
@@ -314,7 +312,7 @@ public final class AutoCraftingBenchRecipeLockTests {
 
     @Nullable
     private static AutoCraftingBenchBlock getSelector(World w, int x, int y, int z) {
-        Ref<ChunkStore> ref = getBlockEntityRef(w, x, y, z);
+        Ref<ChunkStore> ref = BlockModule.getBlockEntity(w, x, y, z);
         if (ref == null)
             return null;
         return w.getChunkStore().getStore().getComponent(ref, AutoCraftingBenchBlock.getComponentType());
@@ -322,29 +320,9 @@ public final class AutoCraftingBenchRecipeLockTests {
 
     @Nullable
     private static AutoProcessingBenchBlock getProcessingBench(World w, int x, int y, int z) {
-        Ref<ChunkStore> ref = getBlockEntityRef(w, x, y, z);
+        Ref<ChunkStore> ref = BlockModule.getBlockEntity(w, x, y, z);
         if (ref == null)
             return null;
         return w.getChunkStore().getStore().getComponent(ref, AutoProcessingBenchBlock.getComponentType());
-    }
-
-    @Nullable
-    private static Ref<ChunkStore> getBlockEntityRef(World w, int x, int y, int z) {
-        ChunkStore chunkStore = w.getChunkStore();
-        Ref<ChunkStore> chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(x, z));
-        if (chunkRef == null || !chunkRef.isValid())
-            return null;
-
-        Store<ChunkStore> store = chunkStore.getStore();
-        BlockComponentChunk blockComponentChunk = store.getComponent(chunkRef, BlockComponentChunk.getComponentType());
-        if (blockComponentChunk == null)
-            return null;
-
-        Ref<ChunkStore> blockEntityRef = blockComponentChunk.getEntityReference(
-                ChunkUtil.indexBlockInColumn(x, y, z));
-        if (blockEntityRef == null || !blockEntityRef.isValid())
-            return null;
-
-        return blockEntityRef;
     }
 }

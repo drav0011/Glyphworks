@@ -1,0 +1,148 @@
+name: Publish to CurseForge
+
+on:
+  push:
+    tags:
+      - '[0-9]*'   # existing convention is a bare semver tag, e.g. 0.2.0
+      - 'v[0-9]*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'CurseForge release channel'
+        type: choice
+        options: [release, beta, alpha]
+        default: release
+      dry_run:
+        description: 'Build and resolve the game version, but do not upload'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  CURSEFORGE_PROJECT_ID: '1527757'
+  CURSEFORGE_API: 'https://www.curseforge.com/api'
+  JAR_PATH: 'build/libs/dev.drav.glyphworks.jar'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # changelog is generated from the range since the previous tag
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: temurin
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # The Hytale server jar resolves from maven.hytale.com, and `build` needs
+      # nothing from a local game install — only `runTestServer` does, so the
+      # in-server suites cannot run here.
+      - name: Build
+        run: ./gradlew build --no-daemon
+
+      - name: Read manifest
+        id: manifest
+        run: |
+          set -euo pipefail
+          manifest=src/main/resources/manifest.json
+          mod_version=$(jq -er '.Version' "$manifest")
+          server_version=$(jq -er '.ServerVersion' "$manifest")
+
+          if [ "$server_version" = '*' ]; then
+            echo "::error::manifest ServerVersion is '*'. Pin it to a released Hytale version before publishing." >&2
+            exit 1
+          fi
+
+          if [ "${GITHUB_REF_TYPE:-}" = tag ]; then
+            tag_version=${GITHUB_REF_NAME#v} # tags are bare semver; tolerate a v prefix
+            if [ "$tag_version" != "$mod_version" ]; then
+              echo "::error::tag $GITHUB_REF_NAME does not match manifest Version $mod_version." >&2
+              exit 1
+            fi
+          fi
+
+          echo "mod_version=$mod_version" >> "$GITHUB_OUTPUT"
+          echo "server_version=$server_version" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve Hytale game version id
+        id: gamever
+        env:
+          TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          SERVER_VERSION: ${{ steps.manifest.outputs.server_version }}
+        run: |
+          set -euo pipefail
+          versions=$(curl -sS --fail-with-body -H "X-Api-Token: $TOKEN" "$CURSEFORGE_API/game/versions")
+
+          id=$(jq -r --arg v "$SERVER_VERSION" 'map(select(.name == $v)) | .[0].id // empty' <<<"$versions")
+          if [ -z "$id" ]; then
+            echo "::error::No CurseForge game version named '$SERVER_VERSION'. Known versions:" >&2
+            jq -r '.[].name' <<<"$versions" | sort -u | sed 's/^/  /' >&2
+            exit 1
+          fi
+
+          echo "Resolved Hytale $SERVER_VERSION to game version id $id"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Build changelog
+        id: changelog
+        run: |
+          set -euo pipefail
+          # Release tags live on the `release` branch and are not ancestors of the
+          # development branches, so `git describe` finds nothing — pick the
+          # previous tag by version order instead. `a..HEAD` still resolves.
+          current=${GITHUB_REF_NAME:-}
+          previous=$(git tag --sort=-v:refname | grep -vx "$current" | head -1 || true)
+
+          if [ -n "$previous" ] && git rev-parse -q --verify "$previous^{commit}" >/dev/null; then
+            range="$previous..HEAD"
+            header="Changes since $previous"
+          else
+            range=HEAD
+            header=Changes
+          fi
+
+          {
+            echo 'text<<CHANGELOG_EOF'
+            echo "## $header"
+            echo
+            git log --no-merges --pretty='- %s' "$range"
+            echo CHANGELOG_EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload
+        if: ${{ inputs.dry_run != true }}
+        env:
+          TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MOD_VERSION: ${{ steps.manifest.outputs.mod_version }}
+          GAME_VERSION_ID: ${{ steps.gamever.outputs.id }}
+          RELEASE_TYPE: ${{ inputs.release_type || 'release' }}
+          CHANGELOG: ${{ steps.changelog.outputs.text }}
+        run: |
+          set -euo pipefail
+          test -f "$JAR_PATH" || { echo "::error::$JAR_PATH was not produced by the build." >&2; exit 1; }
+
+          metadata=$(jq -nc \
+            --arg changelog "$CHANGELOG" \
+            --arg displayName "Glyphworks $MOD_VERSION" \
+            --arg releaseType "$RELEASE_TYPE" \
+            --argjson gameVersions "[$GAME_VERSION_ID]" \
+            '{
+               changelog: $changelog,
+               changelogType: "markdown",
+               displayName: $displayName,
+               releaseType: $releaseType,
+               gameVersions: $gameVersions
+             }')
+
+          curl -sS --fail-with-body -X POST \
+            -H "X-Api-Token: $TOKEN" \
+            -F "metadata=$metadata" \
+            -F "file=@$JAR_PATH" \
+            "$CURSEFORGE_API/projects/$CURSEFORGE_PROJECT_ID/upload-file"

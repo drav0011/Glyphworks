@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.item.system;
 
+import org.joml.Vector3i;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -21,7 +22,6 @@ import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.components.ItemContainerBlock;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -69,21 +69,17 @@ public final class ItemDropperSystem extends EntityTickingSystem<ChunkStore> {
         }
 
         BlockModule.BlockStateInfo bsi = chunk.getComponent(index, BlockModule.BlockStateInfo.getComponentType());
-        if (bsi == null || !bsi.getChunkRef().isValid()) {
+        if (bsi == null) {
             return;
         }
 
-        BlockChunk blockChunk = store.getComponent(bsi.getChunkRef(), BlockChunk.getComponentType());
-        if (blockChunk == null) {
+        Vector3i blockPos = new Vector3i();
+        if (!bsi.fillWorldPos(store, blockPos)) {
             return;
         }
-
-        int bi = bsi.getIndex();
-        int localX = ChunkUtil.xFromBlockInColumn(bi);
-        int localY = ChunkUtil.yFromBlockInColumn(bi);
-        int localZ = ChunkUtil.zFromBlockInColumn(bi);
-        int blockX = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX);
-        int blockZ = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ);
+        int blockX = blockPos.x;
+        int localY = blockPos.y;
+        int blockZ = blockPos.z;
 
         // Only drop if the block below is empty or a fluid (blockId == 0 covers both).
         ChunkStore chunkStore = commandBuffer.getExternalData();

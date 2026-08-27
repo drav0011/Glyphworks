@@ -1,5 +1,6 @@
 package dev.drav.glyphworks.crafting.system;
 
+import org.joml.Vector3i;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,6 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.event.EventPriority;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.protocol.ItemResourceType;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
@@ -47,8 +47,6 @@ import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.block.BlockModule.BlockStateInfo;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -60,8 +58,6 @@ import dev.drav.glyphworks.fluid.FluidStack;
 import dev.drav.glyphworks.fluid.container.FluidContainer;
 import dev.drav.glyphworks.fluid.event.FluidItemRegistry;
 import dev.drav.glyphworks.fluid.transaction.FluidStackSlotTransaction;
-import dev.drav.glyphworks.util.BlockCoordsUtil;
-import dev.drav.glyphworks.util.DeprecatedChunkAccess;
 
 public final class AutoProcessingBenchSystems {
 
@@ -393,23 +389,21 @@ public final class AutoProcessingBenchSystems {
             if (apbb == null || blockStateInfo == null)
                 return;
 
-            Ref<ChunkStore> chunkRef = blockStateInfo.getChunkRef();
-            if (!chunkRef.isValid())
+            Ref<ChunkStore> sectionRef = blockStateInfo.getSectionRef();
+            if (!sectionRef.isValid())
                 return;
 
-            BlockChunk blockChunk = commandBuffer.getComponent(chunkRef, BlockChunk.getComponentType());
-            if (blockChunk == null)
+            Vector3i blockPos = new Vector3i();
+            if (!blockStateInfo.fillWorldPos(commandBuffer, blockPos))
                 return;
+            int blockX = blockPos.x;
+            int localY = blockPos.y;
+            int blockZ = blockPos.z;
 
-            int blockIndex = blockStateInfo.getIndex();
-            int localX = ChunkUtil.xFromBlockInColumn(blockIndex);
-            int localY = ChunkUtil.yFromBlockInColumn(blockIndex);
-            int localZ = ChunkUtil.zFromBlockInColumn(blockIndex);
-            int blockX = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX);
-            int blockZ = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ);
-
-            BlockSection blockSection = DeprecatedChunkAccess.getSection(blockChunk, localY);
-            int blockId = blockSection.get(localX, localY, localZ);
+            BlockSection blockSection = commandBuffer.getComponent(sectionRef, BlockSection.getComponentType());
+            if (blockSection == null)
+                return;
+            int blockId = blockSection.get(blockX, localY, blockZ);
             BlockType blockType = (BlockType) BlockType.getAssetMap().getAsset(blockId);
             if (blockType == null)
                 return;
@@ -419,11 +413,7 @@ public final class AutoProcessingBenchSystems {
                 return;
 
             World world = commandBuffer.getExternalData().getWorld();
-            WorldChunk worldChunk = world.getChunk(ChunkUtil.indexChunkFromBlock(blockX, blockZ));
-            if (worldChunk == null)
-                return;
-
-            int rotationIndex = DeprecatedChunkAccess.getRotationIndex(worldChunk, blockX, localY, blockZ);
+            int rotationIndex = blockSection.getRotationIndex(blockX, localY, blockZ);
             initializeBenchSlots(apbb, world, benchBlock, blockStateInfo, blockX, localY, blockZ, blockType,
                     rotationIndex);
         }
@@ -457,20 +447,12 @@ public final class AutoProcessingBenchSystems {
             if (items.isEmpty())
                 return;
 
-            Ref<ChunkStore> chunkRef = blockStateInfo.getChunkRef();
-            if (!chunkRef.isValid())
+            Vector3i blockPos = new Vector3i();
+            if (!blockStateInfo.fillWorldPos(commandBuffer, blockPos))
                 return;
-
-            BlockChunk blockChunk = commandBuffer.getComponent(chunkRef, BlockChunk.getComponentType());
-            if (blockChunk == null)
-                return;
-
-            int blockIndex = blockStateInfo.getIndex();
-            int localX = ChunkUtil.xFromBlockInColumn(blockIndex);
-            int localY = ChunkUtil.yFromBlockInColumn(blockIndex);
-            int localZ = ChunkUtil.zFromBlockInColumn(blockIndex);
-            int blockX = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getX(), localX);
-            int blockZ = ChunkUtil.worldCoordFromLocalCoord(blockChunk.getZ(), localZ);
+            int blockX = blockPos.x;
+            int localY = blockPos.y;
+            int blockZ = blockPos.z;
 
             World world = commandBuffer.getExternalData().getWorld();
             Store<EntityStore> entityStore = world.getEntityStore().getStore();
@@ -529,13 +511,13 @@ public final class AutoProcessingBenchSystems {
             if (blockStateInfo == null)
                 return;
 
-            int[] coords = BlockCoordsUtil.resolveCoords(store, blockStateInfo);
-            if (coords == null)
+            Vector3i benchPos = new Vector3i();
+            if (!blockStateInfo.fillWorldPos(store, benchPos))
                 return;
 
-            int blockX = coords[0];
-            int blockY = coords[1];
-            int blockZ = coords[2];
+            int blockX = benchPos.x;
+            int blockY = benchPos.y;
+            int blockZ = benchPos.z;
 
             if (apbb.getInputProgress() >= recipeTime) {
                 if (isReadyToCraft(apbb, recipe) && canFitOutput(apbb, recipe)) {

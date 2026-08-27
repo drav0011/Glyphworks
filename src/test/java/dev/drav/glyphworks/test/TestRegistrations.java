@@ -5,6 +5,7 @@ import dev.drav.glyphworks.fluid.FluidTestRegistrations;
 import dev.drav.glyphworks.grid.GridTestRegistrations;
 import dev.drav.glyphworks.item.ItemTestRegistrations;
 import dev.drav.glyphworks.test.tests.TestFrameworkTests;
+import dev.drav.glyphworks.util.TriggerVolumeGuardTests;
 
 public final class TestRegistrations {
 
@@ -17,5 +18,6 @@ public final class TestRegistrations {
         FluidTestRegistrations.registerAll();
         ItemTestRegistrations.registerAll();
         CraftingTestRegistrations.registerAll();
+        TriggerVolumeGuardTests.register("protection");
     }
 }
