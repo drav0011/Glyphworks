@@ -28,8 +28,9 @@ import com.hypixel.hytale.server.core.universe.world.World;
  * uses the <em>target</em> cell rather than the machine's own position.
  *
  * <p>
- * Lookups fail open: a world with no trigger-volume manager (the plugin is not
- * a declared dependency) imposes no restrictions.
+ * Lookups fail open: the trigger-volume plugin is only an optional dependency,
+ * so a world without a manager imposes no restrictions rather than blocking
+ * every machine.
  */
 public final class TriggerVolumeGuard {
 
@@ -39,9 +40,12 @@ public final class TriggerVolumeGuard {
     /**
      * Whether a block or fluid may be placed into {@code pos}.
      *
-     * @param blockId asset id of the block being placed, matched against each
-     *                rule's block exception list; {@code null} skips exception
-     *                matching and so is denied by any active rule
+     * @param blockId asset id of what is being placed, matched against each
+     *                rule's block exception list. Fluids are block assets in
+     *                their own right, so a fluid id is the correct value here
+     *                and matches exception entries the same way. {@code null}
+     *                skips exception matching and so is denied by any active
+     *                rule
      */
     public static boolean canBuild(@Nonnull World world, @Nonnull Vector3i pos, @Nullable String blockId) {
         return allowed(world, pos, NoBuildRule.class, blockId, NoBuildRule::isBlockExcepted);

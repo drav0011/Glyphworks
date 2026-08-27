@@ -100,12 +100,14 @@ public final class TriggerVolumeGuardTests {
         }
 
         // BoxShape bounds are local to the entry position, so centre the entry on
-        // the cell and give the box a one-block radius around it.
+        // the cell and size the box to that cell alone. Anything larger would also
+        // enclose the placer sitting directly above, and the test would then pass
+        // even if the guard wrongly consulted the machine's own position.
         VolumeEntry entry = new VolumeEntry(
                 VOLUME_ID,
                 world.getName(),
                 new Vector3d(x + 0.5d, y + 0.5d, z + 0.5d),
-                new BoxShape(new Vector3d(-1, -1, -1), new Vector3d(1, 1, 1)),
+                new BoxShape(new Vector3d(-0.5, -0.5, -0.5), new Vector3d(0.5, 0.5, 0.5)),
                 List.of(),
                 EnumSet.of(EntityTargetType.PLAYER),
                 true);
